@@ -1,13 +1,13 @@
 
 ## 🌴 작업한 브랜치
-- #이슈번호
 
+- Resolved: #이슈번호
 
 ## ✅ 작업한 내용
 <!-- 작업한 내용 적어주세요! -->
 
 <!--
-```
+```swift
 넣고싶은 코드가 있다면 적어주세요
 ```
 -->
@@ -25,9 +25,11 @@
 
 
 ## 📷 Screenshots  
-| 기능/화면 | iPhone SE | iPhone 13 mini | iPhone 15 Pro |
+| 기능/화면 | iPhone SE | iPhone 13 mini | iPhone 17 Pro |
 |:--------:|:---------:|:--------------:|:--------------:|
 | 기능 | <img src="" width="250"/> | <img src="" width="250"/> | <img src="" width="250"/> |
+
+
 
 ## 💬 To Reviewers  
 <!-- 리뷰어들에게 하고 싶은 말 -->
