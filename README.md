@@ -23,6 +23,14 @@
       <td align="center"><b>UIKit</b></td>
       <td align="left">안정적이고 풍부한 레퍼런스, 우수한 호환성, 예측 가능한 UI 레이아웃 작업</td>
     </tr>
+     <tr>
+      <td align="center"><b>MVVM</b></td>
+      <td align="left">UI, 비즈니스 로직 분리를 통해 화면 상태 변화를 명확하게 관리, 유지보수성 강화</td>
+    </tr>
+    <tr>
+      <td align="center"><b>Clean Architecture</b></td>
+      <td align="left">도메인 중심의 의존성 분리를 통해 변경에 강하고 확장 가능한 구조 구축</td>
+    </tr>
     <tr>
       <td align="center"><b>Moya</b></td>
       <td align="left">간결한 네트워크 요청과 구조화된 관리 방식으로 코드 가독성과 유지보수성 향상</td>
@@ -58,14 +66,6 @@
     <tr>
       <td align="center"><b>Swift Concurrency</b></td>
       <td align="left">명확하고 안전한 비동기 흐름 관리를 통해 복잡한 비동기 로직의 가독성과 유지보수성 향상</td>
-    </tr>
-    <tr>
-      <td align="center"><b>MVVM</b></td>
-      <td align="left">UI, 비즈니스 로직 분리를 통해 화면 상태 변화를 명확하게 관리, 유지보수성 강화</td>
-    </tr>
-    <tr>
-      <td align="center"><b>Clean Architecture</b></td>
-      <td align="left">도메인 중심의 의존성 분리를 통해 변경에 강하고 확장 가능한 구조 구축</td>
     </tr>
   </tbody>
 </table>
