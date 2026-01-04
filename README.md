@@ -1,4 +1,4 @@
-# poti 
+# <img width="65"  alt="image" src="https://github.com/user-attachments/assets/93b363a1-509e-4930-80c8-5a436bac6269" /> 포티
 > 복잡한 분철 과정을 한눈에 정리하고, 믿을 수 있는 거래로 자연스럽게 이어주는 플랫폼
 
 
