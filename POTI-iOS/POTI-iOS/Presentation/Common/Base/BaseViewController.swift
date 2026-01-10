@@ -18,6 +18,7 @@ class BaseViewController<VM>: UIViewController {
 
         PotiLogger.lifecycle("viewDidLoad 호출 - \(type(of: self))")
 
+        hideKeyboardWhenTappedAround()
         setUI()
         setLayout()
         addTarget()
