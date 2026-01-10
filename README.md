@@ -6,7 +6,7 @@
 | **[김나연](https://github.com/Yeonnies)** | **[김수민](https://github.com/gleamminn)** | **[박정환](https://github.com/Jhw9n)** | **[이서현](https://github.com/doitexactly)** |
 | :---: | :---: | :---: | :---: |
 | <img src="https://github.com/Yeonnies.png" width="170" alt=""> | <img src="https://github.com/gleamminn.png" width="170" alt=""> | <img src="https://github.com/Jhw9n.png" width="170" alt=""> | <img src="https://github.com/doitexactly.png" width="170" alt=""> |
-| `iOS Lead` | `iOS Developer` | `iOS Developer` | `iOS Developer` |
+| `iOS Lead Developer` | `iOS Developer` | `iOS Developer` | `iOS Developer` |
 
 
 ## 🛠️ Tech Stack & Library
@@ -32,7 +32,7 @@
       <td align="left">도메인 중심의 의존성 분리를 통해 변경에 강하고 확장 가능한 구조 구축</td>
     </tr>
     <tr>
-      <td align="center"><b>Moya</b></td>
+      <td align="center"><b>Alamofire</b></td>
       <td align="left">간결한 네트워크 요청과 구조화된 관리 방식으로 코드 가독성과 유지보수성 향상</td>
     </tr>
     <tr>
@@ -72,44 +72,47 @@
 
 ## 📁 Foldering
 ```
-📁 Project
+📁 Poti-iOS
 ├── 📁 Application
-│   ├── AppDelegate.swift
-│   ├── SceneDelegate.swift
-│   └── AppDIContainer.swift
+│   ├── 📝 AppDelegate.swift
+│   ├── 📝 SceneDelegate.swift
+│   └── 📝 AppDIContainer.swift
+│
+├── 📁 Core
+│   ├── 📝 PotiError.swift
+│   └── 📝 PotiLogger.swift
+│
+├── 📁 Data
+│   ├── 📁 Network
+│   │   └── 📁 Auth
+│   │       ├── 📁 DTO
+│   │       ├── 📝 AuthService.swift
+│   │       └── 📝 AuthAPI.swift
+│   │
+│   └── 📁 Repository
+│
+├── 📁 Domain
+│   ├── 📁 Entity
+│   ├── 📁 Interface
+│   └── 📁 UseCase
 │
 ├── 📁 Presentation
 │   ├── 📁 Splash
 │   ├── 📁 Onboarding
 │   ├── 📁 Home
-│   ├── 📁 GoodsDetail
-│   ├── 📁 Register
-│   ├── 📁 MyPage
-│   ├── 📁 HistoryDetail
-│   ├── 📁 Base
-│   │   ├── BaseViewController.swift
-│   │   └── BaseViewModel.swift
 │   │
 │   └── 📁 Common
-│       └── UIComponents
+│       ├── 📁 Base
+│       │   ├── 📝 BaseViewController.swift
+│       │   └── 📝 BaseViewModel.swift
+│       ├── 📁 Component
+│       ├── 📁 Extension
+│       └── 📁 Protocol
 │
-├── 📁 Domain
-│   ├── 📁 Entity
-│   ├── 📁 RepositoryInterface
-│   └── 📁 UseCase
-│
-├── 📁 Data
-│   ├── 📁 Network
-│   │   ├── EndPoint
-│   │   └── Service
-│   ├── 📁 Repository
-│   └── 📁 DTO
-│
-├── 📁 Global
-│   ├── 📁 Resource
+├── 📁 Resource
 │   │   ├── Assets.xcassets
-│   │   └── Fonts
-│   ├── 📁 Extension
+│   │   └── 📁 Fonts
+
 ```
 
 ## 📣 Convention
@@ -136,11 +139,11 @@
     </tr>
     <tr>
       <td align="center"><b>[chore]</b></td>
-      <td align="left">코드 수정, 내부 파일 수정, 애매한 것들이나 잡일은 이걸로!</td>
+      <td align="left">코드 수정, 내부 파일 수정 등 중요도가 낮은 기타 작업</td>
     </tr>
     <tr>
       <td align="center"><b>[add]</b></td>
-      <td align="left">라이브러리 추가, 에셋 추가</td>
+      <td align="left">라이브러리 또는 에셋 추가</td>
     </tr>
     <tr>
       <td align="center"><b>[del]</b></td>
@@ -152,11 +155,11 @@
     </tr>
     <tr>
       <td align="center"><b>[refactor]</b></td>
-      <td align="left">전면 수정이 있을 때 사용합니다.</td>
+      <td align="left">기존 코드 리팩토링 또는 구조 개선</td>
     </tr>
     <tr>
       <td align="center"><b>[setting]</b></td>
-      <td align="left">프로젝트 설정관련이 있을 때 사용합니다.</td>
+      <td align="left">프로젝트 관련 설정 변경</td>
     </tr>
     <tr>
       <td align="center"><b>[merge]</b></td>
