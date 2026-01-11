@@ -11,7 +11,7 @@ extension UIFont {
     enum FontType: String {
         case bold = "Pretendard-Bold"
         case medium = "Pretendard-Medium"
-        case semibold = "Pretendard-Semibold"
+        case semibold = "Pretendard-SemiBold"
         
         var name: String {
             return self.rawValue
