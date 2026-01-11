@@ -1,5 +1,5 @@
 //
-//  FontManager.swift
+//  PotiFontManager.swift
 //  POTI-iOS
 //
 //  Created by 박정환 on 1/11/26.
@@ -13,20 +13,23 @@ public struct FontProperty {
     let lineHeight: CGFloat
 }
 
-public enum FontManager {
+public enum PotiFontManager {
     case display20b
     case display18b
+    
     case title18sb
+    
     case body16sb
     case body16m
     case body14sb
     case body14m
+    
     case caption12m
     case caption10m
     case button16sb
     case button14sb
 
-    public var property: FontProperty {
+    public var fontProperty: FontProperty {
         switch self {
         case .display20b:
             return FontProperty(font: .bold, size: 20, lineHeight: 20 * 1.4)
@@ -54,8 +57,11 @@ public enum FontManager {
     }
 }
 
-public extension FontManager {
+public extension PotiFontManager {
     var font: UIFont {
-        UIFont.FontType.font(property.font, ofsize: property.size)
+        guard let font = UIFont(name: fontProperty.font.name, size: fontProperty.size) else {
+            return UIFont()
+        }
+        return font
     }
 }
