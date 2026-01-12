@@ -1,5 +1,5 @@
 //
-//  BottomLargeButton.swift
+//  PotiBottomButton.swift
 //  POTI-iOS
 //
 //  Created by neon on 1/13/26.
@@ -9,7 +9,7 @@ import UIKit
 
 import SnapKit
 
-public final class BottomLargeButton: UIButton, PotiButtonProtocol {
+public final class PotiBottomButton: UIButton, PotiButtonProtocol {
     
     public var color: ColorType = .primaryMain {
         didSet {
@@ -19,7 +19,15 @@ public final class BottomLargeButton: UIButton, PotiButtonProtocol {
     
     public var buttonSize: CGFloat = .dynamicH(52)
     
+    public var size: WidthSize = .large {
+        didSet {
+            widthConstraint?.update(offset: size.value)
+        }
+    }
+    
     private var heightConstraint: Constraint?
+    
+    private var widthConstraint: Constraint?
         
     public var cornerRadius: CGFloat = .dynamicH(26) {
         didSet {
@@ -70,6 +78,7 @@ public final class BottomLargeButton: UIButton, PotiButtonProtocol {
     private func setLayout() {
         self.snp.makeConstraints {
             heightConstraint = $0.height.equalTo(buttonSize).constraint
+            widthConstraint = $0.width.equalTo(size.value).constraint
         }
     }
     
@@ -85,14 +94,5 @@ public final class BottomLargeButton: UIButton, PotiButtonProtocol {
             .fromUIColor(color: color.pressedBackgroundColor),
             for: .highlighted
         )
-    }
-    
-    public override func didMoveToSuperview() {
-        super.didMoveToSuperview()
-        guard superview != nil else { return }
-
-        self.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(16)
-        }
     }
 }

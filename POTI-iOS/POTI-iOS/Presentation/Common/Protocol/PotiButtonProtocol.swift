@@ -11,6 +11,7 @@ public protocol PotiButtonProtocol {
     var isDisabled: Bool { get set }
     var text: String? { get set }
     var color: ColorType { get set }
+    var size: WidthSize { get set }
 }
 
 public enum ColorType {
@@ -68,6 +69,25 @@ extension ColorType {
             return .gray900
         case .deactivedSub:
             return .gray700
+        }
+    }
+}
+
+public enum WidthSize {
+    case large
+    case medium
+    case small
+}
+
+extension WidthSize {
+    var value: CGFloat {
+        switch self {
+        case .large:
+            return .dynamicH(343)
+        case .medium:
+            return .dynamicH(216)
+        case .small:
+            return .dynamicH(119)
         }
     }
 }
