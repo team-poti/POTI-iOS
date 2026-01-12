@@ -11,7 +11,11 @@ import SnapKit
 
 public final class BottomLargeButton: UIButton, PotiButtonProtocol {
     
-    public var color: ColorType = .primaryMain
+    public var color: ColorType = .primaryMain {
+        didSet {
+            updateColors()
+        }
+    }
     
     public var buttonSize: CGFloat = .dynamicH(52)
     
@@ -56,8 +60,8 @@ public final class BottomLargeButton: UIButton, PotiButtonProtocol {
         clipsToBounds = true
         titleLabel?.font = PotiFontManager.button16sb.font
         setTitle(text, for: .normal)
-        setTitleColor(color.titleColor, for: .normal)
         setLayout()
+        updateColors()
     }
     
     
@@ -66,19 +70,29 @@ public final class BottomLargeButton: UIButton, PotiButtonProtocol {
     private func setLayout() {
         self.snp.makeConstraints {
             heightConstraint = $0.height.equalTo(buttonSize).constraint
-            $0.width.equalToSuperview().inset(16)
         }
     }
     
-    public override var isHighlighted: Bool {
-        didSet {
-            guard !isDisabled else { return }
+    private func updateColors() {
+        setTitleColor(color.titleColor, for: .normal)
 
-            if isHighlighted {
-                backgroundColor = color.pressedBackgroundColor
-            } else {
-                backgroundColor = color.defaultBackgroundColor
-            }
+        setBackgroundImage(
+            .fromUIColor(color: color.defaultBackgroundColor),
+            for: .normal
+        )
+
+        setBackgroundImage(
+            .fromUIColor(color: color.pressedBackgroundColor),
+            for: .highlighted
+        )
+    }
+    
+    public override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        guard superview != nil else { return }
+
+        self.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
     }
 }
