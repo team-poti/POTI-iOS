@@ -17,9 +17,8 @@ final class FloatingButton: UIButton {
     
     // MARK: - Initializer
     
-    init() {
-        super.init(frame: .zero)
-        
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setStyle()
         setLayout()
         addTarget()
