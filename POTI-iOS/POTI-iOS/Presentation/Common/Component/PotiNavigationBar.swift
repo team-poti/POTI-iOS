@@ -48,10 +48,11 @@ struct PotiNavigationBar {
             ]
             
         case .mypage:
+            let rightSpacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
             navigationItem.leftBarButtonItem = makeMypageTitleLabel()
             navigationItem.rightBarButtonItems = [
-                makeIconButton(image: .icnSetting, action: .setting, target: target),
-                makeIconButton(image: .icnAlarm, action: .alarm, target: target)
+                makeIconButton(image: .icnAlarm, action: .alarm, target: target),
+                makeIconButton(image: .icnSetting, action: .setting, target: target)
             ]
             
         case .xButton:
@@ -77,8 +78,6 @@ struct PotiNavigationBar {
         appearance.shadowColor = .clear
         
         navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.prefersLargeTitles = false
-        navigationItem.largeTitleDisplayMode = .never
         
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.compactAppearance = appearance
@@ -138,6 +137,7 @@ extension PotiNavigationBar {
         let button = UIButton(type: .system)
         button.setTitle("마이", for: .normal)
         button.titleLabel?.font = PotiFontManager.title18sb.font
+        button.tintColor = .potiBlack
         button.isUserInteractionEnabled = false
         
         return UIBarButtonItem(customView: button)
@@ -148,9 +148,11 @@ extension PotiNavigationBar {
     private static func makeIconButton(image: UIImage?, action: PotiNavigationAction, target: (UIViewController & NavigationActionHandling)) -> UIBarButtonItem {
         
         let button = UIButton(type: .system)
-        button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+        let resizedImage = image?.resized(to: CGSize(width: 44, height: 44))
+        button.setImage(resizedImage?.withRenderingMode(.alwaysOriginal), for: .normal)
         button.tag = action.rawValue
         button.addTarget(target, action: #selector(BaseViewController<Any>.navigationButtonTapped(_:)), for: .touchUpInside)
+        button.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
         
         return UIBarButtonItem(customView: button)
     }
