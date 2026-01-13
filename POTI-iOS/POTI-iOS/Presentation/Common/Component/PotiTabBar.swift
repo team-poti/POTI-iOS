@@ -29,7 +29,6 @@ class PotiTabBar: UITabBarController {
         let barAppearance = UITabBarAppearance()
         barAppearance.configureWithOpaqueBackground()
         
-        /// 아이콘 기본 색상 설정
         barAppearance.stackedLayoutAppearance.normal.iconColor = .gray700
         
         self.tabBar.tintColor = .poti600
