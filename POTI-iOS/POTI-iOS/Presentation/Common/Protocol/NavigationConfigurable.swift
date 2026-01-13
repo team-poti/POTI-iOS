@@ -6,5 +6,5 @@
 //
 
 public protocol NavigationConfigurable {
-    func navigationStyle() -> PotiNavigationType
+    func navigationStyle() -> PotiNavigationStyle
 }
