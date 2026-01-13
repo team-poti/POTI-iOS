@@ -5,7 +5,7 @@
 //  Created by mandoo on 1/13/26.
 //
 
-struct BannerEntity {
+struct Banner {
     let id: Int
     let imageURL: String?
 }
