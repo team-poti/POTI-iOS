@@ -40,25 +40,25 @@ enum PotStatus {
         case .recruitCompleted:
             switch role {
             case .host:
-                return "입금을 기다리는 중이에요. 입금 확인을 기다리는 참여자가 있어요."
+                return "입금을 기다리는 중이에요. 입금 확인을 기다리는 참여자가 있어요"
             case .participant:
-                return "지금 입금해주세요! 모집자가 입금 내역을 확인하고 있어요."
+                return "지금 입금해주세요! 모집자가 입금 내역을 확인하고 있어요"
             }
             
         case .depositCompleted:
             switch role {
             case .host:
-                return "배송을 기다리는 참여자가 있어요."
+                return "배송을 기다리는 참여자가 있어요"
             case .participant:
-                return "모집자가 배송을 준비 중이에요."
+                return "모집자가 배송을 준비 중이에요"
             }
             
         case .shippingStarted:
             switch role {
             case .host:
-                return "배송을 시작했어요."
+                return "배송을 시작했어요"
             case .participant:
-                return "모집자가 배송을 시작했어요."
+                return "모집자가 배송을 시작했어요"
             }
             
         case .shippingCompleted:
