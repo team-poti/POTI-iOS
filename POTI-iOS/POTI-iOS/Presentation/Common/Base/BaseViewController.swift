@@ -15,6 +15,7 @@ class BaseViewController<VM>: UIViewController, NavigationActionHandling {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .potiWhite
 
         PotiLogger.lifecycle("viewDidLoad 호출 - \(type(of: self))")
 

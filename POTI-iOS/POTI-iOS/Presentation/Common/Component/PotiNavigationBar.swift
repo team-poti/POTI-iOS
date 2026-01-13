@@ -43,8 +43,8 @@ struct PotiNavigationBar {
         case .home:
             navigationItem.leftBarButtonItem = makeHomeLogoTitleView()
             navigationItem.rightBarButtonItems = [
-                makeIconButton(image: .icnSearch, action: .search, target: target),
-                makeIconButton(image: .icnAlarm, action: .alarm, target: target)
+                makeIconButton(image: .icnAlarm, action: .alarm, target: target),
+                makeIconButton(image: .icnSearch, action: .search, target: target)
             ]
             
         case .mypage:
@@ -76,7 +76,13 @@ struct PotiNavigationBar {
         appearance.backgroundColor = .potiWhite
         appearance.shadowColor = .clear
         
+        navigationController?.navigationBar.isTranslucent = false
+        navigationController?.navigationBar.prefersLargeTitles = false
+        navigationItem.largeTitleDisplayMode = .never
+        
         navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
 }
 
@@ -87,9 +93,9 @@ extension PotiNavigationBar {
     private static func makeHomeLogoTitleView() -> UIBarButtonItem {
         
         let button = UIButton(type: .system)
-        button.setImage(.logo, for: .normal)
+        button.setImage(.logo.withRenderingMode(.alwaysOriginal), for: .normal)
         button.isUserInteractionEnabled = false
-        
+        button.imageView?.contentMode = .scaleAspectFit
         return UIBarButtonItem(customView: button)
     }
     
