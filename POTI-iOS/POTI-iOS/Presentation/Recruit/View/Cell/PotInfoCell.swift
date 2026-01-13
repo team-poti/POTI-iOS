@@ -13,9 +13,15 @@ import Then
 
 final class PotInfoCell: UITableViewCell {
     
-    private let mockPotInfoModel: PotInfoModel = PotInfoModel(potId: 1110, thumbnail: "img-selected", artistName: "코르티스", potTitle: "코르티스 포티팟", status: .recruiting)
+    private let mockPotInfoModel: PotInfoModel = PotInfoModel(
+        potId: 1110,
+        thumbnail: "https://search.pstatic.net/common/?src=http%3A%2F%2Fimgnews.naver.net%2Fimage%2F311%2F2025%2F08%2F18%2F0001905912_001_20250818141307379.jpg&type=a340",
+        artistName: "코르티스",
+        potTitle: "코르티스 포티팟",
+        status: .recruiting
+    )
     
-    static let identifier = "PotInfoCell" // register 할 때 RecruitInfoCell.self 이런 식으로 가능하게
+    static let identifier = "PotInfoCell"
     
     var onTapPotButton: (() -> Void)? // TODO: - input output 패턴 넣기
     
@@ -29,9 +35,9 @@ final class PotInfoCell: UITableViewCell {
     private let potStatusLabel = UILabel()
     private let potButton = UIButton()
     
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        self.backgroundColor = .potiWhite
         
         setUI()
         setStyle()
@@ -43,9 +49,8 @@ final class PotInfoCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    /// UI 컴포넌트 속성 설정 (do 메서드)
     func setStyle() {
-        
+        contentView.layer.borderColor = UIColor.red.cgColor
         potIdLabel.do {
             $0.setLabel(
                 "모집 번호 poti-" + String(mockPotInfoModel.potId),
@@ -55,12 +60,11 @@ final class PotInfoCell: UITableViewCell {
         }
         
         thumbnailView.do {
-            $0.image = UIImage(named: mockPotInfoModel.thumbnail)
-            //            let url = URL(string: mockPotInfoModel.thumbnail)
-            //            $0.kf.setImage(
-            //                   with: url,
-            //                   placeholder: UIImage(named: "placeholder")
-            //               )
+            let url = URL(string: mockPotInfoModel.thumbnail)
+            $0.kf.setImage(
+                with: url,
+                placeholder: UIImage(named: "placeholder")
+            )
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = 8
@@ -93,10 +97,8 @@ final class PotInfoCell: UITableViewCell {
         potButton.do {
             $0.setImage(UIImage(resource: .icnArrowRightLg).withTintColor(.gray700), for: .normal)
         }
-        
     }
     
-    /// UI 위계 설정 (addSubview)
     func setUI() {
         contentView.addSubviews(
             potStatusLabel,
@@ -108,7 +110,6 @@ final class PotInfoCell: UITableViewCell {
         )
     }
     
-    /// 오토레이아웃 설정
     func setLayout() {
         
         potIdLabel.snp.makeConstraints {
@@ -146,7 +147,11 @@ final class PotInfoCell: UITableViewCell {
     }
     
     private func addTarget() {
-        potButton.addTarget(self, action: #selector(potButtonTapped(_:)), for: .touchUpInside)
+        potButton.addTarget(
+            self,
+            action: #selector(potButtonTapped(_:)),
+            for: .touchUpInside
+        )
     }
     
     // MARK: - action
