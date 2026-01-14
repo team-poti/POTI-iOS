@@ -116,17 +116,17 @@ extension HomeViewController: UICollectionViewDataSource {
         
         switch section {
         case .banner:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BannerCell", for: indexPath) as! BannerCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BannerCell.identifier, for: indexPath) as! BannerCell
             cell.configure(banner: viewModel.banners[indexPath.item])
             return cell
             
         case .myGroup:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GoodsCell", for: indexPath) as! GoodsCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GoodsCell.identifier, for: indexPath) as! GoodsCell
             cell.configure(goods: viewModel.myGroupGoods[indexPath.item])
             return cell
             
         case .otherGroup:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GoodsCell", for: indexPath) as! GoodsCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GoodsCell.identifier, for: indexPath) as! GoodsCell
             cell.configure(goods: viewModel.otherGroupGoods[indexPath.item])
             return cell
         }

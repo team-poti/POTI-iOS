@@ -21,7 +21,7 @@ final class HomeView: BaseView {
     
     lazy var homeCollectionView = UICollectionView(
         frame: .zero,
-        collectionViewLayout: HomeCompositionalLayoutFactory.createLayout(currentPageNumber: currentPageNumber)
+        collectionViewLayout: HomeLayoutFactory.createLayout(currentPageNumber: currentPageNumber)
     )
     private let floatingButton = FloatingButton()
     

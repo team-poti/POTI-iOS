@@ -13,6 +13,10 @@ import Then
 
 final class GoodsCell: UICollectionViewCell {
     
+    // MARK: - Property
+    
+    static let identifier = "GoodsCell"
+    
     // MARK: - UI Components
     
     private let backgroundGrayView = UIView()

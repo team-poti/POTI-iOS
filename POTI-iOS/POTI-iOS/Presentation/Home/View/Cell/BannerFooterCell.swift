@@ -15,6 +15,7 @@ final class BannerFooterCell: UICollectionReusableView {
     
     // MARK: - Properties
     
+    static let identifier = "BannerFooterCell"
     private let bannerPageIndicator = UIPageControl()
     
     // MARK: - Initializer
