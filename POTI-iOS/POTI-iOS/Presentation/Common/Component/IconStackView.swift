@@ -57,6 +57,7 @@ final class IconStackView: BaseView {
         titleLabel.do {
             $0.textColor = .gray800
             $0.font = PotiFontManager.body14m.font
+            $0.text = title
         }
         priceLabel.do {
             $0.text = "\(price.formattedWithComma)원"
@@ -93,7 +94,7 @@ final class IconStackView: BaseView {
         }
         
         priceLabel.snp.makeConstraints {
-            $0.top.equalToSuperview()
+            $0.centerY.equalTo(iconStackView)
             $0.trailing.equalToSuperview()
         }
     }
