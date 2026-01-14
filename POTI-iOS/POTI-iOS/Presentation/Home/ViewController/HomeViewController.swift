@@ -75,11 +75,11 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
                                   viewModel.$myGroupGoods,
                                   viewModel.$otherGroupGoods,
                                   viewModel.$nickName)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.rootView.homeCollectionView.reloadData()
-            }
-            .store(in: &cancellables)
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in
+            self?.rootView.homeCollectionView.reloadData()
+        }
+        .store(in: &cancellables)
         
         rootView.currentPageNumber
             .receive(on: DispatchQueue.main)
@@ -170,10 +170,10 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension HomeViewController: GoodsHeaderCellDelegate {
     func moreButtonDidTap(in section: Int) {
-        guard let sectionType = HomeSection(rawValue: section) else { return }
-        let currentNickName = viewModel?.nickName ?? ""
-        print("\(sectionType.getHeaderTitle(nickName: currentNickName) ?? "") 더보기 액션")
+        // TODO: - section 마다 다른 데이터 보여주기
+//        guard let sectionType = HomeSection(rawValue: section) else { return }
         
-        // MARK: - TODO 홈 더보기 뷰 연결하기
+        let goodsListViewController = GoodsListViewController()
+        self.navigationController?.pushViewController(goodsListViewController, animated: true)
     }
 }
