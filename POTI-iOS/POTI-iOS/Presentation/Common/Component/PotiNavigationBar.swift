@@ -54,10 +54,16 @@ struct PotiNavigationBar {
             ]
             
         case .mypage:
-            navigationItem.leftBarButtonItem = makeMypageTitleLabel()
+            navigationItem.leftBarButtonItems = [
+                makeFixedSpace(12),
+                makeMypageTitleLabel()
+            ]
+            
+            let settingButton = makeIconButtonView(image: .icnSetting, action: .setting, target: target)
+            let alarmButton = makeIconButtonView(image: .icnAlarm, action: .alarm, target: target)
+                
             navigationItem.rightBarButtonItems = [
-                makeIconButton(image: .icnAlarm, action: .alarm, target: target),
-                makeIconButton(image: .icnSetting, action: .setting, target: target)
+                makeButtonGroup(buttons: [settingButton, alarmButton], spacing: 0)
             ]
             
         case .xButton:
