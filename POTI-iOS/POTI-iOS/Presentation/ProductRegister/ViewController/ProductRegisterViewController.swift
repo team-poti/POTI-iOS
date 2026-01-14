@@ -11,32 +11,47 @@ import PhotosUI
 import SnapKit
 import Then
 
-final class ProductRegisterViewController: UIViewController {
-    // MARK: - State
+final class ProductRegisterViewController: BaseViewController<Void> {
+
+// MARK: - Properties
+
     private var selectedImages: [UIImage] = [] {
         didSet {
             imagePickerView.setImages(selectedImages)
         }
     }
 
-    // MARK: - Constants
+// MARK: - UI Components
+
     private let maxCount = 5
 
-    // MARK: - UI
     private let imagePickerView = ImagePickerView()
 
-    // MARK: - Lifecycle
+// MARK: - Life Cycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        imagePickerView.setImages(selectedImages)
+    }
 
+
+// MARK: - Custom Method
+
+    override func setUI() {
         view.addSubview(imagePickerView)
+    }
+
+    override func setLayout() {
         imagePickerView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(CGFloat.dynamicH(90))
+            $0.height.equalTo(90)
         }
+    }
 
+// MARK: - Action Method
+
+    override func addTarget() {
         imagePickerView.onTapAdd = { [weak self] in
             guard let self else { return }
             guard self.selectedImages.count < self.maxCount else { return }
@@ -48,15 +63,15 @@ final class ProductRegisterViewController: UIViewController {
             guard self.selectedImages.indices.contains(index) else { return }
             self.selectedImages.remove(at: index)
         }
-
-        imagePickerView.setImages(selectedImages)
     }
 
-    // MARK: - Private
+
+// MARK: - Custom Method
+
     private func presentPicker() {
         var config = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
         config.filter = .images
-        config.selectionLimit = max(0, maxCount - selectedImages.count) // 남은 개수만큼
+        config.selectionLimit = max(0, maxCount - selectedImages.count)
 
         let picker = PHPickerViewController(configuration: config)
         picker.delegate = self
@@ -64,7 +79,8 @@ final class ProductRegisterViewController: UIViewController {
     }
 }
 
-// MARK: - PHPickerViewControllerDelegate
+
+// MARK: - delegate Method
 
 extension ProductRegisterViewController: PHPickerViewControllerDelegate {
 
@@ -93,3 +109,5 @@ extension ProductRegisterViewController: PHPickerViewControllerDelegate {
         }
     }
 }
+
+// TODO: - ImagePickerViewModel 분리

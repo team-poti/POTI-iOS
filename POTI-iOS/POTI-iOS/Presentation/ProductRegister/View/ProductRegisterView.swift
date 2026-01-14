@@ -18,15 +18,11 @@ final class ProductRegisterView: BaseView {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
 
-    private let productInfoView = ProductInfoView()
-    private let memberView = MemberView()
-    private let shippingView = ShippingView()
-    private let noticeView = NoticeView()
+    private let productInfoView = RegisterInfoView()
+    private let memberView = RegisterMemberView()
+    private let shippingView = RegisterShippingView()
+    private let noticeView = RegisterNoticeView()
     private let submitButton = UIButton() //수정
-
-    override func setStyle() {
-        backgroundColor = .systemBackground
-    }
 
     override func setUI() {
         addSubviews(scrollView, submitButton)
@@ -42,7 +38,7 @@ final class ProductRegisterView: BaseView {
     }
 
     override func setLayout() {
-        // TODO: 레이아웃 짜기
+        // TODO: - 레이아웃 짜기
         /*
         scrollView.snp.makeConstraints {
 

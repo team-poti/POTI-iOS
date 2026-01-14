@@ -12,16 +12,18 @@ import Then
 
 final class AddCell: UICollectionViewCell {
     
-    // MARK: - Identifier
-    static let reuseId = "AddCell"
+    // MARK: - Properties
     
-    // MARK: - Callback
+    static let identifier = "AddCell"
+    
     var onTapUpload: (() -> Void)?
 
-    // MARK: - UI
+    // MARK: - UI Components
+    
     private let uploadButton = UIButton(type: .custom)
 
-    // MARK: - Initializer
+    // MARK: - Life Cycle
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setUI()
@@ -31,13 +33,13 @@ final class AddCell: UICollectionViewCell {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    // MARK: - Setup UI
+    // MARK: - Custom Method
+    
     private func setUI() {
         contentView.addSubview(uploadButton)
         uploadButton.addTarget(self, action: #selector(didTapUpload), for: .touchUpInside)
     }
 
-    // MARK: - Layout
     private func setLayout() {
         uploadButton.snp.makeConstraints {
             $0.center.equalToSuperview()
@@ -45,7 +47,6 @@ final class AddCell: UICollectionViewCell {
         }
     }
 
-    // MARK: - Style
     private func setStyle() {
         uploadButton.do {
             $0.setImage(
@@ -57,12 +58,12 @@ final class AddCell: UICollectionViewCell {
         }
     }
 
-    // MARK: - Action
+    // MARK: - Action Method
+    
     @objc private func didTapUpload() {
         onTapUpload?()
     }
-
-    // MARK: - Reuse
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         onTapUpload = nil

@@ -1,5 +1,5 @@
 //
-//  ProductInfoView.swift
+//  RegisterInfoView.swift
 //  POTI-iOS
 //
 //  Created by 박정환 on 1/14/26.
@@ -10,20 +10,21 @@ import UIKit
 import SnapKit
 import Then
 
-final class ProductInfoView: BaseView {
-
-    // MARK: - Output
+final class RegisterInfoView: BaseView {
+    
+    // MARK: - Properties
 
     var onTapAddImage: (() -> Void)?
     var onTapDeleteImage: ((Int) -> Void)?
 
-    // MARK: - UI
+
+    // MARK: - UI Properties
 
     private let imagePickerView = ImagePickerView()
 
     private let titleLabel = UILabel()
 
-    // MARK: - Override
+    // MARK: - UI Setting
 
     override func setStyle() {
         backgroundColor = .clear
@@ -42,14 +43,14 @@ final class ProductInfoView: BaseView {
             self?.onTapDeleteImage?(index)
         }
 
-        // TODO: imageCollectionView
+        // TODO: - imageCollectionView
     }
 
     override func setUI() {
         addSubview(titleLabel)
         addSubview(imagePickerView)
 
-        // TODO: 아래 필드들은 다음 단계에서 하나씩 추가
+        // TODO: - 아래 필드들은 다음 단계에서 하나씩 추가
     }
 
     override func setLayout() {
@@ -66,13 +67,9 @@ final class ProductInfoView: BaseView {
         }
     }
 
-    // MARK: - Public
+    // MARK: - Functions
 
     func setImages(_ images: [UIImage]) {
         imagePickerView.setImages(images)
     }
-}
-
-#Preview {
-    ProductInfoView()
 }

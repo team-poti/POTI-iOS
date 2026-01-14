@@ -11,16 +11,16 @@ import SnapKit
 import Then
 
 final class ImagePickerView: BaseView {
-    // MARK: - Output
+    
+    // MARK: - Properties
+
     var onTapAdd: (() -> Void)?
     var onTapDelete: ((Int) -> Void)?
 
-    // MARK: - State
     private var images: [UIImage] = []
-
     private let maxImageCount = 5
 
-    // MARK: - UI
+    // MARK: - UI Components
 
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -35,20 +35,16 @@ final class ImagePickerView: BaseView {
         return cv
     }()
 
-    // MARK: - Override
-
-    override func setStyle() {
-        backgroundColor = .clear
-    }
-
+    // MARK: - Custom Method
+    
     override func setUI() {
         addSubview(collectionView)
 
         collectionView.dataSource = self
         collectionView.delegate = self
 
-        collectionView.register(AddCell.self, forCellWithReuseIdentifier: AddCell.reuseId)
-        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: ImageCell.reuseId)
+        collectionView.register(AddCell.self, forCellWithReuseIdentifier: AddCell.identifier)
+        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: ImageCell.identifier)
     }
 
     override func setLayout() {
@@ -57,22 +53,25 @@ final class ImagePickerView: BaseView {
         }
     }
 
-    // MARK: - Public
+    // MARK: - Custom Method
+
     func setImages(_ images: [UIImage]) {
         self.images = images
         collectionView.reloadData()
     }
 }
 
+ // MARK: - delegate Method
+
 extension ImagePickerView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    // MARK: - DataSource & Delegate
+   
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return images.count < maxImageCount ? (1 + images.count) : images.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if images.count < maxImageCount, indexPath.item == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AddCell.reuseId, for: indexPath) as! AddCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AddCell.identifier, for: indexPath) as! AddCell
             cell.onTapUpload = { [weak self] in
                 self?.onTapAdd?()
             }
@@ -80,7 +79,7 @@ extension ImagePickerView: UICollectionViewDataSource, UICollectionViewDelegateF
         }
 
         let imageIndex = images.count < maxImageCount ? indexPath.item - 1 : indexPath.item
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageCell.reuseId, for: indexPath) as! ImageCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageCell.identifier, for: indexPath) as! ImageCell
         cell.configure(image: images[imageIndex])
         cell.onTapDelete = { [weak self] in
             self?.onTapDelete?(imageIndex)
@@ -99,8 +98,4 @@ extension ImagePickerView: UICollectionViewDataSource, UICollectionViewDelegateF
     ) -> CGSize {
         return CGSize(width: 90, height: 90)
     }
-}
-
-#Preview() {
-    ImagePickerView()
 }
