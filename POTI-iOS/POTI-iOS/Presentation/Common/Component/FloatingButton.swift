@@ -30,8 +30,6 @@ final class FloatingButton: UIButton {
     // MARK: - Custom Methods
     
     private func setStyle() {
-        backgroundColor = .clear
-        
         self.setImage(.btnFloatingDefault, for: .normal)
         self.setImage(.btnFloatingPressed, for: .highlighted)
     }
