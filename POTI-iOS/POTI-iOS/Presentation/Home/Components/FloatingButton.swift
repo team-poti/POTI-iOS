@@ -20,7 +20,6 @@ final class FloatingButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setStyle()
-        setLayout()
         addTarget()
     }
     
@@ -31,14 +30,10 @@ final class FloatingButton: UIButton {
     // MARK: - Custom Methods
     
     private func setStyle() {
+        backgroundColor = .clear
+        
         self.setImage(.btnFloatingDefault, for: .normal)
         self.setImage(.btnFloatingPressed, for: .highlighted)
-    }
-    
-    private func setLayout() {
-        self.snp.makeConstraints {
-            $0.size.equalTo(56)
-        }
     }
     
     private func addTarget() {
