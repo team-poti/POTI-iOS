@@ -20,6 +20,8 @@ final class ProgressStatusViewCell: UITableViewCell {
     
     static let identifier = "ProgressViewCell"
     
+    // MARK: - Lifecycle
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.backgroundColor = .potiWhite
@@ -34,14 +36,16 @@ final class ProgressStatusViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Component
+    // MARK: - UI Component
     
     private let progressTitleLabel = UILabel()
     private let potStatusMessageView = StatusMessageView()
     private let progressStatusBar = UIImageView()
     private let divideView = UIView()
 
-    func setStyle() {
+    // MARK: - Custom Method
+    
+    private func setStyle() {
         progressTitleLabel.do {
             $0.setLabel("진행 상황", font: .body16sb)
             $0.textColor = .potiBlack
@@ -57,7 +61,7 @@ final class ProgressStatusViewCell: UITableViewCell {
         }
     }
     
-    func setUI() {
+    private func setUI() {
         contentView.addSubviews(
             progressTitleLabel,
             potStatusMessageView,
@@ -66,7 +70,7 @@ final class ProgressStatusViewCell: UITableViewCell {
         )
     }
     
-    func setLayout() {
+    private func setLayout() {
         progressTitleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(20)
             $0.leading.equalToSuperview().inset(16)
@@ -88,8 +92,6 @@ final class ProgressStatusViewCell: UITableViewCell {
             $0.bottom.equalToSuperview()
         }
     }
-    
-    // MARK: - Custom Method
     
     func configure(model: ProgressStatusModel) {
         

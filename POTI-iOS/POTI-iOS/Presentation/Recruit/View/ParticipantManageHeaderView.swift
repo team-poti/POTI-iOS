@@ -12,6 +12,8 @@ import Then
 
 final class ParticipantManageHeaderView: BaseView {
     
+    // MARK: - Lifecycle
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         addTarget()
@@ -21,10 +23,14 @@ final class ParticipantManageHeaderView: BaseView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    //MARK: - UI Component
+
     private let titleLabel = UILabel()
     private let participantHeaderButton = UIButton()
     
     var onTapHeaderButton: (() -> Void)?
+    
+    // MARK: - Custom Method
     
     override func setStyle() {
         titleLabel.do {

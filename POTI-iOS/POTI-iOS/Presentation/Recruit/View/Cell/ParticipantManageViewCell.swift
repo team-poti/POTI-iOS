@@ -25,6 +25,8 @@ final class ParticipantManageViewCell: UITableViewCell {
     
     static let identifier = "ParticipantManageViewCell"
     
+    // MARK: - Lifecycle
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.backgroundColor = .potiWhite
@@ -50,7 +52,9 @@ final class ParticipantManageViewCell: UITableViewCell {
     private let totalPriceLabel = UILabel()
     private let depositStateLabel = UILabel()
 
-    func setStyle() {
+    // MARK: - Custom Method
+    
+    private func setStyle() {
         membersLabel.do {
             $0.setLabel(mockParticipantModel.memberNamesText.joined(separator: ", "), font: .body16m)
             $0.textColor = .potiBlack
@@ -108,7 +112,7 @@ final class ParticipantManageViewCell: UITableViewCell {
         
     }
     
-    func setUI() {
+    private func setUI() {
         shippingStackView.addArrangedSubviews(
             deliveryIconView,
             shippingLabel
@@ -128,7 +132,7 @@ final class ParticipantManageViewCell: UITableViewCell {
         )
     }
     
-    func setLayout() {
+    private func setLayout() {
         membersLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(16)
             $0.leading.equalToSuperview().inset(16)

@@ -12,6 +12,8 @@ import Then
 
 final class StatusMessageView: BaseView {
     
+    // MARK: - Lifecycle
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
