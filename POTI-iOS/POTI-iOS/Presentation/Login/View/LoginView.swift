@@ -12,8 +12,8 @@ import Then
 
 final class LoginView: BaseView {
     private let logo = UIImageView()
-    private let kakaoLoginButton = UIButton()
-    private let appleLoginButton = UIButton()
+    let kakaoLoginButton = UIButton()
+    let appleLoginButton = UIButton()
     
     private lazy var buttonStack = UIStackView()
     
