@@ -14,31 +14,17 @@ final class BannerCell: UICollectionViewCell {
     
     // MARK: - UI Components
     
-    private var bannerImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.layer.cornerRadius = 12
-        $0.clipsToBounds = true
-    }
+    private var bannerImageView = UIImageView()
+    private var shadowImageView = UIImageView()
+    private var shadowLayerView = UIView()
     
-    private var shadowImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.layer.cornerRadius = 12
-        $0.clipsToBounds = true
-        
-        let angle = CGFloat(-4.26 * Double.pi / 180)
-        $0.transform = CGAffineTransform(rotationAngle: angle)
-    }
-    
-    private var shadowLayerView = UIView().then {
-        $0.backgroundColor = .black.withAlphaComponent(0.2)
-    }
-    
-    // MARK: - Life Cycle
+    // MARK: - Initializer
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         setStyle()
+        setUI()
         setLayout()
     }
     
@@ -48,18 +34,41 @@ final class BannerCell: UICollectionViewCell {
     
     // MARK: - Custom Methods
     
-    func setStyle() {
+    private func setStyle() {
+        bannerImageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.layer.cornerRadius = 12
+            $0.clipsToBounds = true
+        }
+        
+        shadowImageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.layer.cornerRadius = 12
+            $0.clipsToBounds = true
+            
+            let angle = CGFloat(-4.26 * Double.pi / 180)
+            $0.transform = CGAffineTransform(rotationAngle: angle)
+        }
+        
+        shadowLayerView.do {
+            $0.backgroundColor = .black.withAlphaComponent(0.2)
+        }
+    }
+    
+    private func setUI() {
         contentView.addSubviews(shadowImageView, bannerImageView)
         shadowImageView.addSubview(shadowLayerView)
     }
     
-    func setLayout() {
+    private func setLayout() {
         shadowImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(22)
+            $0.height.equalTo(196)
         }
         
         bannerImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(22)
+            $0.height.equalTo(196)
         }
         
         shadowLayerView.snp.makeConstraints {
@@ -71,8 +80,8 @@ final class BannerCell: UICollectionViewCell {
 // MARK: - Extension
 
 extension BannerCell {
-    func configure(with entity: BannerEntity) {
-        bannerImageView.kf.setImage(with: URL(string: entity.imageURL ?? ""))
-        shadowImageView.kf.setImage(with: URL(string: entity.imageURL ?? ""))
+    func configure(banner: Banner) {
+        bannerImageView.kf.setImage(with: URL(string: banner.imageURL ?? ""))
+        shadowImageView.kf.setImage(with: URL(string: banner.imageURL ?? ""))
     }
 }
