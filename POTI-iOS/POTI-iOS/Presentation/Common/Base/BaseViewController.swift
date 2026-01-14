@@ -10,6 +10,8 @@ import UIKit
 class BaseViewController<VM>: UIViewController, NavigationActionHandling {
     
     private(set) var viewModel: VM?
+    
+    private var didSetupLayout = false
 
     // MARK: - Lifecycle
 
@@ -21,9 +23,16 @@ class BaseViewController<VM>: UIViewController, NavigationActionHandling {
 
         hideKeyboardWhenTappedAround()
         setUI()
-        setLayout()
         addTarget()
         setDelegate()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !didSetupLayout {
+            setLayout()
+            didSetupLayout = true
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {

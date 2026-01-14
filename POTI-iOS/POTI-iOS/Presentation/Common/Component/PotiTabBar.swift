@@ -16,11 +16,11 @@ class PotiTabBar: UITabBarController {
     }
     
     func setTabBar() {
-        let vc1 = UINavigationController(rootViewController: LoginViewController())
+        let vc1 = PotiNavigationController(rootViewController: LoginViewController())
         vc1.tabBarItem = UITabBarItem(title: "홈", image: .icnHome, tag: 1)
-        let vc2 = UINavigationController(rootViewController: LoginViewController())
+        let vc2 = PotiNavigationController(rootViewController: LoginViewController())
         vc2.tabBarItem = UITabBarItem(title: "분철 내역", image: .icnHistory, tag: 2)
-        let vc3 = UINavigationController(rootViewController: LoginViewController())
+        let vc3 = PotiNavigationController(rootViewController: LoginViewController())
         vc3.tabBarItem = UITabBarItem(title: "마이페이지", image: .icnMypage, tag: 3)
         self.viewControllers = [vc1, vc2, vc3]
     }

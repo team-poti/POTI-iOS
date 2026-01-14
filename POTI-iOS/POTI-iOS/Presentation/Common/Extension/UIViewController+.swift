@@ -19,4 +19,10 @@ extension UIViewController {
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
+    
+    var totalNavigationBarHeight: CGFloat {
+        let navigationBarHeight = navigationController?.navigationBar.frame.size.height ?? 0
+        let statusBarHeight = view.window?.windowScene?.statusBarManager?.statusBarFrame.size.height ?? 0
+        return navigationBarHeight + statusBarHeight
+    }
 }
