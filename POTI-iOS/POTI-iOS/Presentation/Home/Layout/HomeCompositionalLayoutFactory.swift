@@ -1,5 +1,5 @@
 //
-//  HomeCompositionalLayoutFactory.swift
+//  HomeLayoutFactory.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/14/26.
@@ -9,7 +9,7 @@ import UIKit
 
 import Combine
 
-struct HomeCompositionalLayoutFactory {
+struct HomeLayoutFactory {
     static func createLayout(currentPageNumber: PassthroughSubject<Int, Never>) -> UICollectionViewCompositionalLayout {
         return UICollectionViewCompositionalLayout { (sectionNumber, env) -> NSCollectionLayoutSection? in
             guard let sectionType = HomeSection(rawValue: sectionNumber) else { return nil }
@@ -26,7 +26,7 @@ struct HomeCompositionalLayoutFactory {
     }
 }
 
-private extension HomeCompositionalLayoutFactory {
+private extension HomeLayoutFactory {
     static func createBannerSection(currentPageNumber: PassthroughSubject<Int, Never>) -> NSCollectionLayoutSection {
         let item = NSCollectionLayoutItem(
             layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
