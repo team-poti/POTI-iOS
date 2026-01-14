@@ -16,7 +16,7 @@ class PotiTabBar: UITabBarController {
     }
     
     func setTabBar() {
-        let vc1 = PotiNavigationController(rootViewController: LoginViewController())
+        let vc1 = UINavigationController(rootViewController: HomeViewController())
         vc1.tabBarItem = UITabBarItem(title: "홈", image: .icnHome, tag: 1)
         let vc2 = PotiNavigationController(rootViewController: LoginViewController())
         vc2.tabBarItem = UITabBarItem(title: "분철 내역", image: .icnHistory, tag: 2)
@@ -29,7 +29,6 @@ class PotiTabBar: UITabBarController {
         let barAppearance = UITabBarAppearance()
         barAppearance.configureWithOpaqueBackground()
         
-        /// 아이콘 기본 색상 설정
         barAppearance.stackedLayoutAppearance.normal.iconColor = .gray700
         
         self.tabBar.tintColor = .poti600
