@@ -12,7 +12,7 @@ import Combine
 class BaseViewController<VM: BaseViewModelType>: UIViewController {
     
     public var cancellables = Set<AnyCancellable>()
-    private(set) var viewModel: VM?
+    private(set) var viewModel: VM
     
     public init(viewModel: VM) {
         self.viewModel = viewModel

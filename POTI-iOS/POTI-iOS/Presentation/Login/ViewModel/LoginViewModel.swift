@@ -11,8 +11,8 @@ final class LoginViewModel: BaseViewModelType {
     
     // MARK: - Input
     
-    enum Input {
-        case didTapKakaoLogin
+    struct Input {
+        let kakaoLoginTap: AnyPublisher<Void, Never>
     }
 
     // MARK: - Output
@@ -29,6 +29,7 @@ final class LoginViewModel: BaseViewModelType {
     
     private let loginSuccessSubject = PassthroughSubject<Void, Never>()
     private let loginFailureSubject = PassthroughSubject<Void, Never>()
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         loginUseCase: LoginUseCase,
@@ -39,17 +40,18 @@ final class LoginViewModel: BaseViewModelType {
     }
     
     func transform(input: Input) -> Output {
-        switch input {
-        case .didTapKakaoLogin:
-            kakaoLogin()
-        }
+        input.kakaoLoginTap
+            .sink { [weak self] in
+                self?.kakaoLogin()
+            }
+            .store(in: &cancellables)
         
-        return Output (
+        return Output(
             loginSuccess: loginSuccessSubject.eraseToAnyPublisher(),
             loginFailure: loginFailureSubject.eraseToAnyPublisher()
         )
     }
-
+    
     private func kakaoLogin() {
         Task {
             do {

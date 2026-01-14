@@ -7,12 +7,14 @@
 
 import UIKit
 
+import Combine
 import SnapKit
 import Then
 
 final class LoginViewController: BaseViewController<LoginViewModel> {
     
     private let loginView = LoginView()
+    private let kakaoTap = PassthroughSubject<Void, Never>()
 
     override func setUI() {
         view.addSubview(loginView)
@@ -29,18 +31,21 @@ final class LoginViewController: BaseViewController<LoginViewModel> {
     }
     
     override func bindViewModel() {
-        guard let viewModel else { return }
-        let output = viewModel.transform(input: .didTapKakaoLogin)
+        let input = LoginViewModel.Input(
+            kakaoLoginTap: kakaoTap.eraseToAnyPublisher()
+        )
+        
+        let output = viewModel.transform(input: input)
+        
         output.loginSuccess
-            .sink { [weak self] in
-                // TODO: 홈 화면 전환
-                PotiLogger.debug("로그인 성공")
+            .sink {
+                print("로그인 성공")
             }
             .store(in: &cancellables)
         
         output.loginFailure
             .sink {
-                PotiLogger.debug("로그인 실패")
+                print("로그인 실패")
             }
             .store(in: &cancellables)
     }
@@ -48,7 +53,6 @@ final class LoginViewController: BaseViewController<LoginViewModel> {
 
 extension LoginViewController {
     @objc private func kakaoLoginButtonTapped() {
-        guard let viewModel else { return }
-        _ = viewModel.transform(input: .didTapKakaoLogin)
+        kakaoTap.send(())
     }
 }
