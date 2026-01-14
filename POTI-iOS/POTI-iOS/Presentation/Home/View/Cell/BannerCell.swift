@@ -12,10 +12,6 @@ import Then
 
 final class BannerCell: UICollectionViewCell {
     
-    // MARK: - Property
-    
-    static let identifier = "BannerCell"
-    
     // MARK: - UI Components
     
     private var bannerImageView = UIImageView()

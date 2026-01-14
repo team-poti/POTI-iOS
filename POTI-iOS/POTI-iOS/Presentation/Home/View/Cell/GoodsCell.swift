@@ -13,10 +13,6 @@ import Then
 
 final class GoodsCell: UICollectionViewCell {
     
-    // MARK: - Property
-    
-    static let identifier = "GoodsCell"
-    
     // MARK: - UI Components
     
     private let backgroundGrayView = UIView()
@@ -71,7 +67,11 @@ final class GoodsCell: UICollectionViewCell {
     
     private func setUI() {
         contentView.addSubview(backgroundGrayView)
-        backgroundGrayView.addSubviews(imageView, popularTagView, artistNameLabel, productNameLabel, potTagView)
+        backgroundGrayView.addSubviews(imageView,
+                                       popularTagView,
+                                       artistNameLabel,
+                                       productNameLabel,
+                                       potTagView)
     }
     
     private func setLayout() {

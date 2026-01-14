@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 import Combine
 
 enum HomeSection: Int, CaseIterable {
@@ -70,7 +71,10 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     override func bind(viewModel: HomeViewModel) {
         super.bind(viewModel: viewModel)
         
-        Publishers.CombineLatest4(viewModel.$banners, viewModel.$myGroupGoods, viewModel.$otherGroupGoods, viewModel.$nickName)
+        Publishers.CombineLatest4(viewModel.$banners,
+                                  viewModel.$myGroupGoods,
+                                  viewModel.$otherGroupGoods,
+                                  viewModel.$nickName)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.rootView.homeCollectionView.reloadData()
@@ -137,7 +141,7 @@ extension HomeViewController: UICollectionViewDataSource {
         
         switch kind {
         case UICollectionView.elementKindSectionHeader:
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "GoodsHeaderCell", for: indexPath) as! GoodsHeaderCell
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: GoodsHeaderCell.identifier, for: indexPath) as! GoodsHeaderCell
             let nickName = viewModel?.nickName ?? "알 수 없음"
             header.configure(text: section.getHeaderTitle(nickName: nickName), section: indexPath.section)
             header.delegate = self
@@ -145,7 +149,7 @@ extension HomeViewController: UICollectionViewDataSource {
             
         case UICollectionView.elementKindSectionFooter:
             if section == .banner {
-                let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "BannerFooterCell", for: indexPath) as! BannerFooterCell
+                let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: BannerFooterCell.identifier, for: indexPath) as! BannerFooterCell
                 return footer
             }
             return UICollectionReusableView()

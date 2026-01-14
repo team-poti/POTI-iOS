@@ -36,19 +36,11 @@ final class HomeView: BaseView {
             $0.isScrollEnabled = true
             $0.showsVerticalScrollIndicator = false
             
-            $0.register(BannerCell.self, forCellWithReuseIdentifier: "BannerCell")
-            $0.register(GoodsCell.self, forCellWithReuseIdentifier: "GoodsCell")
+            $0.register(BannerCell.self)
+            $0.register(GoodsCell.self)
             
-            $0.register(
-                BannerFooterCell.self,
-                forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
-                withReuseIdentifier: "BannerFooterCell"
-            )
-            $0.register(
-                GoodsHeaderCell.self,
-                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                withReuseIdentifier: "GoodsHeaderCell"
-            )
+            $0.registerFooter(BannerFooterCell.self)
+            $0.registerHeader(GoodsHeaderCell.self)
         }
     }
     

@@ -19,7 +19,6 @@ final class GoodsHeaderCell: UICollectionReusableView {
     
     // MARK: - Properties
     
-    static let identifier = "GoodsHeaderCell"
     weak var delegate: GoodsHeaderCellDelegate?
     private var sectionIndex: Int = 0
     
