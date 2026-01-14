@@ -16,7 +16,7 @@ class PotiTabBar: UITabBarController {
     }
     
     func setTabBar() {
-        let vc1 = UINavigationController(rootViewController: ExampleViewController())
+        let vc1 = UINavigationController(rootViewController: HomeViewController())
         vc1.tabBarItem = UITabBarItem(title: "홈", image: .icnHome, tag: 1)
         let vc2 = UINavigationController(rootViewController: ExampleViewController())
         vc2.tabBarItem = UITabBarItem(title: "분철 내역", image: .icnHistory, tag: 2)
@@ -28,6 +28,9 @@ class PotiTabBar: UITabBarController {
     func appearance() {
         let barAppearance = UITabBarAppearance()
         barAppearance.configureWithOpaqueBackground()
+        
+        barAppearance.shadowColor = .clear
+        barAppearance.shadowImage = UIImage()
         
         barAppearance.stackedLayoutAppearance.normal.iconColor = .gray700
         
@@ -54,7 +57,7 @@ class PotiTabBar: UITabBarController {
         
         self.tabBar.layer.cornerRadius = 20
         self.tabBar.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        self.tabBar.layer.masksToBounds = false
+        self.tabBar.layer.masksToBounds = true
     }
     
     override func viewDidLayoutSubviews() {

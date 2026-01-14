@@ -9,10 +9,11 @@ import UIKit
 
 import Combine
 
-class BaseViewController<VM: BaseViewModelType>: UIViewController {
+class BaseViewController<VM: BaseViewModelType>: UIViewController, NavigationActionHandling {
     
-    public var cancellables = Set<AnyCancellable>()
     private(set) var viewModel: VM
+    public var cancellables = Set<AnyCancellable>()
+    private var didSetupLayout = false
     
     public init(viewModel: VM) {
         self.viewModel = viewModel
@@ -28,21 +29,33 @@ class BaseViewController<VM: BaseViewModelType>: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .potiWhite
 
         PotiLogger.lifecycle("viewDidLoad 호출 - \(type(of: self))")
         
         view.backgroundColor = .potiWhite
         hideKeyboardWhenTappedAround()
         setUI()
-        setLayout()
         addTarget()
         setDelegate()
         bindViewModel()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !didSetupLayout {
+            setLayout()
+            didSetupLayout = true
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         PotiLogger.lifecycle("viewWillAppear 호출 - \(type(of: self))")
+        
+        guard let configurable = self as? NavigationConfigurable else { return }
+
+        PotiNavigationBar.configure(navigationItem: navigationItem, navigationController: navigationController, style: configurable.navigationStyle(), target: self)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -76,4 +89,36 @@ class BaseViewController<VM: BaseViewModelType>: UIViewController {
     
     /// 뷰모델 바인딩
     open func bindViewModel() {}
+    
+    // MARK: - Navigation Setting
+    
+    @objc func navigationButtonTapped(_ sender: UIButton) {
+        guard let action = PotiNavigationAction(rawValue: sender.tag) else { return }
+
+        switch action {
+        case .back, .xButton:
+            if self.navigationController == nil {
+                self.dismiss(animated: true)
+            } else {
+                self.navigationController?.popViewController(animated: true)
+            }
+            
+        case .search:
+            searchButtonTapped()
+            
+        case .alarm:
+            alarmButtonTapped()
+            
+        case .setting:
+            settingButtonTapped()
+            
+        case .change:
+            changeButtonTapped()
+        }
+    }
+
+    @objc open func searchButtonTapped() {}
+    @objc open func alarmButtonTapped() {}
+    @objc open func settingButtonTapped() {}
+    @objc open func changeButtonTapped() {}
 }
