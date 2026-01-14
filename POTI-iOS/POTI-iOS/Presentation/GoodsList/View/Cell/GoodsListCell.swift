@@ -39,30 +39,30 @@ final class GoodsListCell: UICollectionViewCell {
     // MARK: - Custom Methods
     
     private func setStyle() {
-            backgroundGrayView.do {
-                $0.backgroundColor = .gray100
-                $0.clipsToBounds = true
-                $0.layer.cornerRadius = 20
-                $0.layer.borderColor = UIColor.gray300.cgColor
-                $0.layer.borderWidth = 1
-            }
+        backgroundGrayView.do {
+            $0.backgroundColor = .gray100
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 20
+            $0.layer.borderColor = UIColor.gray300.cgColor
+            $0.layer.borderWidth = 1
+        }
         
-            imageView.do {
-                $0.contentMode = .scaleAspectFill
-                $0.clipsToBounds = true
-                $0.layer.cornerRadius = 20
-                $0.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-            }
+        imageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 20
+            $0.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        }
         
-            artistNameLabel.do {
-                $0.font = PotiFontManager.body14m.font
-                $0.textColor = .gray800
-            }
+        artistNameLabel.do {
+            $0.font = PotiFontManager.body14m.font
+            $0.textColor = .gray800
+        }
         
-            productNameLabel.do {
-                $0.font = PotiFontManager.body16m.font
-                $0.textColor = .potiBlack
-            }
+        productNameLabel.do {
+            $0.font = PotiFontManager.body16m.font
+            $0.textColor = .potiBlack
+        }
     }
     
     private func setUI() {
