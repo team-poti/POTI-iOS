@@ -16,7 +16,7 @@ class PotiTabBar: UITabBarController {
     }
     
     func setTabBar() {
-        let vc1 = UINavigationController(rootViewController: LoginViewController())
+        let vc1 = UINavigationController(rootViewController: HomeViewController())
         vc1.tabBarItem = UITabBarItem(title: "홈", image: .icnHome, tag: 1)
         let vc2 = UINavigationController(rootViewController: LoginViewController())
         vc2.tabBarItem = UITabBarItem(title: "분철 내역", image: .icnHistory, tag: 2)
