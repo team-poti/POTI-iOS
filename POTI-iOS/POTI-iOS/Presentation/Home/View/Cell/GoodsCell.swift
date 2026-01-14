@@ -67,7 +67,11 @@ final class GoodsCell: UICollectionViewCell {
     
     private func setUI() {
         contentView.addSubview(backgroundGrayView)
-        backgroundGrayView.addSubviews(imageView, popularTagView, artistNameLabel, productNameLabel, potTagView)
+        backgroundGrayView.addSubviews(imageView,
+                                       popularTagView,
+                                       artistNameLabel,
+                                       productNameLabel,
+                                       potTagView)
     }
     
     private func setLayout() {

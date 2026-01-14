@@ -13,7 +13,7 @@ import Then
 
 final class BannerFooterCell: UICollectionReusableView {
     
-    // MARK: - Properties
+    // MARK: - Property
     
     private let bannerPageIndicator = UIPageControl()
     
