@@ -21,8 +21,6 @@ final class PotInfoCell: UITableViewCell {
         status: .recruiting
     )
     
-    static let identifier = "PotInfoCell"
-    
     var onTapPotButton: (() -> Void)? // TODO: - input output 패턴 넣기
     
     

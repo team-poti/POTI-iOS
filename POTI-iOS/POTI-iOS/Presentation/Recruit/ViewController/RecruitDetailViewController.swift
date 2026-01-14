@@ -33,18 +33,9 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
     
     private func setTableView() {
         tableView.do {
-            $0.register(
-                PotInfoCell.self,
-                forCellReuseIdentifier: PotInfoCell.identifier
-            )
-            $0.register(
-                ProgressStatusViewCell.self,
-                forCellReuseIdentifier: ProgressStatusViewCell.identifier
-            )
-            $0.register(
-                ParticipantManageViewCell.self,
-                forCellReuseIdentifier: ParticipantManageViewCell.identifier
-            )
+            $0.register(PotInfoCell.self)
+            $0.register(ProgressStatusViewCell.self)
+            $0.register(ParticipantManageViewCell.self)
             $0.separatorStyle = .singleLine
             $0.showsVerticalScrollIndicator = false
             $0.sectionHeaderTopPadding = 0

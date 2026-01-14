@@ -23,8 +23,6 @@ final class ParticipantManageViewCell: UITableViewCell {
         depositStateText: .paid
     )
     
-    static let identifier = "ParticipantManageViewCell"
-    
     // MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

@@ -18,8 +18,6 @@ final class ProgressStatusViewCell: UITableViewCell {
         status: .recruiting
     )
     
-    static let identifier = "ProgressViewCell"
-    
     // MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
