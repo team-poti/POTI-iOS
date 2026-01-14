@@ -6,5 +6,5 @@
 //
 
 protocol AuthInterface {
-    func login() -> Bool
+    func login(socialType: String, token: String) async throws -> LoginResponseEntity
 }

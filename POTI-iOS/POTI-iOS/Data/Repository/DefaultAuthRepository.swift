@@ -6,10 +6,17 @@
 //
 
 final class DefaultAuthRepository: AuthInterface {
-
-    func login() -> Bool {
-        // TODO: 나중에 네트워크 연결
-        PotiLogger.network("Mock Login Success")
-        return true
+    
+    private let networkService: NetworkService
+    
+    init(networkService: NetworkService = NetworkService()) {
+        self.networkService = networkService
+    }
+    
+    func login(socialType: String, token: String) async throws -> LoginResponseEntity {
+        let result = try await networkService.request(
+            target: AuthAPI.login(socialType: socialType, token: token), type: LoginResponseDTO.self
+            )
+        return result.toLoginResponseEntity()
     }
 }
