@@ -7,13 +7,20 @@
 
 import UIKit
 
+import SnapKit
+import Then
+
 final class LoginViewController: BaseViewController<LoginViewModel> {
+    
+    private let loginView = LoginView()
 
     override func setUI() {
-        view.backgroundColor = .white
+        view.addSubview(loginView)
     }
-
-    override func addTarget() {
-        // 버튼 타겟 등
+    
+    override func setLayout() {
+        loginView.snp.makeConstraints {
+            $0.edges.equalTo(view.safeAreaLayoutGuide)
+        }
     }
 }
