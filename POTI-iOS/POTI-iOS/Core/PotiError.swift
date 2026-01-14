@@ -16,6 +16,7 @@ enum PotiError: Error, LocalizedError, Equatable {
     case decodingError
     case networkFail
     case missingConfig(key: String)
+    case kakaoOuathError
     
     var errorDescription: String? {
         switch self {
@@ -35,6 +36,8 @@ enum PotiError: Error, LocalizedError, Equatable {
             return "네트워크 연결에 실패했습니다"
         case .missingConfig(let key):
             return "\(key) 설정이 누락되었습니다."
+        case .kakaoOuathError:
+            return "카카오톡 로그인에 실패했습니다."
         }
     }
 }
