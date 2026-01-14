@@ -41,10 +41,16 @@ struct PotiNavigationBar {
         
         switch style {
         case .home:
-            navigationItem.leftBarButtonItem = makeHomeLogoTitleView()
+            navigationItem.leftBarButtonItems = [
+                makeFixedSpace(4),
+                makeHomeLogoTitleView()
+            ]
+            
+            let searchButton = makeIconButtonView(image: .icnSearch, action: .search, target: target)
+            let alarmButton = makeIconButtonView(image: .icnAlarm, action: .alarm, target: target)
+                
             navigationItem.rightBarButtonItems = [
-                makeIconButton(image: .icnAlarm, action: .alarm, target: target),
-                makeIconButton(image: .icnSearch, action: .search, target: target)
+                makeButtonGroup(buttons: [searchButton, alarmButton], spacing: 0)
             ]
             
         case .mypage:
@@ -144,7 +150,23 @@ extension PotiNavigationBar {
     
     // MARK: - Button
     
-    private static func makeIconButton(image: UIImage?, action: PotiNavigationAction, target: (UIViewController & NavigationActionHandling)) -> UIBarButtonItem {
+    private static func makeFixedSpace(_ width: CGFloat) -> UIBarButtonItem {
+        let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        spacer.width = width
+        return spacer
+    }
+    
+    private static func makeButtonGroup(buttons: [UIButton], spacing: CGFloat = 0) -> UIBarButtonItem {
+        let stackView = UIStackView(arrangedSubviews: buttons)
+        stackView.axis = .horizontal
+        stackView.spacing = spacing
+        stackView.alignment = .center
+        stackView.distribution = .equalSpacing
+        
+        return UIBarButtonItem(customView: stackView)
+    }
+    
+    private static func makeIconButtonView(image: UIImage?, action: PotiNavigationAction, target: (UIViewController & NavigationActionHandling)) -> UIButton {
         
         let button = UIButton(type: .system)
         button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
@@ -152,6 +174,14 @@ extension PotiNavigationBar {
         button.tag = action.rawValue
         button.addTarget(target, action: #selector(BaseViewController<Any>.navigationButtonTapped(_:)), for: .touchUpInside)
         
-        return UIBarButtonItem(customView: button)
+        button.snp.makeConstraints {
+            $0.width.height.equalTo(48)
+        }
+        
+        return button
+    }
+    
+    private static func makeIconButton(image: UIImage?, action: PotiNavigationAction, target: (UIViewController & NavigationActionHandling)) -> UIBarButtonItem {
+        return UIBarButtonItem(customView: makeIconButtonView(image: image, action: action, target: target))
     }
 }
