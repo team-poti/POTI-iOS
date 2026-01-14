@@ -29,6 +29,9 @@ class PotiTabBar: UITabBarController {
         let barAppearance = UITabBarAppearance()
         barAppearance.configureWithOpaqueBackground()
         
+        barAppearance.shadowColor = .clear
+        barAppearance.shadowImage = UIImage()
+        
         barAppearance.stackedLayoutAppearance.normal.iconColor = .gray700
         
         self.tabBar.tintColor = .poti600
@@ -54,7 +57,7 @@ class PotiTabBar: UITabBarController {
         
         self.tabBar.layer.cornerRadius = 20
         self.tabBar.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        self.tabBar.layer.masksToBounds = false
+        self.tabBar.layer.masksToBounds = true
     }
     
     override func viewDidLayoutSubviews() {
