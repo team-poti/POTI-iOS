@@ -13,7 +13,7 @@ import Then
 
 final class ProductRegisterViewController: BaseViewController<Void> {
 
-// MARK: - Properties
+// MARK: - Property
 
     private var selectedImages: [UIImage] = [] {
         didSet {

@@ -12,9 +12,7 @@ import Then
 
 final class AddCell: UICollectionViewCell {
     
-    // MARK: - Properties
-    
-    static let identifier = "AddCell"
+    // MARK: - Property
     
     var onTapUpload: (() -> Void)?
 

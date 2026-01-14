@@ -12,7 +12,7 @@ import Then
 
 final class ImagePickerView: BaseView {
     
-    // MARK: - Properties
+    // MARK: - Property
 
     var onTapAdd: (() -> Void)?
     var onTapDelete: ((Int) -> Void)?
@@ -43,8 +43,8 @@ final class ImagePickerView: BaseView {
         collectionView.dataSource = self
         collectionView.delegate = self
 
-        collectionView.register(AddCell.self, forCellWithReuseIdentifier: AddCell.identifier)
-        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: ImageCell.identifier)
+        collectionView.register(AddCell.self)
+        collectionView.register(ImageCell.self)
     }
 
     override func setLayout() {

@@ -12,9 +12,7 @@ import Then
 
 final class ImageCell: UICollectionViewCell {
 
-    // MARK: - Properties
-    
-    static let identifier = "ImageCell"
+    // MARK: - Property
     
     var onTapDelete: (() -> Void)?
 

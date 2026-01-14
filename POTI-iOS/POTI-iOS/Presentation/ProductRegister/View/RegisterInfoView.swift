@@ -17,7 +17,6 @@ final class RegisterInfoView: BaseView {
     var onTapAddImage: (() -> Void)?
     var onTapDeleteImage: ((Int) -> Void)?
 
-
     // MARK: - UI Properties
 
     private let imagePickerView = ImagePickerView()
@@ -47,8 +46,7 @@ final class RegisterInfoView: BaseView {
     }
 
     override func setUI() {
-        addSubview(titleLabel)
-        addSubview(imagePickerView)
+        addSubviews(titleLabel, imagePickerView)
 
         // TODO: - 아래 필드들은 다음 단계에서 하나씩 추가
     }
