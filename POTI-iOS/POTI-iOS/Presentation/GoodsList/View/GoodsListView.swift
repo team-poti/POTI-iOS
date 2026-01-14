@@ -16,7 +16,7 @@ final class GoodsListView: BaseView {
     
     lazy var goodsListCollectionView = UICollectionView(
         frame: .zero,
-        collectionViewLayout: GoodsListCompositionalLayoutFactory.createLayout()
+        collectionViewLayout: GoodsListLayoutFactory.createLayout()
     )
     private let floatingButton = FloatingButton()
     
@@ -31,12 +31,8 @@ final class GoodsListView: BaseView {
             $0.isScrollEnabled = true
             $0.showsVerticalScrollIndicator = false
             
-            $0.register(GoodsListCell.self, forCellWithReuseIdentifier: "GoodsListCell")
-            $0.register(
-                GoodsListHeaderCell.self,
-                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                withReuseIdentifier: "GoodsListHeaderCell"
-            )
+            $0.register(GoodsListCell.self)
+            $0.registerHeader(GoodsListHeaderCell.self)
         }
     }
     

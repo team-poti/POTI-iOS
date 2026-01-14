@@ -16,9 +16,8 @@ protocol GoodsListHeaderCellDelegate: AnyObject {
 
 final class GoodsListHeaderCell: UICollectionReusableView {
     
-    // MARK: - Properties
+    // MARK: - Property
     
-    static let identifier = "GoodsListHeaderCell"
     weak var delegate: GoodsListHeaderCellDelegate?
     
     // MARK: - UI Components
@@ -51,10 +50,7 @@ final class GoodsListHeaderCell: UICollectionReusableView {
             $0.setTitleColor(.potiBlack, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
             $0.setImage(.icnArrowDownSm, for: .normal)
-            
-            // TODO: - 디자인 icnArrowUpSm 이미지 에셋 추가되면 변경하기
-            
-            $0.setImage(.icnArrowUpLg, for: .selected)
+            $0.setImage(.icnArrowUpSm, for: .selected)
             $0.semanticContentAttribute = .forceRightToLeft
         }
     }
