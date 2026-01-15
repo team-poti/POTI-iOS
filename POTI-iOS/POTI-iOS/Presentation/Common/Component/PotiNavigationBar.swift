@@ -13,6 +13,7 @@ public enum PotiNavigationStyle {
     case home
     case mypage
     case xButton
+    case backButton
     case backDefault(String)
     case backSubtitle(title: String, subtitle: String)
     case backWithButton(title: String)
@@ -68,6 +69,9 @@ struct PotiNavigationBar {
             
         case .xButton:
             navigationItem.leftBarButtonItem = makeIconButton(image: .icnX, action: .xButton, target: target)
+            
+        case .backButton:
+            navigationItem.leftBarButtonItem = makeIconButton(image: .icnArrowLeftLg, action: .back, target: target)
             
         case .backDefault(let title):
             navigationItem.titleView = makeTitleLabel(title)
