@@ -33,8 +33,7 @@ final class LoginViewModel: BaseViewModelType {
     private let loginUseCase: LoginUseCase
 
     init(
-        loginUseCase: LoginUseCase,
-        output: Output
+        loginUseCase: LoginUseCase
     ) {
         self.loginUseCase = loginUseCase
         self.output = Output(

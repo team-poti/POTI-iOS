@@ -29,7 +29,7 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setGoodsListData.send(())
+        viewModel.action(.viewDidLoad)
         self.navigationController?.navigationBar.isHidden = true
     }
     
@@ -39,7 +39,7 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel> {
             tabBarController.tabBar.isHidden = true
         }
     }
-
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if let tabBarController = self.tabBarController as? PotiTabBar {
@@ -55,13 +55,7 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel> {
     }
     
     override func bindViewModel() {
-        let input = GoodsListViewModel.Input(
-            viewDidLoad: setGoodsListData.eraseToAnyPublisher()
-        )
-        
-        let output = viewModel.transform(input: input)
-        
-        output.reloadData
+        viewModel.output.reloadData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.rootView.goodsListCollectionView.reloadData()

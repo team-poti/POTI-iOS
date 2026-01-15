@@ -5,19 +5,17 @@
 //  Created by mandoo on 1/14/26.
 //
 
-import Foundation
-
 import Combine
 
 final class GoodsListViewModel: BaseViewModelType {
     
-    //MARK: - Input
+    // MARK: - Input
     
-    struct Input {
-        let viewDidLoad: AnyPublisher<Void, Never>
+    enum Input {
+        case viewDidLoad
     }
     
-    //MARK: - Output
+    // MARK: - Output
     
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
@@ -27,34 +25,42 @@ final class GoodsListViewModel: BaseViewModelType {
     
     private let useCase: GoodsListUseCase
     private var cancellables = Set<AnyCancellable>()
-    
+    let output: Output
     private(set) var groupItems: [GroupItem] = []
+    
+    // MARK: - Subject
+    
+    private let reloadDataSubject = PassthroughSubject<Void, Never>()
+    
+    // MARK: - Initializer
     
     init(useCase: GoodsListUseCase) {
         self.useCase = useCase
+        self.output = Output(
+            reloadData: reloadDataSubject.eraseToAnyPublisher()
+        )
     }
     
-    func transform(input: Input) -> Output {
-        let reloadData = PassthroughSubject<Void, Never>()
-        
-        input.viewDidLoad
-            .sink { [weak self] in
-                Task {
-                    do {
-                        guard let data = try await self?.useCase.execute() else { return }
-                        
-                        self?.groupItems = data.groupItems
-                        
-                        reloadData.send(())
-                    } catch {
-                        print("Error: \(error)")
-                    }
-                }
+    // MARK: - Action
+    
+    func action(_ trigger: Input) {
+        switch trigger {
+        case .viewDidLoad:
+            fetchGoodsList()
+        }
+    }
+    
+    // MARK: - Private Method
+    
+    private func fetchGoodsList() {
+        Task {
+            do {
+                let data = try await useCase.execute()
+                self.groupItems = data.groupItems
+                reloadDataSubject.send(())
+            } catch {
+                print("Error: \(error)")
             }
-            .store(in: &cancellables)
-        
-        return Output(
-            reloadData: reloadData.eraseToAnyPublisher()
-        )
+        }
     }
 }

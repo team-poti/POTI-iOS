@@ -16,10 +16,14 @@ final class AppDIContainer {
         DefaultAuthService()
     }
     
+    private func makeNetworkService() -> NetworkService {
+        NetworkService()
+    }
+    
     // MARK: - Repository
     
-    private func makeAuthRepository() -> AuthInterface {
-        DefaultAuthRepository()
+    @MainActor private func makeAuthRepository() -> AuthInterface {
+        DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService())
     }
     
     private func makeHomeRepository() -> HomeInterface {
@@ -32,7 +36,7 @@ final class AppDIContainer {
     
     // MARK: - UseCase
     
-    private func makeLoginUseCase() -> LoginUseCase {
+    @MainActor private func makeLoginUseCase() -> LoginUseCase {
         DefaultLoginUseCase(
             repository: makeAuthRepository()
         )
@@ -49,10 +53,7 @@ final class AppDIContainer {
     // MARK: - ViewModel
     
     @MainActor func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(
-            loginUseCase: makeLoginUseCase(),
-            authService: makeAuthService()
-        )
+        LoginViewModel(loginUseCase: makeLoginUseCase())
     }
     
     func makeHomeViewModel() -> HomeViewModel {

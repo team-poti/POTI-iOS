@@ -55,7 +55,7 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setHomeData.send(())
+        viewModel.action(.viewDidLoad)
         self.navigationController?.navigationBar.isHidden = true
     }
     
@@ -65,24 +65,23 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     }
     
     override func bindViewModel() {
-        let input = HomeViewModel.Input(
-            viewDidLoad: setHomeData.eraseToAnyPublisher(),
-            bannerScrolled: rootView.currentPageNumber.eraseToAnyPublisher()
-        )
-        
-        let output = viewModel.transform(input: input)
-        
-        output.reloadData
+        viewModel.output.reloadData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.rootView.homeCollectionView.reloadData()
             }
             .store(in: &cancellables)
         
-        output.updateBannerPage
+        viewModel.output.updateBannerPage
             .receive(on: DispatchQueue.main)
             .sink { [weak self] page in
                 self?.updateBannerFooter(page)
+            }
+            .store(in: &cancellables)
+        
+        rootView.currentPageNumber
+            .sink { [weak self] page in
+                self?.viewModel.action(.bannerScrolled(index: page))
             }
             .store(in: &cancellables)
     }
@@ -177,7 +176,6 @@ extension HomeViewController: GoodsHeaderCellDelegate {
         let useCase = DefaultGoodsListUseCase(repository: repository)
         
         let goodsListViewModel = GoodsListViewModel(useCase: useCase)
-        
         let goodsListViewController = GoodsListViewController(viewModel: goodsListViewModel)
         
         self.navigationController?.pushViewController(goodsListViewController, animated: true)
