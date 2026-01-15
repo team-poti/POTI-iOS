@@ -8,5 +8,5 @@
 import UIKit
 
 @objc public protocol NavigationActionHandling: AnyObject {
-    func navigationButtonTapped(_ sender: UIButton)
+    @objc func navigationButtonTapped(_ sender: UIButton)
 }

@@ -5,62 +5,79 @@
 //  Created by mandoo on 1/14/26.
 //
 
-import Foundation
-
 import Combine
 
-final class HomeViewModel {
+final class HomeViewModel: BaseViewModelType {
     
     // MARK: - Input
     
-    let viewDidLoad = PassthroughSubject<Void, Never>()
+    enum Input {
+        case viewDidLoad
+        case bannerScrolled(index: Int)
+    }
     
     // MARK: - Output
     
-    @Published private(set) var banners: [Banner] = []
-    @Published private(set) var myGroupGoods: [Goods] = []
-    @Published private(set) var otherGroupGoods: [Goods] = []
-    @Published private(set) var nickName: String = ""
+    struct Output {
+        let reloadData: AnyPublisher<Void, Never>
+        let updateBannerPage: AnyPublisher<Int, Never>
+    }
     
+    // MARK: - Subjects
+    
+    private let reloadDataSubject = PassthroughSubject<Void, Never>()
+    private let bannerPageSubject = PassthroughSubject<Int, Never>()
+    
+    // MARK: - Properties
+    
+    private let useCase: HomeUseCase
     private var cancellables = Set<AnyCancellable>()
     
-    init() {
-        bindInput()
+    let output: Output
+    
+    private(set) var banners: [BannerModel] = []
+    private(set) var myGroupItems: [GoodsModel] = []
+    private(set) var otherGroupItems: [GoodsModel] = []
+    private(set) var nickname: String = ""
+    
+    // MARK: - Initializer
+    
+    init(useCase: HomeUseCase) {
+        self.useCase = useCase
+        
+        self.output = Output(
+            reloadData: reloadDataSubject.eraseToAnyPublisher(),
+            updateBannerPage: bannerPageSubject.eraseToAnyPublisher()
+        )
     }
     
-    private func bindInput() {
-        viewDidLoad
-            .sink { [weak self] in
-                self?.fetchHomeData()
-            }
-            .store(in: &cancellables)
+    // MARK: - Action
+    
+    func action(_ trigger: Input) {
+        switch trigger {
+        case .viewDidLoad:
+            fetchHomeData()
+        case .bannerScrolled(let index):
+            bannerPageSubject.send(index)
+        }
     }
     
-    // TODO: - 서버 데이터로 변경하기
+    // MARK: - Private Method
     
     private func fetchHomeData() {
-        self.banners = [
-            Banner(id: 0, imageURL: "https://sports.hankooki.com/news/photo/202406/6865580_1085568_126.jpeg"),
-            Banner(id: 1, imageURL: "https://sports.hankooki.com/news/photo/202406/6865580_1085568_126.jpeg"),
-            Banner(id: 2, imageURL: "https://sports.hankooki.com/news/photo/202406/6865580_1085568_126.jpeg")
-        ]
-        
-        self.myGroupGoods = [
-            Goods(id: 0, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 10),
-            Goods(id: 1, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 20),
-            Goods(id: 2, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 1),
-            Goods(id: 3, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 2),
-            Goods(id: 4, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 3)
-        ]
-        
-        self.otherGroupGoods = [
-            Goods(id: 0, artistName: "아일릿", productName: "아일릿 앨범~", imageURL: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg", numberOfPot: 10),
-            Goods(id: 1, artistName: "아일릿", productName: "아일릿 앨범~", imageURL: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg", numberOfPot: 20),
-            Goods(id: 2, artistName: "아일릿", productName: "아일릿 앨범~", imageURL: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg", numberOfPot: 1),
-            Goods(id: 3, artistName: "아일릿", productName: "아일릿 앨범~", imageURL: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg", numberOfPot: 2),
-            Goods(id: 4, artistName: "아일릿", productName: "아일릿 앨범~", imageURL: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg", numberOfPot: 3)
-        ]
-        
-        self.nickName = "앙티"
+        Task {
+            do {
+                let data = try await useCase.execute()
+                
+                self.banners = data.toBannerModelList()
+                self.myGroupItems = data.toMyGoodsModelList()
+                self.otherGroupItems = data.toOtherGoodsModelList()
+                self.nickname = data.nickname
+                
+                reloadDataSubject.send(())
+            } catch {
+                print("Error: \(error)")
+            }
+        }
     }
 }
