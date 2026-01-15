@@ -13,46 +13,46 @@ import Then
 
 final class LoginViewController: BaseViewController<LoginViewModel> {
     
-    private let loginView = LoginView()
-    private let kakaoTap = PassthroughSubject<Void, Never>()
+    private let rootView = LoginView()
 
-    override func setUI() {
-        view.addSubview(loginView)
-    }
-    
-    override func setLayout() {
-        loginView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
-        }
+    override func loadView() {
+        self.view = rootView
     }
     
     override func addTarget() {
-        loginView.kakaoLoginButton.addTarget(self, action: #selector(kakaoLoginButtonTapped), for: .touchUpInside)
+        rootView.kakaoLoginButton.addTarget(self, action: #selector(kakaoLoginButtonTapped), for: .touchUpInside)
     }
     
     override func bindViewModel() {
-        let input = LoginViewModel.Input(
-            kakaoLoginTap: kakaoTap.eraseToAnyPublisher()
-        )
-        
-        let output = viewModel.transform(input: input)
-        
-        output.loginSuccess
-            .sink {
-                print("로그인 성공")
-            }
-            .store(in: &cancellables)
-        
-        output.loginFailure
-            .sink {
-                print("로그인 실패")
-            }
-            .store(in: &cancellables)
+        bindLoginSuccess()
+        bindLoginFailure()
     }
 }
 
 extension LoginViewController {
     @objc private func kakaoLoginButtonTapped() {
-        kakaoTap.send(())
+        viewModel.action(.kakaoLoginTap)
+    }
+}
+
+private extension LoginViewController {
+    
+    func bindLoginSuccess() {
+        viewModel.output.loginSuccess
+            .receive(on: DispatchQueue.main)
+            .sink {
+                PotiLogger.debug("카카오 로그인 성공")
+            }
+            .store(in: &cancellables)
+    }
+    
+    func bindLoginFailure() {
+        viewModel.output.loginFailure
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] error in
+                guard let self = self else { return }
+                PotiLogger.error(error)
+            }
+            .store(in: &cancellables)
     }
 }

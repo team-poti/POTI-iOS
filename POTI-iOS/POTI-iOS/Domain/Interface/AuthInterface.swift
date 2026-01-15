@@ -6,5 +6,5 @@
 //
 
 protocol AuthInterface {
-    func login(socialType: String, token: String) async throws -> LoginResponseEntity
+    func kakaoLogin() async throws -> LoginResponseEntity
 }
