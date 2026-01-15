@@ -17,7 +17,7 @@ struct ParticipantManageModel: Hashable {
     let totalPrice: Int // 총 입금 금액
     let waitPayCheckInfo: WaitPayCheckInfo? // nil이면 숨김
     let paidInfo: PaidInfo? // nil이면 숨김
-    let startShipInfo: StartShipInfo? // nil이면 숨김
+    let shipInfo: ShipInfo? // nil이면 숨김
     let completedInfo: CompletedInfo? // nil이면 숨김
 
     struct MemberRow: Hashable {
@@ -32,17 +32,14 @@ struct ParticipantManageModel: Hashable {
     struct PaidInfo: Hashable {
         let depositorName: String
         let depositTimeText: String
-        let buttonTitle: String // "입금 완료"
     }
-    struct StartShipInfo: Hashable {
+    struct ShipInfo: Hashable {
         let receiverName: String
         let addressText: String
         let phoneText: String // "배송 시작"
         let trackingNumber: String // 운송장 번호 (nil 로 받고 내가 post)
     }
     struct CompletedInfo: Hashable {
-        let depositorName: String
-        let depositTimeText: String
-        let buttonTitle: String // "배송 완료"
+        let trackingNumber: String
     }
 }
