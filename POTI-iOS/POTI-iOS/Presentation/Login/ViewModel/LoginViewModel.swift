@@ -11,25 +11,27 @@ final class LoginViewModel: BaseViewModelType {
     
     // MARK: - Input
     
-    struct Input {
-        let kakaoLoginTap: AnyPublisher<Void, Never>
+    enum Input {
+        case kakaoLoginTap
     }
 
     // MARK: - Output
     
     struct Output {
         let loginSuccess: AnyPublisher<Void, Never>
-        let loginFailure: AnyPublisher<Void, Never>
+        let loginFailure: AnyPublisher<Error, Never>
     }
 
-    private let loginUseCase: LoginUseCase
-    private let authService: AuthService
+    private(set) var output: Output
     
     // MARK: - Subjects
     
     private let loginSuccessSubject = PassthroughSubject<Void, Never>()
-    private let loginFailureSubject = PassthroughSubject<Void, Never>()
+    private let loginFailureSubject = PassthroughSubject<Error, Never>()
     private var cancellables = Set<AnyCancellable>()
+    
+    private let loginUseCase: LoginUseCase
+    private let authService: AuthService
 
     init(
         loginUseCase: LoginUseCase,
@@ -37,19 +39,17 @@ final class LoginViewModel: BaseViewModelType {
     ) {
         self.loginUseCase = loginUseCase
         self.authService = authService
-    }
-    
-    func transform(input: Input) -> Output {
-        input.kakaoLoginTap
-            .sink { [weak self] in
-                self?.kakaoLogin()
-            }
-            .store(in: &cancellables)
-        
-        return Output(
+        self.output = Output(
             loginSuccess: loginSuccessSubject.eraseToAnyPublisher(),
             loginFailure: loginFailureSubject.eraseToAnyPublisher()
         )
+    }
+    
+    func action(_ trigger: Input) {
+        switch trigger {
+        case .kakaoLoginTap:
+            kakaoLogin()
+        }
     }
     
     private func kakaoLogin() {
@@ -60,7 +60,7 @@ final class LoginViewModel: BaseViewModelType {
                 loginSuccessSubject.send(())
             } catch {
                 PotiLogger.error(error)
-                loginFailureSubject.send(())
+                loginFailureSubject.send(error)
             }
         }
     }
