@@ -1,5 +1,5 @@
 //
-//  SelectFavoriteGroupView.swift
+//  SelectFavoriteIdolGroupView.swift
 //  POTI-iOS
 //
 //  Created by neon on 1/15/26.
@@ -10,11 +10,24 @@ import UIKit
 import SnapKit
 import Then
 
-final class SelectFavoriteGroupView: BaseView {
+final class SelectFavoriteIdolGroupView: BaseView {
     
     private let progressBar = UIImageView()
-    private let descriptionLabel = UILabel()
-//    private let cardImage = UIImageView()
+    
+    lazy var collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.register(IdolGroupCell.self, forCellWithReuseIdentifier: IdolGroupCell.identifier)
+        collectionView.register(
+            IdolGroupHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: IdolGroupHeaderView.identifier
+        )
+        return collectionView
+    }()
+    
     let skipButton = PotiBottomButton()
     let startButton = PotiBottomButton()
     
@@ -22,13 +35,6 @@ final class SelectFavoriteGroupView: BaseView {
         progressBar.do {
             $0.image = .imgOnboarding3
             $0.contentMode = .scaleAspectFit
-        }
-        
-        descriptionLabel.do {
-            $0.textColor = .potiBlack
-            // TODO: - 나중에 텍스트필드에 적은 닉네임 델리게이트로 보내기
-            $0.text = "포티님의 최애 그룹 한 팀을 선택해주세요"
-            $0.font = PotiFontManager.title18sb.font
         }
         
         // TODO: - 셀 불러오기
@@ -47,7 +53,7 @@ final class SelectFavoriteGroupView: BaseView {
     }
     
     override func setUI() {
-        addSubviews(progressBar, descriptionLabel, skipButton, startButton)
+        addSubviews(progressBar, collectionView, skipButton, startButton)
     }
     
     override func setLayout() {
@@ -55,9 +61,10 @@ final class SelectFavoriteGroupView: BaseView {
             $0.leading.trailing.top.equalTo(safeAreaLayoutGuide)
         }
         
-        descriptionLabel.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(20)
-            $0.top.equalTo(progressBar.snp.bottom).offset(24)
+        collectionView.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview()
+            $0.top.equalTo(progressBar.snp.bottom)
+            $0.bottom.equalTo(skipButton.snp.top).offset(-2)
         }
         
         skipButton.snp.makeConstraints {
