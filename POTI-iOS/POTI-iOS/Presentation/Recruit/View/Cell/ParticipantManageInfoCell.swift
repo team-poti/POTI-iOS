@@ -45,6 +45,10 @@ final class ParticipantManageInfoCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        memberRowStackView.configure(model: mockParticipantManageModel)
+    }
     
     // MARK: - UI Component
     
@@ -52,13 +56,15 @@ final class ParticipantManageInfoCell: UITableViewCell {
     private let profileImageView = UIImageView()
     private let nicknameLabel = UILabel()
     private let depositLabel = UILabel()
-    private let memberStackView = IconStackView(iconName: "icn-member", title: "정환누나", price: 5000, fontSizeCase: .small)
-    private let shippingStackView = IconStackView(iconName: "icn-delivery", title: "준등기", price: 1800, fontSizeCase: .small)
+    private let memberRowStackView = MemberRowStackView()
+    private let shippingStackView = IconStackView(iconName: "icn-delivery", title: "", price: 0, fontSizeCase: .small)
     private let divideTopView = UIView()
     private let divideBottomView = UIView()
     private let totalStackView = IconStackView(iconName: "icn-priceAngle", title: "총 입금 금액", price: 12800, fontSizeCase: .large)
     
-    func setStyle() {
+    //MARK: - Custom Method
+    
+    private func setStyle() {
         grayBackgroundView.do {
             $0.backgroundColor = .gray100
             $0.layer.cornerRadius = 12
@@ -104,11 +110,16 @@ final class ParticipantManageInfoCell: UITableViewCell {
             nicknameLabel,
             divideTopView,
             depositLabel,
-            memberStackView,
+            memberRowStackView,
             shippingStackView,
             divideBottomView,
             totalStackView
         )
+        
+        memberRowStackView.configure(rows: [
+            (name: "유진", price: 5000),
+            (name: "가을", price: 6000)
+        ])
     }
     
     func setLayout() {
@@ -132,12 +143,12 @@ final class ParticipantManageInfoCell: UITableViewCell {
             $0.top.equalTo(divideTopView.snp.bottom).offset(16)
             $0.leading.equalToSuperview().inset(16)
         }
-        memberStackView.snp.makeConstraints {
+        memberRowStackView.snp.makeConstraints {
             $0.top.equalTo(depositLabel.snp.bottom).offset(12)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
         shippingStackView.snp.makeConstraints {
-            $0.top.equalTo(memberStackView.snp.bottom).offset(8)
+            $0.top.equalTo(memberRowStackView.snp.bottom).offset(8)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
         divideBottomView.snp.makeConstraints {
