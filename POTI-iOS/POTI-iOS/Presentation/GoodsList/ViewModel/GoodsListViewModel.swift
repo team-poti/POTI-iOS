@@ -26,7 +26,7 @@ final class GoodsListViewModel: BaseViewModelType {
     private let useCase: GoodsListUseCase
     private var cancellables = Set<AnyCancellable>()
     let output: Output
-    private(set) var groupItems: [GroupItem] = []
+    private(set) var groupItems: [GroupItemModel] = []
     
     // MARK: - Subject
     
@@ -56,7 +56,7 @@ final class GoodsListViewModel: BaseViewModelType {
         Task {
             do {
                 let data = try await useCase.execute()
-                self.groupItems = data.groupItems
+                self.groupItems = data.toGroupItemModel()
                 reloadDataSubject.send(())
             } catch {
                 print("Error: \(error)")

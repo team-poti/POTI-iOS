@@ -106,7 +106,7 @@ final class GoodsListCell: UICollectionViewCell {
 // MARK: - Extension
 
 extension GoodsListCell {
-    func configure(goods: GroupItem) {
+    func configure(goods: GroupItemModel) {
         imageView.kf.setImage(with: URL(string: goods.postImage ?? ""))
         artistNameLabel.text = goods.artist
         productNameLabel.text = goods.title
