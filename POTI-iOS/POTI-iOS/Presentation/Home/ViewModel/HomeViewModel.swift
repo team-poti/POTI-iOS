@@ -35,9 +35,9 @@ final class HomeViewModel: BaseViewModelType {
     
     let output: Output
     
-    private(set) var banners: [BannerItem] = []
-    private(set) var myGroupItems: [GoodsItem] = []
-    private(set) var otherGroupItems: [GoodsItem] = []
+    private(set) var banners: [BannerModel] = []
+    private(set) var myGroupItems: [GoodsModel] = []
+    private(set) var otherGroupItems: [GoodsModel] = []
     private(set) var nickname: String = ""
     
     // MARK: - Initializer
@@ -69,9 +69,9 @@ final class HomeViewModel: BaseViewModelType {
             do {
                 let data = try await useCase.execute()
                 
-                self.banners = data.banners
-                self.myGroupItems = data.myGroupItems
-                self.otherGroupItems = data.otherGroupItems
+                self.banners = data.toBannerModelList()
+                self.myGroupItems = data.toMyGoodsModelList()
+                self.otherGroupItems = data.toOtherGoodsModelList()
                 self.nickname = data.nickname
                 
                 reloadDataSubject.send(())
