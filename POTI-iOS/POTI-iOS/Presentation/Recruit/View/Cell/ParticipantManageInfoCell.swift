@@ -39,6 +39,7 @@ final class ParticipantManageInfoCell: UITableViewCell {
         setStyle()
         setUI()
         setLayout()
+        configure(model: mockParticipantManageModel)
     }
     
     required init?(coder: NSCoder) {
@@ -163,6 +164,15 @@ final class ParticipantManageInfoCell: UITableViewCell {
     }
 }
 
+extension ParticipantManageInfoCell {
+    func configure(model: ParticipantManageModel) {
+        
+        shippingStackView.configure(
+            title: model.shippingText,
+            price: model.shippingPrice
+        )
+    }
+}
 #Preview {
     ParticipantManageInfoCell()
 }
