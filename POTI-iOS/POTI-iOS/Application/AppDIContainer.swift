@@ -6,10 +6,10 @@
 //
 
 final class AppDIContainer {
-
+    
     static let shared = AppDIContainer()
     private init() {}
-
+    
     // MARK: - Service
     
     @MainActor private func makeAuthService() -> AuthService {
@@ -21,7 +21,15 @@ final class AppDIContainer {
     private func makeAuthRepository() -> AuthInterface {
         DefaultAuthRepository()
     }
-
+    
+    private func makeHomeRepository() -> HomeInterface {
+        DefaultHomeRepository()
+    }
+    
+    private func makeGoodsListRepository() -> GoodsListInterface {
+        DefaultGoodsListRepository()
+    }
+    
     // MARK: - UseCase
     
     private func makeLoginUseCase() -> LoginUseCase {
@@ -29,7 +37,15 @@ final class AppDIContainer {
             repository: makeAuthRepository()
         )
     }
-
+    
+    private func makeHomeUseCase() -> HomeUseCase {
+        DefaultHomeUseCase(repository: makeHomeRepository())
+    }
+    
+    private func makeGoodsListUseCase() -> GoodsListUseCase {
+        DefaultGoodsListUseCase(repository: makeGoodsListRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLoginViewModel() -> LoginViewModel {
@@ -37,5 +53,13 @@ final class AppDIContainer {
             loginUseCase: makeLoginUseCase(),
             authService: makeAuthService()
         )
+    }
+    
+    func makeHomeViewModel() -> HomeViewModel {
+        HomeViewModel(useCase: makeHomeUseCase())
+    }
+    
+    func makeGoodsListViewModel() -> GoodsListViewModel {
+        GoodsListViewModel(useCase: makeGoodsListUseCase())
     }
 }

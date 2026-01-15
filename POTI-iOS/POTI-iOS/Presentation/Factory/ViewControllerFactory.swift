@@ -7,7 +7,8 @@
 
 protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
-    // func makeHomeViewController() -> HomeViewController
+    func makeHomeViewController() -> HomeViewController
+    func makeGoodsListViewController() -> GoodsListViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -21,6 +22,18 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController {
         LoginViewController(
             viewModel: diContainer.makeLoginViewModel()
+        )
+    }
+    
+    func makeHomeViewController() -> HomeViewController {
+        HomeViewController(
+            viewModel: diContainer.makeHomeViewModel()
+        )
+    }
+    
+    func makeGoodsListViewController() -> GoodsListViewController {
+        GoodsListViewController(
+            viewModel: diContainer.makeGoodsListViewModel()
         )
     }
 }
