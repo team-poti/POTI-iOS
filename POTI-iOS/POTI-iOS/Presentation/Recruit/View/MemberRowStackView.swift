@@ -31,7 +31,7 @@ final class MemberRowStackView: BaseView {
             $0.axis = .vertical
             $0.spacing = 8
             $0.alignment = .fill //반대축으로 꽉 채우기 (현 스택은 vertical이니까 horizontal로 fill
-            $0.distribution = .fillEqually // 스택 방향 공간 분배
+            $0.distribution = .fill
         }
     }
 
@@ -49,15 +49,19 @@ final class MemberRowStackView: BaseView {
 }
 
 extension MemberRowStackView {
+    func reset() {
+        memberListStackView.arrangedSubviews.forEach {
+            memberListStackView.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        }
+    }
+
     func configure(model: ParticipantManageModel) {
         configure(rows: model.memberRows.map { ($0.name, $0.price) })
     }
 
     func configure(rows: [(name: String, price: Int)]) {
-        memberListStackView.arrangedSubviews.forEach {
-            memberListStackView.removeArrangedSubview($0)
-            $0.removeFromSuperview() //기존 row 삭제해주고
-        }
+        reset()
         
         rows.forEach { row in // row 추가해주기
             let iconStackView = IconStackView(
