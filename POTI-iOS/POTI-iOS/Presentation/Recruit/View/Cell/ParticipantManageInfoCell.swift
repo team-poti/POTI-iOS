@@ -25,13 +25,29 @@ final class ParticipantManageInfoCell: UITableViewCell {
             shippingText: "준등기",
             shippingPrice: 1500,
             totalPrice: 11500,
-            waitPayCheckInfo: nil,
-            paidInfo: nil,
-            startShipInfo: nil,
+            waitPayCheckInfo: ParticipantManageModel.WaitPayCheckInfo(
+                depositorName: "짱나연",
+                depositTimeText: "2026-01-15 22:56:00"
+            ),
+            paidInfo: ParticipantManageModel.PaidInfo(
+                depositorName: "짱나연",
+                depositTimeText: "2026-01-15 22:56:00"
+            ),
+            shipInfo: nil,
             completedInfo: nil
         )
     
     static let identifier = "ParticipantManageInfoCell"
+    
+    var onTapStatusAction: ((ParticipantManageModel) -> Void)?
+    
+    private let totalStackView = IconStackView(
+        iconName: "icn-priceAngle",
+        title: "총 입금 금액",
+        price: 12800,
+        fontSizeCase: .large
+    )
+    private let participantCaseView = ParticipantStatusCaseView() // TODO: - 이따 snp , add 하기
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -40,6 +56,7 @@ final class ParticipantManageInfoCell: UITableViewCell {
         setUI()
         setLayout()
         configure(model: mockParticipantManageModel)
+        participantCaseView.configure(status: .waitPayCheck, model: mockParticipantManageModel)
     }
     
     required init?(coder: NSCoder) {
@@ -48,7 +65,9 @@ final class ParticipantManageInfoCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        memberRowStackView.configure(model: mockParticipantManageModel)
+        memberRowStackView.reset()
+        // 재사용 시 이전 데이터 잔상 방지
+        // (MemberRowStackView에 reset()이 있으면 여기서 호출)
     }
     
     // MARK: - UI Component
@@ -61,15 +80,16 @@ final class ParticipantManageInfoCell: UITableViewCell {
     private let shippingStackView = IconStackView(iconName: "icn-delivery", title: "", price: 0, fontSizeCase: .small)
     private let divideTopView = UIView()
     private let divideBottomView = UIView()
-    private let totalStackView = IconStackView(iconName: "icn-priceAngle", title: "총 입금 금액", price: 12800, fontSizeCase: .large)
     
     //MARK: - Custom Method
     
     private func setStyle() {
+        
         grayBackgroundView.do {
             $0.backgroundColor = .gray100
             $0.layer.cornerRadius = 12
         }
+        
         profileImageView.do {
             let url = URL(string: mockParticipantManageModel.profileImage)
             $0.kf.setImage(
@@ -114,13 +134,10 @@ final class ParticipantManageInfoCell: UITableViewCell {
             memberRowStackView,
             shippingStackView,
             divideBottomView,
-            totalStackView
+            totalStackView,
+            participantCaseView
         )
         
-        memberRowStackView.configure(rows: [
-            (name: "유진", price: 5000),
-            (name: "가을", price: 6000)
-        ])
     }
     
     func setLayout() {
@@ -161,15 +178,40 @@ final class ParticipantManageInfoCell: UITableViewCell {
             $0.top.equalTo(divideBottomView.snp.bottom).offset(8)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
+        participantCaseView.snp.makeConstraints {
+            $0.top.equalTo(totalStackView.snp.bottom).offset(32)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(16)
+        }
     }
 }
 
 extension ParticipantManageInfoCell {
     func configure(model: ParticipantManageModel) {
         
+        nicknameLabel.text = model.nickname
+        if let url = URL(string: model.profileImage) {
+            profileImageView.kf.setImage(with: url, placeholder: UIImage(named: "placeholder"))
+        }
+
+        // 멤버 rows
+        memberRowStackView.configure(model: model)
+
+        // 배송/총액
         shippingStackView.configure(
             title: model.shippingText,
             price: model.shippingPrice
+        )
+        
+        totalStackView.configure(title: "총 입금 금액", price: model.totalPrice)
+
+        participantCaseView.configure(
+            status: model.participantstatus,
+            model: model,
+            onTapAction: { [weak self] in
+                guard let self else { return }
+                self.onTapStatusAction?(model)
+            }
         )
     }
 }
