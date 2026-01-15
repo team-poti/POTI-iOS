@@ -10,12 +10,20 @@ final class AppDIContainer {
     static let shared = AppDIContainer()
     private init() {}
 
+    // MARK: - Service
+    
+    @MainActor private func makeAuthService() -> AuthService {
+        DefaultAuthService()
+    }
+    
     // MARK: - Repository
+    
     private func makeAuthRepository() -> AuthInterface {
         DefaultAuthRepository()
     }
 
     // MARK: - UseCase
+    
     private func makeLoginUseCase() -> LoginUseCase {
         DefaultLoginUseCase(
             repository: makeAuthRepository()
@@ -23,9 +31,11 @@ final class AppDIContainer {
     }
 
     // MARK: - ViewModel
-    func makeLoginViewModel() -> LoginViewModel {
+    
+    @MainActor func makeLoginViewModel() -> LoginViewModel {
         LoginViewModel(
-            loginUseCase: makeLoginUseCase()
+            loginUseCase: makeLoginUseCase(),
+            authService: makeAuthService()
         )
     }
 }
