@@ -7,27 +7,41 @@
 
 import UIKit
 
-class BaseViewController<VM>: UIViewController {
+class BaseViewController<VM>: UIViewController, NavigationActionHandling {
     
     private(set) var viewModel: VM?
+    
+    private var didSetupLayout = false
 
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .potiWhite
 
         PotiLogger.lifecycle("viewDidLoad 호출 - \(type(of: self))")
 
         hideKeyboardWhenTappedAround()
         setUI()
-        setLayout()
         addTarget()
         setDelegate()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !didSetupLayout {
+            setLayout()
+            didSetupLayout = true
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         PotiLogger.lifecycle("viewWillAppear 호출 - \(type(of: self))")
+        
+        guard let configurable = self as? NavigationConfigurable else { return }
+
+        PotiNavigationBar.configure(navigationItem: navigationItem, navigationController: navigationController, style: configurable.navigationStyle(), target: self)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -64,4 +78,36 @@ class BaseViewController<VM>: UIViewController {
 
     /// delegate / datasource 설정
     open func setDelegate() {}
+    
+    // MARK: - Navigation Setting
+    
+    @objc func navigationButtonTapped(_ sender: UIButton) {
+        guard let action = PotiNavigationAction(rawValue: sender.tag) else { return }
+
+        switch action {
+        case .back, .xButton:
+            if self.navigationController == nil {
+                self.dismiss(animated: true)
+            } else {
+                self.navigationController?.popViewController(animated: true)
+            }
+            
+        case .search:
+            searchButtonTapped()
+            
+        case .alarm:
+            alarmButtonTapped()
+            
+        case .setting:
+            settingButtonTapped()
+            
+        case .change:
+            changeButtonTapped()
+        }
+    }
+
+    @objc open func searchButtonTapped() {}
+    @objc open func alarmButtonTapped() {}
+    @objc open func settingButtonTapped() {}
+    @objc open func changeButtonTapped() {}
 }
