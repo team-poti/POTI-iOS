@@ -1,5 +1,5 @@
 //
-//  OnboardingDescriptionView.swift
+//  ValidNicknameView.swift
 //  POTI-iOS
 //
 //  Created by neon on 1/15/26.
@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class OnboardingDescriptionView: BaseView {
+final class ValidNicknameView: BaseView {
     
     private let progressBar = UIImageView()
     private let descriptionLabel = UILabel()
@@ -19,7 +19,7 @@ final class OnboardingDescriptionView: BaseView {
     
     override func setStyle() {
         progressBar.do {
-            $0.image = .imgOnboarding1
+            $0.image = .imgOnboarding2
             $0.contentMode = .scaleAspectFit
         }
         
@@ -27,7 +27,7 @@ final class OnboardingDescriptionView: BaseView {
             $0.textColor = .potiBlack
             $0.numberOfLines = 2
             $0.setLabel(
-                "분철 탐색부터 배송까지\n한 번에 관리해요",
+                "포티에서 사용할 닉네임을\n입력해주세요",
                 font: .title18sb
             )
         }
