@@ -106,10 +106,10 @@ final class GoodsListCell: UICollectionViewCell {
 // MARK: - Extension
 
 extension GoodsListCell {
-    func configure(goods: Goods) {
-        imageView.kf.setImage(with: URL(string: goods.imageURL ?? ""))
-        artistNameLabel.text = goods.artistName
-        productNameLabel.text = goods.productName
-        potTagView.setTagText("팟 \(goods.numberOfPot)개")
+    func configure(goods: GroupItem) {
+        imageView.kf.setImage(with: URL(string: goods.postImage ?? ""))
+        artistNameLabel.text = goods.artist
+        productNameLabel.text = goods.title
+        potTagView.setTagText("팟 \(goods.postCount)개")
     }
 }

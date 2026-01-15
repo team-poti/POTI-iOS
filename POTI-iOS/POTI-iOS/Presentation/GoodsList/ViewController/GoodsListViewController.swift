@@ -13,14 +13,13 @@ protocol GoodsListViewScrollDelegate: AnyObject {
     func goodsListViewDidScroll(yOffset: CGFloat)
 }
 
-final class GoodsListViewController: BaseViewController<GoodsListViewModel>{
+final class GoodsListViewController: BaseViewController<GoodsListViewModel> {
     
     // MARK: - Properties
     
     weak var scrollDelegate: GoodsListViewScrollDelegate?
     private let rootView = GoodsListView()
-    private var cancellables = Set<AnyCancellable>()
-    
+    private let setGoodsListData = PassthroughSubject<Void, Never>()
     
     // MARK: - Life Cycles
     
@@ -29,11 +28,8 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>{
     }
     
     override func viewDidLoad() {
-        let viewModel = GoodsListViewModel()
-        self.bind(viewModel: viewModel)
         super.viewDidLoad()
-        viewModel.viewDidLoad.send(())
-        
+        setGoodsListData.send(())
         self.navigationController?.navigationBar.isHidden = true
     }
     
@@ -58,12 +54,16 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>{
         rootView.goodsListCollectionView.dataSource = self
     }
     
-    override func bind(viewModel: GoodsListViewModel) {
-        super.bind(viewModel: viewModel)
+    override func bindViewModel() {
+        let input = GoodsListViewModel.Input(
+            viewDidLoad: setGoodsListData.eraseToAnyPublisher()
+        )
         
-        Publishers.CombineLatest(viewModel.$popularGoods, viewModel.$recentGoods)
+        let output = viewModel.transform(input: input)
+        
+        output.reloadData
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] in
                 self?.rootView.goodsListCollectionView.reloadData()
             }
             .store(in: &cancellables)
@@ -78,18 +78,16 @@ extension GoodsListViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let viewModel = viewModel else { return 0 }
-        return viewModel.popularGoods.count
+        return viewModel.groupItems.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let viewModel = viewModel else { return UICollectionViewCell() }
         
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GoodsListCell.identifier, for: indexPath) as? GoodsListCell else {
             return UICollectionViewCell()
         }
         
-        let goods = viewModel.popularGoods[indexPath.item]
+        let goods = viewModel.groupItems[indexPath.item]
         cell.configure(goods: goods)
         
         return cell
