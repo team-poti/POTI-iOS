@@ -28,6 +28,7 @@ final class IconStackView: BaseView {
         self.fontSizeCase = fontSizeCase
         self.price = price
         super.init(frame: .zero)
+        configure(title: title, price: price)
     }
     
     required init?(coder: NSCoder) {
@@ -57,10 +58,8 @@ final class IconStackView: BaseView {
         titleLabel.do {
             $0.textColor = .gray800
             $0.font = PotiFontManager.body14m.font
-            $0.text = title
         }
         priceLabel.do {
-            $0.text = "\(price.formattedWithComma)원"
             $0.textColor = .potiBlack
             switch fontSizeCase {
             case .small:
@@ -98,4 +97,11 @@ final class IconStackView: BaseView {
             $0.trailing.equalToSuperview()
         }
     }
+}
+
+extension IconStackView {
+    func configure(title: String, price: Int) {
+            titleLabel.text = title
+            priceLabel.text = "\(price.formattedWithComma)원"
+        }
 }
