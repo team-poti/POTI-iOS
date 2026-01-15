@@ -21,8 +21,6 @@ final class PotInfoCell: UITableViewCell {
         status: .recruiting
     )
     
-    static let identifier = "PotInfoCell"
-    
     var onTapPotButton: (() -> Void)? // TODO: - input output 패턴 넣기
     
     
@@ -34,6 +32,8 @@ final class PotInfoCell: UITableViewCell {
     private let potTitleLabel = UILabel()
     private let potStatusLabel = UILabel()
     private let potButton = UIButton()
+    
+    // MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -49,8 +49,9 @@ final class PotInfoCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Custom Method
+    
     func setStyle() {
-        contentView.layer.borderColor = UIColor.red.cgColor
         potIdLabel.do {
             $0.setLabel(
                 "모집 번호 poti-" + String(mockPotInfoModel.potId),
@@ -99,7 +100,8 @@ final class PotInfoCell: UITableViewCell {
         }
     }
     
-    func setUI() {
+    private func setUI() {
+        
         contentView.addSubviews(
             potStatusLabel,
             potTitleLabel,
@@ -110,7 +112,7 @@ final class PotInfoCell: UITableViewCell {
         )
     }
     
-    func setLayout() {
+    private func setLayout() {
         
         potIdLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(12)
@@ -155,10 +157,13 @@ final class PotInfoCell: UITableViewCell {
     }
     
     // MARK: - action
+    
     @objc func potButtonTapped(_ sender: Any) {
         print("potButtonTapped")
         onTapPotButton?()
-        //TODO: - input 수정
+        
+        //TODO: - input 수정 -> VM 로 추후에 옮기자
+        
         // input.send(.potButtonTapped)
     }
 }

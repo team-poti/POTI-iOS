@@ -10,19 +10,14 @@ import UIKit
 import SnapKit
 import Then
 
-enum Section: Int, CaseIterable {
-    case recruitInfo
-    case progress
-    case participantInfo
-}
-
 class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
     
     private let tableView = UITableView()
     
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .gray100
         setTableView()
     }
     
@@ -38,24 +33,18 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
     
     private func setTableView() {
         tableView.do {
-            $0.register(
-                PotInfoCell.self,
-                forCellReuseIdentifier: PotInfoCell.identifier
-            )
-            $0.register(
-                ProgressStatusViewCell.self,
-                forCellReuseIdentifier: ProgressStatusViewCell.identifier
-            )
-            $0.register(
-                ParticipantManageViewCell.self,
-                forCellReuseIdentifier: ParticipantManageViewCell.identifier
-            )
-            $0.dataSource = self
-            $0.delegate = self
+            $0.register(PotInfoCell.self)
+            $0.register(ProgressStatusViewCell.self)
+            $0.register(ParticipantManageViewCell.self)
             $0.separatorStyle = .singleLine
             $0.showsVerticalScrollIndicator = false
             $0.sectionHeaderTopPadding = 0
         }
+    }
+    
+    override func setDelegate() {
+        tableView.dataSource = self
+        tableView.delegate = self
     }
 }
 
@@ -65,7 +54,10 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         return Section.allCases.count
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
         guard let section = Section(rawValue: section) else { return 0 }
         
         switch section {
@@ -111,7 +103,7 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             ) as? PotInfoCell else { return UITableViewCell() }
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             return cell
-
+            
         case .progress:
             guard let cell = tableView.dequeueReusableCell(
                 withIdentifier: ProgressStatusViewCell.identifier,
@@ -119,7 +111,7 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             ) as? ProgressStatusViewCell else { return UITableViewCell() }
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             return cell
-
+            
         case .participantInfo:
             guard let cell = tableView.dequeueReusableCell(
                 withIdentifier: ParticipantManageViewCell.identifier,
