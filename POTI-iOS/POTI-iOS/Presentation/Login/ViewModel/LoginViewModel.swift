@@ -31,14 +31,12 @@ final class LoginViewModel: BaseViewModelType {
     private var cancellables = Set<AnyCancellable>()
     
     private let loginUseCase: LoginUseCase
-    private let authService: AuthService
 
     init(
         loginUseCase: LoginUseCase,
-        authService: AuthService
+        output: Output
     ) {
         self.loginUseCase = loginUseCase
-        self.authService = authService
         self.output = Output(
             loginSuccess: loginSuccessSubject.eraseToAnyPublisher(),
             loginFailure: loginFailureSubject.eraseToAnyPublisher()
@@ -55,8 +53,7 @@ final class LoginViewModel: BaseViewModelType {
     private func kakaoLogin() {
         Task {
             do {
-                let kakaoToken = try await authService.kakaoRequest()
-                _ = try await loginUseCase.execute(socialType: "KAKAO", token: kakaoToken)
+                _ = try await loginUseCase.execute(socialType: "KAKAO")
                 loginSuccessSubject.send(())
             } catch {
                 PotiLogger.error(error)

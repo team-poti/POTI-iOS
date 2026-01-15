@@ -6,7 +6,7 @@
 //
 
 protocol LoginUseCase {
-    func execute(socialType: String, token: String) async throws -> LoginResponseEntity
+    func execute(socialType: String) async throws -> LoginResponseEntity
 }
 
 final class DefaultLoginUseCase: LoginUseCase {
@@ -17,7 +17,7 @@ final class DefaultLoginUseCase: LoginUseCase {
         self.repository = repository
     }
 
-    func execute(socialType: String, token: String) async throws -> LoginResponseEntity {
-        return try await repository.login(socialType: socialType, token: token)
+    func execute(socialType: String) async throws -> LoginResponseEntity {
+        return try await repository.kakaoLogin()
     }
 }

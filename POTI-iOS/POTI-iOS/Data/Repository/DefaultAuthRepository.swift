@@ -7,15 +7,21 @@
 
 final class DefaultAuthRepository: AuthInterface {
     
+    private let authService: AuthService
     private let networkService: NetworkService
     
-    init(networkService: NetworkService = NetworkService()) {
+    init(
+        authService: AuthService,
+        networkService: NetworkService
+    ) {
+        self.authService = authService
         self.networkService = networkService
     }
     
-    func login(socialType: String, token: String) async throws -> LoginResponseEntity {
+    func kakaoLogin() async throws -> LoginResponseEntity {
+        let kakaoToken = try await authService.kakaoRequest()
         let result = try await networkService.request(
-            target: AuthAPI.login(socialType: socialType, token: token), type: LoginResponseDTO.self
+            target: AuthAPI.login(socialType: "KAKAO", token: kakaoToken), type: LoginResponseDTO.self
             )
         return result.toLoginResponseEntity()
     }
