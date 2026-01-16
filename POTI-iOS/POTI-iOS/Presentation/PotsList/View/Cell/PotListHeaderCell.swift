@@ -1,5 +1,5 @@
 //
-//  PotsListHeaderCell.swift
+//  PotListHeaderCell.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/15/26.
@@ -10,16 +10,16 @@ import UIKit
 import SnapKit
 import Then
 
-protocol PotsListHeaderCellDelegate: AnyObject {
+protocol PotListHeaderCellDelegate: AnyObject {
     func rightFilterButtonDidTap()
     func leftFilterButtonDidTap()
 }
 
-final class PotsListHeaderCell: UICollectionReusableView {
+final class PotListHeaderCell: UICollectionReusableView {
 
     // MARK: - Property
 
-    weak var delegate: PotsListHeaderCellDelegate?
+    weak var delegate: PotListHeaderCellDelegate?
 
     // MARK: - UI Components
 
@@ -106,7 +106,7 @@ final class PotsListHeaderCell: UICollectionReusableView {
 
 // MARK: - Extension
 
-extension PotsListHeaderCell {
+extension PotListHeaderCell {
     func configure() {
 
         // TODO: - 필터링 바텀시트랑 연결하기

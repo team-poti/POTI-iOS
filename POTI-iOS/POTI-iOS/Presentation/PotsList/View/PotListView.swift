@@ -1,5 +1,5 @@
 //
-//  PotsListView.swift
+//  PotListView.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/15/26.
@@ -10,13 +10,13 @@ import UIKit
 import SnapKit
 import Then
 
-final class PotsListView: BaseView {
+final class PotListView: BaseView {
 
     // MARK: - UI Components
 
     lazy var potsListCollectionView = UICollectionView(
         frame: .zero,
-        collectionViewLayout: PotsListLayoutFactory.createLayout()
+        collectionViewLayout: PotListLayoutFactory.createLayout()
     )
     private let floatingButton = FloatingButton()
 
@@ -31,8 +31,8 @@ final class PotsListView: BaseView {
             $0.isScrollEnabled = true
             $0.showsVerticalScrollIndicator = false
 
-            $0.register(PotsListCell.self)
-            $0.registerHeader(PotsListHeaderCell.self)
+            $0.register(PotListCell.self)
+            $0.registerHeader(PotListHeaderCell.self)
         }
     }
 
