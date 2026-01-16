@@ -12,7 +12,7 @@ import Then
 
 final class RegisterInfoView: BaseView {
     
-    // MARK: - Properties
+    // MARK: - Property
 
     var onTapAddImage: (() -> Void)?
     var onTapDeleteImage: ((Int) -> Void)?
