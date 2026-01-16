@@ -8,45 +8,19 @@ import UIKit
 import SnapKit
 import Then
 
-// MARK: - Types
-
-enum FormFieldVariant {
-    case dropdown
-    case search(mode: SearchMode)
-    case count(max: Int)
-    case short
-    case long(minHeight: CGFloat = 160)
-}
-
-enum SearchMode {
-    case navigate     // 탭하면 검색화면
-    case suggest      // 입력하면 드롭다운
-}
-
-enum FormFieldUIState: Equatable {
-    case normal
-    case focused
-    case error(message: String)
-}
-
-// MARK: - View
-
 final class FormFieldView: BaseView {
 
-    // MARK: - Output
+    // MARK: - Property
 
-    /// 탭 액션 전달 (dropdown, search(navigate))
     var onTapField: (() -> Void)?
-
-    /// 입력 텍스트 변경 전달 (search(suggest), count, short, long)
     var onTextChanged: ((String) -> Void)?
+    var onSelectOption: ((String) -> Void)?
 
-    // MARK: - State
-
-    private var variant: FormFieldVariant = .short
+    private(set) var variant: FormFieldVariant = .short
     private var uiState: FormFieldUIState = .normal
 
-    // MARK: - UI
+
+    // MARK: - UI Components
 
     private let containerView = UIView()
     private let textField = UITextField()
@@ -57,14 +31,30 @@ final class FormFieldView: BaseView {
     private let rightIconView = UIImageView()
     private let countLabel = UILabel()
 
+    private let errorStackView = UIStackView()
+    private let errorIconView = UIImageView()
     private let errorLabel = UILabel()
+
+    private let dropdownListView = DropdownListView()
+    private let arrowDownImage = UIImage(named: "icn-arrow-down-lg")
+    private let arrowUpImage = UIImage(named: "icn-arrow-up-lg")
 
     private var textFieldTrailingToAccessory: Constraint?
     private var textFieldTrailingToSuperview: Constraint?
     private var textViewTrailingToAccessory: Constraint?
     private var textViewTrailingToSuperview: Constraint?
 
-    // MARK: - Initializer
+    private var dropdownListHeightConstraint: Constraint?
+    private var errorStackHeightConstraint: Constraint?
+
+    private var bottomToContainer: Constraint?
+    private var bottomToDropdown: Constraint?
+    private var bottomToError: Constraint?
+
+    private var isDropdownVisible: Bool = false
+
+
+    // MARK: - Life Cycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -77,10 +67,13 @@ final class FormFieldView: BaseView {
         fatalError("init(coder:) has not been implemented")
     }
 
+
     // MARK: - Private Setup
 
     override func setStyle() {
         backgroundColor = .clear
+        clipsToBounds = false
+        containerView.clipsToBounds = false
 
         containerView.do {
             $0.backgroundColor = .potiWhite
@@ -134,39 +127,69 @@ final class FormFieldView: BaseView {
             $0.setContentHuggingPriority(.required, for: .horizontal)
         }
 
+        errorStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 0
+            $0.alignment = .center
+            $0.distribution = .fill
+            $0.isHidden = true
+        }
+
+        errorIconView.do {
+            $0.contentMode = .scaleAspectFit
+            $0.image = UIImage(named: "icn-notice")
+            $0.tintColor = .sementicRed
+        }
+
         errorLabel.do {
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .sementicRed
             $0.numberOfLines = 0
-            $0.isHidden = true
         }
 
-        // 필드 탭 제스처 (dropdown / search(navigate)용)
+        dropdownListView.do {
+            $0.isHidden = true
+            $0.alpha = 0
+        }
+
+        dropdownListView.onSelectItem = { [weak self] _, value in
+            guard let self else { return }
+            self.setText(value)
+            self.onSelectOption?(value)
+            self.hideOptions(animated: false)
+        }
+
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapField))
         containerView.addGestureRecognizer(tap)
     }
 
     override func setUI() {
-        addSubview(containerView)
-        addSubview(errorLabel)
+        addSubviews(containerView, dropdownListView, errorStackView)
 
-        containerView.addSubview(textField)
-        containerView.addSubview(textView)
+        containerView.addSubviews(textField, textView)
         textView.addSubview(textViewPlaceholderLabel)
         containerView.addSubview(rightAccessoryContainer)
 
-        rightAccessoryContainer.addSubview(rightIconView)
-        rightAccessoryContainer.addSubview(countLabel)
+        rightAccessoryContainer.addSubviews(rightIconView, countLabel)
+
+        errorStackView.addArrangedSubviews(errorIconView, errorLabel)
     }
 
     override func setLayout() {
         containerView.snp.makeConstraints {
             $0.top.leading.trailing.equalToSuperview()
+            $0.height.greaterThanOrEqualTo(52)
+            bottomToContainer = $0.bottom.equalToSuperview().constraint
         }
 
-        containerView.snp.makeConstraints {
-            $0.height.greaterThanOrEqualTo(52)
+        dropdownListView.snp.makeConstraints {
+            $0.top.equalTo(containerView.snp.bottom).offset(12)
+            $0.leading.trailing.equalToSuperview()
+            dropdownListHeightConstraint = $0.height.equalTo(0).constraint
+            bottomToDropdown = $0.bottom.equalToSuperview().constraint
         }
+
+        bottomToDropdown?.deactivate()
 
         rightAccessoryContainer.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
@@ -211,14 +234,22 @@ final class FormFieldView: BaseView {
             $0.trailing.lessThanOrEqualToSuperview()
         }
 
-        errorLabel.snp.makeConstraints {
+        errorStackView.snp.makeConstraints {
             $0.top.equalTo(containerView.snp.bottom).offset(8)
-            $0.leading.equalToSuperview()
-            $0.bottom.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
+            bottomToError = $0.bottom.equalToSuperview().constraint
+            errorStackHeightConstraint = $0.height.equalTo(0).priority(999).constraint
+        }
+
+        bottomToError?.deactivate()
+
+        errorIconView.snp.makeConstraints {
+            $0.width.height.equalTo(16)
         }
     }
 
-    // MARK: - Public
+
+    // MARK: - Custom Method
 
     func configure(
         variant: FormFieldVariant,
@@ -226,7 +257,6 @@ final class FormFieldView: BaseView {
     ) {
         self.variant = variant
 
-        // placeholder
         if let placeholder {
             textField.attributedPlaceholder = NSAttributedString(
                 string: placeholder,
@@ -241,7 +271,6 @@ final class FormFieldView: BaseView {
 
         textViewPlaceholderLabel.text = placeholder
 
-        // variant 적용
         applyVariant()
         apply(state: uiState)
     }
@@ -252,16 +281,30 @@ final class FormFieldView: BaseView {
         switch state {
         case .normal:
             containerView.layer.borderColor = UIColor.gray300.cgColor
-            errorLabel.isHidden = true
+            errorLabel.text = nil
+            errorStackView.isHidden = true
+            errorStackHeightConstraint?.activate()
+            bottomToError?.deactivate()
+            bottomToDropdown?.deactivate()
+            bottomToContainer?.activate()
 
         case .focused:
             containerView.layer.borderColor = UIColor.potiBlack.cgColor
-            errorLabel.isHidden = true
+            errorLabel.text = nil
+            errorStackView.isHidden = true
+            errorStackHeightConstraint?.activate()
+            bottomToError?.deactivate()
+            bottomToDropdown?.deactivate()
+            bottomToContainer?.activate()
 
         case .error(let message):
             containerView.layer.borderColor = UIColor.sementicRed.cgColor
             errorLabel.text = message
-            errorLabel.isHidden = false
+            errorStackView.isHidden = false
+            errorStackHeightConstraint?.deactivate()
+            bottomToDropdown?.deactivate()
+            bottomToContainer?.deactivate()
+            bottomToError?.activate()
         }
     }
 
@@ -285,18 +328,90 @@ final class FormFieldView: BaseView {
         }
     }
 
-    // MARK: - Private
+    func setOptions(_ options: [String], maxVisibleRows: Int = 3) {
+        dropdownListView.maxVisibleRows = maxVisibleRows
+        dropdownListView.setItems(options)
+
+        if options.isEmpty {
+            hideOptions(animated: false)
+        }
+    }
+
+    func showOptions(animated: Bool = true) {
+        guard dropdownListView.itemsCount > 0 else { return }
+        isDropdownVisible = true
+        dropdownListView.isHidden = false
+        dropdownListHeightConstraint?.update(offset: dropdownListView.requiredHeight)
+
+        if case .dropdown = variant {
+            rightIconView.image = arrowUpImage
+        }
+
+        bottomToError?.deactivate()
+        bottomToContainer?.deactivate()
+        bottomToDropdown?.activate()
+
+        dropdownListView.alpha = 1
+        (superview ?? self).layoutIfNeeded()
+    }
+
+    func hideOptions(animated: Bool = true) {
+        guard isDropdownVisible else {
+            dropdownListView.isHidden = true
+            dropdownListView.alpha = 0
+            dropdownListHeightConstraint?.update(offset: 0)
+
+            if case .dropdown = variant {
+                rightIconView.image = arrowDownImage
+            }
+
+            bottomToDropdown?.deactivate()
+            bottomToError?.deactivate()
+            bottomToContainer?.activate()
+
+            (superview ?? self).layoutIfNeeded()
+            return
+        }
+
+        isDropdownVisible = false
+
+        dropdownListView.alpha = 0
+        dropdownListHeightConstraint?.update(offset: 0)
+        dropdownListView.isHidden = true
+
+        if case .dropdown = variant {
+            rightIconView.image = arrowDownImage
+        }
+
+        bottomToDropdown?.deactivate()
+        bottomToError?.deactivate()
+        bottomToContainer?.activate()
+
+        (superview ?? self).layoutIfNeeded()
+    }
+
+    func toggleOptions() {
+        isDropdownVisible ? hideOptions(animated: false) : showOptions(animated: false)
+    }
+
+    func updateCount(current: Int, max: Int) {
+        countLabel.text = "\(current)/\(max)"
+    }
+
+    func updateTextViewPlaceholderVisibility() {
+        updateTextViewPlaceholderIfNeeded()
+    }
+
+
+    // MARK: - Custom Method
 
     private func applyVariant() {
-        // 공통 초기화
         rightIconView.isHidden = true
         countLabel.isHidden = true
         rightAccessoryContainer.isHidden = true
 
-        // 키보드/입력 사용 여부
         switch variant {
         case .dropdown, .search(mode: .navigate):
-            // 키보드 X: editing 막고 탭 이벤트로 처리
             textField.isUserInteractionEnabled = false
             textView.isUserInteractionEnabled = false
 
@@ -305,14 +420,13 @@ final class FormFieldView: BaseView {
             textView.isUserInteractionEnabled = true
         }
 
-        // long이면 textView
         switch variant {
-        case .long(let minHeight):
+        case .long:
             textField.isHidden = true
             textView.isHidden = false
 
             containerView.snp.updateConstraints {
-                $0.height.greaterThanOrEqualTo(minHeight)
+                $0.height.greaterThanOrEqualTo(160)
             }
 
         default:
@@ -324,11 +438,10 @@ final class FormFieldView: BaseView {
             }
         }
 
-        // 오른쪽 accessory
         switch variant {
         case .dropdown:
             rightIconView.isHidden = false
-            rightIconView.image = UIImage(named: "icn-arrow-down-lg")
+            rightIconView.image = arrowDownImage
 
         case .search:
             rightIconView.isHidden = false
@@ -358,6 +471,7 @@ final class FormFieldView: BaseView {
             textViewTrailingToSuperview?.activate()
         }
 
+        hideOptions(animated: false)
         updateCountIfNeeded()
         updateTextViewPlaceholderIfNeeded()
     }
@@ -377,7 +491,8 @@ final class FormFieldView: BaseView {
         textViewPlaceholderLabel.isHidden = !(textView.text ?? "").isEmpty
     }
 
-    // MARK: - Action
+
+    // MARK: - Action Method
 
     @objc private func textFieldEditingChanged() {
         updateCountIfNeeded()
@@ -386,84 +501,18 @@ final class FormFieldView: BaseView {
 
     @objc private func didTapField() {
         switch variant {
-        case .dropdown, .search(mode: .navigate):
+        case .dropdown:
+            if dropdownListView.itemsCount > 0 {
+                toggleOptions()
+            } else {
+                onTapField?()
+            }
+
+        case .search(mode: .navigate):
             onTapField?()
+
         default:
             break
         }
-    }
-}
-
-// MARK: - UITextFieldDelegate
-
-extension FormFieldView: UITextFieldDelegate {
-
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        apply(state: .focused)
-    }
-
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        apply(state: .normal)
-    }
-
-    func textField(
-        _ textField: UITextField,
-        shouldChangeCharactersIn range: NSRange,
-        replacementString string: String
-    ) -> Bool {
-
-        // count(max): 최대 글자수 도달하면 입력 막기 + next 기준으로 카운트 즉시 반영
-        if case .count(let max) = variant {
-            let current = textField.text ?? ""
-            guard let r = Range(range, in: current) else { return true }
-            let next = current.replacingCharacters(in: r, with: string)
-            if next.count > max { return false }
-
-            countLabel.text = "\(next.count)/\(max)"
-            onTextChanged?(next)
-            return true
-        }
-
-        return true
-    }
-}
-
-// MARK: - UITextViewDelegate
-
-extension FormFieldView: UITextViewDelegate {
-
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        apply(state: .focused)
-    }
-
-    func textViewDidEndEditing(_ textView: UITextView) {
-        apply(state: .normal)
-    }
-
-    func textView(
-        _ textView: UITextView,
-        shouldChangeTextIn range: NSRange,
-        replacementText text: String
-    ) -> Bool {
-
-        // count(max)가 long에 붙을 일은 없지만(요구사항상), 안전하게 막아둠
-        if case .count(let max) = variant {
-            let current = textView.text ?? ""
-            guard let r = Range(range, in: current) else { return true }
-            let next = current.replacingCharacters(in: r, with: text)
-            if next.count > max { return false }
-        }
-
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            self.updateCountIfNeeded()
-            self.onTextChanged?(self.getText())
-        }
-
-        return true
-    }
-
-    func textViewDidChange(_ textView: UITextView) {
-        updateTextViewPlaceholderIfNeeded()
     }
 }
