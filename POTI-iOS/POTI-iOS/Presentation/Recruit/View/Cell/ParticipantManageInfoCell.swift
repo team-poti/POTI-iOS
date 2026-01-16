@@ -47,7 +47,8 @@ final class ParticipantManageInfoCell: UITableViewCell {
         price: 12800,
         fontSizeCase: .large
     )
-    private let participantCaseView = ParticipantStatusCaseView() // TODO: - 이따 snp , add 하기
+    private let participantCaseView = ParticipantStatusCaseView()
+    private var participantCaseZeroHeightConstraint: Constraint?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -66,8 +67,7 @@ final class ParticipantManageInfoCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         memberRowStackView.reset()
-        // 재사용 시 이전 데이터 잔상 방지
-        // (MemberRowStackView에 reset()이 있으면 여기서 호출)
+        participantCaseZeroHeightConstraint?.deactivate()
     }
     
     // MARK: - UI Component
@@ -78,8 +78,8 @@ final class ParticipantManageInfoCell: UITableViewCell {
     private let depositLabel = UILabel()
     private let memberRowStackView = MemberRowStackView()
     private let shippingStackView = IconStackView(iconName: "icn-delivery", title: "", price: 0, fontSizeCase: .small)
-    private let divideTopView = UIView()
-    private let divideBottomView = UIView()
+    private let divideTopView = DivideView()
+    private let divideBottomView = DivideView()
     
     //MARK: - Custom Method
     
@@ -108,18 +108,10 @@ final class ParticipantManageInfoCell: UITableViewCell {
             $0.text = mockParticipantManageModel.nickname
         }
         
-        divideTopView.do {
-            $0.backgroundColor = .gray300
-        }
-        
         depositLabel.do {
             $0.font = PotiFontManager.body14sb.font
             $0.textColor = .potiBlack
             $0.text = "입금 금액"
-        }
-        
-        divideBottomView.do {
-            $0.backgroundColor = .gray300
         }
     }
     
@@ -142,10 +134,12 @@ final class ParticipantManageInfoCell: UITableViewCell {
     
     func setLayout() {
         grayBackgroundView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(16)
         }
         profileImageView.snp.makeConstraints {
-            $0.top.leading.equalToSuperview().inset(16)
+            $0.top.leading.equalTo(grayBackgroundView).inset(16)
             $0.size.equalTo(24)
         }
         nicknameLabel.snp.makeConstraints {
@@ -154,35 +148,36 @@ final class ParticipantManageInfoCell: UITableViewCell {
         }
         divideTopView.snp.makeConstraints {
             $0.top.equalTo(profileImageView.snp.bottom).offset(16)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(1)
+            $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
         depositLabel.snp.makeConstraints {
             $0.top.equalTo(divideTopView.snp.bottom).offset(16)
-            $0.leading.equalToSuperview().inset(16)
+            $0.leading.equalTo(grayBackgroundView).inset(16)
         }
         memberRowStackView.snp.makeConstraints {
             $0.top.equalTo(depositLabel.snp.bottom).offset(12)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
         shippingStackView.snp.makeConstraints {
             $0.top.equalTo(memberRowStackView.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
         divideBottomView.snp.makeConstraints {
             $0.top.equalTo(shippingStackView.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(1)
+            $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
         totalStackView.snp.makeConstraints {
             $0.top.equalTo(divideBottomView.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
         participantCaseView.snp.makeConstraints {
-            $0.top.equalTo(totalStackView.snp.bottom).offset(32)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(16)
+            $0.top.equalTo(totalStackView.snp.bottom)
+            $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
+            $0.bottom.equalTo(grayBackgroundView).inset(16)
+            
+            participantCaseZeroHeightConstraint = $0.height.equalTo(0).constraint
         }
+        participantCaseZeroHeightConstraint?.deactivate()
     }
 }
 
@@ -193,10 +188,10 @@ extension ParticipantManageInfoCell {
         if let url = URL(string: model.profileImage) {
             profileImageView.kf.setImage(with: url, placeholder: UIImage(named: "placeholder"))
         }
-
+        
         // 멤버 rows
         memberRowStackView.configure(model: model)
-
+        
         // 배송/총액
         shippingStackView.configure(
             title: model.shippingText,
@@ -204,7 +199,7 @@ extension ParticipantManageInfoCell {
         )
         
         totalStackView.configure(title: "총 입금 금액", price: model.totalPrice)
-
+        
         participantCaseView.configure(
             status: model.participantstatus,
             model: model,
@@ -213,8 +208,20 @@ extension ParticipantManageInfoCell {
                 self.onTapStatusAction?(model)
             }
         )
+        
+        switch model.participantstatus {
+        case .waitPay, .waitRecruit:
+            participantCaseZeroHeightConstraint?.activate()
+            //TODO: - 지우기 ; 제약(높이 0)을 주겠다 - activate
+
+        default:
+            participantCaseZeroHeightConstraint?.deactivate()
+        }
     }
 }
+
+
+// TODO: - 프리뷰 제거
 #Preview {
     ParticipantManageInfoCell()
 }

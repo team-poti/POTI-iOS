@@ -12,16 +12,15 @@
 		335F179D2F1261CD00E13B6F /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 335F179C2F1261CD00E13B6F /* Alamofire */; };
 		335F17A02F1261EA00E13B6F /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 335F179F2F1261EA00E13B6F /* Lottie */; };
 		335F17A32F1262AF00E13B6F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 335F17A22F1262AF00E13B6F /* Kingfisher */; };
-		336E4CB92F16B94000D1D916 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 336E4CB82F16B94000D1D916 /* Config.xcconfig */; };
-		336E4F352F16E49000D1D916 /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F342F16E49000D1D916 /* KakaoSDK */; };
-		336E4F372F16E49000D1D916 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F362F16E49000D1D916 /* KakaoSDKAuth */; };
-		336E4F392F16E49000D1D916 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F382F16E49000D1D916 /* KakaoSDKCommon */; };
-		336E4F3B2F16E49000D1D916 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F3A2F16E49000D1D916 /* KakaoSDKUser */; };
+		61FE1AB62F1970FE00E036AD /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 61FE1AB52F1970FE00E036AD /* Config.xcconfig */; };
+		61FE1AB92F1971C900E036AD /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 61FE1AB82F1971C900E036AD /* KakaoSDK */; };
+		61FE1ABB2F1971C900E036AD /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 61FE1ABA2F1971C900E036AD /* KakaoSDKAuth */; };
+		61FE1ABD2F1971C900E036AD /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 61FE1ABC2F1971C900E036AD /* KakaoSDKUser */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		335F0F2F2F0D72A500E13B6F /* POTI-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "POTI-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		336E4CB82F16B94000D1D916 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		61FE1AB52F1970FE00E036AD /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -50,15 +49,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				336E4F392F16E49000D1D916 /* KakaoSDKCommon in Frameworks */,
-				336E4F372F16E49000D1D916 /* KakaoSDKAuth in Frameworks */,
+				61FE1ABB2F1971C900E036AD /* KakaoSDKAuth in Frameworks */,
 				335F179D2F1261CD00E13B6F /* Alamofire in Frameworks */,
 				335F17972F12617B00E13B6F /* SnapKit in Frameworks */,
 				335F179A2F12618900E13B6F /* Then in Frameworks */,
+				61FE1ABD2F1971C900E036AD /* KakaoSDKUser in Frameworks */,
 				335F17A02F1261EA00E13B6F /* Lottie in Frameworks */,
 				335F17A32F1262AF00E13B6F /* Kingfisher in Frameworks */,
-				336E4F352F16E49000D1D916 /* KakaoSDK in Frameworks */,
-				336E4F3B2F16E49000D1D916 /* KakaoSDKUser in Frameworks */,
+				61FE1AB92F1971C900E036AD /* KakaoSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,7 +66,7 @@
 		335F0F262F0D72A400E13B6F = {
 			isa = PBXGroup;
 			children = (
-				336E4CB82F16B94000D1D916 /* Config.xcconfig */,
+				61FE1AB52F1970FE00E036AD /* Config.xcconfig */,
 				335F0F312F0D72A500E13B6F /* POTI-iOS */,
 				335F0F302F0D72A500E13B6F /* Products */,
 			);
@@ -107,10 +105,9 @@
 				335F179C2F1261CD00E13B6F /* Alamofire */,
 				335F179F2F1261EA00E13B6F /* Lottie */,
 				335F17A22F1262AF00E13B6F /* Kingfisher */,
-				336E4F342F16E49000D1D916 /* KakaoSDK */,
-				336E4F362F16E49000D1D916 /* KakaoSDKAuth */,
-				336E4F382F16E49000D1D916 /* KakaoSDKCommon */,
-				336E4F3A2F16E49000D1D916 /* KakaoSDKUser */,
+				61FE1AB82F1971C900E036AD /* KakaoSDK */,
+				61FE1ABA2F1971C900E036AD /* KakaoSDKAuth */,
+				61FE1ABC2F1971C900E036AD /* KakaoSDKUser */,
 			);
 			productName = "POTI-iOS";
 			productReference = 335F0F2F2F0D72A500E13B6F /* POTI-iOS.app */;
@@ -146,7 +143,7 @@
 				335F179B2F1261CD00E13B6F /* XCRemoteSwiftPackageReference "Alamofire" */,
 				335F179E2F1261EA00E13B6F /* XCRemoteSwiftPackageReference "lottie-ios" */,
 				335F17A12F1262AF00E13B6F /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				61FE1AB72F1971C900E036AD /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 335F0F302F0D72A500E13B6F /* Products */;
@@ -163,7 +160,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				336E4CB92F16B94000D1D916 /* Config.xcconfig in Resources */,
+				61FE1AB62F1970FE00E036AD /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,7 +179,6 @@
 /* Begin XCBuildConfiguration section */
 		335F0F432F0D72A700E13B6F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 336E4CB82F16B94000D1D916 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -209,7 +205,6 @@
 		};
 		335F0F442F0D72A700E13B6F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 336E4CB82F16B94000D1D916 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -236,7 +231,6 @@
 		};
 		335F0F452F0D72A700E13B6F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 336E4CB82F16B94000D1D916 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -300,7 +294,6 @@
 		};
 		335F0F462F0D72A700E13B6F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 336E4CB82F16B94000D1D916 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -419,7 +412,7 @@
 				minimumVersion = 8.6.2;
 			};
 		};
-		336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
+		61FE1AB72F1971C900E036AD /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
 			requirement = {
@@ -455,24 +448,19 @@
 			package = 335F17A12F1262AF00E13B6F /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
-		336E4F342F16E49000D1D916 /* KakaoSDK */ = {
+		61FE1AB82F1971C900E036AD /* KakaoSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			package = 61FE1AB72F1971C900E036AD /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDK;
 		};
-		336E4F362F16E49000D1D916 /* KakaoSDKAuth */ = {
+		61FE1ABA2F1971C900E036AD /* KakaoSDKAuth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			package = 61FE1AB72F1971C900E036AD /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDKAuth;
 		};
-		336E4F382F16E49000D1D916 /* KakaoSDKCommon */ = {
+		61FE1ABC2F1971C900E036AD /* KakaoSDKUser */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
-			productName = KakaoSDKCommon;
-		};
-		336E4F3A2F16E49000D1D916 /* KakaoSDKUser */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			package = 61FE1AB72F1971C900E036AD /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDKUser;
 		};
 /* End XCSwiftPackageProductDependency section */

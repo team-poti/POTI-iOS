@@ -24,7 +24,7 @@ final class ParticipantInfoLabelView: BaseView {
         infoLabel.do {
             $0.textColor = .potiBlack
             $0.font = PotiFontManager.body14m.font
-            $0.numberOfLines = 2
+            $0.numberOfLines = 0
         }
     }
     

@@ -27,7 +27,6 @@ final class ParticipantStatusCaseView: BaseView {
             $0.spacing = 0
             $0.alignment = .fill
             $0.distribution = .fill
-            $0.setCustomSpacing(32, after: infoLabelStackView)
         }
         
         //TODO: - 컴포넌트로 빼자.. 정환누나 편하게 해주자..
@@ -46,19 +45,18 @@ final class ParticipantStatusCaseView: BaseView {
             infoLabelStackView,
             actionButton
         )
-        
+        containerStackView.setCustomSpacing(32, after: infoLabelStackView)
         actionButton.addTarget(self, action: #selector(actionButtonDidTap), for: .touchUpInside)
     }
 
     override func setLayout() {
         containerStackView.snp.makeConstraints {
-            $0.top.equalToSuperview()
+            $0.top.equalToSuperview().offset(32)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
         
         actionButton.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(48)
         }
     }

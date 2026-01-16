@@ -60,7 +60,7 @@ final class ParticipantManageViewCell: UITableViewCell {
         
         depositorInfoLabel.do {
             $0.setLabel("\(mockParticipantModel.depositorNameText)\n\(mockParticipantModel.addressText)\n\(mockParticipantModel.phoneText)", font: .body14m)
-            $0.numberOfLines = 3
+            $0.numberOfLines = 0
             $0.textColor = .gray800
         }
         

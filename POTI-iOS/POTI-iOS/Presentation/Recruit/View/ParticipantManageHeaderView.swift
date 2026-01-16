@@ -38,7 +38,8 @@ final class ParticipantManageHeaderView: BaseView {
             $0.font = PotiFontManager.body16sb.font
         }
         participantHeaderButton.do {
-            $0.setImage(UIImage(resource: .icnArrowRightLg).withTintColor(.gray800), for: .normal)
+            $0.setImage(UIImage(resource: .icnArrowRightLg).withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.tintColor = .gray800
         }
     }
     
