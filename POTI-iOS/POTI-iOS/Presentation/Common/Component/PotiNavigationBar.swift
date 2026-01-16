@@ -178,7 +178,7 @@ extension PotiNavigationBar {
         button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
         button.imageView?.contentMode = .scaleAspectFit
         button.tag = action.rawValue
-        button.addTarget(target, action: #selector(BaseViewController<Any>.navigationButtonTapped(_:)), for: .touchUpInside)
+        button.addTarget(target, action: #selector(NavigationActionHandling.navigationButtonTapped(_:)), for: .touchUpInside)
         
         button.snp.makeConstraints {
             $0.width.height.equalTo(48)

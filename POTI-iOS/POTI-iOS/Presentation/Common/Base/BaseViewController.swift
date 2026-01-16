@@ -7,12 +7,24 @@
 
 import UIKit
 
-class BaseViewController<VM>: UIViewController, NavigationActionHandling {
-    
-    private(set) var viewModel: VM?
-    
-    private var didSetupLayout = false
+import Combine
 
+class BaseViewController<VM: BaseViewModelType>: UIViewController, NavigationActionHandling {
+    
+    private(set) var viewModel: VM
+    public var cancellables = Set<AnyCancellable>()
+    private var didSetupLayout = false
+    
+    public init(viewModel: VM) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -20,11 +32,13 @@ class BaseViewController<VM>: UIViewController, NavigationActionHandling {
         view.backgroundColor = .potiWhite
 
         PotiLogger.lifecycle("viewDidLoad 호출 - \(type(of: self))")
-
+        
+        view.backgroundColor = .potiWhite
         hideKeyboardWhenTappedAround()
         setUI()
         addTarget()
         setDelegate()
+        bindViewModel()
     }
     
     override func viewDidLayoutSubviews() {
@@ -58,12 +72,6 @@ class BaseViewController<VM>: UIViewController, NavigationActionHandling {
         super.viewDidDisappear(animated)
         PotiLogger.lifecycle("viewDidDisappear 호출 - \(type(of: self))")
     }
-    
-    // MARK: - Bind
-    
-    open func bind(viewModel: VM) {
-        self.viewModel = viewModel
-    }
 
     // MARK: - Custom Method
 
@@ -78,6 +86,9 @@ class BaseViewController<VM>: UIViewController, NavigationActionHandling {
 
     /// delegate / datasource 설정
     open func setDelegate() {}
+    
+    /// 뷰모델 바인딩
+    open func bindViewModel() {}
     
     // MARK: - Navigation Setting
     

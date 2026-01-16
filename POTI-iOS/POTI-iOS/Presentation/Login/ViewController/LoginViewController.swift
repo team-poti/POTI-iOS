@@ -7,13 +7,52 @@
 
 import UIKit
 
+import Combine
+import SnapKit
+import Then
+
 final class LoginViewController: BaseViewController<LoginViewModel> {
+    
+    private let rootView = LoginView()
 
-    override func setUI() {
-        view.backgroundColor = .white
+    override func loadView() {
+        self.view = rootView
     }
-
+    
     override func addTarget() {
-        // 버튼 타겟 등
+        rootView.kakaoLoginButton.addTarget(self, action: #selector(kakaoLoginButtonTapped), for: .touchUpInside)
+    }
+    
+    override func bindViewModel() {
+        bindLoginSuccess()
+        bindLoginFailure()
+    }
+}
+
+extension LoginViewController {
+    @objc private func kakaoLoginButtonTapped() {
+        viewModel.action(.kakaoLoginTap)
+    }
+}
+
+private extension LoginViewController {
+    
+    func bindLoginSuccess() {
+        viewModel.output.loginSuccess
+            .receive(on: DispatchQueue.main)
+            .sink {
+                PotiLogger.debug("카카오 로그인 성공")
+            }
+            .store(in: &cancellables)
+    }
+    
+    func bindLoginFailure() {
+        viewModel.output.loginFailure
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] error in
+                guard let self = self else { return }
+                PotiLogger.error(error)
+            }
+            .store(in: &cancellables)
     }
 }

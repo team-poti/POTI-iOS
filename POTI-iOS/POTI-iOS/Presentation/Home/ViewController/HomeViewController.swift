@@ -45,8 +45,7 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     
     weak var scrollDelegate: HomeViewScrollDelegate?
     private let rootView = HomeView()
-    private var cancellables = Set<AnyCancellable>()
-    
+    private let setHomeData = PassthroughSubject<Void, Never>()
     
     // MARK: - Life Cycles
     
@@ -55,11 +54,8 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     }
     
     override func viewDidLoad() {
-        let viewModel = HomeViewModel()
-        self.bind(viewModel: viewModel)
         super.viewDidLoad()
-        viewModel.viewDidLoad.send(())
-        
+        viewModel.action(.viewDidLoad)
         self.navigationController?.navigationBar.isHidden = true
     }
     
@@ -68,31 +64,35 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
         rootView.homeCollectionView.dataSource = self
     }
     
-    override func bind(viewModel: HomeViewModel) {
-        super.bind(viewModel: viewModel)
-        
-        Publishers.CombineLatest4(viewModel.$banners,
-                                  viewModel.$myGroupGoods,
-                                  viewModel.$otherGroupGoods,
-                                  viewModel.$nickName)
-        .receive(on: DispatchQueue.main)
-        .sink { [weak self] _ in
-            self?.rootView.homeCollectionView.reloadData()
-        }
-        .store(in: &cancellables)
-        
-        rootView.currentPageNumber
+    override func bindViewModel() {
+        viewModel.output.reloadData
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] page in
-                guard let self = self else { return }
-                if let footer = self.rootView.homeCollectionView.supplementaryView(
-                    forElementKind: UICollectionView.elementKindSectionFooter,
-                    at: IndexPath(item: 0, section: 0)
-                ) as? BannerFooterCell {
-                    footer.updatePageControl(currentPage: page)
-                }
+            .sink { [weak self] in
+                self?.rootView.homeCollectionView.reloadData()
             }
             .store(in: &cancellables)
+        
+        viewModel.output.updateBannerPage
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] page in
+                self?.updateBannerFooter(page)
+            }
+            .store(in: &cancellables)
+        
+        rootView.currentPageNumber
+            .sink { [weak self] page in
+                self?.viewModel.action(.bannerScrolled(index: page))
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateBannerFooter(_ page: Int) {
+        if let footer = rootView.homeCollectionView.supplementaryView(
+            forElementKind: UICollectionView.elementKindSectionFooter,
+            at: IndexPath(item: 0, section: 0)
+        ) as? BannerFooterCell {
+            footer.updatePageControl(currentPage: page)
+        }
     }
 }
 
@@ -104,19 +104,17 @@ extension HomeViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let sectionType = HomeSection(rawValue: section),
-              let viewModel = viewModel else { return 0 }
+        guard let sectionType = HomeSection(rawValue: section) else { return 0 }
         
         switch sectionType {
         case .banner: return viewModel.banners.count
-        case .myGroup: return viewModel.myGroupGoods.count
-        case .otherGroup: return viewModel.otherGroupGoods.count
+        case .myGroup: return viewModel.myGroupItems.count
+        case .otherGroup: return viewModel.otherGroupItems.count
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let section = HomeSection(rawValue: indexPath.section),
-              let viewModel = viewModel else { return UICollectionViewCell() }
+        guard let section = HomeSection(rawValue: indexPath.section) else { return UICollectionViewCell() }
         
         switch section {
         case .banner:
@@ -126,12 +124,12 @@ extension HomeViewController: UICollectionViewDataSource {
             
         case .myGroup:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GoodsCell.identifier, for: indexPath) as! GoodsCell
-            cell.configure(goods: viewModel.myGroupGoods[indexPath.item])
+            cell.configure(goods: viewModel.myGroupItems[indexPath.item])
             return cell
             
         case .otherGroup:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GoodsCell.identifier, for: indexPath) as! GoodsCell
-            cell.configure(goods: viewModel.otherGroupGoods[indexPath.item])
+            cell.configure(goods: viewModel.otherGroupItems[indexPath.item])
             return cell
         }
     }
@@ -142,7 +140,7 @@ extension HomeViewController: UICollectionViewDataSource {
         switch kind {
         case UICollectionView.elementKindSectionHeader:
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: GoodsHeaderCell.identifier, for: indexPath) as! GoodsHeaderCell
-            let nickName = viewModel?.nickName ?? "알 수 없음"
+            let nickName = viewModel.nickname
             header.configure(text: section.getHeaderTitle(nickName: nickName), section: indexPath.section)
             header.delegate = self
             return header
@@ -170,10 +168,16 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension HomeViewController: GoodsHeaderCellDelegate {
     func moreButtonDidTap(in section: Int) {
-        // TODO: - section 마다 다른 데이터 보여주기
-//        guard let sectionType = HomeSection(rawValue: section) else { return }
+        guard let sectionType = HomeSection(rawValue: section) else { return }
         
-        let goodsListViewController = GoodsListViewController()
+        let networkService = NetworkService()
+        
+        let repository = DefaultGoodsListRepository(networkService: networkService)
+        let useCase = DefaultGoodsListUseCase(repository: repository)
+        
+        let goodsListViewModel = GoodsListViewModel(useCase: useCase)
+        let goodsListViewController = GoodsListViewController(viewModel: goodsListViewModel)
+        
         self.navigationController?.pushViewController(goodsListViewController, animated: true)
     }
 }

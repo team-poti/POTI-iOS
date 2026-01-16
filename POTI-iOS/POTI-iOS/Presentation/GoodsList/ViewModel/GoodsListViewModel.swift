@@ -5,53 +5,62 @@
 //  Created by mandoo on 1/14/26.
 //
 
-import Foundation
-
 import Combine
 
-final class GoodsListViewModel {
+final class GoodsListViewModel: BaseViewModelType {
     
     // MARK: - Input
     
-    let viewDidLoad = PassthroughSubject<Void, Never>()
+    enum Input {
+        case viewDidLoad
+    }
     
     // MARK: - Output
     
-    @Published private(set) var popularGoods: [Goods] = []
-    @Published private(set) var recentGoods: [Goods] = []
+    struct Output {
+        let reloadData: AnyPublisher<Void, Never>
+    }
     
+    // MARK: - Properties
+    
+    private let useCase: GoodsListUseCase
     private var cancellables = Set<AnyCancellable>()
+    let output: Output
+    private(set) var groupItems: [GroupItemModel] = []
     
-    init() {
-        bindInput()
+    // MARK: - Subject
+    
+    private let reloadDataSubject = PassthroughSubject<Void, Never>()
+    
+    // MARK: - Initializer
+    
+    init(useCase: GoodsListUseCase) {
+        self.useCase = useCase
+        self.output = Output(
+            reloadData: reloadDataSubject.eraseToAnyPublisher()
+        )
     }
     
-    private func bindInput() {
-        viewDidLoad
-            .sink { [weak self] in
-                self?.fetchGoodsListData()
+    // MARK: - Action
+    
+    func action(_ trigger: Input) {
+        switch trigger {
+        case .viewDidLoad:
+            fetchGoodsList()
+        }
+    }
+    
+    // MARK: - Private Method
+    
+    private func fetchGoodsList() {
+        Task {
+            do {
+                let data = try await useCase.execute()
+                self.groupItems = data.toGroupItemModel()
+                reloadDataSubject.send(())
+            } catch {
+                print("Error: \(error)")
             }
-            .store(in: &cancellables)
-    }
-    
-    // TODO: - 서버 데이터로 변경하기
-    
-    private func fetchGoodsListData() {
-        self.popularGoods = [
-            Goods(id: 0, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 10),
-            Goods(id: 1, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 20),
-            Goods(id: 2, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 1),
-            Goods(id: 3, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 2),
-            Goods(id: 4, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 3)
-        ]
-        
-        self.recentGoods = [
-            Goods(id: 0, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 10),
-            Goods(id: 1, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 20),
-            Goods(id: 2, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 1),
-            Goods(id: 3, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 2),
-            Goods(id: 4, artistName: "아이브", productName: "아이브앨범", imageURL: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", numberOfPot: 3)
-        ]
+        }
     }
 }
-
