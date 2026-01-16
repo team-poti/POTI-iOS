@@ -1,5 +1,5 @@
 //
-//  PotsListCell.swift
+//  PotListCell.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/15/26.
@@ -11,7 +11,12 @@ import Kingfisher
 import SnapKit
 import Then
 
-final class PotsListCell: UICollectionViewCell {
+enum PotStatus: String {
+    case recruiting = "RECRUITING"
+    case closed = "CLOSED"
+}
+
+final class PotListCell: UICollectionViewCell {
     
     // MARK: - UI Components
     
@@ -43,7 +48,6 @@ final class PotsListCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     // MARK: - Custom Methods
     
     private func setStyle() {
@@ -55,6 +59,7 @@ final class PotsListCell: UICollectionViewCell {
         }
         
         userProfileImageView.do {
+            $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = 17.5
             $0.clipsToBounds = true
         }
@@ -87,7 +92,7 @@ final class PotsListCell: UICollectionViewCell {
         
         memberListLabel.do {
             $0.textColor = .gray800
-            $0.font = PotiFontManager.caption12m.font
+            $0.font = PotiFontManager.body14m.font
             $0.numberOfLines = 2
             $0.lineBreakMode = .byTruncatingTail
         }
@@ -171,46 +176,64 @@ final class PotsListCell: UICollectionViewCell {
 
 // MARK: - Extension
 
-extension PotsListCell {
-    func configure(pot: Pot) {
+extension PotListCell {
+    func configure(pot: PotModel) {
         userProfileImageView.kf.setImage(with: URL(string: pot.profileImage))
-        userNicknameLabel.text = pot.user.nickname
+        userNicknameLabel.text = pot.uploader.nickname
         starScoreLabel.text = "\(pot.rating)"
         productImageView.kf.setImage(with: URL(string: pot.thumbnailUrl))
+        setPriceLabel(price: pot.price)
         
-        // TODO: - 서현이 formatter extension 연결하기
+        let status = PotStatus(rawValue: pot.status) ?? .recruiting
+        updateUI(status: status, pot: pot)
+    }
+    
+    private func updateUI(status: PotStatus, pot: PotModel) {
+        let isClosed = (status == .closed)
+        let alpha: CGFloat = isClosed ? 0.5 : 1.0
+        [userProfileImageView, userNicknameLabel, starScoreLabel, starIcon, priceLabel, productImageView].forEach {
+            $0.alpha = alpha
+        }
+        memberListLabel.isHidden = isClosed
         
-        let priceString = "\(pot.price)원~"
-        let perPersonString = " / 인"
-        let fullPriceText = NSMutableAttributedString(string: priceString + perPersonString)
-        
-        fullPriceText.addAttribute(.foregroundColor, value: UIColor.gray800, range: (fullPriceText.string as NSString).range(of: perPersonString))
-        fullPriceText.addAttribute(.font, value: PotiFontManager.body14m.font, range: (fullPriceText.string as NSString).range(of: perPersonString))
-        priceLabel.attributedText = fullPriceText
-        
-        let currentString = "\(pot.currentCount)"
-        let totalString = "/\(pot.totalCount)"
+        if isClosed {
+            setClosedStyle()
+        } else {
+            setRecruitingStyle(current: pot.currentCount, total: pot.totalCount, members: pot.availableMembers)
+        }
+    }
+    
+    private func setClosedStyle() {
+        countLabel.text = "마감"
+        countLabel.textColor = .gray800.withAlphaComponent(0.5)
+        countLabel.font = PotiFontManager.body16sb.font
+    }
+    
+    private func setRecruitingStyle(current: Int, total: Int, members: [String]) {
+        let currentString = "\(current)"
+        let totalString = "/\(total)"
         let fullCountText = NSMutableAttributedString(string: currentString + totalString)
-        
         fullCountText.addAttribute(.foregroundColor, value: UIColor.sementicRed, range: (fullCountText.string as NSString).range(of: totalString))
         fullCountText.addAttribute(.font, value: PotiFontManager.body16sb.font, range: (fullCountText.string as NSString).range(of: totalString))
+        
         countLabel.attributedText = fullCountText
         
-        // TODO: - (멤버이름 |) 을 한 세트로 움직이게 하기
-        
-        let joinedMembers = pot.availableMembers.joined(separator: " | ")
-
-        memberListLabel.text = joinedMembers
-        
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 4
-
-        let attributedString = NSMutableAttributedString(string: memberListLabel.text ?? "")
-        attributedString.addAttribute(
-            .paragraphStyle,
-            value: paragraphStyle,
-            range: NSRange(location: 0, length: attributedString.length)
+        let joinedMembers = members.joined(separator: " | ")
+        let paragraphStyle = NSMutableParagraphStyle().then { $0.lineSpacing = 4 }
+        memberListLabel.attributedText = NSAttributedString(
+            string: joinedMembers,
+            attributes: [.paragraphStyle: paragraphStyle]
         )
-        memberListLabel.attributedText = attributedString
+    }
+    
+    private func setPriceLabel(price: Int) {
+        let priceString = "\(price)원~"
+        let perPersonString = " / 인"
+        let fullPriceText = NSMutableAttributedString(string: priceString + perPersonString)
+        fullPriceText.addAttributes([
+            .foregroundColor: UIColor.gray800,
+            .font: PotiFontManager.body14m.font
+        ], range: (fullPriceText.string as NSString).range(of: perPersonString))
+        priceLabel.attributedText = fullPriceText
     }
 }
