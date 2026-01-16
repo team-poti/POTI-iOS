@@ -127,7 +127,7 @@ extension ParticipantStatusCaseView {
         case .completed:
             self.isHidden = false
             items = [
-                (title: "송장 번호", infos: [model.completedInfo?.trackingNumber ?? ""])
+                (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
             ]
         }
 
