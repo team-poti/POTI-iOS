@@ -11,9 +11,6 @@ import SnapKit
 import Then
 
 final class ProductRegisterView: BaseView {
-    @MainActor required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     private let scrollView = UIScrollView()
     private let contentView = UIView()
