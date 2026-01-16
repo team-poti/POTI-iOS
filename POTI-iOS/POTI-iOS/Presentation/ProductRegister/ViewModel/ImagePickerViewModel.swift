@@ -1,16 +1,15 @@
 //
-//  ImagePickerViewModel.swift
+//  ProductRegisterViewModel.swift
 //  POTI-iOS
 //
 //  Created by 박정환 on 1/16/26.
 //
 
 import UIKit
-
-import PhotosUI
 import Combine
+import PhotosUI
 
-final class ImagePickerViewModel: BaseViewModelType {
+final class ProductRegisterViewModel: BaseViewModelType {
 
     // MARK: - Input
 
@@ -18,27 +17,34 @@ final class ImagePickerViewModel: BaseViewModelType {
         case tapAdd
         case tapDelete(Int)
         case didFinishPicking([PHPickerResult])
+
+        // TODO: - 상품 등록 화면 다른 액션
     }
+
 
     // MARK: - Output
 
     struct Output {
         let images: AnyPublisher<[UIImage], Never>
         let requestPicker: AnyPublisher<Int, Never>
+
+        // TODO: - 상품 등록 화면 다른 Output
     }
 
     let output: Output
 
-    // MARK: - Private Properties
+
+    // MARK: - Properties
 
     private let maxCount: Int
 
     private let imagesSubject = CurrentValueSubject<[UIImage], Never>([])
     private let requestPickerSubject = PassthroughSubject<Int, Never>()
 
+
     // MARK: - Initializer
 
-    init(maxCount: Int) {
+    init(maxCount: Int = 5) {
         self.maxCount = maxCount
         self.output = Output(
             images: imagesSubject.eraseToAnyPublisher(),
@@ -82,7 +88,7 @@ final class ImagePickerViewModel: BaseViewModelType {
         }
     }
 
-    // MARK: - Private Methods
+    // MARK: - Custom Method
 
     private func loadImages(from results: [PHPickerResult]) async -> [UIImage] {
         await withTaskGroup(of: UIImage?.self) { group in

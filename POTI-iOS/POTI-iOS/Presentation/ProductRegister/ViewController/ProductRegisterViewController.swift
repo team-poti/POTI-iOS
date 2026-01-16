@@ -18,22 +18,6 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
 
     private let imagePickerView = ImagePickerView()
 
-    // MARK: - Initializer
-
-    override init(viewModel: ProductRegisterViewModel = .init()) {
-        super.init(viewModel: viewModel)
-    }
-
-    @MainActor required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: - Life Cycle
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-
     // MARK: - UI Setting
 
     override func setUI() {
@@ -51,14 +35,14 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     // MARK: - Custom Method
 
     override func bindViewModel() {
-        viewModel.imagePickerViewModel.output.images
+        viewModel.output.images
             .receive(on: RunLoop.main)
             .sink { [weak self] images in
                 self?.imagePickerView.setImages(images)
             }
             .store(in: &cancellables)
 
-        viewModel.imagePickerViewModel.output.requestPicker
+        viewModel.output.requestPicker
             .receive(on: RunLoop.main)
             .sink { [weak self] remainingLimit in
                 self?.presentPicker(selectionLimit: remainingLimit)
@@ -70,11 +54,11 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
 
     override func addTarget() {
         imagePickerView.onTapAdd = { [weak self] in
-            self?.viewModel.imagePickerViewModel.action(.tapAdd)
+            self?.viewModel.action(.tapAdd)
         }
 
         imagePickerView.onTapDelete = { [weak self] index in
-            self?.viewModel.imagePickerViewModel.action(.tapDelete(index))
+            self?.viewModel.action(.tapDelete(index))
         }
     }
 
@@ -89,13 +73,12 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     }
 }
 
-
     // MARK: - delegate Method
 
 extension ProductRegisterViewController: PHPickerViewControllerDelegate {
 
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
-        viewModel.imagePickerViewModel.action(.didFinishPicking(results))
+        viewModel.action(.didFinishPicking(results))
     }
 }
