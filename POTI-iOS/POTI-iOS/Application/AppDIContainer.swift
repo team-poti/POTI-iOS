@@ -34,6 +34,10 @@ final class AppDIContainer {
         DefaultGoodsListRepository()
     }
     
+    private func makePotListRepository() -> PotListInterface {
+        DefaultPotListRepository()
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -50,6 +54,10 @@ final class AppDIContainer {
         DefaultGoodsListUseCase(repository: makeGoodsListRepository())
     }
     
+    private func makePotListUseCase() -> PotListUseCase {
+        DefaultPotListUseCase(repository: makePotListRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLoginViewModel() -> LoginViewModel {
@@ -62,5 +70,9 @@ final class AppDIContainer {
     
     func makeGoodsListViewModel() -> GoodsListViewModel {
         GoodsListViewModel(useCase: makeGoodsListUseCase())
+    }
+    
+    func makePotListViewModel() -> PotListViewModel {
+        PotListViewModel(useCase: makePotListUseCase())
     }
 }

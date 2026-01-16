@@ -1,5 +1,5 @@
 //
-//  PotsListViewController.swift
+//  PotListViewController.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/15/26.
@@ -9,18 +9,16 @@ import UIKit
 
 import Combine
 
-protocol PotsListViewScrollDelegate: AnyObject {
+protocol PotListViewScrollDelegate: AnyObject {
     func potsListViewDidScroll(yOffset: CGFloat)
 }
 
-final class PotsListViewController: BaseViewController<PotsListViewModel>{
+final class PotListViewController: BaseViewController<PotListViewModel>{
     
     // MARK: - Properties
     
-    weak var scrollDelegate: PotsListViewScrollDelegate?
-    private let rootView = PotsListView()
-    private var cancellables = Set<AnyCancellable>()
-    
+    weak var scrollDelegate: PotListViewScrollDelegate?
+    private let rootView = PotListView()
     
     // MARK: - Life Cycles
     
@@ -29,11 +27,8 @@ final class PotsListViewController: BaseViewController<PotsListViewModel>{
     }
     
     override func viewDidLoad() {
-        let viewModel = PotsListViewModel()
-        self.bind(viewModel: viewModel)
         super.viewDidLoad()
-        viewModel.viewDidLoad.send(())
-        
+        viewModel.action(.viewDidLoad)
         self.navigationController?.navigationBar.isHidden = true
     }
     
@@ -58,12 +53,10 @@ final class PotsListViewController: BaseViewController<PotsListViewModel>{
         rootView.potsListCollectionView.dataSource = self
     }
     
-    override func bind(viewModel: PotsListViewModel) {
-        super.bind(viewModel: viewModel)
-        
-        viewModel.$pots
+    override func bindViewModel() {
+        viewModel.output.reloadData
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] in
                 self?.rootView.potsListCollectionView.reloadData()
             }
             .store(in: &cancellables)
@@ -72,20 +65,17 @@ final class PotsListViewController: BaseViewController<PotsListViewModel>{
 
 // MARK: - UICollectionViewDataSource
 
-extension PotsListViewController: UICollectionViewDataSource {
+extension PotListViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let viewModel = viewModel else { return 0 }
         return viewModel.pots.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let viewModel = viewModel else { return UICollectionViewCell() }
-        
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PotsListCell.identifier, for: indexPath) as? PotsListCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PotListCell.identifier, for: indexPath) as? PotListCell else {
             return UICollectionViewCell()
         }
         
@@ -96,10 +86,9 @@ extension PotsListViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
         switch kind {
         case UICollectionView.elementKindSectionHeader:
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: PotsListHeaderCell.identifier, for: indexPath) as! PotsListHeaderCell
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: PotListHeaderCell.identifier, for: indexPath) as! PotListHeaderCell
             header.delegate = self
             return header
             
@@ -111,13 +100,13 @@ extension PotsListViewController: UICollectionViewDataSource {
 
 //MARK: - Extensions
 
-extension PotsListViewController: UICollectionViewDelegate {
+extension PotListViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollDelegate?.potsListViewDidScroll(yOffset: scrollView.contentOffset.y)
     }
 }
 
-extension PotsListViewController: PotsListHeaderCellDelegate {
+extension PotListViewController: PotListHeaderCellDelegate {
     func leftFilterButtonDidTap() {
         // TODO: - 멤버 모달 이후 구현하기
     }

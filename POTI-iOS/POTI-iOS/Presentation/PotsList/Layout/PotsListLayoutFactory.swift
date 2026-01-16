@@ -1,5 +1,5 @@
 //
-//  PotsListLayoutFactory.swift
+//  PotListLayoutFactory.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/15/26.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct PotsListLayoutFactory {
+struct PotListLayoutFactory {
     static func createLayout() -> UICollectionViewCompositionalLayout {
         return UICollectionViewCompositionalLayout { (_, _) -> NSCollectionLayoutSection? in
                         let itemSize = NSCollectionLayoutSize(
