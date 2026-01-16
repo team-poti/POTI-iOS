@@ -80,8 +80,8 @@ final class BannerCell: UICollectionViewCell {
 // MARK: - Extension
 
 extension BannerCell {
-    func configure(banner: Banner) {
-        bannerImageView.kf.setImage(with: URL(string: banner.imageURL ?? ""))
-        shadowImageView.kf.setImage(with: URL(string: banner.imageURL ?? ""))
+    func configure(banner: BannerModel) {
+        bannerImageView.kf.setImage(with: URL(string: banner.imageUrl))
+        shadowImageView.kf.setImage(with: URL(string: banner.imageUrl))
     }
 }
