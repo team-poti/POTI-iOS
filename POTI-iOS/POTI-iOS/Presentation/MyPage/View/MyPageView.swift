@@ -23,11 +23,16 @@ final class MyPageView: BaseView {
     private let idolButton = ChooseFavoriteIdolButton()
     private let userInformationView = UserInformationView(recentActivity: "최근 3일 이내 활동", signUpDate: "2024-12-28".toDate())
     private let participationLabel = UILabel()
-    private let participationView = MyPageNavigationView()
+    let participationView = MyPageNavigationView()
     private let recruitmentLabel = UILabel()
-    private let recruitmentView = MyPageNavigationView()
+    let recruitmentView = MyPageNavigationView()
     
     override func setStyle() {
+        
+        scrollView.do {
+            $0.showsVerticalScrollIndicator = false
+        }
+        
         profileImage.do {
             $0.image = .imgDone
             $0.contentMode = .scaleAspectFill
@@ -40,12 +45,14 @@ final class MyPageView: BaseView {
             $0.font = PotiFontManager.body16sb.font
             $0.textColor = .potiBlack
             $0.textAlignment = .center
+            $0.text = "앙티티"
         }
         
         emailLabel.do {
             $0.font = PotiFontManager.caption12m.font
             $0.textColor = .gray700
             $0.textAlignment = .center
+            $0.text = "ang@naver.com"
         }
         
         buttonStackView.do {
@@ -62,19 +69,6 @@ final class MyPageView: BaseView {
         
         participationView.do {
             $0.configure(counts: (all: 3, ongoing: 2, completed: 1))
-            $0.onFilterChanged  = { [weak self] type in
-                switch type {
-                case .all:
-                    print("전체 선택됨")
-                    // 전체 데이터 로드
-                case .ongoing:
-                    print("진행중 선택됨")
-                    // 진행중 데이터 로드
-                case .completed:
-                    print("종료 선택됨")
-                    // 종료 데이터 로드
-                }
-            }
         }
         
         recruitmentLabel.do {
@@ -85,19 +79,6 @@ final class MyPageView: BaseView {
         
         recruitmentView.do {
             $0.configure(counts: (all: 7, ongoing: 2, completed: 5))
-            $0.onFilterChanged  = { [weak self] type in
-                switch type {
-                case .all:
-                    print("전체 선택됨")
-                    // 전체 데이터 로드
-                case .ongoing:
-                    print("진행중 선택됨")
-                    // 진행중 데이터 로드
-                case .completed:
-                    print("종료 선택됨")
-                    // 종료 데이터 로드
-                }
-            }
         }
     }
     
@@ -163,7 +144,7 @@ final class MyPageView: BaseView {
         recruitmentView.snp.makeConstraints {
             $0.top.equalTo(recruitmentLabel.snp.bottom).offset(12)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-60)
+            $0.bottom.equalToSuperview().inset(60)
         }
     }
 }

@@ -32,7 +32,6 @@ final class MyPageNavigationView: BaseView {
     
     // MARK: - UI Components
     
-    private let containerView = UIView()
     private let stackView = UIStackView()
     
     private lazy var allButton = makeFilterButton(type: .all)
@@ -49,7 +48,7 @@ final class MyPageNavigationView: BaseView {
     private var buttons: [MyPageNavigationType: UIButton] = [:]
     private var countLabels: [MyPageNavigationType: UILabel] = [:]
     
-    // MARK: - Initialization
+    // MARK: - Init
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -60,16 +59,9 @@ final class MyPageNavigationView: BaseView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Setup
-    
     override func setStyle() {
-        backgroundColor = .clear
-        
-        containerView.do {
-            $0.backgroundColor = .gray100
-            $0.layer.cornerRadius = 16
-            $0.isUserInteractionEnabled = false
-        }
+        backgroundColor = .gray100
+        layer.cornerRadius = 16
         
         stackView.do {
             $0.axis = .horizontal
@@ -79,15 +71,12 @@ final class MyPageNavigationView: BaseView {
     }
     
     override func setUI() {
-        addSubview(containerView)
-        containerView.addSubviews(stackView, firstDivider, secondDivider)
-        
+        addSubviews(stackView, firstDivider, secondDivider)
         stackView.addArrangedSubviews(allButton, ongoingButton, completedButton)
     }
     
     override func setLayout() {
-        containerView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+        self.snp.makeConstraints {
             $0.height.equalTo(104)
         }
         
