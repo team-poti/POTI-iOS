@@ -76,8 +76,13 @@ final class SortCell: UITableViewCell {
 }
 
 extension SortCell {
-    func configure(text: String, isSelected: Bool) {
+    func configure(text: String, isSelected: Bool, isLast: Bool) {
         optionLabel.text = text
         selectIcon.isHidden = !isSelected
+        separatorView.isHidden = isLast
     }
+}
+
+#Preview {
+    SortBottomSheet(viewModel: SortViewModel(initialIndex: 0))
 }

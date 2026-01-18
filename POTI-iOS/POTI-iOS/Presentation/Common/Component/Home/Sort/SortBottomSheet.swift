@@ -7,6 +7,7 @@
 
 import UIKit
 
+import Combine
 import SnapKit
 import Then
 
@@ -14,9 +15,9 @@ final class SortBottomSheet: BaseView {
     
     // MARK: - Properties
     
-    private var options: [String] = []
-    private var selectedIndex: Int = 0
-    private var onSelect: ((Int) -> Void)?
+    private let viewModel: SortViewModel
+    private var cancellables = Set<AnyCancellable>()
+    var onSelectCompletion: ((Int) -> Void)?
     
     // MARK: - UI Components
     
@@ -25,13 +26,25 @@ final class SortBottomSheet: BaseView {
     private let closeButton = UIButton()
     private lazy var tableView = UITableView()
     
+    // MARK: - Initializer
+    
+    init(viewModel: SortViewModel) {
+        self.viewModel = viewModel
+        super.init(frame: .zero)
+        bindViewModel()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Custom Methods
     
     override func setStyle() {
         setAddTarget()
         
         backgroundView.do {
-            $0.backgroundColor = .black.withAlphaComponent(0.4)
+            $0.backgroundColor = .black.withAlphaComponent(0.6)
         }
         
         containerView.do {
@@ -81,7 +94,34 @@ final class SortBottomSheet: BaseView {
         tableView.snp.makeConstraints {
             $0.top.equalTo(closeButton.snp.bottom).offset(3)
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview().inset(75)
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(41)
+            $0.height.equalTo(100)
+        }
+    }
+    
+    private func bindViewModel() {
+        Publishers.CombineLatest(viewModel.output.options, viewModel.output.selectedIndex)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.tableView.reloadData()
+                self?.updateTableViewHeight()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.onSelect
+            .receive(on: RunLoop.main)
+            .sink { [weak self] index in
+                self?.onSelectCompletion?(index)
+                self?.dismiss()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateTableViewHeight() {
+        tableView.layoutIfNeeded()
+        let contentHeight = tableView.contentSize.height
+        tableView.snp.updateConstraints {
+            $0.height.equalTo(contentHeight)
         }
     }
     
@@ -92,24 +132,6 @@ final class SortBottomSheet: BaseView {
     }
     
     // MARK: - Methods
-    
-    func configure(options: [String], selectedIndex: Int, completion: @escaping (Int) -> Void) {
-        self.options = options
-        self.selectedIndex = selectedIndex
-        self.onSelect = completion
-        
-        tableView.reloadData()
-        
-        tableView.layoutIfNeeded()
-        let contentHeight = tableView.contentSize.height+20
-        
-        tableView.snp.remakeConstraints {
-            $0.top.equalTo(closeButton.snp.bottom).offset(3)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview().inset(75)
-            $0.height.equalTo(contentHeight)
-        }
-    }
     
     func show(in view: UIView) {
         view.addSubview(self)
@@ -139,23 +161,25 @@ final class SortBottomSheet: BaseView {
 
 extension SortBottomSheet: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return options.count
+        return viewModel.currentOptions.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: SortCell.identifier, for: indexPath) as? SortCell else { return UITableViewCell() }
         
-        cell.configure(text: options[indexPath.row], isSelected: indexPath.row == selectedIndex)
+        let option = viewModel.currentOptions[indexPath.row]
+        let isSelected = indexPath.row == viewModel.currentSelectedIndex
+        let isLast = indexPath.row == viewModel.currentOptions.count - 1
+        
+        cell.configure(text: option, isSelected: isSelected, isLast: isLast)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedIndex = indexPath.row
-        tableView.reloadData()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.onSelect?(indexPath.row)
-            self.dismiss()
-        }
+        viewModel.action(.selectOption(index: indexPath.row))
     }
+}
+
+#Preview {
+    SortBottomSheet(viewModel: SortViewModel(initialIndex: 0))
 }
