@@ -144,13 +144,15 @@ final class ParticipantManageListCell: UITableViewCell {
     
     func setUI() {
         contentView.addSubview(rootStackView)
-
-        rootStackView.addArrangedSubview(divideView)
-        rootStackView.addArrangedSubview(headerContainerView)
-        rootStackView.addArrangedSubview(grayBackgroundView)
-        rootStackView.addArrangedSubview(emptyView)
-        rootStackView.addArrangedSubview(bottomDivideView)
-
+        
+        rootStackView.addArrangedSubviews(
+            divideView,
+            headerContainerView,
+            grayBackgroundView,
+            emptyView,
+            bottomDivideView
+        )
+        
         headerContainerView.addSubviews(
             participantMemberLabel,
             statusLabel,
