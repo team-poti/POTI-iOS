@@ -19,7 +19,7 @@ final class ProductRegisterView: BaseView {
     private let memberView = RegisterMemberView()
     private let shippingView = RegisterShippingView()
     private let noticeView = RegisterNoticeView()
-    private let submitButton = UIButton()
+    private let submitButton = PotiBottomButton()
 
     var imagePickerView: ImagePickerView { productInfoView.imagePickerView }
 
@@ -45,11 +45,9 @@ final class ProductRegisterView: BaseView {
         }
 
         submitButton.do {
-            $0.setTitle("등록하기", for: .normal)
-            $0.backgroundColor = .poti600
-            $0.titleLabel?.font = PotiFontManager.button16sb.font
-            $0.setTitleColor(.potiWhite, for: .normal)
-            $0.layer.cornerRadius = 26
+            $0.text = "등록하기"
+            $0.color = .primaryMain
+            $0.isDisabled = false
         }
     }
 

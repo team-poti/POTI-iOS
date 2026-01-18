@@ -9,13 +9,11 @@ import UIKit
 
 import Combine
 import PhotosUI
-import SnapKit
-import Then
 
 final class ProductRegisterViewController: BaseViewController<ProductRegisterViewModel>, NavigationConfigurable {
-
+    
     func navigationStyle() -> PotiNavigationStyle {
-        return .xButton
+        .xButton
     }
     
     private let rootView = ProductRegisterView()
