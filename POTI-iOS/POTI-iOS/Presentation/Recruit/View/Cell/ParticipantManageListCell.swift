@@ -100,6 +100,7 @@ final class ParticipantManageListCell: UITableViewCell {
         participantMemberLabel.do {
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
+            $0.numberOfLines = 1
         }
         statusLabel.do {
             $0.font = PotiFontManager.body14sb.font
@@ -177,20 +178,22 @@ final class ParticipantManageListCell: UITableViewCell {
     
     func setLayout() {
         rootStackView.snp.makeConstraints {
-            $0.leading.trailing.bottom.equalToSuperview()
-            // 기본(접힘) 상태는 top 0
-            $0.top.equalToSuperview().inset(0)
+            $0.edges.equalToSuperview()
+            //$0.top.equalToSuperview().inset(0)
         }
 
         divideView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(1)
         }
         
         bottomDivideView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(1)
         }
 
         headerContainerView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(64)
         }
 
@@ -198,6 +201,7 @@ final class ParticipantManageListCell: UITableViewCell {
             $0.top.equalToSuperview().offset(20)
             $0.leading.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(16)
+            $0.width.equalTo(235)
         }
 
         toggleButton.snp.makeConstraints {
@@ -215,6 +219,7 @@ final class ParticipantManageListCell: UITableViewCell {
         }
         
         emptyView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview()
             $0.top.equalTo(grayBackgroundView.snp.bottom).offset(20)
             $0.height.equalTo(0.1)
         }
@@ -270,7 +275,6 @@ final class ParticipantManageListCell: UITableViewCell {
 }
 
 extension ParticipantManageListCell {
-    /// VC에서 사용하는 API (펼침 여부에 따라 chevron + 회색 박스 토글)
     func configure(model: ParticipantManageModel, isExpanded: Bool, isLast: Bool) {
         // header
         participantMemberLabel.text = model.memberTitle.joined(separator: ", ")
@@ -298,7 +302,6 @@ extension ParticipantManageListCell {
             }
         )
 
-        // status별 caseView 숨김/노출 (기존 로직 유지)
         switch model.participantstatus {
         case .waitPay, .waitRecruit:
             participantCaseZeroHeightConstraint?.activate()
@@ -308,7 +311,6 @@ extension ParticipantManageListCell {
         
         grayBackgroundView.isHidden = !isExpanded
         bottomDivideView.isHidden = !isLast
-        //let bottomPadding: CGFloat = isExpanded ? 16 : 0
         rootStackView.setCustomSpacing(0, after: headerContainerView)
         rootStackView.setCustomSpacing(160, after: grayBackgroundView)
     }

@@ -17,10 +17,13 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     private let tableView = UITableView()
 
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setTableView()
-        fetchParticipants()
+        bindViewModel()
+
+        viewModel.action(.viewDidLoad)
     }
 
     override func setUI() {
@@ -30,7 +33,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     override func setLayout() {
         tableView.snp.makeConstraints {
             $0.top.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(30)
             $0.leading.trailing.equalToSuperview()
         }
     }
@@ -41,6 +44,13 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     }
 
     override func bindViewModel() {
+        viewModel.output.fetchData
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+        
         viewModel.output.toggleButtonTapped
             .receive(on: DispatchQueue.main)
             .sink { [weak self] section in
@@ -60,7 +70,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             $0.showsVerticalScrollIndicator = false
             $0.allowsSelection = false
             $0.rowHeight = UITableView.automaticDimension
-            $0.estimatedRowHeight = 210
+            $0.estimatedRowHeight = 240
             $0.backgroundColor = .potiWhite
         }
     }
@@ -72,7 +82,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
 
         CATransaction.begin()
         CATransaction.setAnimationDuration(0.25)
-        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeInEaseOut))
+        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .linear))
 
         tableView.performBatchUpdates({
             tableView.reloadRows(at: [indexPath], with: .automatic)
@@ -83,6 +93,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
 }
 
 // MARK: - UITableViewDataSource / Delegate
+
 extension ParticipantListTableViewController: UITableViewDataSource, UITableViewDelegate {
 
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -194,10 +205,4 @@ extension ParticipantListTableViewController {
         viewModel.setParticipants(mockParticipants)
         tableView.reloadData()
     }
-}
-
-#Preview {
-    ParticipantListTableViewController(
-        viewModel: ParticipantManageViewModel()
-    )
 }

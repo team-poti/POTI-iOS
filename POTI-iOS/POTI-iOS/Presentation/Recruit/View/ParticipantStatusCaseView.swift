@@ -29,7 +29,6 @@ final class ParticipantStatusCaseView: BaseView {
             $0.distribution = .fill
         }
         
-        //TODO: - 컴포넌트로 빼자.. 정환누나 편하게 해주자..
         actionButton.do {
             $0.setTitleColor(.potiWhite, for: .normal)
             $0.backgroundColor = .potiBlack
@@ -72,7 +71,7 @@ final class ParticipantStatusCaseView: BaseView {
 
 extension ParticipantStatusCaseView {
     
-    func reset() { //TODO: - 왜 해야하는 건지 더 자세히..
+    func reset() {
         infoLabelStackView.reset()
         actionButton.isHidden = true
         actionButton.setTitle("", for: .normal)
