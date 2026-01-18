@@ -48,7 +48,6 @@ extension LoginViewController {
     }
     
     @objc private func devLoginButtonTapped() {
-        print("눌림")
         viewModel.action(.devLoginTap)
     }
 }
