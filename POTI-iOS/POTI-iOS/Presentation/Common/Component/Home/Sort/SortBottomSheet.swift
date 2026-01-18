@@ -179,7 +179,3 @@ extension SortBottomSheet: UITableViewDelegate, UITableViewDataSource {
         viewModel.action(.selectOption(index: indexPath.row))
     }
 }
-
-#Preview {
-    SortBottomSheet(viewModel: SortViewModel(initialIndex: 0))
-}

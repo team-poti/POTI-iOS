@@ -82,7 +82,3 @@ extension SortCell {
         separatorView.isHidden = isLast
     }
 }
-
-#Preview {
-    SortBottomSheet(viewModel: SortViewModel(initialIndex: 0))
-}
