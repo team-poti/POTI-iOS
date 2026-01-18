@@ -16,6 +16,8 @@ final class ParticipantManageListCell: UITableViewCell {
     
     var onTapStatusAction: ((ParticipantManageModel) -> Void)?
     var onTapToggle: (() -> Void)?
+    /// `.paid` 상태에서 보이는 "송장 번호 입력" 버튼 탭 콜백
+    var onTapEnterTrackingNumber: ((ParticipantManageModel) -> Void)?
     
     private let totalStackView = IconStackView(
         iconName: "icn-priceAngle",
@@ -64,6 +66,7 @@ final class ParticipantManageListCell: UITableViewCell {
         super.prepareForReuse()
         onTapToggle = nil
         onTapStatusAction = nil
+        onTapEnterTrackingNumber = nil
         memberRowStackView.reset()
         participantCaseZeroHeightConstraint?.deactivate()
         grayBackgroundView.isHidden = true
@@ -248,7 +251,6 @@ final class ParticipantManageListCell: UITableViewCell {
             $0.bottom.equalTo(grayBackgroundView).inset(16)
             participantCaseZeroHeightConstraint = $0.height.equalTo(0).constraint
         }
-        //participantCaseZeroHeightConstraint?.deactivate()
     }
 }
 
@@ -276,6 +278,14 @@ extension ParticipantManageListCell {
             model: model,
             onTapAction: { [weak self] in
                 guard let self else { return }
+
+                // .paid → "송장 번호 입력" 버튼 - 바텀시트 띄우기
+                if model.participantstatus == .paid {
+                    self.onTapEnterTrackingNumber?(model)
+                    return
+                }
+
+                // 그 외 상태는 기존 콜백 사용 - 입금 버튼 추후에 수정
                 self.onTapStatusAction?(model)
             }
         )

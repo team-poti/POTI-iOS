@@ -92,6 +92,19 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
 
         CATransaction.commit()
     }
+
+    // MARK: - BottomSheet
+
+    private func presentDetailBottomSheet() {
+        let sheet = DetailBottomSheet(
+            firstTitle: "배송업체",
+            firstPlaceholder: "배송업체를 선택해주세요",
+            secondTitle: "송장번호",
+            secondPlaceholder: "송장번호를 입력해주세요",
+            confirmButtonText: "완료"
+        )
+        sheet.show(in: self.view)
+    }
 }
 
 // MARK: - UITableViewDataSource / Delegate
@@ -129,6 +142,10 @@ extension ParticipantListTableViewController: UITableViewDataSource, UITableView
         
         cell.onTapToggle = { [weak self] in
             self?.viewModel.action(.toggleButtonTap(section: indexPath.section))
+        }
+
+        cell.onTapEnterTrackingNumber = { [weak self] _ in
+            self?.presentDetailBottomSheet()
         }
 
         return cell
