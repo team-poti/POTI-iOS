@@ -40,10 +40,10 @@ final class MyPageNavigationView: BaseView {
     private lazy var completedButton = makeFilterButton(type: .completed)
     
     private let firstDivider = UIView().then {
-        $0.backgroundColor = .poti200
+        $0.backgroundColor = .gray300
     }
     private let secondDivider = UIView().then {
-        $0.backgroundColor = .poti200
+        $0.backgroundColor = .gray300
     }
     
     private var buttons: [MyPageNavigationType: UIButton] = [:]
@@ -66,78 +66,81 @@ final class MyPageNavigationView: BaseView {
         backgroundColor = .clear
         
         containerView.do {
-            $0.backgroundColor = .poti200
+            $0.backgroundColor = .gray100
             $0.layer.cornerRadius = 16
+            $0.isUserInteractionEnabled = false
         }
         
         stackView.do {
             $0.axis = .horizontal
             $0.distribution = .fillEqually
-            $0.spacing = 0
+            $0.spacing = 17
         }
-        
-        // 초기 선택 상태
-        updateButtonState(selected: .all)
     }
     
     override func setUI() {
         addSubview(containerView)
-        containerView.addSubview(stackView)
+        containerView.addSubviews(stackView, firstDivider, secondDivider)
         
-        stackView.addArrangedSubview(allButton)
-        stackView.addArrangedSubview(firstDivider)
-        stackView.addArrangedSubview(ongoingButton)
-        stackView.addArrangedSubview(secondDivider)
-        stackView.addArrangedSubview(completedButton)
+        stackView.addArrangedSubviews(allButton, ongoingButton, completedButton)
     }
     
     override func setLayout() {
         containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
-            $0.height.equalTo(120)
+            $0.height.equalTo(104)
         }
         
         stackView.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(16)
+            $0.edges.equalToSuperview().inset(8)
         }
         
-        [firstDivider, secondDivider].forEach { divider in
-            divider.snp.makeConstraints {
-                $0.width.equalTo(1)
-                $0.top.bottom.equalToSuperview()
-            }
+        firstDivider.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.leading.equalTo(allButton.snp.trailing).offset(8)
+            $0.top.bottom.equalToSuperview().inset(24)
+            $0.width.equalTo(1)
+        }
+
+        secondDivider.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.leading.equalTo(ongoingButton.snp.trailing).offset(8)
+            $0.top.bottom.equalToSuperview().inset(24)
+            $0.width.equalTo(1)
         }
     }
     
-    // MARK: - Private Methods
-    
     private func makeFilterButton(type: MyPageNavigationType) -> UIButton {
-        let button = UIButton()
-        button.tag = type.rawValue
-        button.layer.cornerRadius = 12
+        let button = UIButton().then {
+            $0.tag = type.rawValue
+            $0.layer.cornerRadius = 12
+            $0.clipsToBounds = true
+        }
         
-        // 버튼 내부 스택뷰
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 8
-        stackView.alignment = .center
-        stackView.isUserInteractionEnabled = false
+        let stackView = UIStackView().then {
+            $0.axis = .vertical
+            $0.spacing = 8
+            $0.alignment = .center
+            $0.isUserInteractionEnabled = false
+        }
         
-        // 숫자 라벨
-        let countLabel = UILabel()
-        countLabel.font = PotiFontManager.display20b.font
-        countLabel.textAlignment = .center
+        let countLabel = UILabel().then {
+            $0.font = PotiFontManager.title18sb.font
+            $0.textAlignment = .center
+            $0.textColor = .poti600
+        }
         
-        // 타이틀 라벨
-        let titleLabel = UILabel()
-        titleLabel.text = type.title
-        titleLabel.font = PotiFontManager.body16m.font
-        titleLabel.textAlignment = .center
+        let titleLabel = UILabel().then {
+            $0.text = type.title
+            $0.font = PotiFontManager.caption12m.font
+            $0.textColor = .gray800
+            $0.textAlignment = .center
+        }
         
-        stackView.addArrangedSubview(countLabel)
-        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubviews(countLabel, titleLabel)
         
         button.addSubview(stackView)
+        
         stackView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
@@ -146,23 +149,11 @@ final class MyPageNavigationView: BaseView {
         
         button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
         
-        return button
-    }
-    
-    private func updateButtonState(selected: MyPageNavigationType) {
-        MyPageNavigationType.allCases.forEach { type in
-            guard let button = buttons[type],
-                  let countLabel = countLabels[type],
-                  let titleLabel = button.subviews.compactMap({ $0 as? UIStackView }).first?.arrangedSubviews[1] as? UILabel else { return }
-            
-            let isSelected = type == selected
-            
-            button.backgroundColor = isSelected ? .potiWhite : .clear
-            countLabel.textColor = isSelected ? .poti800 : .poti400
-            titleLabel.textColor = isSelected ? .poti800 : .poti400
-        }
+        button.setBackgroundImage(.fromUIColor(color: .gray100), for: .normal)
         
-        selectedFilter = selected
+        button.setBackgroundImage(.fromUIColor(color: .gray300), for: .highlighted)
+        
+        return button
     }
     
     // MARK: - Actions
@@ -170,7 +161,6 @@ final class MyPageNavigationView: BaseView {
     @objc private func filterButtonTapped(_ sender: UIButton) {
         guard let type = MyPageNavigationType(rawValue: sender.tag) else { return }
         
-        updateButtonState(selected: type)
         onFilterChanged?(type)
     }
     
@@ -186,9 +176,5 @@ final class MyPageNavigationView: BaseView {
         buttons.values.forEach { button in
             button.isUserInteractionEnabled = isEnabled
         }
-    }
-    
-    func selectFilter(_ type: MyPageNavigationType) {
-        updateButtonState(selected: type)
     }
 }

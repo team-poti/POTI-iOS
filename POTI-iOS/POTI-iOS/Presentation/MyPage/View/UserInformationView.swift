@@ -82,7 +82,8 @@ final class UserInformationView: BaseView {
         
         signUpDateLabel.snp.makeConstraints {
             $0.leading.equalTo(secondBulletImage.snp.trailing)
-            $0.centerY.equalTo(firstBulletImage)
+            $0.top.equalTo(recentActivityLabel.snp.bottom)
+            $0.centerY.equalTo(secondBulletImage)
         }
     }
 }
