@@ -19,8 +19,9 @@ final class RegisterInfoView: BaseView {
 
     // MARK: - UI Properties
 
-    private let imagePickerView = ImagePickerView()
-
+    private let _imagePickerView = ImagePickerView()
+    var imagePickerView: ImagePickerView { _imagePickerView }
+    
     private let titleLabel = UILabel()
 
     // MARK: - UI Setting

@@ -16,20 +16,25 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
 
     // MARK: - UI Components
 
-    private let imagePickerView = ImagePickerView()
+    private let rootView = ProductRegisterView()
+    private var imagePickerView: ImagePickerView {
+        rootView.imagePickerView
+    }
+
+    // MARK: - Life Cycle
+
+    override func loadView() {
+        self.view = rootView
+    }
 
     // MARK: - UI Setting
 
     override func setUI() {
-        view.addSubview(imagePickerView)
+
     }
 
     override func setLayout() {
-        imagePickerView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(90)
-        }
+
     }
 
     // MARK: - Custom Method
@@ -73,12 +78,19 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     }
 }
 
-    // MARK: - delegate Method
+// MARK: - delegate Method
 
 extension ProductRegisterViewController: PHPickerViewControllerDelegate {
 
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         viewModel.action(.didFinishPicking(results))
+    }
+}
+
+extension ProductRegisterViewController: NavigationConfigurable {
+
+    func navigationStyle() -> PotiNavigationStyle {
+        return .xButton
     }
 }
