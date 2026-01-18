@@ -33,6 +33,9 @@ final class DetailTextFieldView: BaseView {
     var text: String {
         customTextField.text ?? ""
     }
+
+    /// Emits whenever the text field value changes (editingChanged)
+    var onTextChanged: ((String) -> Void)?
     
     // MARK: - Custom Method
     
@@ -59,6 +62,7 @@ final class DetailTextFieldView: BaseView {
             titleLabel,
             customTextField
         )
+        customTextField.addTarget(self, action: #selector(textFieldEditingChanged), for: .editingChanged)
     }
     
     override func setLayout() {
@@ -100,8 +104,13 @@ final class DetailTextFieldView: BaseView {
             ]
         )
     }
-    
-    func setKeyboardType(_ type: UIKeyboardType) {
-        customTextField.keyboardType = type
+
+    @objc private func textFieldEditingChanged() {
+        onTextChanged?(text)
+    }
+
+    func reset() {
+        customTextField.text = ""
+        onTextChanged = nil
     }
 }

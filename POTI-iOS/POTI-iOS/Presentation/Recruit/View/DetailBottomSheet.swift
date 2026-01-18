@@ -60,7 +60,6 @@ final class DetailBottomSheet: BaseView {
     // MARK: - Custom Methods
 
     override func setStyle() {
-        setAddTarget()
 
         backgroundView.do {
             $0.backgroundColor = .black.withAlphaComponent(0.6)
@@ -77,7 +76,6 @@ final class DetailBottomSheet: BaseView {
             $0.setImage(.icnX, for: .normal)
         }
         confirmButton.do {
-            $0.color = .primaryMain
             $0.isDisabled = true
         }
     }
@@ -90,6 +88,7 @@ final class DetailBottomSheet: BaseView {
             secondTextFieldView,
             confirmButton
         )
+        setAddTarget()
     }
 
     override func setLayout() {
@@ -145,6 +144,27 @@ final class DetailBottomSheet: BaseView {
         closeButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
         backgroundView.addGestureRecognizer(tapGesture)
+        confirmButton.addTarget(self, action: #selector(didTapConfirmButton), for: .touchUpInside)
+
+        firstTextFieldView.onTextChanged = { [weak self] _ in
+            self?.updateConfirmButtonState()
+        }
+
+        secondTextFieldView.onTextChanged = { [weak self] _ in
+            self?.updateConfirmButtonState()
+        }
+
+        // Initial state
+        updateConfirmButtonState()
+    }
+
+    private func updateConfirmButtonState() {
+        let first = firstTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let second = secondTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let shouldDisable = first.isEmpty || second.isEmpty
+
+        confirmButton.isDisabled = shouldDisable
+        confirmButton.color = shouldDisable ? .deactiveMain : .primaryMain
     }
 
     // MARK: - Methods
@@ -170,5 +190,10 @@ final class DetailBottomSheet: BaseView {
         }) { _ in
             self.removeFromSuperview()
         }
+    }
+    
+    
+    @objc private func didTapConfirmButton() {
+        //로직
     }
 }
