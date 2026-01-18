@@ -7,6 +7,7 @@
 
 import UIKit
 
+import Combine
 import SnapKit
 import Then
 
@@ -14,8 +15,9 @@ final class MemberBottomSheet: BaseView {
     
     // MARK: - Properties
     
-    private var memberData: [(name: String, isSelected: Bool)] = []
+    private let viewModel: MemberViewModel
     var onComplete: (([String]) -> Void)?
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - UI Components
     
@@ -33,13 +35,25 @@ final class MemberBottomSheet: BaseView {
     private let resetButton = PotiBottomButton()
     private let completeButton = PotiBottomButton()
     
+    // MARK: - Initializer
+    
+    init(viewModel: MemberViewModel) {
+        self.viewModel = viewModel
+        super.init(frame: .zero)
+        bindViewModel()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Custom Methods
     
     override func setStyle() {
         setAddTarget()
         
         backgroundView.do {
-            $0.backgroundColor = .black.withAlphaComponent(0.4)
+            $0.backgroundColor = .black.withAlphaComponent(0.6)
         }
         
         containerView.do {
@@ -149,46 +163,44 @@ final class MemberBottomSheet: BaseView {
     
     private func setAddTarget() {
         closeButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
-        backgroundView.addGestureRecognizer(tapGesture)
+        resetButton.addTarget(self, action: #selector(didTapReset), for: .touchUpInside)
+        completeButton.addTarget(self, action: #selector(didTapComplete), for: .touchUpInside)
+    }
+    
+    private func bindViewModel() {
+        viewModel.output.memberList
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.collectionView.reloadData() }
+            .store(in: &cancellables)
         
-        resetButton.addTarget(self, action: #selector(resetSelection), for: .touchUpInside)
-        completeButton.addTarget(self, action: #selector(completeSelection), for: .touchUpInside)
+        viewModel.output.isCompleteEnabled
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isEnabled in
+                self?.completeButton.isDisabled = !isEnabled
+                self?.completeButton.color = isEnabled ? .secondaryMain : .deactiveMain
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.selectedMembers
+            .receive(on: RunLoop.main)
+            .sink { [weak self] selectedList in
+                self?.onComplete?(selectedList)
+                self?.dismiss()
+            }
+            .store(in: &cancellables)
     }
     
-    // MARK: - Methods
-    
-    func configure(members: [String]) {
-        self.memberData = members.map { ($0, false) }
-        collectionView.reloadData()
-        updateBottomButtonState()
+    @objc private func didTapReset() {
+        viewModel.action(.tapReset)
     }
     
-    private func updateBottomButtonState() {
-        let hasSelection = memberData.contains { $0.isSelected }
-        completeButton.do {
-            $0.isDisabled = !hasSelection
-            $0.color = hasSelection ? .secondaryMain : .deactiveMain
-        }
-    }
-    
-    @objc private func resetSelection() {
-        for i in 0..<memberData.count {
-            memberData[i].isSelected = false
-        }
-        collectionView.reloadData()
-        updateBottomButtonState()
-    }
-    
-    @objc private func completeSelection() {
-        let selectedNames = memberData.filter { $0.isSelected }.map { $0.name }
-        onComplete?(selectedNames)
-        dismiss()
+    @objc private func didTapComplete() {
+        viewModel.action(.tapComplete)
     }
     
     @objc private func dismiss() {
         UIView.animate(withDuration: 0.3, animations: {
-            self.containerView.transform = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height)
+            self.containerView.transform = CGAffineTransform(translationX: 0, y: self.frame.height)
             self.backgroundView.alpha = 0
         }) { _ in
             self.removeFromSuperview()
@@ -213,7 +225,7 @@ final class MemberBottomSheet: BaseView {
 
 extension MemberBottomSheet: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return memberData.count
+        return viewModel.currentMemberList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -222,15 +234,13 @@ extension MemberBottomSheet: UICollectionViewDataSource, UICollectionViewDelegat
             for: indexPath
         ) as? MemberCell else { return UICollectionViewCell() }
         
-        let data = memberData[indexPath.item]
+        let data = viewModel.currentMemberList[indexPath.item]
         cell.configure(name: data.name, style: data.isSelected ? .selected : .unselected)
         
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        memberData[indexPath.item].isSelected.toggle()
-        collectionView.reloadItems(at: [indexPath])
-        updateBottomButtonState()
+        viewModel.action(.selectMember(index: indexPath.item))
     }
 }

@@ -34,6 +34,10 @@ final class AppDIContainer {
         DefaultGoodsListRepository()
     }
     
+    private func makeMemberRepository() -> MemberInterface {
+            DefaultMemberRepository(networkService: makeNetworkService())
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -50,6 +54,10 @@ final class AppDIContainer {
         DefaultGoodsListUseCase(repository: makeGoodsListRepository())
     }
     
+    private func makeMemberUseCase() -> MemberUsecase {
+            DefaultMemberUseCase(repository: makeMemberRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLoginViewModel() -> LoginViewModel {
@@ -62,5 +70,9 @@ final class AppDIContainer {
     
     func makeGoodsListViewModel() -> GoodsListViewModel {
         GoodsListViewModel(useCase: makeGoodsListUseCase())
+    }
+    
+    func makeMemberViewModel() -> MemberViewModel {
+            MemberViewModel(useCase: makeMemberUseCase())
     }
 }
