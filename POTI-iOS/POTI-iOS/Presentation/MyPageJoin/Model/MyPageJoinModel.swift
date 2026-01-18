@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct MyPageJoinModel: Hashable {
     let participationId: Int
@@ -58,42 +59,34 @@ extension MyPageJoinModel {
         case depositCompleted = "DEPOSIT_COMPLETED"
         case shipping = "SHIPPING"
         case completed = "COMPLETED"
-
-        init(rawValue: String) {
-            self = PostStatus(rawValue: rawValue)
-        }
     }
 
     enum OrderStatus: String, Hashable {
         case waiting = "WAITING"
         case shipped = "SHIPPED"
         case delivered = "DELIVERED"
-        case unknown
-
-        init(rawValue: String) {
-            self = OrderStatus(rawValue: rawValue)
-        }
     }
 
     enum DepositStatus: String, Hashable {
         case waiting = "WAITING"
         case shipped = "SHIPPED"
         case completed = "COMPLETED"
-        case unknown
-
-        init(rawValue: String) {
-            self = DepositStatus(rawValue: rawValue)
-        }
+        
+        var badgeColor: UIColor {
+                switch self {
+                case .waiting:
+                    return .sementicRed
+                case .completed:
+                    return .gray700
+                case .shipped:
+                    return .poti600
+                }
+            }
     }
 
     enum ShippingStatus: String, Hashable {
         case preparing = "PREPARING"
         case shipped = "SHIPPED"
         case delivered = "DELIVERED"
-        case unknown
-
-        init(rawValue: String) {
-            self = ShippingStatus(rawValue: rawValue)
-        }
     }
 }
