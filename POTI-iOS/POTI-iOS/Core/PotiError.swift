@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum NetworkError: Error, LocalizedError, Equatable {
+enum PotiError: Error, LocalizedError, Equatable {
     case apiError(message: String)
     case badRequest
     case unauthorized
@@ -15,6 +15,8 @@ enum NetworkError: Error, LocalizedError, Equatable {
     case internalServerError
     case decodingError
     case networkFail
+    case missingConfig(key: String)
+    case kakaoOuathError
     
     var errorDescription: String? {
         switch self {
@@ -32,6 +34,10 @@ enum NetworkError: Error, LocalizedError, Equatable {
             return "데이터 변환 중 오류가 발생했습니다"
         case .networkFail:
             return "네트워크 연결에 실패했습니다"
+        case .missingConfig(let key):
+            return "\(key) 설정이 누락되었습니다."
+        case .kakaoOuathError:
+            return "카카오톡 로그인에 실패했습니다."
         }
     }
 }

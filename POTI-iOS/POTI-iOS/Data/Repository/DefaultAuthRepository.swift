@@ -6,10 +6,28 @@
 //
 
 final class DefaultAuthRepository: AuthInterface {
-
-    func login() -> Bool {
-        // TODO: 나중에 네트워크 연결
-        PotiLogger.network("Mock Login Success")
-        return true
+    
+    private let authService: AuthService
+    private let networkService: NetworkService
+    
+    init(
+        authService: AuthService,
+        networkService: NetworkService
+    ) {
+        self.authService = authService
+        self.networkService = networkService
+    }
+    
+    func kakaoLogin() async throws -> LoginResponseEntity {
+        let kakaoToken = try await authService.kakaoRequest()
+        let result = try await networkService.request(
+            target: AuthAPI.login(socialType: "KAKAO", token: kakaoToken), type: LoginResponseDTO.self
+            )
+        return result.toLoginResponseEntity()
+    }
+    
+    func devLogin() async throws -> LoginResponseEntity {
+        let result = try await networkService.request(target: AuthAPI.devLogin, type: DevLoginResponseDTO.self)
+        return result.toLoginResponseEntity()
     }
 }
