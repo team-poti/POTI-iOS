@@ -12,10 +12,12 @@ import PhotosUI
 import SnapKit
 import Then
 
-final class ProductRegisterViewController: BaseViewController<ProductRegisterViewModel> {
+final class ProductRegisterViewController: BaseViewController<ProductRegisterViewModel>, NavigationConfigurable {
 
-    // MARK: - UI Components
-
+    func navigationStyle() -> PotiNavigationStyle {
+        return .xButton
+    }
+    
     private let rootView = ProductRegisterView()
     private var imagePickerView: ImagePickerView {
         rootView.imagePickerView
@@ -85,12 +87,5 @@ extension ProductRegisterViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         viewModel.action(.didFinishPicking(results))
-    }
-}
-
-extension ProductRegisterViewController: NavigationConfigurable {
-
-    func navigationStyle() -> PotiNavigationStyle {
-        return .xButton
     }
 }
