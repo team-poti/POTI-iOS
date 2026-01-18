@@ -25,4 +25,9 @@ final class DefaultAuthRepository: AuthInterface {
             )
         return result.toLoginResponseEntity()
     }
+    
+    func devLogin() async throws -> LoginResponseEntity {
+        let result = try await networkService.request(target: AuthAPI.devLogin, type: DevLoginResponseDTO.self)
+        return result.toLoginResponseEntity()
+    }
 }

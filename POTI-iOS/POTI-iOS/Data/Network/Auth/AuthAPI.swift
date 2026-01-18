@@ -9,13 +9,24 @@ import Alamofire
 
 enum AuthAPI: BaseTargetType {
     case login(socialType: String, token: String)
+    case devLogin
 
     var path: String {
-        "/auth/login"
+        switch self {
+        case .login:
+            return "/auth/login"
+        case .devLogin:
+            return "dev/login"
+        }
     }
 
     var method: HTTPMethod {
-        .post
+        switch self {
+        case .login:
+            return .post
+        case .devLogin:
+            return .get
+        }
     }
 
     var headers: HeaderType {
@@ -29,6 +40,8 @@ enum AuthAPI: BaseTargetType {
                 "socialType": socialType,
                 "token": provider
             ]
+        case .devLogin:
+            return nil
         }
     }
 }

@@ -23,8 +23,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         window.rootViewController = UINavigationController(rootViewController: loginVC)
         let vc = UINavigationController(rootViewController: loginVC)
-//        window.rootViewController = vc
-        window.rootViewController = PotiTabBar()
+        window.rootViewController = vc
+//        window.rootViewController = PotiTabBar()
         self.window = window
         window.makeKeyAndVisible()
     }

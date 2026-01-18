@@ -21,6 +21,8 @@ final class LoginViewController: BaseViewController<LoginViewModel> {
     
     override func addTarget() {
         rootView.kakaoLoginButton.addTarget(self, action: #selector(kakaoLoginButtonTapped), for: .touchUpInside)
+        
+        rootView.appleLoginButton.addTarget(self, action: #selector(devLoginButtonTapped), for: .touchUpInside)
     }
     
     override func bindViewModel() {
@@ -33,6 +35,10 @@ extension LoginViewController {
     @objc private func kakaoLoginButtonTapped() {
         viewModel.action(.kakaoLoginTap)
     }
+    
+    @objc private func devLoginButtonTapped() {
+        viewModel.action(.devLoginTap)
+    }
 }
 
 private extension LoginViewController {
@@ -40,8 +46,15 @@ private extension LoginViewController {
     func bindLoginSuccess() {
         viewModel.output.loginSuccess
             .receive(on: DispatchQueue.main)
-            .sink {
-                PotiLogger.debug("카카오 로그인 성공")
+            .sink { [weak self] type in
+                guard let self else { return }
+
+                switch type {
+                case .kakao:
+                    self.pushToOnboarding()
+                case .dev:
+                    self.switchRootToPotiTabBar()
+                }
             }
             .store(in: &cancellables)
     }
@@ -54,5 +67,15 @@ private extension LoginViewController {
                 PotiLogger.error(error)
             }
             .store(in: &cancellables)
+    }
+}
+
+// MARK: - Navigation
+
+private extension LoginViewController {
+    
+    private func pushToOnboarding() {
+//        let onboardingVC = OnboardingViewController()
+//        navigationController?.pushViewController(onboardingVC, animated: true)
     }
 }

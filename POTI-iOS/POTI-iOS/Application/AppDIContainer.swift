@@ -42,6 +42,12 @@ final class AppDIContainer {
         )
     }
     
+    @MainActor private func makeDevLoginUseCase() -> DevLoginUseCase {
+        DefaultDevLoginUseCase(
+            repository: makeAuthRepository()
+        )
+    }
+    
     private func makeHomeUseCase() -> HomeUseCase {
         DefaultHomeUseCase(repository: makeHomeRepository())
     }
@@ -53,7 +59,7 @@ final class AppDIContainer {
     // MARK: - ViewModel
     
     @MainActor func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(loginUseCase: makeLoginUseCase())
+        LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())
     }
     
     func makeHomeViewModel() -> HomeViewModel {
