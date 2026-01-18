@@ -36,4 +36,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             viewModel: diContainer.makeGoodsListViewModel()
         )
     }
+    
+    func makeParticipantManageViewController() -> ParticipantListTableViewController {
+        ParticipantListTableViewController(viewModel: diContainer.makeManageViewModel())
+    }
 }
