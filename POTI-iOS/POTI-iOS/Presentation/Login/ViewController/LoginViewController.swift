@@ -73,8 +73,7 @@ private extension LoginViewController {
     func bindLoginFailure() {
         viewModel.output.loginFailure
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] error in
-                guard let self = self else { return }
+            .sink { error in
                 PotiLogger.error(error)
             }
             .store(in: &cancellables)
