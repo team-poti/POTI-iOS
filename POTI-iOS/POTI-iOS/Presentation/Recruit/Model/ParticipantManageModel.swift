@@ -55,12 +55,14 @@ extension ParticipantEntity {
         let waitPayCheckInfo: ParticipantManageModel.WaitPayCheckInfo? = depositInfo.map {
                     .init(
                         depositorName: $0.depositorName,
-                        depositTimeText: $0.depositTime
+                        depositTimeText: $0.depositTime.formattedDateString()
                     )
                 }
 
         let paidInfo: ParticipantManageModel.PaidInfo? = depositInfo.map {
-            .init(depositorName: $0.depositorName, depositTimeText: $0.depositTime)
+            .init(depositorName: $0.depositorName,
+                  depositTimeText: $0.depositTime.formattedDateString()
+            )
         }
 
         let shipInfo: ParticipantManageModel.ShipInfo? = shippingInfo.map {

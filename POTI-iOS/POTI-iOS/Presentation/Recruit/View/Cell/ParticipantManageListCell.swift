@@ -12,30 +12,6 @@ import Then
 
 final class ParticipantManageListCell: UITableViewCell {
     
-    let mockParticipantManageModel = ParticipantManageModel(
-            purchaseId: 103,
-            profileImage: "https://search.pstatic.net/common/?src=http%3A%2F%2Fimgnews.naver.net%2Fimage%2F311%2F2025%2F08%2F18%2F0001905912_001_20250818141307379.jpg&type=a340",
-            nickname: "안유진사랑해",
-            memberTitle: ["IVE 포카 공동구매"],
-            participantstatus: .waitPayCheck,   // 임의 상태
-            memberRows: [
-                ParticipantManageModel.MemberRow(name: "유진 포카 A", price: 5000),
-                ParticipantManageModel.MemberRow(name: "유진 포카 B", price: 5000)
-            ],
-            shippingText: "준등기",
-            shippingPrice: 1500,
-            totalPrice: 11500,
-            waitPayCheckInfo: ParticipantManageModel.WaitPayCheckInfo(
-                depositorName: "짱나연",
-                depositTimeText: "2026-01-15 22:56:00"
-            ),
-            paidInfo: ParticipantManageModel.PaidInfo(
-                depositorName: "짱나연",
-                depositTimeText: "2026-01-15 22:56:00"
-            ),
-            shipInfo: nil
-        )
-    
     static let identifier = "ParticipantManageOneCell"
     
     var onTapStatusAction: ((ParticipantManageModel) -> Void)?
@@ -272,7 +248,7 @@ final class ParticipantManageListCell: UITableViewCell {
             $0.bottom.equalTo(grayBackgroundView).inset(16)
             participantCaseZeroHeightConstraint = $0.height.equalTo(0).constraint
         }
-        participantCaseZeroHeightConstraint?.deactivate()
+        //participantCaseZeroHeightConstraint?.deactivate()
     }
 }
 

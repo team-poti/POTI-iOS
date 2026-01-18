@@ -14,6 +14,7 @@ import Then
 final class ParticipantListTableViewController: BaseViewController<ParticipantManageViewModel> {
 
     // MARK: - UI
+    
     private let tableView = UITableView()
 
     // MARK: - Lifecycle
@@ -60,6 +61,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     }
 
     // MARK: - TableView Setting
+    
     private func setTableView() {
         tableView.do {
             $0.register(
@@ -130,79 +132,5 @@ extension ParticipantListTableViewController: UITableViewDataSource, UITableView
         }
 
         return cell
-    }
-}
-
-// MARK: - Mock Data
-extension ParticipantListTableViewController {
-
-    private func fetchParticipants() {
-        let mockParticipants: [ParticipantManageModel] = [
-            ParticipantManageModel(
-                purchaseId: 103,
-                profileImage: "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fi.namu.wiki%2Fi%2FAOYM4U-MUrY0Cd4aUFErnt5ksb7Cq1F-9bQrNaIkja7WrA49tHATd_xL6tMpa9C6pKq7IYmQ-taBQtU7WoF_Sg.webp&type=a340",
-                nickname: "안유진사랑해",
-                memberTitle: ["리즈"],
-                participantstatus: .waitPay,
-                memberRows: [
-                    .init(name: "리즈", price: 3500)
-                ],
-                shippingText: "준등기",
-                shippingPrice: 1500,
-                totalPrice: 7500,
-                waitPayCheckInfo: nil,
-                paidInfo: nil,
-                shipInfo: nil
-            ),
-            ParticipantManageModel(
-                purchaseId: 101,
-                profileImage: "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fi.namu.wiki%2Fi%2FAOYM4U-MUrY0Cd4aUFErnt5ksb7Cq1F-9bQrNaIkja7WrA49tHATd_xL6tMpa9C6pKq7IYmQ-taBQtU7WoF_Sg.webp&type=a340",
-                nickname: "참여자2",
-                memberTitle: ["레이", "이서"],
-                participantstatus: .waitPayCheck,
-                memberRows: [
-                    .init(name: "레이", price: 3500),
-                    .init(name: "이서", price: 3500)
-                ],
-                shippingText: "준등기",
-                shippingPrice: 1500,
-                totalPrice: 9000,
-                waitPayCheckInfo: .init(
-                    depositorName: "이포티",
-                    depositTimeText: "2025-12-30 02:50"
-                ),
-                paidInfo: ParticipantManageModel.PaidInfo(
-                    depositorName: "짱나연",
-                    depositTimeText: "2026-01-15 22:56:00"
-                ),
-                shipInfo: nil
-            ),
-            ParticipantManageModel(
-                purchaseId: 101,
-                profileImage: "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fi.namu.wiki%2Fi%2FAOYM4U-MUrY0Cd4aUFErnt5ksb7Cq1F-9bQrNaIkja7WrA49tHATd_xL6tMpa9C6pKq7IYmQ-taBQtU7WoF_Sg.webp&type=a340",
-                nickname: "참여자2",
-                memberTitle: ["레이", "이서"],
-                participantstatus: .paid,
-                memberRows: [
-                    .init(name: "레이", price: 3500),
-                    .init(name: "이서", price: 3500)
-                ],
-                shippingText: "준등기",
-                shippingPrice: 1500,
-                totalPrice: 9000,
-                waitPayCheckInfo: .init(
-                    depositorName: "이포티",
-                    depositTimeText: "2025-12-30 02:50"
-                ),
-                paidInfo: ParticipantManageModel.PaidInfo(
-                    depositorName: "짱나연",
-                    depositTimeText: "2026-01-15 22:56:00"
-                ),
-                shipInfo: nil
-            )
-        ]
-
-        viewModel.setParticipants(mockParticipants)
-        tableView.reloadData()
     }
 }
