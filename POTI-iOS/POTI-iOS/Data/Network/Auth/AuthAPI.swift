@@ -14,9 +14,9 @@ enum AuthAPI: BaseTargetType {
     var path: String {
         switch self {
         case .login:
-            return "/auth/login"
+            return "/api/v1/auth/login"
         case .devLogin:
-            return "dev/login"
+            return "/dev/login"
         }
     }
 

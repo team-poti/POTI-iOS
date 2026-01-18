@@ -14,6 +14,17 @@ import Then
 final class LoginViewController: BaseViewController<LoginViewModel> {
     
     private let rootView = LoginView()
+    private let factory: ViewControllerFactory
+    
+    init(viewModel: LoginViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+        
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func loadView() {
         self.view = rootView
@@ -37,6 +48,7 @@ extension LoginViewController {
     }
     
     @objc private func devLoginButtonTapped() {
+        print("눌림")
         viewModel.action(.devLoginTap)
     }
 }
@@ -77,5 +89,11 @@ private extension LoginViewController {
     private func pushToOnboarding() {
 //        let onboardingVC = OnboardingViewController()
 //        navigationController?.pushViewController(onboardingVC, animated: true)
+    }
+    
+    private func switchRootToPotiTabBar() {
+        PotiLogger.debug("홈화면으로 이동")
+        let tabBar = factory.makePotiTabBar()
+        switchRootViewController(to: tabBar)
     }
 }

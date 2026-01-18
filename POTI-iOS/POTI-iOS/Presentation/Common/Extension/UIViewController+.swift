@@ -27,8 +27,9 @@ extension UIViewController {
     }
     
     func switchRootViewController(to viewController: UIViewController, animated: Bool = true) {
-        guard let window = view.window ?? UIApplication.shared.windows.first else {
-            PotiLogger.error(NSError(domain: "Window not found", code: -1))
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {
+            PotiLogger.error(NSError(domain: "윈도우를 찾을 수 없습니다", code: -1))
             return
         }
         

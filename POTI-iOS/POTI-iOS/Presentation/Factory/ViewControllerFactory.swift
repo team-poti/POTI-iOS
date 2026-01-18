@@ -22,7 +22,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
 
     @MainActor func makeLoginViewController() -> LoginViewController {
         LoginViewController(
-            viewModel: diContainer.makeLoginViewModel()
+            viewModel: diContainer.makeLoginViewModel(), factory: self
         )
     }
     
