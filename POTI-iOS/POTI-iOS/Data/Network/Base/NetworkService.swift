@@ -67,7 +67,12 @@ final class NetworkService {
 
             PotiLogger.network("STATUS : \(http.statusCode)")
             PotiLogger.network("HEADER : \(http.headers)")
-
+            
+            if let data = response.data,
+               let jsonString = String(data: data, encoding: .utf8) {
+                PotiLogger.network("BODY : \(jsonString)")
+            }
+            
             guard baseResponse.code == 200 else {
                 let error = PotiError.apiError(message: baseResponse.message)
                 PotiLogger.error(error)
