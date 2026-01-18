@@ -24,19 +24,25 @@ final class ProductRegisterView: BaseView {
     var imagePickerView: ImagePickerView { productInfoView.imagePickerView }
 
     override func setUI() {
-        addSubviews(scrollView, submitButton)
+        addSubview(scrollView)
         scrollView.addSubview(contentView)
 
         contentView.addSubviews(
             productInfoView,
             memberView,
             shippingView,
-            noticeView
+            noticeView,
+            submitButton
         )
     }
 
     override func setStyle() {
         super.setStyle()
+
+        scrollView.do {
+            $0.alwaysBounceVertical = true
+            $0.showsVerticalScrollIndicator = true
+        }
 
         submitButton.do {
             $0.setTitle("등록하기", for: .normal)
@@ -49,8 +55,7 @@ final class ProductRegisterView: BaseView {
 
     override func setLayout() {
         scrollView.snp.makeConstraints {
-            $0.top.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(submitButton.snp.top)
+            $0.edges.equalToSuperview()
         }
 
         contentView.snp.makeConstraints {
@@ -76,14 +81,13 @@ final class ProductRegisterView: BaseView {
         noticeView.snp.makeConstraints {
             $0.top.equalTo(shippingView.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalToSuperview()
         }
 
         submitButton.snp.makeConstraints {
-            $0.top.equalTo(noticeView.snp.bottom)
+            $0.top.equalTo(noticeView.snp.bottom).offset(24)
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.height.equalTo(56)
-            $0.bottom.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(4)
         }
     }
 }

@@ -17,6 +17,7 @@ final class RegisterMemberView: BaseView {
     private var rowViews: [MemberPriceRowView] = []
 
     private var isEmptyState: Bool = true
+    private var isHintVisible: Bool = true
 
     private var rowsTopOffsetConstraint: Constraint?
     private var editTopOffsetConstraint: Constraint?
@@ -24,6 +25,7 @@ final class RegisterMemberView: BaseView {
     private var bottomBoxHeightConstraint: Constraint?
     private var bottomTopToEditConstraint: Constraint?
     private var bottomTopToEmptyLabelConstraint: Constraint?
+    private var hintHeightConstraint: Constraint?
 
     // MARK: - UI Components
 
@@ -32,9 +34,16 @@ final class RegisterMemberView: BaseView {
     private let editButton = UIButton(type: .system)
     private let bottomBoxView = UIView()
     private let emptyStateLabel = UILabel()
+    private let hintView = UIView()
+    private let hintBackgroundImageView = UIImageView()
+    private let hintLabel = UILabel()
 
 
     // MARK: - Life Cycle
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
 
 
     // MARK: - Custom Method
@@ -100,10 +109,37 @@ final class RegisterMemberView: BaseView {
             $0.numberOfLines = 1
             $0.isHidden = true
         }
+
+        hintView.do {
+            $0.isHidden = true
+            $0.backgroundColor = .clear
+        }
+
+        hintBackgroundImageView.do {
+            $0.image = UIImage(named: "img-hint")
+        }
+
+        hintLabel.do {
+            $0.text = "모집자 본인이 보유할 멤버는 꼭 제외해주세요!"
+            $0.font = PotiFontManager.body14sb.font
+            $0.textColor = .poti600
+            $0.textAlignment = .center
+            $0.numberOfLines = 1
+        }
     }
 
     override func setUI() {
-        addSubviews(titleLabel, rowsStackView, editButton, bottomBoxView, emptyStateLabel)
+        addSubviews(titleLabel, rowsStackView, hintView, editButton, bottomBoxView, emptyStateLabel)
+        hintView.addSubviews(hintBackgroundImageView, hintLabel)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(textFieldDidBeginEditing(_:)),
+            name: UITextField.textDidBeginEditingNotification,
+            object: nil
+        )
+
+        editButton.addTarget(self, action: #selector(didTapEditButton), for: .touchUpInside)
     }
 
     override func setLayout() {
@@ -116,7 +152,22 @@ final class RegisterMemberView: BaseView {
             rowsTopOffsetConstraint = $0.top.equalTo(titleLabel.snp.bottom).offset(24).constraint
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
-        
+
+        hintView.snp.makeConstraints {
+            $0.bottom.equalTo(editButton.snp.top).offset(-9)
+            $0.horizontalEdges.equalToSuperview().inset(28)
+            hintHeightConstraint = $0.height.equalTo(58).constraint
+        }
+
+        hintBackgroundImageView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+
+        hintLabel.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(hintBackgroundImageView.snp.top).offset(13)
+        }
+
         editButton.snp.makeConstraints {
             editTopOffsetConstraint = $0.top.equalTo(rowsStackView.snp.bottom).offset(24).constraint
             $0.horizontalEdges.equalToSuperview().inset(16)
@@ -136,7 +187,11 @@ final class RegisterMemberView: BaseView {
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
 
+        #if DEBUG
+        configure(members: ["정환", "나연", "수민"])
+        #else
         applyEmptyStateLayout()
+        #endif
     }
 
     private func applyEmptyStateLayout() {
@@ -146,9 +201,11 @@ final class RegisterMemberView: BaseView {
         rowsStackView.isHidden = true
         editButton.isHidden = true
         bottomBoxView.isHidden = false
+        hintView.isHidden = true
 
         rowsTopOffsetConstraint?.update(offset: 0)
         editTopOffsetConstraint?.update(offset: 0)
+        hintHeightConstraint?.update(offset: 0)
 
         bottomTopToEditConstraint?.deactivate()
         bottomTopToEmptyLabelConstraint?.activate()
@@ -167,18 +224,48 @@ final class RegisterMemberView: BaseView {
         rowsStackView.isHidden = false
         editButton.isHidden = false
         bottomBoxView.isHidden = false
+        hintView.isHidden = !isHintVisible
 
         rowsTopOffsetConstraint?.update(offset: 24)
+        hintHeightConstraint?.update(offset: isHintVisible ? 56 : 0)
+        editButtonHeightConstraint?.update(offset: 56)
         editTopOffsetConstraint?.update(offset: 24)
 
         bottomTopToEmptyLabelConstraint?.deactivate()
         bottomTopToEditConstraint?.activate()
 
-        editButtonHeightConstraint?.update(offset: 56)
-        bottomBoxHeightConstraint?.update(offset: 9)
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
+
+    private func showHintIfNeeded() {
+        guard !isEmptyState else { return }
+        guard isHintVisible else { return }
+
+        hintView.isHidden = false
+        hintHeightConstraint?.update(offset: 56)
 
         setNeedsLayout()
         layoutIfNeeded()
+    }
+
+    private func hideHint() {
+        isHintVisible = false
+        hintView.isHidden = true
+        hintHeightConstraint?.update(offset: 0)
+
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
+
+    @objc private func didTapEditButton() {
+        hideHint()
+    }
+
+    @objc private func textFieldDidBeginEditing(_ notification: Notification) {
+        guard let textField = notification.object as? UITextField else { return }
+        guard textField.isDescendant(of: rowsStackView) else { return }
+        hideHint()
     }
 
     func configure(members: [String]) {
@@ -197,6 +284,7 @@ final class RegisterMemberView: BaseView {
         if members.isEmpty {
             applyEmptyStateLayout()
         } else {
+            isHintVisible = true
             applyFilledStateLayout()
         }
     }
