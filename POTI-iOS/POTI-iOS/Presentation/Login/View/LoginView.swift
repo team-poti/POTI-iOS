@@ -31,7 +31,6 @@ final class LoginView: BaseView {
         appleLoginButton.do {
             $0.setImage(.btnAppleLogin, for: .normal)
             $0.imageView?.contentMode = .scaleAspectFit
-            $0.isUserInteractionEnabled = false
         }
         
         buttonStack.do {
