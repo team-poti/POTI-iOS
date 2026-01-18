@@ -6,26 +6,67 @@
 //
 
 final class AppDIContainer {
-
+    
     static let shared = AppDIContainer()
     private init() {}
-
-    // MARK: - Repository
-    private func makeAuthRepository() -> AuthInterface {
-        DefaultAuthRepository()
+    
+    // MARK: - Service
+    
+    @MainActor private func makeAuthService() -> AuthService {
+        DefaultAuthService()
     }
-
+    
+    private func makeNetworkService() -> NetworkService {
+        NetworkService()
+    }
+    
+    // MARK: - Repository
+    
+    @MainActor private func makeAuthRepository() -> AuthInterface {
+        DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService())
+    }
+    
+    private func makeHomeRepository() -> HomeInterface {
+        DefaultHomeRepository()
+    }
+    
+    private func makeGoodsListRepository() -> GoodsListInterface {
+        DefaultGoodsListRepository()
+    }
+    
     // MARK: - UseCase
-    private func makeLoginUseCase() -> LoginUseCase {
+    
+    @MainActor private func makeLoginUseCase() -> LoginUseCase {
         DefaultLoginUseCase(
             repository: makeAuthRepository()
         )
     }
-
-    // MARK: - ViewModel
-    func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(
-            loginUseCase: makeLoginUseCase()
+    
+    @MainActor private func makeDevLoginUseCase() -> DevLoginUseCase {
+        DefaultDevLoginUseCase(
+            repository: makeAuthRepository()
         )
+    }
+    
+    private func makeHomeUseCase() -> HomeUseCase {
+        DefaultHomeUseCase(repository: makeHomeRepository())
+    }
+    
+    private func makeGoodsListUseCase() -> GoodsListUseCase {
+        DefaultGoodsListUseCase(repository: makeGoodsListRepository())
+    }
+    
+    // MARK: - ViewModel
+    
+    @MainActor func makeLoginViewModel() -> LoginViewModel {
+        LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())
+    }
+    
+    func makeHomeViewModel() -> HomeViewModel {
+        HomeViewModel(useCase: makeHomeUseCase())
+    }
+    
+    func makeGoodsListViewModel() -> GoodsListViewModel {
+        GoodsListViewModel(useCase: makeGoodsListUseCase())
     }
 }

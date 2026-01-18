@@ -7,6 +7,8 @@
 
 import UIKit
 
+import KakaoSDKAuth
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -15,13 +17,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
-        let vc = UINavigationController(rootViewController: MyPageViewController())
+        
+        let factory = DefaultViewControllerFactory()
+        let loginVC = factory.makeLoginViewController()
+
+        window.rootViewController = UINavigationController(rootViewController: loginVC)
+        let vc = UINavigationController(rootViewController: loginVC)
         window.rootViewController = vc
-//        self.window = window
-//        window.makeKeyAndVisible()
-//        window.rootViewController = PotiTabBar()
         self.window = window
         window.makeKeyAndVisible()
+    }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        if let url = URLContexts.first?.url {
+            if (AuthApi.isKakaoTalkLoginUrl(url)) {
+                _ = AuthController.handleOpenUrl(url: url)
+            }
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
