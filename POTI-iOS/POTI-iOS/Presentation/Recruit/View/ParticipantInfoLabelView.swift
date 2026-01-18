@@ -39,6 +39,7 @@ final class ParticipantInfoLabelView: BaseView {
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.leading.equalToSuperview()
+            $0.width.equalTo(311)
         }
         infoLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
