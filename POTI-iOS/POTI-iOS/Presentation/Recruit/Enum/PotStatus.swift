@@ -91,3 +91,20 @@ extension PotStatus {
         }
     }
 }
+
+extension PotStatus {
+    static func from(postStatus: MyPageJoinModel.PostStatus) -> PotStatus {
+        switch postStatus {
+        case .recruiting:
+            return .recruiting
+        case .recruitCompleted:
+            return .recruitCompleted
+        case .depositCompleted:
+            return .depositCompleted
+        case .shipping:
+            return .shippingStarted
+        case .completed:
+            return .shippingCompleted
+        }
+    }
+}

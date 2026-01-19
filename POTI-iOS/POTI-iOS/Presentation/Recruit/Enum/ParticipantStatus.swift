@@ -37,3 +37,26 @@ enum ParticipantStatus {
             }
         }
 }
+
+/// 참여자 <-> 모집자 상세 내역 Cell 재사용 위해 매핑해줌
+extension ParticipantStatus {
+    static func from(postStatus: MyPageJoinModel.PostStatus) -> ParticipantStatus {
+        switch postStatus {
+
+        case .recruiting:
+            return .waitRecruit
+
+        case .recruitCompleted:
+            return .waitPay
+
+        case .depositCompleted:
+            return .paid
+
+        case .shipping:
+            return .startShip
+
+        case .completed:
+            return .completed
+        }
+    }
+}
