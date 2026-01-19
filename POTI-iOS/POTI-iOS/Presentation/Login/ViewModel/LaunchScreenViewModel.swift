@@ -48,6 +48,8 @@ final class LaunchScreenViewModel: BaseViewModelType {
         let hasRefreshToken = KeychainManager.getRefreshToken() != nil
         
         if hasAccessToken && hasRefreshToken {
+            let refreshToken = KeychainManager.getRefreshToken()!
+            PotiLogger.debug("🔑 현재 Keychain 리프레시 토큰: \(refreshToken)")
             refreshAndNavigate()
         } else {
             navigationSubject.send(.login)
@@ -57,21 +59,13 @@ final class LaunchScreenViewModel: BaseViewModelType {
     private func refreshAndNavigate() {
         Task {
             do {
-                let tokenEntity = try await refreshTokenUseCase.execute()
-                
-                // Keychain 저장
-                KeychainManager.saveTokens(
-                    accessToken: tokenEntity.accessToken,
-                    refreshToken: tokenEntity.refreshToken
-                )
+                try await refreshTokenUseCase.execute()
                 
                 await MainActor.run {
                     navigationSubject.send(.tabBar)
                 }
-                
             } catch {
                 await MainActor.run {
-                    KeychainManager.deleteAllTokens()
                     navigationSubject.send(.login)
                     PotiLogger.error(error)
                 }

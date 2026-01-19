@@ -6,7 +6,7 @@
 //
 
 protocol RefreshTokenUseCase {
-    func execute() async throws -> TokenEntity
+    func execute() async throws
 }
 
 final class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
@@ -17,7 +17,7 @@ final class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
         self.repository = repository
     }
     
-    func execute() async throws -> TokenEntity {
-        return try await repository.refreshToken()
+    func execute() async throws {
+        try await repository.refreshToken()
     }
 }

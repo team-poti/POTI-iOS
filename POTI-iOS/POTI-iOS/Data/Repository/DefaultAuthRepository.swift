@@ -34,13 +34,11 @@ final class DefaultAuthRepository: AuthInterface {
     
     func devLogin() async throws -> LoginResponseEntity {
         let result = try await networkService.request(target: AuthAPI.devLogin, type: DevLoginResponseDTO.self)
-        
         KeychainManager.saveTokens(accessToken: result.accessToken, refreshToken: result.refreshToken)
-        
         return result.toLoginResponseEntity()
     }
     
-    func refreshToken() async throws -> TokenEntity {
+    func refreshToken() async throws {
         guard let currentRefreshToken = KeychainManager.getRefreshToken() else {
             throw PotiError.unauthorized
         }
@@ -50,6 +48,8 @@ final class DefaultAuthRepository: AuthInterface {
             type: TokenResponseDTO.self
         )
         
-        return result.toTokenEntity()
+        KeychainManager.saveTokens(accessToken: result.accessToken, refreshToken: result.refreshToken)
+        let saved = KeychainManager.getRefreshToken()
+        PotiLogger.debug(" Keychain 저장 완료 - 확인: \(saved ?? "❌")")
     }
 }
