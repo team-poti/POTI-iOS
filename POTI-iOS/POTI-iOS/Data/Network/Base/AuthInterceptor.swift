@@ -44,6 +44,11 @@ final class AuthInterceptor: RequestInterceptor {
     func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         var urlRequest = urlRequest
         
+        if urlRequest.url?.path.contains("/auth/reissue") == true {
+            completion(.success(urlRequest))
+            return
+        }
+        
         if let token = KeychainManager.getAccessToken() {
             urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             PotiLogger.network("🔐 Authorization 헤더 자동 추가")
