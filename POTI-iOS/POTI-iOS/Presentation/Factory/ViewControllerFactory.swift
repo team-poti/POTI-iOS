@@ -11,6 +11,7 @@ protocol ViewControllerFactory {
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController() -> GoodsListViewController
     func makePotiTabBar() -> PotiTabBar
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -47,5 +48,11 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makePotiTabBar() -> PotiTabBar {
         PotiTabBar(factory: self)
+    }
+    
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController {
+        PotDetailViewController(
+            viewModel: diContainer.makePotDetailViewModel(postId: postId)
+        )
     }
 }
