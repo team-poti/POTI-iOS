@@ -9,6 +9,7 @@ protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController() -> GoodsListViewController
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -34,6 +35,12 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makeGoodsListViewController() -> GoodsListViewController {
         GoodsListViewController(
             viewModel: diContainer.makeGoodsListViewModel()
+        )
+    }
+    
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController {
+        PotDetailViewController(
+            viewModel: diContainer.makePotDetailViewModel(postId: postId)
         )
     }
 }
