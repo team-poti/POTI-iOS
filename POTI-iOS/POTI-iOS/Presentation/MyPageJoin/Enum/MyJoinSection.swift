@@ -9,5 +9,7 @@
 enum MyJoinSection: Int, CaseIterable {
     case myJoinInfo
     case progress
-    case myJoinStatusInfo
+    case myJoinDepositInfo
+    
+    case statusInfo
 }

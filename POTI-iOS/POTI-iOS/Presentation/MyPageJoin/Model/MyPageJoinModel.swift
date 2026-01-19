@@ -53,12 +53,42 @@ struct MyPageJoinModel: Hashable {
 // MARK: - Status Enums (네이밍 충돌 방지용: MyPageJoinModel 내부 enum)
 
 extension MyPageJoinModel {
-    enum PostStatus: String, Hashable {
+    enum PostStatus: String, Hashable { // !!!!!!!채륜오빠 status랑 다른 건지 확인해봐야함!!
         case recruiting = "RECRUITING"
         case recruitCompleted = "RECRUIT_COMPLETED"
         case depositCompleted = "DEPOSIT_COMPLETED"
         case shipping = "SHIPPING"
         case completed = "COMPLETED"
+
+        var potStatusText: String {
+            switch self {
+            case .recruiting:
+                return "모집 대기"
+            case .recruitCompleted:
+                return "모집 완료"
+            case .depositCompleted:
+                return "입금 완료"
+            case .shipping:
+                return "배송 시작"
+            case .completed:
+                return "배송 완료"
+            }
+        }
+
+        var potStatusColor: UIColor {
+            switch self {
+            case .recruiting:
+                return .sementicRed
+            case .recruitCompleted:
+                return .poti600
+            case .depositCompleted:
+                return .gray700
+            case .shipping:
+                return .poti600
+            case .completed:
+                return .gray700
+            }
+        }
     }
 
     enum OrderStatus: String, Hashable {
@@ -72,14 +102,25 @@ extension MyPageJoinModel {
         case shipped = "SHIPPED"
         case completed = "COMPLETED"
         
+        var text: String {
+            switch self {
+            case .waiting:
+                return "입금 대기"
+            case .shipped:
+                return "입금 확인중"
+            case .completed:
+                return "입금 완료"
+            }
+        }
+        
         var badgeColor: UIColor {
                 switch self {
                 case .waiting:
                     return .sementicRed
-                case .completed:
-                    return .gray700
                 case .shipped:
                     return .poti600
+                case .completed:
+                    return .gray700
                 }
             }
     }
@@ -88,5 +129,41 @@ extension MyPageJoinModel {
         case preparing = "PREPARING"
         case shipped = "SHIPPED"
         case delivered = "DELIVERED"
+        
+        var text: String {
+            switch self {
+            case .preparing:
+                return "배송 대기"
+            case .shipped:
+                return "배송 시작"
+            case .delivered:
+                return "배송 완료"
+            }
+        }
+        
+        var badgeColor: UIColor {
+            switch self {
+            case .preparing:
+                return .sementicRed
+            case .shipped:
+                return .poti600
+            case .delivered:
+                return .gray700
+            }
+        }
+    }
+}
+
+extension MyPageJoinModel {
+    var participantManageCellModel: ParticipantManageViewCell.Model {
+        .init(
+            memberNamesText: memberPayments.map { $0.memberName },
+            depositorNameText: shippingInfo.receiver,
+            addressText: shippingInfo.address,
+            phoneText: shippingInfo.phone,
+            shippingText: shippingInfo.shippingMethod,
+            totalPrice: paymentInfo.totalAmount,
+            depositState: ParticipantStatus.from(postStatus: postStatus)
+        )
     }
 }

@@ -8,152 +8,107 @@
 import Combine
 
 final class MyPageJoinViewModel: BaseViewModelType {
-    var output: Output
-    
-    func action(_ trigger: Input) {
-        
-    }
-    
-    
+
     // MARK: - Input
-    
+
     enum Input {
         case viewDidLoad
+        /// 외부에서 참가자 목록을 주입(서버 붙기 전/프리뷰/테스트용)
+        case setParticipants([MyPageJoinModel])
     }
-    
+
     // MARK: - Output
-    
+
     struct Output {
         let fetchData: AnyPublisher<Void, Never>
     }
-    
-    init(output: Output) {
-        self.output = output
+
+    // MARK: - Public State (VC에서 읽기)
+
+    private(set) var joinModel: MyPageJoinModel?
+
+    /// MyPageJoinDetailViewController -> .statusInfo  섹션에서 분기용으로 사용할 현재 상태
+    private(set) var participantStatus: MyPageJoinModel.PostStatus?
+    private(set) var progressStatusModel: ProgressStatusModel?
+    private(set) var participants: [MyPageJoinModel] = []
+
+    // MARK: - Subject
+
+    private let fetchDataSubject = PassthroughSubject<Void, Never>()
+
+    // MARK: - Output
+
+    let output: Output
+
+    // MARK: - Lifecycle
+
+    init() {
+        self.output = Output(fetchData: fetchDataSubject.eraseToAnyPublisher())
     }
-//
-//    // MARK: - Properties
-//    
-//    //private let useCase: ManageUseCase
-//    private var cancellables = Set<AnyCancellable>()
-//    let output: Output
-//    private(set) var expandedSections: Set<Int> = [] // 섹션 펼침 여부
-//    private(set) var participants: [ParticipantManageModel] = []
-//    
-//    enum ParticipantAction {
-//        case confirmDeposit(purchaseId: Int)
-//        case enterTrackingNumber(purchaseId: Int)
-//    }
-//    
-//    // MARK: - Subject
-//    
-//    private let fetchDataSubject = PassthroughSubject<Void, Never>()
-//    private let toggleButtonSubject = PassthroughSubject<Int, Never>()
-//    private let participantActionSubject = PassthroughSubject<ParticipantAction, Never>()
-//    private let errorSubject = PassthroughSubject<String, Never>()
-//    
-//    // MARK: - Initializer
-//    
-//    init(useCase: ManageUseCase) {
-//        //self.useCase = useCase
-//        self.output = Output(
-//            fetchData:
-//                fetchDataSubject.eraseToAnyPublisher(),
-//            toggleButtonTapped: toggleButtonSubject.eraseToAnyPublisher(),
-//            participantActionTriggered: participantActionSubject.eraseToAnyPublisher(),
-//            showError: errorSubject.eraseToAnyPublisher()
-//        )
-//    }
-//    
-//    // MARK: - Action
-//    
-//    func action(_ trigger: Input) {
-//        switch trigger {
-//        case .viewDidLoad:
-//            fetchParticipants()
-//            
-//        case .toggleButtonTap(let section):
-//            toggleExpandSection(section: section)
-//            
-//        case .confirmParticipantActionTap(let action):
-//            handleParticipantAction(action)
-//        }
-//    }
-//    
-//    // MARK: - Private Method
-//    
-//    private func fetchParticipants() {
-//        Task { [weak self] in
-//            do {
-//                guard let self else { return }
-//
-//               // let entity = try await self.useCase.execute(postId: 1)
-//                self.participants = entity.toParticipantManageModels()
-//                self.fetchDataSubject.send()
-//
-//            } catch {
-//                print("Error : \(error)")
-//            }
-//        }
-//    }
-//    
-//    private func toggleExpandSection(section: Int) {
-//        // 1. 로컬 토글 상태 변경
-//        if expandedSections.contains(section) {
-//            expandedSections.remove(section)
-//        } else {
-//            expandedSections.insert(section)
-//        }
-//
-//        // 2. 서버 요청
-//        Task { [weak self] in
-//            do {
-//                guard let self else { return }
-//
-//                //let entity = try await self.useCase.execute(postId: 1)
-//                self.participants = entity.toParticipantManageModels()
-//
-//                // 3. 서버 응답 후 UI 갱신 트리거 (단 한 번)
-//                self.toggleButtonSubject.send(section)
-//
-//            } catch {
-//                print("Error : \(error)")
-//            }
-//        }
-//    }
-//    
-//    private func handleParticipantAction(_ action: ParticipantAction) {
-//        switch action {
-//        case .confirmDeposit(let purchaseId):
-//            participantActionSubject.send(.confirmDeposit(purchaseId: purchaseId))
-//            confirmDeposit(purchaseId: purchaseId)
-//        case .enterTrackingNumber(let purchaseId):
-//            participantActionSubject.send(.enterTrackingNumber(purchaseId: purchaseId))
-//        }
-//    }
-//    
-//    private func confirmDeposit(purchaseId: Int) {
-//        Task { [weak self] in
-//            guard let self else { return }
-//
-//            do {
-//                //try await self.useCase.confirmDeposit(purchaseId: purchaseId)
-//
-//                // 성공 → 리스트 재조회 → reloadData Output
-//               // let entity = try await self.useCase.execute(postId: 1) //self.postId TODO~!!!!!!!
-//                self.participants = entity.toParticipantManageModels()
-//                self.fetchDataSubject.send()
-//
-//            } catch {
-//                self.errorSubject.send("입금 확인에 실패했어요")
-//            }
-//        }
-//    }
-//    
-//    private func enterTrackingNumber(purchaseId: Int) {
-//        
-//    }
-//    
-//    func setParticipants(_ participants: [ParticipantManageModel]) {
-//        self.participants = participants
-//    }
+
+    // MARK: - Mock
+
+    private func makeMockParticipants() -> [MyPageJoinModel] {
+        return [
+            MyPageJoinModel(
+                participationId: 5,
+                imageUrlString: "",
+                artistName: "BLACKPINK",
+                title: "Pink Venom 포토카드",
+                postStatus: .recruitCompleted,
+                orderStatus: .delivered,
+                statusMessage: "모든 진행이 완료되었어요",
+                memberPayments: [
+                    .init(memberName: "제니", price: 9000),
+                    .init(memberName: "로제", price: 9000),
+                    .init(memberName: "지수", price: 9000),
+                    .init(memberName: "리사", price: 9000)
+                ],
+                paymentInfo: .init(
+                    shippingFee: 4000,
+                    totalAmount: 40000,
+                    depositStatus: .completed,
+                    bank: "우리은행",
+                    accountNumber: "1002-345-678901",
+                    depositDeadline: "2026-01-01 18:00"
+                ),
+                shippingInfo: .init(
+                    shippingMethod: "일반택배",
+                    receiver: "김서현",
+                    zipcode: "06000",
+                    address: "서울시 강남구 압구정로 77",
+                    phone: "010-5555-6666",
+                    carrier: "CJ대한통운",
+                    trackingNumber: "987654321098",
+                    shippingStatus: .delivered
+                )
+            )
+        ]
+    }
+
+    // MARK: - Action
+
+    func action(_ trigger: Input) {
+        switch trigger {
+        case .viewDidLoad:
+            // 서버 붙기 전 임시 mock 데이터
+            let mock = makeMockParticipants()
+            action(.setParticipants(mock))
+
+        case .setParticipants(let participants):
+            self.participants = participants
+            self.joinModel = participants.first
+            //  VC에서 viewModel.participantStatus로 바로 꺼내 쓸 수 있게 디폴트 값 설정
+            self.participantStatus = joinModel?.postStatus
+            if let joinModel {
+                self.progressStatusModel = ProgressStatusModel(
+                    role: .participant,
+                    status: PotStatus.from(postStatus: joinModel.postStatus)
+                )
+            } else {
+                self.progressStatusModel = nil
+            }
+            fetchDataSubject.send(())
+        }
+    }
 }
