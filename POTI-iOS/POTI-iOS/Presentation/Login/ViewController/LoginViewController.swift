@@ -14,6 +14,17 @@ import Then
 final class LoginViewController: BaseViewController<LoginViewModel> {
     
     private let rootView = LoginView()
+    private let factory: ViewControllerFactory
+    
+    init(viewModel: LoginViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+        
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func loadView() {
         self.view = rootView
@@ -21,6 +32,8 @@ final class LoginViewController: BaseViewController<LoginViewModel> {
     
     override func addTarget() {
         rootView.kakaoLoginButton.addTarget(self, action: #selector(kakaoLoginButtonTapped), for: .touchUpInside)
+        
+        rootView.appleLoginButton.addTarget(self, action: #selector(devLoginButtonTapped), for: .touchUpInside)
     }
     
     override func bindViewModel() {
@@ -33,6 +46,10 @@ extension LoginViewController {
     @objc private func kakaoLoginButtonTapped() {
         viewModel.action(.kakaoLoginTap)
     }
+    
+    @objc private func devLoginButtonTapped() {
+        viewModel.action(.devLoginTap)
+    }
 }
 
 private extension LoginViewController {
@@ -40,8 +57,15 @@ private extension LoginViewController {
     func bindLoginSuccess() {
         viewModel.output.loginSuccess
             .receive(on: DispatchQueue.main)
-            .sink {
-                PotiLogger.debug("카카오 로그인 성공")
+            .sink { [weak self] type in
+                guard let self else { return }
+
+                switch type {
+                case .kakao:
+                    self.pushToOnboarding()
+                case .dev:
+                    self.switchRootToPotiTabBar()
+                }
             }
             .store(in: &cancellables)
     }
@@ -49,10 +73,25 @@ private extension LoginViewController {
     func bindLoginFailure() {
         viewModel.output.loginFailure
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] error in
-                guard let self = self else { return }
+            .sink { error in
                 PotiLogger.error(error)
             }
             .store(in: &cancellables)
+    }
+}
+
+// MARK: - Navigation
+
+private extension LoginViewController {
+    
+    private func pushToOnboarding() {
+//        let onboardingVC = OnboardingViewController()
+//        navigationController?.pushViewController(onboardingVC, animated: true)
+    }
+    
+    private func switchRootToPotiTabBar() {
+        PotiLogger.debug("홈화면으로 이동")
+        let tabBar = factory.makePotiTabBar()
+        switchRootViewController(to: tabBar)
     }
 }
