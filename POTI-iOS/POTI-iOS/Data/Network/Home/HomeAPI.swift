@@ -24,13 +24,6 @@ enum HomeAPI: BaseTargetType {
         }
     }
     
-    var headers: HeaderType {
-        switch self {
-        case .fetchHome:
-            return .basic
-        }
-    }
-    
     var queryParameters: Parameters? {
         return nil
     }
