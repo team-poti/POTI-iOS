@@ -50,7 +50,7 @@ final class NetworkService {
             encoding: encoding,
             headers: target.headers.value
         )
-        .validate()
+        .validate(statusCode: 200..<600)
         .serializingDecodable(BaseResponseDTO<T>.self)
         .response
         
@@ -73,19 +73,18 @@ final class NetworkService {
                 PotiLogger.network("BODY : \(jsonString)")
             }
             
-            guard baseResponse.code == 200 else {
-                let error = PotiError.apiError(message: baseResponse.message)
+            if (200...299).contains(baseResponse.code) {
+                guard let data = baseResponse.data else {
+                    let error = PotiError.decodingError
+                    PotiLogger.error(error)
+                    throw error
+                }
+                return data
+            } else {
+                let error = mapErrorCode(baseResponse.code, message: baseResponse.message)
                 PotiLogger.error(error)
                 throw error
             }
-
-            guard let data = baseResponse.data else {
-                let error = PotiError.decodingError
-                PotiLogger.error(error)
-                throw error
-            }
-
-            return data
     
         case .failure:
             guard let http = response.response else {
@@ -118,6 +117,25 @@ final class NetworkService {
             PotiLogger.network("DESCRIPTION : \(http.debugDescription)")
             
             throw error
+        }
+    }
+    
+    private func mapErrorCode(_ code: Int, message: String) -> PotiError {
+        switch code {
+        case 40100:
+            return .invalidToken
+        case 40101:
+            return .tokenExpired
+        case 400:
+            return .badRequest
+        case 401:
+            return .unauthorized
+        case 404:
+            return .notFound
+        case 500...599:
+            return .internalServerError
+        default:
+            return .apiError(message: message)
         }
     }
 }

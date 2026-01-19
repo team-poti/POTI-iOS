@@ -11,12 +11,23 @@ enum PotiError: Error, LocalizedError, Equatable {
     case apiError(message: String)
     case badRequest
     case unauthorized
+    case tokenExpired
+    case invalidToken
     case notFound
     case internalServerError
     case decodingError
     case networkFail
     case missingConfig(key: String)
     case kakaoOuathError
+    
+    var needsRelogin: Bool {
+        switch self {
+        case .tokenExpired, .invalidToken:
+            return true
+        default:
+            return false
+        }
+    }
     
     var errorDescription: String? {
         switch self {
@@ -26,6 +37,10 @@ enum PotiError: Error, LocalizedError, Equatable {
             return "잘못된 요청입니다"
         case .unauthorized:
             return "인증이 필요합니다"
+        case .tokenExpired:
+            return "만료된 토큰입니다"
+        case .invalidToken:
+            return "유효하지 않은 토큰입니다"
         case .notFound:
             return "리소스를 찾을 수 없습니다"
         case .internalServerError:
