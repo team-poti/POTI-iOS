@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         
         let factory = DefaultViewControllerFactory()
-        let splashVC = LaunchScreenViewController(factory: factory)
+        let splashVC = factory.makeLaunchScreenViewController()
 
         window.rootViewController = splashVC
         self.window = window

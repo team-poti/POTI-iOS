@@ -64,6 +64,12 @@ final class AppDIContainer {
         )
     }
     
+    @MainActor private func makeRefreshTokenUseCase() -> RefreshTokenUseCase {
+        DefaultRefreshTokenUseCase(
+            repository: makeAuthRepository()
+        )
+    }
+    
     private func makeHomeUseCase() -> HomeUseCase {
         DefaultHomeUseCase(repository: makeHomeRepository())
     }
@@ -73,6 +79,10 @@ final class AppDIContainer {
     }
     
     // MARK: - ViewModel
+    
+    @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
+        LaunchScreenViewModel(refreshTokenUseCase: makeRefreshTokenUseCase())
+    }
     
     @MainActor func makeLoginViewModel() -> LoginViewModel {
         LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())

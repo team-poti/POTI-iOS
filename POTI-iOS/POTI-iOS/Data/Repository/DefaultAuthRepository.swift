@@ -36,4 +36,17 @@ final class DefaultAuthRepository: AuthInterface {
         
         return result.toLoginResponseEntity()
     }
+    
+    func refreshToken() async throws -> TokenEntity {
+        guard let currentRefreshToken = KeychainManager.getRefreshToken() else {
+            throw PotiError.unauthorized
+        }
+        
+        let result = try await networkService.request(
+            target: AuthAPI.reissue(refreshToken: currentRefreshToken),
+            type: TokenResponseDTO.self
+        )
+        
+        return result.toTokenEntity()
+    }
 }

@@ -7,17 +7,18 @@
 
 import UIKit
 
+import Combine
 import SnapKit
 import Then
 
-public final class LaunchScreenViewController: UIViewController {
+final class LaunchScreenViewController: BaseViewController<LaunchScreenViewModel> {
     
     private let factory: ViewControllerFactory
     private let potiLogoView = UIImageView()
     
-    init(factory: ViewControllerFactory) {
+    init(viewModel: LaunchScreenViewModel, factory: ViewControllerFactory) {
         self.factory = factory
-        super.init(nibName: nil, bundle: nil)
+        super.init(viewModel: viewModel)
     }
     
     required init?(coder: NSCoder) {
@@ -29,9 +30,10 @@ public final class LaunchScreenViewController: UIViewController {
         view.backgroundColor = .poti600
         
         setStyle()
-        setUI()
-        setLayout()
-        checkAuthStatus()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            self?.viewModel.action(.viewDidLoad)
+        }
     }
     
     private func setStyle() {
@@ -41,35 +43,36 @@ public final class LaunchScreenViewController: UIViewController {
         }
     }
     
-    private func setUI() {
+    override func setUI() {
         view.addSubview(potiLogoView)
     }
     
-    private func setLayout() {
+    override func setLayout() {
         potiLogoView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
     }
+    
+    override func bindViewModel() {
+        viewModel.output.navigationDestination
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] destination in
+                guard let self else { return }
+                
+                switch destination {
+                case .tabBar:
+                    self.navigateToTabBar()
+                case .login:
+                    self.navigateToLogin()
+                }
+            }
+            .store(in: &cancellables)
+    }
 }
 
+// MARK: - Navigation
+
 extension LaunchScreenViewController {
-    private func checkAuthStatus() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            self?.isValidAuthStatus()
-        }
-    }
-    
-    private func isValidAuthStatus() {
-        let hasToken = KeychainManager.hasValidToken()
-        
-        if hasToken {
-            navigateToTabBar()
-            PotiLogger.debug("토큰 존재")
-        } else {
-            navigateToLogin()
-            PotiLogger.debug("토큰 없음")
-        }
-    }
     
     private func navigateToTabBar() {
         let tabBar = factory.makePotiTabBar()
@@ -78,7 +81,6 @@ extension LaunchScreenViewController {
     
     private func navigateToLogin() {
         let loginVC = factory.makeLoginViewController()
-        let navVC = UINavigationController(rootViewController: loginVC)
-        switchRootViewController(to: navVC)
+        switchRootViewController(to: loginVC)
     }
 }

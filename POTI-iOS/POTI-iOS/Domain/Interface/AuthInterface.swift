@@ -8,4 +8,5 @@
 protocol AuthInterface {
     func kakaoLogin() async throws -> LoginResponseEntity
     func devLogin() async throws -> LoginResponseEntity
+    func refreshToken() async throws -> TokenEntity
 }
