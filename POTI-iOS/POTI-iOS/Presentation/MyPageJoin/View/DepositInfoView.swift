@@ -87,7 +87,7 @@ final class DepositInfoView: BaseView {
     private func setupLayout() {
         accountContainerView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(28)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(45)
         }
 
@@ -103,27 +103,27 @@ final class DepositInfoView: BaseView {
 
         deadlineContainerView.snp.makeConstraints {
             $0.top.equalTo(accountContainerView.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(45)
         }
 
         deadlineLabel.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().offset(16)
+            $0.horizontalEdges.equalTo(deadlineLabel).inset(16)
             $0.centerY.equalTo(deadlineContainerView)
         }
 
         statusLabel.snp.makeConstraints {
             $0.top.equalTo(deadlineContainerView.snp.bottom).offset(28)
-            $0.trailing.equalToSuperview()
+            $0.trailing.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(24)
         }
     }
 
-    func configure(model: DepositInfoViewData) {
-        accountLabel.text = model.accountText
-        deadlineLabel.text = model.deadlineText
-        statusLabel.text = model.statusText
-        statusLabel.textColor = model.statusColor
+    func configure(model: MyPageJoinModel) {
+        accountLabel.text = model.depositAccountText
+        deadlineLabel.text = model.depositDeadlineText
+        statusLabel.text = model.depositStatusDisplay.text
+        statusLabel.textColor = model.depositStatusDisplay.color
     }
     
     @objc private func didTapCopy() {
@@ -132,51 +132,34 @@ final class DepositInfoView: BaseView {
     }
 }
 
+
 extension MyPageJoinModel {
-    func toDepositInfoViewData() -> DepositInfoViewData {
-        let accountText: String = {
-            guard let bank = paymentInfo.bank,
-                  let account = paymentInfo.accountNumber
-            else { return "" }
-            return "\(bank) \(account)"
-        }()
 
-        let deadlineText: String = {
-            guard let deadline = paymentInfo.depositDeadline?.formattedDateString() else { return "" }
-            return "\(deadline) 까지"
-        }()
-
-        
-        let (statusText, statusColor): (String, UIColor) = {
-            switch paymentInfo.depositStatus {
-            case .waiting:
-                return ("입금 대기", .sementicRed)
-            case .completed:
-                return ("입금 완료", .gray700)
-            case .shipped:
-                return ("입금 확인중", .poti600)
-            }
-        }()
-
-        return DepositInfoViewData(
-            accountText: accountText,
-            deadlineText: deadlineText,
-            statusText: statusText,
-            statusColor: statusColor
-        )
+    /// 입금 계좌 텍스트 (은행  계좌번호)
+    var depositAccountText: String {
+        guard
+            let bank = paymentInfo.bank,
+            let account = paymentInfo.accountNumber
+        else { return "" }
+        return "\(bank) \(account)"
     }
-}
 
-#Preview {
-    let view = DepositInfoView()
-    
-    let mock = DepositInfoViewData(
-        accountText: "카카오뱅크 3333-19-1234123",
-        deadlineText: "2026-01-01 23:59 까지",
-        statusText: "입금 대기",
-        statusColor: .sementicRed //0119 !!!!! TODO : - 모델 연결하기
-    )
-    
-    view.configure(model: mock)
-    return view
+    /// 입금 마감 기한 텍스트
+    var depositDeadlineText: String {
+        guard let deadline = paymentInfo.depositDeadline?.formattedDateString()
+        else { return "" }
+        return "\(deadline) 까지"
+    }
+
+    /// 입금 상태 텍스트 + 컬러
+    var depositStatusDisplay: (text: String, color: UIColor) {
+        switch paymentInfo.depositStatus {
+        case .waiting:
+            return ("입금 대기", .sementicRed)
+        case .completed:
+            return ("입금 완료", .gray700)
+        case .shipped:
+            return ("입금 확인중", .poti600)
+        }
+    }
 }
