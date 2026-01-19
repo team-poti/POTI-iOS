@@ -32,10 +32,6 @@ enum AuthAPI: BaseTargetType {
         }
     }
 
-    var headers: HeaderType {
-        .basic
-    }
-
     var bodyParameters: Parameters? {
         switch self {
         case .login(let socialType, let provider):

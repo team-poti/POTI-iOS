@@ -7,7 +7,13 @@
 
 import Alamofire
 
-final class NetworkService {
+final class NetworkService: Sendable {
+    
+    private let interceptor: AuthInterceptor?
+    
+    init(interceptor: AuthInterceptor? = nil) {
+        self.interceptor = interceptor
+    }
 
     func request<T: Decodable>(
         target: BaseTargetType,
@@ -39,7 +45,7 @@ final class NetworkService {
         PotiLogger.network("🌐 [REQUEST]")
         PotiLogger.network("URL: \(url)")
         PotiLogger.network("METHOD: \(target.method.rawValue)")
-        PotiLogger.network("HEADER: \(target.headers.value)")
+        PotiLogger.network("HEADER: \(target.headers)")
         PotiLogger.network("PARAMS: \(parameterType)")
         PotiLogger.network("DETAIL: \(parameters ?? [:])")
         
@@ -48,7 +54,8 @@ final class NetworkService {
             method: target.method,
             parameters: parameters,
             encoding: encoding,
-            headers: target.headers.value
+            headers: target.headers,
+            interceptor: interceptor
         )
         .validate(statusCode: 200..<600)
         .serializingDecodable(BaseResponseDTO<T>.self)

@@ -24,13 +24,6 @@ enum GoodsListAPI: BaseTargetType {
         }
     }
     
-    var headers: HeaderType {
-        switch self {
-        case .fetchGoodsList:
-            return .basic
-        }
-    }
-    
     var queryParameters: Parameters? {
         return nil
     }

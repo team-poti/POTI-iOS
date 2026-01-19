@@ -23,11 +23,17 @@ final class DefaultAuthRepository: AuthInterface {
         let result = try await networkService.request(
             target: AuthAPI.login(socialType: "KAKAO", token: kakaoToken), type: LoginResponseDTO.self
             )
+        
+        KeychainManager.saveTokens(accessToken: result.accessToken, refreshToken: result.refreshToken)
+        
         return result.toLoginResponseEntity()
     }
     
     func devLogin() async throws -> LoginResponseEntity {
         let result = try await networkService.request(target: AuthAPI.devLogin, type: DevLoginResponseDTO.self)
+        
+        KeychainManager.saveTokens(accessToken: result.accessToken, refreshToken: result.refreshToken)
+        
         return result.toLoginResponseEntity()
     }
 }

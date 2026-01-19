@@ -16,8 +16,24 @@ final class AppDIContainer {
         DefaultAuthService()
     }
     
-    private func makeNetworkService() -> NetworkService {
+    private func makeTokenRefreshNetworkService() -> NetworkService {
         NetworkService()
+    }
+    
+    private func makeTokenRefreshService() -> TokenRefreshService {
+        DefaultTokenRefreshService(
+            networkService: makeTokenRefreshNetworkService()
+        )
+    }
+    
+    private func makeAuthInterceptor() -> AuthInterceptor {
+        AuthInterceptor(
+            tokenRefreshService: makeTokenRefreshService()
+        )
+    }
+    
+    private func makeNetworkService() -> NetworkService {
+        NetworkService(interceptor: makeAuthInterceptor())
     }
     
     // MARK: - Repository
