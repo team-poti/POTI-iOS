@@ -19,6 +19,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel> {
     override func viewDidLoad() {
         super.viewDidLoad()
         setTableView()
+        viewModel.action(.viewDidLoad)
     }
     
     override func setUI() {
@@ -35,16 +36,30 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel> {
         tableView.do {
             $0.register(JoinPotInfoCell.self)
             $0.register(JoinProgressStatusViewCell.self)
-            $0.register(ParticipantManageViewCell.self)
-            $0.separatorStyle = .singleLine
+            $0.register(MyJoinDepositInfoCell.self)
+            $0.register(RecruitingCell.self)
+            $0.register(RecruitCompletedCell.self)
+            $0.register(DepositCompletedCell.self)
+            $0.register(ShippingCell.self)
+            $0.separatorStyle = .none
             $0.showsVerticalScrollIndicator = false
-            $0.sectionHeaderTopPadding = 0
         }
     }
     
     override func setDelegate() {
         tableView.dataSource = self
         tableView.delegate = self
+    }
+    
+    private func presentDetailBottomSheet() {
+        let sheet = DetailBottomSheet(
+            firstTitle: "입금자명",
+            firstPlaceholder: "입금자명을 입력해주세요",
+            secondTitle: "입금 시간",
+            secondPlaceholder: "YY-MM-DD TT:MM",
+            confirmButtonText: "완료"
+        )
+        sheet.show(in: self.view)
     }
 }
 
@@ -58,16 +73,17 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
     ) -> Int {
-        guard let section = Section(rawValue: section) else { return 0 }
+        guard let section = MyJoinSection(rawValue: section) else { return 0 }
         
         switch section {
-        case .recruitInfo:
+        case .myJoinInfo:
             return 1
         case .progress:
             return 1
-        case .participantInfo:
-            // TODO: - 서버 -> 멤버 인원 수 - 추후 수정 예정..
-            return 3
+        case .myJoinDepositInfo:
+            return 1
+        case .statusInfo:
+            return 1
         }
     }
     
@@ -81,8 +97,13 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
             return 153
         case .progress:
             return 216
-        case .myJoinStatusInfo:
-            return 165
+        case .myJoinDepositInfo:
+            return UITableView.automaticDimension
+        case .statusInfo:
+            switch viewModel.participantStatus {
+            default:
+                return UITableView.automaticDimension
+            }
         }
     }
     
@@ -101,7 +122,9 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                 withIdentifier: JoinPotInfoCell.identifier,
                 for: indexPath
             ) as? JoinPotInfoCell else { return UITableViewCell() }
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            if let model = viewModel.joinModel {
+                cell.configure(model: model)
+            }
             return cell
             
         case .progress:
@@ -109,16 +132,82 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                 withIdentifier: JoinProgressStatusViewCell.identifier,
                 for: indexPath
             ) as? JoinProgressStatusViewCell else { return UITableViewCell() }
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            if let model = viewModel.progressStatusModel {
+                cell.configure(model: model)
+            }
             return cell
             
-        case .myJoinStatusInfo:
+        case .myJoinDepositInfo:
             guard let cell = tableView.dequeueReusableCell(
-                withIdentifier: ParticipantManageViewCell.identifier,
+                withIdentifier: MyJoinDepositInfoCell.identifier,
                 for: indexPath
-            ) as? ParticipantManageViewCell else { return UITableViewCell() }
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+            ) as? MyJoinDepositInfoCell else { return UITableViewCell() }
+            if let model = viewModel.joinModel {
+                cell.configure(model: model)
+            }
             return cell
+            
+        case .statusInfo:
+            let status = viewModel.participantStatus ?? .recruiting
+            
+            switch status {
+            case .recruiting:
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: RecruitingCell.identifier,
+                    for: indexPath
+                ) as? RecruitingCell else { return UITableViewCell() }
+                if let model = viewModel.joinModel {
+                    cell.configure(model: model)
+                }
+                return cell
+                
+            case .recruitCompleted:
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: RecruitCompletedCell.identifier,
+                    for: indexPath
+                ) as? RecruitCompletedCell else { return UITableViewCell() }
+                if let model = viewModel.joinModel {
+                    cell.configure(model: model)
+                }
+                cell.onTapConfirmButton = { [weak self] in
+                    self?.presentDetailBottomSheet()
+                }
+                return cell
+                
+            case .depositCompleted:
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: DepositCompletedCell.identifier,
+                    for: indexPath
+                ) as? DepositCompletedCell else { return UITableViewCell() }
+                if let model = viewModel.joinModel {
+                    cell.configure(model: model)
+                }
+                return cell
+                
+            case .shipping:
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: ShippingCell.identifier,
+                    for: indexPath
+                ) as? ShippingCell else { return UITableViewCell() }
+                if let model = viewModel.joinModel {
+                    cell.configure(model: model)
+                }
+                return cell
+                
+            case .completed:
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: DepositCompletedCell.identifier,
+                    for: indexPath
+                ) as? DepositCompletedCell else { return UITableViewCell() }
+                if let model = viewModel.joinModel {
+                    cell.configure(model: model)
+                }
+                return cell
+            }
         }
     }
+}
+
+#Preview {
+    MyPageJoinDetailViewController(viewModel: MyPageJoinViewModel())
 }
