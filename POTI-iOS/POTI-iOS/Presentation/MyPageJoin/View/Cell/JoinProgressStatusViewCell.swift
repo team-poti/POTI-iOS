@@ -11,27 +11,28 @@ import SnapKit
 import Then
 
 final class JoinProgressStatusViewCell: UITableViewCell {
-    
-    private let mockJoinProgressStatusModel: ProgressStatusModel = ProgressStatusModel(
-        potId: 1110,
-        role: .participant,
-        status: .recruiting
-    )
+    static let identifier = "JoinProgressStatusViewCell"
     
     // MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.backgroundColor = .potiWhite
+        selectionStyle = .none
         
         setUI()
         setStyle()
         setLayout()
-        configure(model: mockJoinProgressStatusModel)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        potStatusMessageView.configure(text: "")
+        progressStatusBar.image = nil
     }
 
     // MARK: - UI Component

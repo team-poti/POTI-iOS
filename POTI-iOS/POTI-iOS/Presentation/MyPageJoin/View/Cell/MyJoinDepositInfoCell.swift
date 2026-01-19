@@ -18,7 +18,7 @@ final class MyJoinDepositInfoCell: UITableViewCell {
     
     var onTapStatusAction: ((ParticipantManageModel) -> Void)?
     var onTapToggle: (() -> Void)?
-    /// `.paid` 상태에서 보이는 "송장 번호 입력" 버튼 탭 콜백 << - 추후 수정 예정!!!!!!!!1
+    /// `.paid` 상태에서 보이는 "송장 번호 입력" 버튼 탭 콜백 << - 추후 수정 예정
     var onTapEnterTrackingNumber: ((ParticipantManageModel) -> Void)?
     
     private let totalStackView = IconStackView(
@@ -85,27 +85,27 @@ final class MyJoinDepositInfoCell: UITableViewCell {
         
         depositLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(20)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
         }
         
         memberRowStackView.snp.makeConstraints {
             $0.top.equalTo(depositLabel.snp.bottom).offset(20)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
         }
         
         shippingStackView.snp.makeConstraints {
             $0.top.equalTo(memberRowStackView.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
         }
         
         divideView.snp.makeConstraints {
             $0.top.equalTo(shippingStackView.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
         }
         
         totalStackView.snp.makeConstraints {
             $0.top.equalTo(divideView.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview()
         }
     }

@@ -12,16 +12,15 @@ import Then
 
 final class ParticipantManageViewCell: UITableViewCell {
     
-    private let mockParticipantModel: ParticipantModel = ParticipantModel(
-        purchaseId: 1110,
-        memberNamesText: ["나연", "수민"],
-        depositorNameText: "박정환",
-        addressText: "(01010) 서울시 마포구 와우산로 54",
-        phoneText: "010-1111-2222",
-        shippingText: "준등기",
-        totalPrice: 12500,
-        depositStateText: .paid
-    )
+    struct Model {
+        let memberNamesText: [String]
+        let depositorNameText: String
+        let addressText: String
+        let phoneText: String
+        let shippingText: String
+        let totalPrice: Int
+        let depositState: ParticipantStatus
+    }
     
     // MARK: - Lifecycle
     
@@ -54,12 +53,12 @@ final class ParticipantManageViewCell: UITableViewCell {
     
     private func setStyle() {
         membersLabel.do {
-            $0.setLabel(mockParticipantModel.memberNamesText.joined(separator: ", "), font: .body16m)
+            $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
         }
         
         depositorInfoLabel.do {
-            $0.setLabel("\(mockParticipantModel.depositorNameText)\n\(mockParticipantModel.addressText)\n\(mockParticipantModel.phoneText)", font: .body14m)
+            $0.font = PotiFontManager.body14m.font
             $0.numberOfLines = 0
             $0.textColor = .gray800
         }
@@ -77,7 +76,6 @@ final class ParticipantManageViewCell: UITableViewCell {
         }
 
         shippingLabel.do {
-            $0.text = mockParticipantModel.shippingText
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray800
         }
@@ -95,17 +93,12 @@ final class ParticipantManageViewCell: UITableViewCell {
         }
         
         totalPriceLabel.do {
-            $0.text = "\(mockParticipantModel.totalPrice.formattedWithComma)원"
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray800
         }
         
         depositStateLabel.do {
-            $0.setLabel(
-                mockParticipantModel.depositStateText.badgeText,
-                font: .body14m
-            )
-            $0.textColor = mockParticipantModel.depositStateText.badgeColor
+            $0.font = PotiFontManager.body14m.font
         }
         
     }
@@ -159,5 +152,15 @@ final class ParticipantManageViewCell: UITableViewCell {
             $0.leading.equalTo(shippingStackView.snp.trailing).offset(12)
             $0.bottom.equalToSuperview().inset(16)
         }
+    }
+    
+    func configure(model: Model) {
+        membersLabel.text = model.memberNamesText.joined(separator: ", ")
+        depositorInfoLabel.text = "\(model.depositorNameText)\n\(model.addressText)\n\(model.phoneText)"
+        depositorInfoLabel.numberOfLines = 0
+        shippingLabel.text = model.shippingText
+        totalPriceLabel.text = "\(model.totalPrice.formattedWithComma)원"
+        depositStateLabel.text = model.depositState.badgeText
+        depositStateLabel.textColor = model.depositState.badgeColor
     }
 }
