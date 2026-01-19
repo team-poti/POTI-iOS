@@ -14,8 +14,6 @@ final class CustomLongTextField: BaseView {
 
     // MARK: - Property
 
-    var onTextChanged: ((String) -> Void)?
-
     private var uiState: TextFieldUIState = .normal
 
     // MARK: - UI Components
@@ -31,7 +29,6 @@ final class CustomLongTextField: BaseView {
     private var errorStackHeightConstraint: Constraint?
     private var bottomToContainer: Constraint?
     private var bottomToError: Constraint?
-
 
     // MARK: - Life Cycle
 
@@ -215,19 +212,16 @@ extension CustomLongTextField: UITextViewDelegate {
 
     func textViewDidChange(_ textView: UITextView) {
         updatePlaceholderIfNeeded()
-        onTextChanged?(getText())
     }
 }
 
 extension CustomLongTextField {
 
     static func long(
-        placeholder: String,
-        onTextChanged: ((String) -> Void)? = nil
+        placeholder: String
     ) -> CustomLongTextField {
         let view = CustomLongTextField()
         view.configure(placeholder: placeholder)
-        view.onTextChanged = onTextChanged
         return view
     }
 }
