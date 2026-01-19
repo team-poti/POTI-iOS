@@ -6,7 +6,6 @@
 //
 
 struct ProgressStatusModel {
-    let potId: Int
     let role: UserRole
     let status: PotStatus
 }

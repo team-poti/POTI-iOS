@@ -13,7 +13,6 @@ import Then
 final class ProgressStatusViewCell: UITableViewCell {
     
     private let mockProgressStatusModel: ProgressStatusModel = ProgressStatusModel(
-        potId: 1110,
         role: .host,
         status: .recruiting
     )
