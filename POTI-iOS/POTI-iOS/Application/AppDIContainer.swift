@@ -16,13 +16,17 @@ final class AppDIContainer {
         DefaultAuthService()
     }
     
+    private func makeTokenRefreshNetworkService() -> NetworkService {
+        NetworkService()
+    }
+    
     private func makeNetworkService() -> NetworkService {
         NetworkService(interceptor: makeAuthInterceptor())
     }
     
     private func makeTokenRefreshService() -> TokenRefreshService {
         DefaultTokenRefreshService(
-            networkService: makeNetworkService()
+            networkService: makeTokenRefreshNetworkService()
         )
     }
     
@@ -35,7 +39,7 @@ final class AppDIContainer {
     // MARK: - Repository
     
     @MainActor private func makeAuthRepository() -> AuthInterface {
-        DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService())
+        DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService(), tokenRefreshNetworkService: makeTokenRefreshNetworkService())
     }
     
     private func makeHomeRepository() -> HomeInterface {

@@ -9,13 +9,16 @@ final class DefaultAuthRepository: AuthInterface {
     
     private let authService: AuthService
     private let networkService: NetworkService
+    private let tokenRefreshNetworkService: NetworkService
     
     init(
         authService: AuthService,
-        networkService: NetworkService
+        networkService: NetworkService,
+        tokenRefreshNetworkService: NetworkService
     ) {
         self.authService = authService
         self.networkService = networkService
+        self.tokenRefreshNetworkService = tokenRefreshNetworkService
     }
     
     func kakaoLogin() async throws -> LoginResponseEntity {
@@ -42,7 +45,7 @@ final class DefaultAuthRepository: AuthInterface {
             throw PotiError.unauthorized
         }
         
-        let result = try await networkService.request(
+        let result = try await tokenRefreshNetworkService.request(
             target: AuthAPI.reissue(refreshToken: currentRefreshToken),
             type: TokenResponseDTO.self
         )
