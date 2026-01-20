@@ -39,8 +39,23 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
         switchChildViewController()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = true
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = false
+        }
+    }
+    
     override func bindViewModel() {
         viewModel.output.currentType
+            .dropFirst()
             .sink { [weak self] type in
                 self?.currentType = type
                 self?.switchChildViewController()

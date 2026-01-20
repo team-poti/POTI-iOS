@@ -37,7 +37,6 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     }
     
     private func navigateToHistory(historyType: MyPageHistoryType, filterType: MyPageNavigationType) {
-        // filterType에 따라 초기 탭 결정
         let initialTab: MyPageHistoryViewController.HistoryTab
         
         switch filterType {
