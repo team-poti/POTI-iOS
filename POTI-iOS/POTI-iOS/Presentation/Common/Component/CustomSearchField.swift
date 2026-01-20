@@ -17,6 +17,7 @@ final class CustomSearchField: BaseView {
 
     private var isListVisible: Bool = false
     private var textFieldTrailingConstraint: Constraint?
+    private var searchListHeightConstraint: Constraint?
 
     // MARK: - UI Components
 
@@ -91,11 +92,13 @@ final class CustomSearchField: BaseView {
         }
 
         searchListView.do {
-            $0.isHidden = true
+            $0.isHidden = false
+            $0.alpha = 0
+            $0.transform = CGAffineTransform(translationX: 0, y: -6)
             $0.onSelectItem = { [weak self] index, value in
                 guard let self else { return }
                 self.setText(value)
-                self.hideList()
+                self.hideList(animated: true)
                 self.onSelectItem?(index, value)
             }
         }
@@ -135,11 +138,16 @@ final class CustomSearchField: BaseView {
 
     override func setLayout() {
         rootStackView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.leading.trailing.equalToSuperview()
+            $0.bottom.lessThanOrEqualToSuperview()
         }
 
         containerView.snp.makeConstraints {
             $0.height.greaterThanOrEqualTo(52)
+        }
+
+        searchListView.snp.makeConstraints {
+            searchListHeightConstraint = $0.height.equalTo(0).priority(999).constraint
         }
 
         rightAccessoryContainer.snp.makeConstraints {
@@ -229,33 +237,74 @@ final class CustomSearchField: BaseView {
         searchListView.setItems(items)
 
         if items.isEmpty {
-            hideList()
+            hideList(animated: true)
         } else {
-            showList()
+            showList(animated: true)
         }
     }
 
     func clearItems() {
         searchListView.clear()
-        hideList()
+        hideList(animated: true)
     }
 
-    func showList() {
+    func showList(animated: Bool = true) {
         guard !isListVisible else { return }
 
         isListVisible = true
-        searchListView.isHidden = false
-        searchListView.invalidateIntrinsicContentSize()
-        layoutIfNeeded()
+
+        // height 목표값 계산
+        let targetHeight = searchListView.requiredHeight
+
+        // 애니메이션 시작 상태
+        searchListView.alpha = 0
+        searchListView.transform = CGAffineTransform(translationX: 0, y: -6)
+
+        // height 업데이트
+        searchListHeightConstraint?.update(offset: targetHeight)
+
+        if animated {
+            UIView.animate(
+                withDuration: 0.22,
+                delay: 0,
+                options: [.curveEaseOut],
+                animations: {
+                    self.searchListView.alpha = 1
+                    self.searchListView.transform = .identity
+                    self.superview?.layoutIfNeeded()
+                }
+            )
+        } else {
+            searchListView.alpha = 1
+            searchListView.transform = .identity
+            superview?.layoutIfNeeded()
+        }
     }
 
-    func hideList() {
+    func hideList(animated: Bool = true) {
         guard isListVisible else { return }
 
         isListVisible = false
-        searchListView.isHidden = true
-        setNeedsLayout()
-        layoutIfNeeded()
+
+        // height 0으로 접기
+        searchListHeightConstraint?.update(offset: 0)
+
+        if animated {
+            UIView.animate(
+                withDuration: 0.18,
+                delay: 0,
+                options: [.curveEaseIn],
+                animations: {
+                    self.searchListView.alpha = 0
+                    self.searchListView.transform = CGAffineTransform(translationX: 0, y: -6)
+                    self.superview?.layoutIfNeeded()
+                }
+            )
+        } else {
+            searchListView.alpha = 0
+            searchListView.transform = CGAffineTransform(translationX: 0, y: -6)
+            superview?.layoutIfNeeded()
+        }
     }
     
     func showError(_ message: String) {
@@ -274,7 +323,6 @@ final class CustomSearchField: BaseView {
     private func bindInternalHandlers() {
         textField.addTarget(self, action: #selector(textFieldEditingChanged), for: .editingChanged)
     }
-
 
     // MARK: - Action Method
 
@@ -297,13 +345,13 @@ extension CustomSearchField: UITextFieldDelegate {
         apply(state: .focused)
 
         if searchListView.itemsCount > 0 {
-            showList()
+            showList(animated: true)
         }
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
         apply(state: .normal)
-        hideList()
+        hideList(animated: true)
     }
 }
 
