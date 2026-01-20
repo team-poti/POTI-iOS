@@ -51,9 +51,18 @@ final class DepositInfoView: BaseView {
         }
 
         copyButton.do {
-            $0.setTitle("복사", for: .normal)
-            $0.setTitleColor(.gray700, for: .normal)
-            $0.titleLabel?.font = PotiFontManager.body14m.font
+            let underlineAttributes: [NSAttributedString.Key: Any] = [
+                .font: PotiFontManager.body14m.font,
+                .foregroundColor: UIColor.gray700,
+                .underlineStyle: NSUnderlineStyle.single.rawValue
+            ]
+            
+            let attributedTitle = NSAttributedString(
+                string: "복사",
+                attributes: underlineAttributes
+            )
+            
+            $0.setAttributedTitle(attributedTitle, for: .normal)
         }
         copyButton.addTarget(self, action: #selector(didTapCopy), for: .touchUpInside)
 

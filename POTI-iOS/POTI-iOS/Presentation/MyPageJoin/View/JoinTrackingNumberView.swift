@@ -38,7 +38,6 @@ final class JoinTrackingNumberView: BaseView {
 
         copyButton.do {
             $0.setTitle("복사", for: .normal)
-            $0.setUnderline()
             $0.setTitleColor(.gray700, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
         }

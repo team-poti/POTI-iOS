@@ -27,13 +27,13 @@ final class DetailTextFieldView: BaseView {
     private let containerView = UIView()
     private let titleLabel = UILabel()
     private let customTextField = UITextField()
-
+    
     // MARK: - Public
-
+    
     var text: String {
         customTextField.text ?? ""
     }
-
+    
     /// Emits whenever the text field value changes (editingChanged)
     var onTextChanged: ((String) -> Void)?
     
@@ -82,10 +82,10 @@ final class DetailTextFieldView: BaseView {
     private func setTextFieldInset(_ inset: CGFloat) {
         let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: inset, height: 1))
         let rightPadding = UIView(frame: CGRect(x: 0, y: 0, width: inset, height: 1))
-
+        
         customTextField.leftView = leftPadding
         customTextField.leftViewMode = .always
-
+        
         customTextField.rightView = rightPadding
         customTextField.rightViewMode = .always
     }
@@ -100,15 +100,17 @@ final class DetailTextFieldView: BaseView {
             string: placeholder,
             attributes: [
                 .foregroundColor: placeholderColor,
-                .font: PotiFontManager.body16m.font
+                .font: PotiFontManager.body16m.font,
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+                .baselineOffset: 2
             ]
         )
     }
-
+    
     @objc private func textFieldEditingChanged() {
         onTextChanged?(text)
     }
-
+    
     func reset() {
         customTextField.text = ""
         onTextChanged = nil
