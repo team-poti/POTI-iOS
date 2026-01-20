@@ -36,6 +36,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
             $0.register(PotInfoCell.self)
             $0.register(ProgressStatusViewCell.self)
             $0.register(ParticipantManageViewCell.self)
+            $0.register(EmptyManageViewCell.self)
             $0.separatorStyle = .singleLine
             $0.showsVerticalScrollIndicator = false
             $0.sectionHeaderTopPadding = 0
@@ -66,8 +67,8 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         case .progress:
             return 1
         case .participantInfo:
-            // TODO: - 서버 -> 멤버 인원 수 - 추후 수정 예정..
-            return 3
+            let count = 0 // TODO: 서버 연결 후 실제 count로 교체
+            return count == 0 ? 1 : count
         }
     }
     
@@ -113,6 +114,17 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             return cell
             
         case .participantInfo:
+            let count = 0 // TODO: 서버 연결 후 실제 count로 교체
+
+            if count == 0 {
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: EmptyManageViewCell.identifier,
+                    for: indexPath
+                ) as? EmptyManageViewCell else { return UITableViewCell() }
+                cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+                return cell
+            }
+
             guard let cell = tableView.dequeueReusableCell(
                 withIdentifier: ParticipantManageViewCell.identifier,
                 for: indexPath
@@ -129,7 +141,8 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         switch section {
         case .participantInfo:
             let headerView = ParticipantManageHeaderView()
-            headerView.configure(count: 3) // TODO: - 수정 예정 participantCount
+            let count = 0 // TODO: 서버 연결 후 실제 count로 교체
+            headerView.configure(count: count)
             return headerView
             
         default:
