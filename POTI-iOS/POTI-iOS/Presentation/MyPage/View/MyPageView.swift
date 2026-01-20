@@ -36,7 +36,6 @@ final class MyPageView: BaseView {
         profileImage.do {
             $0.image = .imgDone
             $0.contentMode = .scaleAspectFill
-            $0.clipsToBounds = true
             $0.layer.cornerRadius = 49
             $0.clipsToBounds = true
         }
