@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 
-final class OrderViewModel: BaseViewModelType {
+final class PotOptionsViewModel: BaseViewModelType {
     
     // MARK: - Input
     
@@ -33,7 +33,8 @@ final class OrderViewModel: BaseViewModelType {
     
     // MARK: - Properties
     
-    private let useCase: OrderUseCase
+    private let useCase: PotOptionsUseCase
+    private let postId: Int
     private var cancellables = Set<AnyCancellable>()
     let output: Output
     
@@ -61,8 +62,9 @@ final class OrderViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: OrderUseCase) {
+    init(useCase: PotOptionsUseCase, postId: Int) {
         self.useCase = useCase
+        self.postId = postId
         self.output = Output(
             memberAdded: memberAddedSubject.eraseToAnyPublisher(),
             memberRemoved: memberRemovedSubject.eraseToAnyPublisher(),
@@ -78,7 +80,7 @@ final class OrderViewModel: BaseViewModelType {
     func action(_ trigger: Input) {
         switch trigger {
         case .viewDidLoad:
-            fetchOrderData()
+            fetchPotOptionsData()
             
         case .memberSelected(let index):
             handleMemberSelection(at: index)
@@ -96,10 +98,10 @@ final class OrderViewModel: BaseViewModelType {
     
     // MARK: - Private Methods
     
-    private func fetchOrderData() {
+    private func fetchPotOptionsData() {
         Task {
             do {
-                let options = try await useCase.execute()
+                let options = try await useCase.execute(postId: self.postId)
                 self.members = options.members.map {
                     MemberModel(memberOptionId: $0.id, memberName: $0.name, memberOptionPrice: $0.price)
                 }
@@ -157,7 +159,7 @@ final class OrderViewModel: BaseViewModelType {
 
 // MARK: - Helper Methods
 
-extension OrderViewModel {
+extension PotOptionsViewModel {
     func getMemberDropdownItems() -> [(name: String, price: Int)] {
         return members.map { ($0.memberName, $0.memberOptionPrice) }
     }

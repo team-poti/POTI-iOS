@@ -1,18 +1,18 @@
 //
-//  DefaultOrderRepository.swift
+//  DefaultPostsRepository.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/20/26.
 //
 
-final class DefaultOrderRepository: OrderInterface {
+final class DefaultPostsRepository: PostsInterface {
     private let networkService: NetworkService
     
     init(networkService: NetworkService = NetworkService()) {
         self.networkService = networkService
     }
     
-    func fetchOrderOptions() async throws -> OrderEntity {
+    func fetchOrderOptions(postId: Int) async throws -> PotOptionsEntity {
         
         // TODO: - 서버 데이터로 변경하기
         
@@ -24,6 +24,6 @@ final class DefaultOrderRepository: OrderInterface {
             ShippingEntity(id: $0.deliveryOptionId, name: $0.deliveryName, price: $0.deliveryOptionPrice)
         }
         
-        return OrderEntity(members: members, shippings: shippings)
+        return PotOptionsEntity(members: members, shippings: shippings)
     }
 }
