@@ -38,7 +38,7 @@ final class LaunchScreenViewController: BaseViewController<LaunchScreenViewModel
     
     private func setStyle() {
         potiLogoView.do {
-            $0.image = .imgLottie
+            $0.image = .imgDone
             $0.contentMode = .scaleAspectFit
         }
     }
