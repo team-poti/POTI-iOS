@@ -100,7 +100,7 @@ final class MyPageView: BaseView {
         }
         
         profileImage.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(20)
+            $0.top.equalToSuperview().inset(20)
             $0.centerX.equalToSuperview()
             $0.width.height.equalTo(98)
         }
@@ -121,7 +121,7 @@ final class MyPageView: BaseView {
         }
 
         userInformationView.snp.makeConstraints {
-            $0.top.equalTo(idolButton.snp.bottom).offset(24)
+            $0.top.equalTo(buttonStackView.snp.bottom).offset(24)
             $0.leading.trailing.equalToSuperview().inset(16)
         }
 

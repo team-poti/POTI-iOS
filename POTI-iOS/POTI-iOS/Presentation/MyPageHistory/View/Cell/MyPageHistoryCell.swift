@@ -94,4 +94,15 @@ final class MyPageHistoryCell: UITableViewCell {
             $0.centerY.equalToSuperview()
         }
     }
+    
+    func configure(artist: String, product: String, status: String, thumbnailURL: String?) {
+        artistLabel.text = artist
+        productLabel.text = product
+        statusLabel.text = status
+        
+        // TODO: Load image with Kingfisher
+        // if let url = URL(string: thumbnailURL ?? "") {
+        //     thumbnailImageView.kf.setImage(with: url, placeholder: UIImage(named: "placeholder"))
+        // }
+    }
 }

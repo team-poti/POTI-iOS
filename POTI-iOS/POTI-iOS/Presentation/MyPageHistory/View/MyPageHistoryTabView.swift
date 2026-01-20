@@ -29,9 +29,12 @@ final class MyPageHistoryTabView: BaseView {
     
     override func setStyle() {
         ongoingCountLabel.do {
+            $0.text = "0"
             $0.font = PotiFontManager.display18b.font
             $0.textColor = .gray700
             $0.textAlignment = .center
+            $0.setContentHuggingPriority(.required, for: .vertical)
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         
         ongoingTitleLabel.do {
@@ -39,6 +42,8 @@ final class MyPageHistoryTabView: BaseView {
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray700
             $0.textAlignment = .center
+            $0.setContentHuggingPriority(.required, for: .vertical)
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         
         ongoingTabButton.do {
@@ -46,18 +51,22 @@ final class MyPageHistoryTabView: BaseView {
             $0.backgroundColor = .clear
         }
         
-        // 종료 탭
         completedCountLabel.do {
+            $0.text = "0"
             $0.font = PotiFontManager.display18b.font
             $0.textColor = .gray700
             $0.textAlignment = .center
+            $0.setContentHuggingPriority(.required, for: .vertical)
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         
         completedTitleLabel.do {
             $0.text = "종료"
-            $0.font = PotiFontManager.caption12m.font
+            $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray700
             $0.textAlignment = .center
+            $0.setContentHuggingPriority(.required, for: .vertical)
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         
         completedTabButton.do {
@@ -75,12 +84,21 @@ final class MyPageHistoryTabView: BaseView {
     }
     
     override func setUI() {
-        addSubviews(ongoingCountLabel, ongoingTitleLabel, ongoingTabButton, completedCountLabel, completedTitleLabel, completedTabButton, tabIndicator, tabDivider)
+        addSubviews(
+            ongoingCountLabel,
+            ongoingTitleLabel,
+            ongoingTabButton,
+            completedCountLabel,
+            completedTitleLabel,
+            completedTabButton,
+            tabIndicator,
+            tabDivider
+        )
     }
     
     override func setLayout() {
         ongoingCountLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(8)
+            $0.centerY.equalToSuperview().offset(-8)
             $0.centerX.equalToSuperview().multipliedBy(0.5)
         }
         
@@ -89,15 +107,13 @@ final class MyPageHistoryTabView: BaseView {
             $0.centerX.equalTo(ongoingCountLabel)
         }
         
-        // 진행 중 버튼
         ongoingTabButton.snp.makeConstraints {
             $0.top.bottom.leading.equalToSuperview()
             $0.width.equalTo(self.snp.width).dividedBy(2)
         }
         
-        // 종료 카운트 & 타이틀
         completedCountLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(8)
+            $0.centerY.equalToSuperview().offset(-8)
             $0.centerX.equalToSuperview().multipliedBy(1.5)
         }
         
@@ -106,13 +122,11 @@ final class MyPageHistoryTabView: BaseView {
             $0.centerX.equalTo(completedCountLabel)
         }
         
-        // 종료 버튼
         completedTabButton.snp.makeConstraints {
             $0.top.bottom.trailing.equalToSuperview()
             $0.width.equalTo(self.snp.width).dividedBy(2)
         }
         
-        // 인디케이터
         tabIndicator.snp.makeConstraints {
             $0.bottom.equalToSuperview()
             $0.leading.equalTo(ongoingTabButton)
@@ -123,9 +137,11 @@ final class MyPageHistoryTabView: BaseView {
         tabDivider.snp.makeConstraints {
             $0.bottom.equalToSuperview()
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(2)
+            $0.height.equalTo(1)
         }
     }
+    
+    // MARK: - Public Methods
     
     func updateTabIndicator(to button: UIButton, animated: Bool) {
         UIView.animate(withDuration: animated ? 0.3 : 0) {
