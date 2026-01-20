@@ -58,6 +58,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         OrderSheetViewController(
             viewModel: diContainer.makeOrderViewModel()
         )
+    }
     func makeRecruitDetailViewController() -> RecruitDetailViewController {
         RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel())
     }
@@ -68,10 +69,6 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController {
         MyPageJoinDetailViewController(viewModel: diContainer.makeMyPageJoinViewModel())
-    }
-    
-    func makePotiTabBar() -> PotiTabBar {
-        PotiTabBar(factory: self)
     }
     
     func makePotDetailViewController(postId: Int) -> PotDetailViewController {
