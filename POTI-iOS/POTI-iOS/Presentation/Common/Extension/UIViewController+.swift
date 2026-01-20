@@ -19,4 +19,33 @@ extension UIViewController {
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
+    
+    var totalNavigationBarHeight: CGFloat {
+        let navigationBarHeight = navigationController?.navigationBar.frame.size.height ?? 0
+        let statusBarHeight = view.window?.windowScene?.statusBarManager?.statusBarFrame.size.height ?? 0
+        return navigationBarHeight + statusBarHeight
+    }
+    
+    func switchRootViewController(to viewController: UIViewController, animated: Bool = true) {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {
+            PotiLogger.error(NSError(domain: "윈도우를 찾을 수 없습니다", code: -1))
+            return
+        }
+        
+        if animated {
+            UIView.transition(
+                with: window,
+                duration: 0.3,
+                options: .transitionCrossDissolve,
+                animations: {
+                    window.rootViewController = viewController
+                }
+            )
+        } else {
+            window.rootViewController = viewController
+        }
+        
+        window.makeKeyAndVisible()
+    }
 }
