@@ -27,8 +27,8 @@
 		335F0F412F0D72A700E13B6F /* Exceptions for "POTI-iOS" folder in "POTI-iOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"Presentation/Common/Component/UITableView+.swift",
-				Presentation/Common/Component/UITableViewCell.swift,
+				"Presentation/Common/Extension/UITableView+.swift",
+				"Presentation/Common/Extension/UITableViewCell+.swift",
 				Resource/Info.plist,
 			);
 			target = 335F0F2E2F0D72A400E13B6F /* POTI-iOS */;
@@ -40,8 +40,8 @@
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
 			buildPhase = 335F0F2D2F0D72A400E13B6F /* Resources */;
 			membershipExceptions = (
-				"Presentation/Common/Component/UITableView+.swift",
-				Presentation/Common/Component/UITableViewCell.swift,
+				"Presentation/Common/Extension/UITableView+.swift",
+				"Presentation/Common/Extension/UITableViewCell+.swift",
 			);
 		};
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */

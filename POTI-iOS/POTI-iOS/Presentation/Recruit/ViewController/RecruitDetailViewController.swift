@@ -149,5 +149,4 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             return 0
         }
     }
-    
 }

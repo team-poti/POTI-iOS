@@ -50,6 +50,10 @@ final class AppDIContainer {
         DefaultGoodsListRepository()
     }
     
+    private func makeManageRepository() -> ManageInterface {
+            DefaultManageRepository()
+        }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -78,6 +82,10 @@ final class AppDIContainer {
         DefaultGoodsListUseCase(repository: makeGoodsListRepository())
     }
     
+    private func makeManageUseCase() -> ManageUseCase {
+            DefaultManageUseCase(repository: makeManageRepository())
+        }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -95,4 +103,8 @@ final class AppDIContainer {
     func makeGoodsListViewModel() -> GoodsListViewModel {
         GoodsListViewModel(useCase: makeGoodsListUseCase())
     }
+    
+    func makeManageViewModel() -> ParticipantManageViewModel {
+            ParticipantManageViewModel(useCase: makeManageUseCase())
+        }
 }
