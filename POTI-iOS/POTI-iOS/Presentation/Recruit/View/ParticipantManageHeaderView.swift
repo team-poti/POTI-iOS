@@ -16,6 +16,7 @@ final class ParticipantManageHeaderView: BaseView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.backgroundColor = .potiWhite
         addTarget()
     }
     
@@ -35,6 +36,7 @@ final class ParticipantManageHeaderView: BaseView {
     override func setStyle() {
         titleLabel.do {
             $0.textColor = .potiBlack
+            $0.textAlignment = .center
             $0.font = PotiFontManager.body16sb.font
         }
         participantHeaderButton.do {
