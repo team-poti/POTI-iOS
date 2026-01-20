@@ -28,6 +28,7 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
     
     private var currentTab: HistoryTab = .ongoing
     private var currentType: MyPageHistoryType = .participation
+    private var isScrollingByUser = false
     
     init(viewModel: MyPageHistoryViewModel, initialTab: HistoryTab = .ongoing) {
         self.currentTab = initialTab
@@ -43,7 +44,10 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        updateTabSelection(to: currentTab, animated: false)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.updateTabSelection(to: self.currentTab, animated: false)
+        }
     }
     
     // MARK: - Override Methods
@@ -106,6 +110,8 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
     }
     
     private func updateTabSelection(to tab: HistoryTab, animated: Bool) {
+        guard currentTab != tab || !animated else { return }
+
         currentTab = tab
         
         tabView.updateTabSelection(tab: tab)
@@ -113,6 +119,7 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
         let targetButton = tab == .ongoing ? tabView.ongoingTabButton : tabView.completedTabButton
         tabView.updateTabIndicator(to: targetButton, animated: animated)
         
+        isScrollingByUser = false
         let offsetX = CGFloat(tab.rawValue) * view.bounds.width
         contentView.scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: animated)
     }
@@ -163,12 +170,32 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
 // MARK: - UIScrollViewDelegate
 
 extension MyPageHistoryViewController: UIScrollViewDelegate {
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        isScrollingByUser = true
+    }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard isScrollingByUser else { return }
         let pageWidth = view.bounds.width
         let currentPage = Int((scrollView.contentOffset.x + pageWidth / 2) / pageWidth)
         
         if let tab = HistoryTab(rawValue: currentPage), tab != currentTab {
-            updateTabSelection(to: tab, animated: false)
+            currentTab = tab
+            tabView.updateTabSelection(tab: tab)
+            
+            let targetButton = tab == .ongoing ? tabView.ongoingTabButton : tabView.completedTabButton
+            tabView.updateTabIndicator(to: targetButton, animated: false)
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        isScrollingByUser = false
+    }
+        
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            isScrollingByUser = false
         }
     }
 }

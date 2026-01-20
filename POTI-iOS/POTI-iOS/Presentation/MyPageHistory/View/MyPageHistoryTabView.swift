@@ -91,8 +91,8 @@ final class MyPageHistoryTabView: BaseView {
             completedCountLabel,
             completedTitleLabel,
             completedTabButton,
-            tabIndicator,
-            tabDivider
+            tabDivider,
+            tabIndicator
         )
     }
     
@@ -137,14 +137,15 @@ final class MyPageHistoryTabView: BaseView {
         tabDivider.snp.makeConstraints {
             $0.bottom.equalToSuperview()
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(1)
+            $0.height.equalTo(2)
         }
     }
     
     // MARK: - Public Methods
     
     func updateTabIndicator(to button: UIButton, animated: Bool) {
-        UIView.animate(withDuration: animated ? 0.3 : 0) {
+        self.tabIndicator.snp.removeConstraints()
+        UIView.animate(withDuration: animated ? 0.25 : 0, delay: 0, options: [.curveEaseInOut], animations: {
             self.tabIndicator.snp.remakeConstraints {
                 $0.bottom.equalToSuperview()
                 $0.leading.equalTo(button)
@@ -152,7 +153,7 @@ final class MyPageHistoryTabView: BaseView {
                 $0.height.equalTo(2)
             }
             self.layoutIfNeeded()
-        }
+        })
     }
     
     func updateTabSelection(tab: MyPageHistoryViewController.HistoryTab) {
