@@ -13,7 +13,8 @@ import Then
 final class SearchListCell: UITableViewCell {
 
     // MARK: - Property
-
+    
+    // TODO: - 나중에 지우기
     static let identifier = "SearchListCell"
 
     // MARK: - UI Components

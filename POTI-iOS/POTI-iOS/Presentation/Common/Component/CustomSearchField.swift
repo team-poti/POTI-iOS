@@ -108,13 +108,11 @@ final class CustomSearchField: BaseView {
     }
 
     override func setUI() {
-        addSubview(rootStackView)
+        addSubviews(rootStackView, errorStackView)
 
         rootStackView.addArrangedSubviews(containerView, searchListView)
         containerView.addSubviews(textField, rightAccessoryContainer)
         rightAccessoryContainer.addSubview(rightIconView)
-        
-        addSubview(errorStackView)
         errorStackView.addArrangedSubviews(errorIconView, errorLabel)
         addTarget()
     }
@@ -245,7 +243,7 @@ final class CustomSearchField: BaseView {
 
         if animated {
             UIView.animate(
-                withDuration: 0.22,
+                withDuration: 0.3,
                 delay: 0,
                 options: [.curveEaseOut],
                 animations: {
