@@ -7,21 +7,26 @@
 
 import UIKit
 
+import Combine
 import SnapKit
 import Then
 
 class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
     
     private let tableView = UITableView()
+    private var participants: [MyPageJoinModel] = []
     
     //MARK: - LifeCycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setTableView()
+        setDelegate()
+        bindViewModel()
+        viewModel.action(.viewDidLoad)
     }
     
     override func setUI() {
+        setTableView()
         view.addSubview(tableView)
     }
     
@@ -41,6 +46,18 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
             $0.showsVerticalScrollIndicator = false
             $0.sectionHeaderTopPadding = 0
         }
+    }
+    
+    override func bindViewModel() {
+        viewModel.output.joinItems
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] items in
+                guard let self else { return }
+                print("✅ joinItems arrived:", items.count)
+                self.participants = items
+                self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
     }
     
     override func setDelegate() {
@@ -67,7 +84,7 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         case .progress:
             return 1
         case .participantInfo:
-            let count = 0 // TODO: 서버 연결 후 실제 count로 교체
+            let count = participants.count
             return count == 0 ? 1 : count
         }
     }
@@ -114,7 +131,7 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             return cell
             
         case .participantInfo:
-            let count = 0 // TODO: 서버 연결 후 실제 count로 교체
+            let count = participants.count
             
             if count == 0 {
                 guard let cell = tableView.dequeueReusableCell(
@@ -129,7 +146,12 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
                 withIdentifier: ParticipantManageViewCell.identifier,
                 for: indexPath
             ) as? ParticipantManageViewCell else { return UITableViewCell() }
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+            let isLastRow = indexPath.row == participants.count - 1
+            cell.separatorInset = isLastRow
+                ? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+                : UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+            let item = participants[indexPath.row]
+            cell.configure(model: .mockStartShip)
             return cell
         }
     }
@@ -141,7 +163,7 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             switch section {
             case .participantInfo:
                 let headerView = ParticipantManageHeaderView()
-                let count = 0 // TODO: 서버 연결 후 실제 count로 교체
+                let count = participants.count
                 headerView.configure(count: count)
                 return headerView
                 
