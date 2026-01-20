@@ -12,8 +12,6 @@ import Then
 
 final class ParticipantManageListCell: UITableViewCell {
     
-    static let identifier = "ParticipantManageOneCell"
-    
     var onTapStatusAction: ((ParticipantManageModel) -> Void)?
     var onTapToggle: (() -> Void)?
     

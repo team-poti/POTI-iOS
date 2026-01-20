@@ -44,12 +44,12 @@ final class EmptyManageViewCell: UITableViewCell {
     }
     
     private func setUI() {
-        titleLabel.addSubview(titleLabel)
+        addSubview(titleLabel)
     }
     
     private func setLayout() {
         titleLabel.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
+            $0.centerX.equalToSuperview()
             $0.verticalEdges.equalToSuperview().inset(52)
         }
     }

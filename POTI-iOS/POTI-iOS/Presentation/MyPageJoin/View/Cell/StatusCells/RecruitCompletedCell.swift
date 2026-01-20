@@ -72,7 +72,7 @@ final class RecruitCompletedCell: UITableViewCell {
         joinShipInfoView.configure(model: model)
         
         completeButton.color = .primaryMain
-        completeButton.text = "확인"
+        completeButton.text = "입금을 완료했어요"
         completeButton.isDisabled = false
     }
     

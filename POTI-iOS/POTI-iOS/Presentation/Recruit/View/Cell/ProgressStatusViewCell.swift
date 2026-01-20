@@ -14,10 +14,8 @@ final class ProgressStatusViewCell: UITableViewCell {
     
     private let mockProgressStatusModel: ProgressStatusModel = ProgressStatusModel(
         role: .host,
-        status: .recruiting
+        status: .waitRecruit
     )
-    
-    static let identifier = "ProgressViewCell"
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
