@@ -53,6 +53,11 @@ final class ValidNicknameView: BaseView {
             $0.top.equalTo(progressBar.snp.bottom).offset(24)
         }
         
+        validTextField.snp.makeConstraints {
+            $0.top.equalTo(descriptionLabel.snp.bottom).offset(24)
+            $0.leading.trailing.equalToSuperview().inset(16)
+        }
+        
         nextButton.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)

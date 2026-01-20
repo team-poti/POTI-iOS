@@ -264,8 +264,8 @@ extension PotiNavigationBar {
         button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
         button.imageView?.contentMode = .scaleAspectFit
         button.tag = action.rawValue
-        button.addTarget(target, action: #selector(BaseViewController<Any>.navigationButtonTapped(_:)), for: .touchUpInside)
-        
+        button.addTarget(target, action: #selector(NavigationActionHandling.navigationButtonTapped(_:)), for: .touchUpInside)
+
         let containerView = UIView()
         containerView.clipsToBounds = false
         containerView.addSubview(button)

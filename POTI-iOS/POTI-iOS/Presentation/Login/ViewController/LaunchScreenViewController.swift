@@ -50,6 +50,7 @@ final class LaunchScreenViewController: BaseViewController<LaunchScreenViewModel
     override func setLayout() {
         potiLogoView.snp.makeConstraints {
             $0.center.equalToSuperview()
+            $0.size.equalTo(126)
         }
     }
     
