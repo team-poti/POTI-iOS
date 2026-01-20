@@ -6,5 +6,7 @@
 //
 
 protocol AuthInterface {
-    func login() -> Bool
+    func kakaoLogin() async throws -> LoginResponseEntity
+    func devLogin() async throws -> LoginResponseEntity
+    func refreshToken() async throws
 }
