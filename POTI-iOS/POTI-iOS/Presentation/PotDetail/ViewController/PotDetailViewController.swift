@@ -7,7 +7,7 @@ import UIKit
 
 final class PotDetailViewController: BaseViewController<PotDetailViewModel>, NavigationConfigurable {
     func navigationStyle() -> PotiNavigationStyle {
-        return .backWithButton(title: "팟 상세")
+        return .backDefault("{닉네임}의 팟")
     }
     
     private let rootView = PotDetailView()
@@ -35,7 +35,7 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
                     PotiNavigationBar.configure(
                         navigationItem: self.navigationItem,
                         navigationController: self.navigationController,
-                        style: .backWithButton(title: "\(nickname)의 팟"),
+                        style: .backDefault("\(nickname)의 팟"),
                         target: self
                     )
                 }

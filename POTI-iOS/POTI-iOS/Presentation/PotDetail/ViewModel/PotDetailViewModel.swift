@@ -7,11 +7,6 @@
 
 import Combine
 
-struct ParticipantDisplayModel {
-    let userInfo: ParticipantInfoModel
-    let selectedMember: String
-}
-
 final class PotDetailViewModel: BaseViewModelType {
     
     // MARK: - Input
