@@ -32,7 +32,7 @@ final class MyPageHistoryContentView: BaseView {
             $0.separatorStyle = .none
             $0.rowHeight = .dynamicH(97)
             $0.showsVerticalScrollIndicator = false
-            $0.contentInset = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+            $0.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0)
             $0.register(MyPageHistoryCell.self, forCellReuseIdentifier: "MyPageHistoryCell")
         }
     }

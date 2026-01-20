@@ -53,12 +53,14 @@ final class MyPageHistoryCell: UITableViewCell {
         }
         
         arrowButton.do {
-            $0.setImage(.icnArrowRightLg.withRenderingMode(.alwaysOriginal), for: .normal)
+            $0.setImage(.icnArrowRightLg, for: .normal)
             $0.contentMode = .scaleAspectFit
+            $0.tintColor = .gray700
         }
         
         thumbnailImageView.do {
-            $0.contentMode = .scaleAspectFit
+            $0.contentMode = .scaleAspectFill
+            $0.image = .imgLottie
             $0.layer.cornerRadius = 8
             $0.clipsToBounds = true
         }
@@ -70,12 +72,13 @@ final class MyPageHistoryCell: UITableViewCell {
     
     private func setLayout() {
         thumbnailImageView.snp.makeConstraints {
-            $0.top.leading.trailing.equalToSuperview().inset(8)
+            $0.top.leading.equalToSuperview().inset(16)
+            $0.top.bottom.equalToSuperview().inset(8)
             $0.size.equalTo(81)
         }
         
         artistLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(2)
+            $0.top.equalTo(thumbnailImageView.snp.top).offset(2)
             $0.leading.equalTo(thumbnailImageView.snp.trailing).offset(12)
         }
         
@@ -85,12 +88,12 @@ final class MyPageHistoryCell: UITableViewCell {
         }
         
         statusLabel.snp.makeConstraints {
-            $0.bottom.equalToSuperview().inset(3.5)
+            $0.bottom.equalTo(thumbnailImageView.snp.bottom).offset(-3.5)
             $0.leading.equalTo(thumbnailImageView.snp.trailing).offset(12)
         }
         
         arrowButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(8)
+            $0.trailing.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }
     }
