@@ -17,6 +17,7 @@ final class RegisterInfoView: BaseView {
     var onTapAddImage: (() -> Void)?
     var onTapDeleteImage: ((Int) -> Void)?
     var onTapArtistField: (() -> Void)?
+    var onTapDeadlineField: (() -> Void)?
 
     // MARK: - UI Properties
 
@@ -40,7 +41,7 @@ final class RegisterInfoView: BaseView {
     //private let _productTypeField = CustomSearchField()
     //var productTypeField: CustomSearchField { _productTypeField }
 
-    private let _deadlineField = CustomTextField.short(placeholder: "날짜를 선택해주세요")
+    private let _deadlineField = CustomTextField.shortNavigate(placeholder: "날짜를 선택해주세요")
     var deadlineField: CustomTextField { _deadlineField }
 
     private let _descriptionField = CustomLongTextField.long(placeholder: "분철팟 설명을 자세히 적어주세요\n예) 굿즈 구성 / 구매 여부 / 예상 배송일 등")
@@ -103,9 +104,11 @@ final class RegisterInfoView: BaseView {
         accountTitleLabel.text = "계좌번호"
         bankTitleLabel.text = "은행"
 
-        // 아티스트 필드 탭 -> VC에서 검색 화면 이동 처리
         artistField.onTapField = { [weak self] in
             self?.onTapArtistField?()
+        }
+        deadlineField.onTapField = { [weak self] in
+            self?.onTapDeadlineField?()
         }
 
         // 상품 종류: 입력 가능 + 아래 SearchListView가 내려오는 필드

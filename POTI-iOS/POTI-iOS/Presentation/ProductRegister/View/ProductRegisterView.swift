@@ -22,6 +22,11 @@ final class ProductRegisterView: BaseView {
     private let submitButton = PotiBottomButton()
 
     var imagePickerView: ImagePickerView { productInfoView.imagePickerView }
+    var registerInfoView: RegisterInfoView { productInfoView }
+    var registerMemberView: RegisterMemberView { memberView }
+    var registerShippingView: RegisterShippingView { shippingView }
+    var registerNoticeView: RegisterNoticeView { noticeView }
+    var registerSubmitButton: PotiBottomButton { submitButton }
 
     override func setUI() {
         addSubview(scrollView)
@@ -42,6 +47,7 @@ final class ProductRegisterView: BaseView {
         scrollView.do {
             $0.alwaysBounceVertical = true
             $0.showsVerticalScrollIndicator = true
+            $0.keyboardDismissMode = .onDrag
         }
 
         submitButton.do {
