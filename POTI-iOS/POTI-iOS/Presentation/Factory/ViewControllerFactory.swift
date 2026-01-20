@@ -10,6 +10,8 @@ protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController() -> GoodsListViewController
+    func makeOrderSheetViewController() -> OrderSheetViewController
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeRecruitDetailViewController() -> RecruitDetailViewController
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
@@ -36,6 +38,10 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    func makePotiTabBar() -> PotiTabBar {
+        PotiTabBar(factory: self)
+    }
+    
     func makeHomeViewController() -> HomeViewController {
         HomeViewController(
             viewModel: diContainer.makeHomeViewModel()
@@ -48,6 +54,10 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    func makeOrderSheetViewController() -> OrderSheetViewController {
+        OrderSheetViewController(
+            viewModel: diContainer.makeOrderViewModel()
+        )
     func makeRecruitDetailViewController() -> RecruitDetailViewController {
         RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel())
     }
@@ -62,5 +72,11 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makePotiTabBar() -> PotiTabBar {
         PotiTabBar(factory: self)
+    }
+    
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController {
+        PotDetailViewController(
+            viewModel: diContainer.makePotDetailViewModel(postId: postId)
+        )
     }
 }
