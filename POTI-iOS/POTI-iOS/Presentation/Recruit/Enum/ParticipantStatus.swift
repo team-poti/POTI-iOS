@@ -37,3 +37,25 @@ enum ParticipantStatus {
             }
         }
 }
+
+extension ParticipantStatus {
+    static func from(postStatus: MyPageJoinModel.PostStatus) -> ParticipantStatus {
+        switch postStatus {
+
+        case .recruiting:
+            return .waitRecruit
+
+        case .recruitCompleted:
+            return .waitPay
+
+        case .depositCompleted:
+            return .paid
+
+        case .shipping:
+            return .startShip
+
+        case .completed:
+            return .completed
+        }
+    }
+}

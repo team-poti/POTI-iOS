@@ -23,10 +23,14 @@ final class ParticipantManageHeaderView: BaseView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    //MARK: - UI component
+    
     private let titleLabel = UILabel()
     private let participantHeaderButton = UIButton()
     
     var onTapHeaderButton: (() -> Void)?
+    
+    //MARK: - Custom Method
     
     override func setStyle() {
         titleLabel.do {

@@ -1,8 +1,8 @@
 //
-//  PotInfoCell.swift
+//  JoinPotInfoCell.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/13/26.
+//  Created by 이서현 on 1/19/26.
 //
 
 import UIKit
@@ -11,18 +11,9 @@ import Kingfisher
 import SnapKit
 import Then
 
-final class PotInfoCell: UITableViewCell {
+final class JoinPotInfoCell: UITableViewCell {
     
-    //0120 여기 configure 리팩하자
-    private let mockPotInfoModel: PotInfoModel = PotInfoModel(
-        potId: 1110,
-        thumbnail: "https://search.pstatic.net/common/?src=http%3A%2F%2Fimgnews.naver.net%2Fimage%2F311%2F2025%2F08%2F18%2F0001905912_001_20250818141307379.jpg&type=a340",
-        artistName: "코르티스",
-        potTitle: "코르티스 포티팟",
-        status: .recruiting
-    )
-    
-    static let identifier = "PotInfoCell"
+    static let identifier = "JoinPotInfoCell"
     
     var onTapPotButton: (() -> Void)? // TODO: - input output 패턴 넣기
     
@@ -35,6 +26,8 @@ final class PotInfoCell: UITableViewCell {
     private let potTitleLabel = UILabel()
     private let potStatusLabel = UILabel()
     private let potButton = UIButton()
+    
+    // MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -50,49 +43,32 @@ final class PotInfoCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setStyle() {
-        contentView.layer.borderColor = UIColor.red.cgColor
+    // MARK: - Custom Method
+    
+    private func setStyle() {
         potIdLabel.do {
-            $0.setLabel(
-                "모집 번호 poti-" + String(mockPotInfoModel.potId),
-                font: .body14m
-            )
+            $0.setLabel("", font: .body14m)
             $0.textColor = .gray800
         }
         
         thumbnailView.do {
-            let url = URL(string: mockPotInfoModel.thumbnail)
-            $0.kf.setImage(
-                with: url,
-                placeholder: UIImage(named: "placeholder")
-            )
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = 8
         }
         
         artistLabel.do {
-            $0.setLabel(
-                mockPotInfoModel.artistName,
-                font: .body14m
-            )
+            $0.setLabel("", font: .body14m)
             $0.textColor = .gray800
         }
         
         potTitleLabel.do {
-            $0.setLabel(
-                mockPotInfoModel.potTitle,
-                font: .body16m
-            )
+            $0.setLabel("", font: .body16m)
             $0.textColor = .potiBlack
         }
         
         potStatusLabel.do {
-            $0.setLabel(
-                mockPotInfoModel.status.potStatusText,
-                font: .body14sb
-            )
-            $0.textColor = .sementicRed
+            $0.setLabel("", font: .body14sb)
         }
         
         potButton.do {
@@ -100,7 +76,8 @@ final class PotInfoCell: UITableViewCell {
         }
     }
     
-    func setUI() {
+    private func setUI() {
+        
         contentView.addSubviews(
             potStatusLabel,
             potTitleLabel,
@@ -111,7 +88,7 @@ final class PotInfoCell: UITableViewCell {
         )
     }
     
-    func setLayout() {
+    private func setLayout() {
         
         potIdLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(12)
@@ -156,10 +133,31 @@ final class PotInfoCell: UITableViewCell {
     }
     
     // MARK: - action
+    
     @objc func potButtonTapped(_ sender: Any) {
         print("potButtonTapped")
         onTapPotButton?()
-        //TODO: - input 수정
+        
+        //TODO: - input 수정 -> VM 로 추후에 옮기자
+        
         // input.send(.potButtonTapped)
+    }
+    
+    func configure(model: MyPageJoinModel) {
+        potIdLabel.text = "참여 번호 poti-" + String(model.participationId)
+
+        if let url = URL(string: model.imageUrlString) {
+            thumbnailView.kf.setImage(
+                with: url,
+                placeholder: UIImage(named: "placeholder")
+            )
+        } else {
+            thumbnailView.image = UIImage(named: "placeholder")
+        }
+
+        artistLabel.text = model.artistName
+        potTitleLabel.text = model.title
+        potStatusLabel.text = model.postStatus.potStatusText
+        potStatusLabel.textColor = model.postStatus.potStatusColor
     }
 }

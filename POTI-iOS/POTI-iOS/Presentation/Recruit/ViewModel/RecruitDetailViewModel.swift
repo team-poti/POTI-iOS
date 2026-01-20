@@ -33,7 +33,7 @@ final class RecruitDetailViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: GoodsListUseCase) {
+    init() {
        //self.useCase = useCase
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher()

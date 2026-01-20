@@ -30,6 +30,4 @@ final class DivideView: BaseView {
             $0.height.equalTo(1)
         }
     }
-    
-    
 }

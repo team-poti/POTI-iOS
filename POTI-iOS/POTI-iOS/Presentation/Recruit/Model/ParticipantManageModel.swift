@@ -46,6 +46,36 @@ extension ManageEntity {
     }
 }
 
+extension ParticipantManageModel {
+
+    /// ParticipantManageViewCell 에서 사용
+    var participantManageViewCellModel: ParticipantManageViewCell.Model {
+        .init(
+            memberNamesText: memberTitle,
+            depositorNameText: depositorNameText,
+            addressText: shipInfo?.addressText ?? "",
+            phoneText: shipInfo?.phoneText ?? "",
+            shippingText: shippingText,
+            totalPrice: totalPrice,
+            depositState: participantstatus
+        )
+    }
+
+    /// 상태에 따라 입금자명 텍스트를 결정
+    private var depositorNameText: String {
+        if let waitPayCheckInfo {
+            return waitPayCheckInfo.depositorName
+        }
+
+        if let paidInfo {
+            return paidInfo.depositorName
+        }
+
+        return ""
+    }
+}
+
+
 extension ParticipantEntity {
     func toParticipantManageModel() -> ParticipantManageModel {
         let memberRows: [ParticipantManageModel.MemberRow] = priceInfo.memberPerPrices.map {

@@ -86,6 +86,7 @@ final class AppDIContainer {
             DefaultManageUseCase(repository: makeManageRepository())
         }
     
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -104,7 +105,15 @@ final class AppDIContainer {
         GoodsListViewModel(useCase: makeGoodsListUseCase())
     }
     
+    func makeRecruitDetailViewModel() -> RecruitDetailViewModel {
+        RecruitDetailViewModel()
+    }
+    
     func makeManageViewModel() -> ParticipantManageViewModel {
             ParticipantManageViewModel(useCase: makeManageUseCase())
         }
+    
+    func makeMyPageJoinViewModel() -> MyPageJoinViewModel {
+        MyPageJoinViewModel()
+    }
 }

@@ -14,9 +14,10 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
     
     private let tableView = UITableView()
     
+    //MARK: - LifeCycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .gray100
         setTableView()
     }
     
@@ -32,24 +33,19 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
     
     private func setTableView() {
         tableView.do {
-            $0.register(
-                PotInfoCell.self,
-                forCellReuseIdentifier: PotInfoCell.identifier
-            )
-            $0.register(
-                ProgressStatusViewCell.self,
-                forCellReuseIdentifier: ProgressStatusViewCell.identifier
-            )
-            $0.register(
-                ParticipantManageViewCell.self,
-                forCellReuseIdentifier: ParticipantManageViewCell.identifier
-            )
-            $0.dataSource = self
-            $0.delegate = self
+            $0.register(PotInfoCell.self)
+            $0.register(ProgressStatusViewCell.self)
+            $0.register(ParticipantManageViewCell.self)
+            $0.register(EmptyManageViewCell.self)
             $0.separatorStyle = .singleLine
             $0.showsVerticalScrollIndicator = false
             $0.sectionHeaderTopPadding = 0
         }
+    }
+    
+    override func setDelegate() {
+        tableView.dataSource = self
+        tableView.delegate = self
     }
 }
 
@@ -59,7 +55,10 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         return Section.allCases.count
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
         guard let section = Section(rawValue: section) else { return 0 }
         
         switch section {
@@ -68,8 +67,8 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         case .progress:
             return 1
         case .participantInfo:
-            // TODO: - 서버 -> 멤버 인원 수 - 추후 수정 예정..
-            return 3
+            let count = 0 // TODO: 서버 연결 후 실제 count로 교체
+            return count == 0 ? 1 : count
         }
     }
     
@@ -105,7 +104,7 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             ) as? PotInfoCell else { return UITableViewCell() }
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             return cell
-
+            
         case .progress:
             guard let cell = tableView.dequeueReusableCell(
                 withIdentifier: ProgressStatusViewCell.identifier,
@@ -113,8 +112,19 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             ) as? ProgressStatusViewCell else { return UITableViewCell() }
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             return cell
-
+            
         case .participantInfo:
+            let count = 0 // TODO: 서버 연결 후 실제 count로 교체
+            
+            if count == 0 {
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: EmptyManageViewCell.identifier,
+                    for: indexPath
+                ) as? EmptyManageViewCell else { return UITableViewCell() }
+                cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+                return cell
+            }
+            
             guard let cell = tableView.dequeueReusableCell(
                 withIdentifier: ParticipantManageViewCell.identifier,
                 for: indexPath
@@ -125,19 +135,20 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
     }
     
     //header
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let section = Section(rawValue: section) else { return nil }
-        
-        switch section {
-        case .participantInfo:
-            let headerView = ParticipantManageHeaderView()
-            headerView.configure(count: 3) // TODO: - 수정 예정 participantCount
-            return headerView
+        func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+            guard let section = Section(rawValue: section) else { return nil }
             
-        default:
-            return nil
+            switch section {
+            case .participantInfo:
+                let headerView = ParticipantManageHeaderView()
+                let count = 0 // TODO: 서버 연결 후 실제 count로 교체
+                headerView.configure(count: count)
+                return headerView
+                
+            default:
+                return nil
+            }
         }
-    }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard let section = Section(rawValue: section) else { return 0 }

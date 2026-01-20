@@ -1,8 +1,8 @@
 //
-//  UITableView+.swift
+//  UITableView2+.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/15/26.
+//  Created by 이서현 on 1/20/26.
 //
 
 import UIKit
