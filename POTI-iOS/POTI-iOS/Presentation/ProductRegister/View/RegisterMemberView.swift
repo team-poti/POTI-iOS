@@ -53,7 +53,6 @@ final class RegisterMemberView: BaseView {
         NotificationCenter.default.removeObserver(self)
     }
     
-    
     // MARK: - Custom Method
     
     override func setStyle() {

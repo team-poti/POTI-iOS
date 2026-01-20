@@ -43,7 +43,7 @@ final class RegisterInfoView: BaseView {
     private let _deadlineField = CustomTextField.short(placeholder: "날짜를 선택해주세요")
     var deadlineField: CustomTextField { _deadlineField }
 
-    private let _descriptionField = CustomLongTextField.long(placeholder: "분철 범위 등.. 에 대한 설명을 입력해주세요")
+    private let _descriptionField = CustomLongTextField.long(placeholder: "분철팟 설명을 자세히 적어주세요\n예) 굿즈 구성 / 구매 여부 / 예상 배송일 등")
     var descriptionField: CustomLongTextField { _descriptionField }
 
     private let _accountField = CustomTextField.short(placeholder: "계좌번호를 입력해주세요")
@@ -147,11 +147,11 @@ final class RegisterInfoView: BaseView {
         imagePickerView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(20)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(90)
+            $0.height.greaterThanOrEqualTo(90)
         }
 
         fieldsStackView.snp.makeConstraints {
-            $0.top.equalTo(imagePickerView.snp.bottom).offset(20)
+            $0.top.equalTo(imagePickerView.snp.bottom).offset(28)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
 
