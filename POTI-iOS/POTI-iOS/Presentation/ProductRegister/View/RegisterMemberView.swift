@@ -395,7 +395,6 @@ final class RegisterMemberView: BaseView {
                 result[index] = price
             }
         }
-        
         return result
     }
 }
