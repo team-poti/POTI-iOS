@@ -108,3 +108,21 @@ extension PotStatus {
         }
     }
 }
+
+extension ParticipantStatus {
+    static func from(participantStatus: MyPageJoinModel.PostStatus) -> ParticipantStatus {
+        switch participantStatus {
+            
+        case .recruiting:
+            return .waitRecruit
+        case .recruitCompleted:
+            return .waitPayCheck
+        case .depositCompleted:
+            return .paid
+        case .shipping:
+            return .startShip
+        case .completed:
+            return .completed
+        }
+    }
+}
