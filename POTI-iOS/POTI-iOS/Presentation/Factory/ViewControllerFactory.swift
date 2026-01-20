@@ -34,6 +34,10 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    func makePotiTabBar() -> PotiTabBar {
+        PotiTabBar(factory: self)
+    }
+    
     func makeHomeViewController() -> HomeViewController {
         HomeViewController(
             viewModel: diContainer.makeHomeViewModel()
@@ -43,6 +47,12 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makeGoodsListViewController() -> GoodsListViewController {
         GoodsListViewController(
             viewModel: diContainer.makeGoodsListViewModel()
+        )
+    }
+    
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController {
+        PotDetailViewController(
+            viewModel: diContainer.makePotDetailViewModel(postId: postId)
         )
     }
 }
