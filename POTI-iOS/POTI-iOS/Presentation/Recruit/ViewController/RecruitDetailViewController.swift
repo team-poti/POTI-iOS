@@ -10,12 +10,6 @@ import UIKit
 import SnapKit
 import Then
 
-enum Section: Int, CaseIterable {
-    case recruitInfo
-    case progress
-    case participantInfo
-}
-
 class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
     
     private let tableView = UITableView()
