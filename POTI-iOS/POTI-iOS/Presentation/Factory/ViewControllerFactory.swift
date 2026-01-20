@@ -34,6 +34,10 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    func makePotiTabBar() -> PotiTabBar {
+        PotiTabBar(factory: self)
+    }
+    
     func makeHomeViewController() -> HomeViewController {
         HomeViewController(
             viewModel: diContainer.makeHomeViewModel()
