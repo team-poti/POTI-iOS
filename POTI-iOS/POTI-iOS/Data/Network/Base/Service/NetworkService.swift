@@ -7,7 +7,13 @@
 
 import Alamofire
 
-final class NetworkService {
+final class NetworkService: Sendable {
+    
+    private let interceptor: AuthInterceptor?
+    
+    init(interceptor: AuthInterceptor? = nil) {
+        self.interceptor = interceptor
+    }
 
     func request<T: Decodable>(
         target: BaseTargetType,
@@ -39,7 +45,7 @@ final class NetworkService {
         PotiLogger.network("🌐 [REQUEST]")
         PotiLogger.network("URL: \(url)")
         PotiLogger.network("METHOD: \(target.method.rawValue)")
-        PotiLogger.network("HEADER: \(target.headers.value)")
+        PotiLogger.network("HEADER: \(target.headers)")
         PotiLogger.network("PARAMS: \(parameterType)")
         PotiLogger.network("DETAIL: \(parameters ?? [:])")
         
@@ -48,9 +54,10 @@ final class NetworkService {
             method: target.method,
             parameters: parameters,
             encoding: encoding,
-            headers: target.headers.value
+            headers: target.headers,
+            interceptor: interceptor
         )
-        .validate()
+        .validate(statusCode: 200..<600)
         .serializingDecodable(BaseResponseDTO<T>.self)
         .response
         
@@ -67,20 +74,24 @@ final class NetworkService {
 
             PotiLogger.network("STATUS : \(http.statusCode)")
             PotiLogger.network("HEADER : \(http.headers)")
-
-            guard baseResponse.code == 200 else {
-                let error = PotiError.apiError(message: baseResponse.message)
+            
+            if let data = response.data,
+               let jsonString = String(data: data, encoding: .utf8) {
+                PotiLogger.network("BODY : \(jsonString)")
+            }
+            
+            if (200...299).contains(baseResponse.code) {
+                guard let data = baseResponse.data else {
+                    let error = PotiError.decodingError
+                    PotiLogger.error(error)
+                    throw error
+                }
+                return data
+            } else {
+                let error = mapErrorCode(baseResponse.code, message: baseResponse.message)
                 PotiLogger.error(error)
                 throw error
             }
-
-            guard let data = baseResponse.data else {
-                let error = PotiError.decodingError
-                PotiLogger.error(error)
-                throw error
-            }
-
-            return data
     
         case .failure:
             guard let http = response.response else {
@@ -113,6 +124,25 @@ final class NetworkService {
             PotiLogger.network("DESCRIPTION : \(http.debugDescription)")
             
             throw error
+        }
+    }
+    
+    private func mapErrorCode(_ code: Int, message: String) -> PotiError {
+        switch code {
+        case 40100:
+            return .invalidToken
+        case 40101:
+            return .tokenExpired
+        case 400:
+            return .badRequest
+        case 401:
+            return .unauthorized
+        case 404:
+            return .notFound
+        case 500...599:
+            return .internalServerError
+        default:
+            return .apiError(message: message)
         }
     }
 }

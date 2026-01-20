@@ -6,9 +6,11 @@
 //
 
 protocol ViewControllerFactory {
+    func makeLaunchScreenViewController() -> LaunchScreenViewController
     @MainActor func makeLoginViewController() -> LoginViewController
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController() -> GoodsListViewController
+    func makePotiTabBar() -> PotiTabBar
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -18,10 +20,16 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     init(diContainer: AppDIContainer = .shared) {
         self.diContainer = diContainer
     }
+    
+    @MainActor func makeLaunchScreenViewController() -> LaunchScreenViewController {
+        LaunchScreenViewController(
+            viewModel: diContainer.makeLaunchScreenViewModel(), factory: self
+        )
+    }
 
     @MainActor func makeLoginViewController() -> LoginViewController {
         LoginViewController(
-            viewModel: diContainer.makeLoginViewModel()
+            viewModel: diContainer.makeLoginViewModel(), factory: self
         )
     }
     
@@ -35,5 +43,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         GoodsListViewController(
             viewModel: diContainer.makeGoodsListViewModel()
         )
+    }
+    
+    func makePotiTabBar() -> PotiTabBar {
+        PotiTabBar(factory: self)
     }
 }
