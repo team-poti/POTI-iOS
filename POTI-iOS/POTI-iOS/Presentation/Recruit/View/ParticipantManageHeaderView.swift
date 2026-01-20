@@ -12,6 +12,8 @@ import Then
 
 final class ParticipantManageHeaderView: BaseView {
     
+    // MARK: - Lifecycle
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         addTarget()
