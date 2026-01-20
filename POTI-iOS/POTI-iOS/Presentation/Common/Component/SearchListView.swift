@@ -122,7 +122,6 @@ final class SearchListView: BaseView {
     }
 
     private func updateHeightIfNeeded() {
-        // 부모가 height constraint를 주지 않아도(StackView 포함) 자동 높이 계산이 되도록 intrinsic size 갱신
         invalidateIntrinsicContentSize()
         setNeedsLayout()
         layoutIfNeeded()

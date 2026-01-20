@@ -22,15 +22,11 @@ final class CustomSearchField: BaseView {
     // MARK: - UI Components
 
     private let rootStackView = UIStackView()
-
     private let containerView = UIView()
     private let textField = UITextField()
-
     private let rightAccessoryContainer = UIView()
     private let rightIconView = UIImageView()
-
     private let searchListView = SearchListView()
-    
     private let errorStackView = UIStackView()
     private let errorIconView = UIImageView()
     private let errorLabel = UILabel()
@@ -283,7 +279,6 @@ final class CustomSearchField: BaseView {
 
         isListVisible = false
 
-        // height 0으로 접기
         searchListHeightConstraint?.update(offset: 0)
 
         if animated {
