@@ -42,9 +42,9 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         
         switch filterType {
         case .all, .ongoing:
-            initialTab = .ongoing  // 전체 or 진행중 → 진행중 탭
+            initialTab = .ongoing
         case .completed:
-            initialTab = .completed  // 종료 → 종료 탭
+            initialTab = .completed
         }
         
         let containerVC = MyPageHistoryContainerViewController(initialType: historyType, initialTab: initialTab)

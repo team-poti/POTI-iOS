@@ -65,7 +65,7 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
             currentChildVC.removeFromParent()
         }
         
-        let childVC = MyPageHistoryViewController(viewModel: viewModel)
+        let childVC = MyPageHistoryViewController(viewModel: viewModel, initialTab: initialTab)
         addChild(childVC)
         view.addSubview(childVC.view)
         childVC.view.frame = view.bounds
@@ -73,6 +73,8 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
         childVC.didMove(toParent: self)
         
         currentChildVC = childVC
+        
+        initialTab = .ongoing
     }
     
     // MARK: - Navigation Actions
