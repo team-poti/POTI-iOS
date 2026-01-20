@@ -10,6 +10,7 @@ protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController() -> GoodsListViewController
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makePotiTabBar() -> PotiTabBar
 }
 
@@ -43,9 +44,5 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         GoodsListViewController(
             viewModel: diContainer.makeGoodsListViewModel()
         )
-    }
-    
-    func makePotiTabBar() -> PotiTabBar {
-        PotiTabBar(factory: self)
     }
 }
