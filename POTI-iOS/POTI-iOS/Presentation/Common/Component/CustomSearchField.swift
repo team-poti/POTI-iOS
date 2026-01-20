@@ -31,20 +31,6 @@ final class CustomSearchField: BaseView {
     private let errorIconView = UIImageView()
     private let errorLabel = UILabel()
 
-    // MARK: - Life Cycle
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setStyle()
-        setUI()
-        setLayout()
-        bindInternalHandlers()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     // MARK: - UI Setting
 
     override func setStyle() {
@@ -80,7 +66,7 @@ final class CustomSearchField: BaseView {
         rightIconView.do {
             $0.contentMode = .scaleAspectFit
             $0.tintColor = .gray700
-            $0.image = UIImage(named: "icn-search")
+            $0.image = .icnSearch
         }
 
         rightAccessoryContainer.do {
@@ -109,7 +95,7 @@ final class CustomSearchField: BaseView {
 
         errorIconView.do {
             $0.contentMode = .scaleAspectFit
-            $0.image = UIImage(named: "icn-notice")?.withRenderingMode(.alwaysTemplate)
+            $0.image = .icnNotice
             $0.tintColor = .sementicRed
         }
 
@@ -130,6 +116,7 @@ final class CustomSearchField: BaseView {
         
         addSubview(errorStackView)
         errorStackView.addArrangedSubviews(errorIconView, errorLabel)
+        addTarget()
     }
 
     override func setLayout() {
@@ -312,7 +299,7 @@ final class CustomSearchField: BaseView {
 
     // MARK: - Private Method
 
-    private func bindInternalHandlers() {
+    private func addTarget() {
         textField.addTarget(self, action: #selector(textFieldEditingChanged), for: .editingChanged)
     }
 
