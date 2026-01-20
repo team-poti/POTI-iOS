@@ -34,6 +34,10 @@ final class AppDIContainer {
         DefaultGoodsListRepository()
     }
     
+    private func makeOrderRepository() -> OrderInterface {
+        DefaultOrderRepository()
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -56,6 +60,10 @@ final class AppDIContainer {
         DefaultGoodsListUseCase(repository: makeGoodsListRepository())
     }
     
+    private func makeOrderUseCase() -> OrderUseCase {
+        DefaultOrderUseCase(repository: makeOrderRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLoginViewModel() -> LoginViewModel {
@@ -68,5 +76,9 @@ final class AppDIContainer {
     
     func makeGoodsListViewModel() -> GoodsListViewModel {
         GoodsListViewModel(useCase: makeGoodsListUseCase())
+    }
+    
+    func makeOrderViewModel() -> OrderViewModel {
+        OrderViewModel(useCase: makeOrderUseCase())
     }
 }
