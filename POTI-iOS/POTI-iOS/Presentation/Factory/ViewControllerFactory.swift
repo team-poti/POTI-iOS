@@ -57,10 +57,6 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makePotiTabBar() -> PotiTabBar {
-        PotiTabBar(factory: self)
-    }
-  
     func makePotDetailViewController(postId: Int) -> PotDetailViewController {
         PotDetailViewController(
             viewModel: diContainer.makePotDetailViewModel(postId: postId)
