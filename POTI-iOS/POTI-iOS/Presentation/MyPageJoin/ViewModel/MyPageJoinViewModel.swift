@@ -70,7 +70,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
                     depositStatus: .completed,
                     bank: "우리은행",
                     accountNumber: "1002-345-678901",
-                    depositDeadline: "2026-01-01 18:00"
+                    depositDeadline: "2025-12-30T02:50"
                 ),
                 shippingInfo: .init(
                     shippingMethod: "일반택배",

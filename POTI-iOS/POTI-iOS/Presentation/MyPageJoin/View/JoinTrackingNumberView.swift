@@ -22,19 +22,9 @@ final class JoinTrackingNumberView: BaseView {
 
     // MARK: - Init
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupView()
-        setupLayout()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     // MARK: - Setup
 
-    private func setupView() {
+    override func setStyle() {
 
         shipContainerView.do {
             $0.backgroundColor = .gray100
@@ -48,25 +38,29 @@ final class JoinTrackingNumberView: BaseView {
 
         copyButton.do {
             $0.setTitle("복사", for: .normal)
+            $0.setUnderline()
             $0.setTitleColor(.gray700, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
         }
-        copyButton.addTarget(self, action: #selector(didTapCopy), for: .touchUpInside)
         
         statusLabel.do {
             $0.font = PotiFontManager.body16m.font
         }
 
-        addSubviews(
-            shipContainerView,
-            statusLabel
-        )
         shipContainerView.addSubviews(shipLabel, copyButton)
+    }
+    
+    // MARK: - SetUI
+    
+    override func setUI() {
+        addSubviews(shipContainerView, statusLabel)
+        shipContainerView.addSubviews(shipLabel, copyButton)
+        copyButton.addTarget(self, action: #selector(didTapCopy), for: .touchUpInside)
     }
 
     // MARK: - Layout
 
-    private func setupLayout() {
+    override func setLayout() {
         shipContainerView.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(16)

@@ -108,7 +108,7 @@ final class DepositInfoView: BaseView {
         }
 
         deadlineLabel.snp.makeConstraints {
-            $0.horizontalEdges.equalTo(deadlineLabel).inset(16)
+            $0.horizontalEdges.equalTo(deadlineContainerView).inset(16)
             $0.centerY.equalTo(deadlineContainerView)
         }
 
