@@ -30,20 +30,6 @@ final class CustomLongTextField: BaseView {
     private var bottomToContainer: Constraint?
     private var bottomToError: Constraint?
 
-    // MARK: - Life Cycle
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setStyle()
-        setUI()
-        setLayout()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-
     // MARK: - Private Setup
 
     override func setStyle() {
@@ -98,7 +84,7 @@ final class CustomLongTextField: BaseView {
     override func setUI() {
         addSubviews(containerView, errorStackView)
 
-        containerView.addSubviews(textView)
+        containerView.addSubview(textView)
         textView.addSubview(placeholderLabel)
 
         errorStackView.addArrangedSubviews(errorIconView, errorLabel)
@@ -136,7 +122,6 @@ final class CustomLongTextField: BaseView {
         }
     }
 
-
     // MARK: - Custom Method
 
     func configure(placeholder: String? = nil) {
@@ -147,7 +132,6 @@ final class CustomLongTextField: BaseView {
             placeholderLabel.font = PotiFontManager.body16m.font
             placeholderLabel.textColor = .gray700
         }
-
         apply(state: uiState)
     }
 
@@ -189,7 +173,6 @@ final class CustomLongTextField: BaseView {
     func getText() -> String {
         return textView.text ?? ""
     }
-
 
     // MARK: - Private Method
 

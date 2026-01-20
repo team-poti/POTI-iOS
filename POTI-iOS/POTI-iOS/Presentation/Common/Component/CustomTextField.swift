@@ -34,19 +34,6 @@ final class CustomTextField: BaseView {
     private var textFieldTrailingToAccessory: Constraint?
     private var textFieldTrailingToSuperview: Constraint?
 
-    // MARK: - Life Cycle
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setStyle()
-        setUI()
-        setLayout()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     // MARK: - Private Setup
 
     override func setStyle() {
@@ -77,7 +64,6 @@ final class CustomTextField: BaseView {
             $0.setContentHuggingPriority(.defaultLow, for: .horizontal)
         }
         
-
         rightIconView.do {
             $0.contentMode = .scaleAspectFit
             $0.tintColor = .gray700
@@ -103,7 +89,7 @@ final class CustomTextField: BaseView {
 
         errorIconView.do {
             $0.contentMode = .scaleAspectFit
-            $0.image = UIImage(named: "icn-notice")
+            $0.image = .icnNotice
             $0.tintColor = .sementicRed
         }
 
@@ -223,7 +209,6 @@ final class CustomTextField: BaseView {
         return textField.text ?? ""
     }
 
-
     func updateCount(current: Int, max: Int) {
         countLabel.text = "\(current)/\(max)"
     }
@@ -250,7 +235,7 @@ final class CustomTextField: BaseView {
         switch variant {
         case .searchNavigate:
             rightIconView.isHidden = false
-            rightIconView.image = UIImage(named: "icn-search")
+            rightIconView.image = .icnSearch
 
         case .count(let max):
             countLabel.isHidden = false
@@ -271,7 +256,6 @@ final class CustomTextField: BaseView {
             textFieldTrailingToAccessory?.deactivate()
             textFieldTrailingToSuperview?.activate()
         }
-
         updateCountIfNeeded()
     }
 
@@ -323,7 +307,6 @@ extension CustomTextField: UITextFieldDelegate {
             updateCount(current: next.count, max: max)
             return true
         }
-
         return true
     }
 }
