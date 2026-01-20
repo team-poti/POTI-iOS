@@ -13,6 +13,9 @@ protocol ViewControllerFactory {
     func makeOrderSheetViewController() -> OrderSheetViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makePotiTabBar() -> PotiTabBar
+    func makeOnboardingViewController() -> OnboardingViewController
+    func makeValidNicknameViewController() -> ValidNicknameViewController
+    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -61,5 +64,17 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         PotDetailViewController(
             viewModel: diContainer.makePotDetailViewModel(postId: postId)
         )
+    }
+    
+    func makeOnboardingViewController() -> OnboardingViewController {
+        OnboardingViewController(viewModel: OnboardingViewModel(), factory: self)
+    }
+    
+    func makeValidNicknameViewController() -> ValidNicknameViewController {
+        ValidNicknameViewController(viewModel: OnboardingViewModel(), factory: self)
+    }
+    
+    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController {
+        SelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel(), factory: self)
     }
 }

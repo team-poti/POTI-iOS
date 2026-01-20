@@ -17,6 +17,17 @@ final class OnboardingViewController: BaseViewController<OnboardingViewModel>, N
     }
     
     private let rootView = OnboardingDescriptionView()
+    private let factory: ViewControllerFactory
+    
+    init(viewModel: OnboardingViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+        
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func loadView() {
         self.view = rootView
@@ -29,8 +40,7 @@ final class OnboardingViewController: BaseViewController<OnboardingViewModel>, N
 
 extension OnboardingViewController {
     @objc private func nextButtonDidTap() {
-        // TODO: - 추후 이동 로직 뷰모델 안에 넣기
-        let validNicknameViewController = ValidNicknameViewController()
-        self.navigationController?.pushViewController(validNicknameViewController, animated: true)
+        let validNicknameVC = factory.makeValidNicknameViewController()
+        self.navigationController?.pushViewController(validNicknameVC, animated: true)
     }
 }

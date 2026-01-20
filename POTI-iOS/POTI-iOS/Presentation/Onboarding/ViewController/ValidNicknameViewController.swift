@@ -17,6 +17,17 @@ final class ValidNicknameViewController: BaseViewController<OnboardingViewModel>
     }
     
     private let rootView = ValidNicknameView()
+    private let factory: ViewControllerFactory
+    
+    init(viewModel: OnboardingViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+        
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func loadView() {
         self.view = rootView
@@ -29,8 +40,7 @@ final class ValidNicknameViewController: BaseViewController<OnboardingViewModel>
 
 extension ValidNicknameViewController {
     @objc private func nextButtonDidTap() {
-        // TODO: - 추후 이동 로직 뷰모델 안에 넣기
-        let selectFavoriteIdolGroupViewController = SelectFavoriteIdolGroupViewController()
-        self.navigationController?.pushViewController(selectFavoriteIdolGroupViewController, animated: true)
+        let selectFavoriteIdolGroupVC = factory.makeSelectFavoriteIdolGroupViewController()
+        self.navigationController?.pushViewController(selectFavoriteIdolGroupVC, animated: true)
     }
 }

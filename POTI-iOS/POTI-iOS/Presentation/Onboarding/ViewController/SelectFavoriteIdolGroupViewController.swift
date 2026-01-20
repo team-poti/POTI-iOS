@@ -17,9 +17,20 @@ final class SelectFavoriteIdolGroupViewController: BaseViewController<Onboarding
     }
     
     private let rootView = SelectFavoriteIdolGroupView()
-    
+    private let factory: ViewControllerFactory
+
     private var groups: [IdolGroupModel] = []
     private var selectedGroupId: Int?
+    
+    init(viewModel: OnboardingViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+        
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func loadView() {
         self.view = rootView
