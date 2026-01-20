@@ -19,12 +19,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         
         let factory = DefaultViewControllerFactory()
-        let loginVC = factory.makeLoginViewController()
+        let splashVC = factory.makeLaunchScreenViewController()
 
-        window.rootViewController = UINavigationController(rootViewController: loginVC)
-        let vc = UINavigationController(rootViewController: loginVC)
-        window.rootViewController = vc
-//        window.rootViewController = PotiTabBar()
+        window.rootViewController = splashVC
         self.window = window
         window.makeKeyAndVisible()
     }

@@ -16,14 +16,30 @@ final class AppDIContainer {
         DefaultAuthService()
     }
     
-    private func makeNetworkService() -> NetworkService {
+    private func makeTokenRefreshNetworkService() -> NetworkService {
         NetworkService()
+    }
+    
+    private func makeNetworkService() -> NetworkService {
+        NetworkService(interceptor: makeAuthInterceptor())
+    }
+    
+    private func makeTokenRefreshService() -> TokenRefreshService {
+        DefaultTokenRefreshService(
+            networkService: makeTokenRefreshNetworkService()
+        )
+    }
+    
+    private func makeAuthInterceptor() -> AuthInterceptor {
+        AuthInterceptor(
+            tokenRefreshService: makeTokenRefreshService()
+        )
     }
     
     // MARK: - Repository
     
     @MainActor private func makeAuthRepository() -> AuthInterface {
-        DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService())
+        DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService(), tokenRefreshNetworkService: makeTokenRefreshNetworkService())
     }
     
     private func makeHomeRepository() -> HomeInterface {
@@ -52,6 +68,12 @@ final class AppDIContainer {
         )
     }
     
+    @MainActor private func makeRefreshTokenUseCase() -> RefreshTokenUseCase {
+        DefaultRefreshTokenUseCase(
+            repository: makeAuthRepository()
+        )
+    }
+    
     private func makeHomeUseCase() -> HomeUseCase {
         DefaultHomeUseCase(repository: makeHomeRepository())
     }
@@ -65,6 +87,10 @@ final class AppDIContainer {
     }
     
     // MARK: - ViewModel
+    
+    @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
+        LaunchScreenViewModel(refreshTokenUseCase: makeRefreshTokenUseCase())
+    }
     
     @MainActor func makeLoginViewModel() -> LoginViewModel {
         LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())

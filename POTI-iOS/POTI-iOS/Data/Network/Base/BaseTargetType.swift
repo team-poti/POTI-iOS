@@ -7,27 +7,9 @@
 
 import Alamofire
 
-enum HeaderType {
-    case basic
-    case authorization(String)
-    
-    var value: HTTPHeaders {
-        switch self {
-        case .basic:
-            return ["Content-Type": "application/json"]
-        case .authorization(let token):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(token)"
-            ]
-        }
-    }
-}
-
 protocol BaseTargetType {
     var path: String { get }
     var method: HTTPMethod { get }
-    var headers: HeaderType { get }
     
     /// URL Query (?a=1) (GET)
     var queryParameters: [String: String]? { get }
@@ -36,6 +18,9 @@ protocol BaseTargetType {
 }
 
 extension BaseTargetType {
+    var headers: HTTPHeaders {
+        return ["Content-Type": "application/json"]
+    }
     var queryParameters: [String: String]? { nil }
     var bodyParameters: Parameters? { nil }
 }
