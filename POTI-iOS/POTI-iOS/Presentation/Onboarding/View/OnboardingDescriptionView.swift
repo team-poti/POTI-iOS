@@ -14,7 +14,7 @@ final class OnboardingDescriptionView: BaseView {
     
     private let progressBar = UIImageView()
     private let descriptionLabel = UILabel()
-//    private let cardImage = UIImageView()
+    private let cardImage = UIImageView()
     let nextButton = PotiBottomButton()
     
     override func setStyle() {
@@ -32,6 +32,11 @@ final class OnboardingDescriptionView: BaseView {
             )
         }
         
+        cardImage.do {
+            $0.image = .imgOnboarding
+            $0.contentMode = .scaleAspectFit
+        }
+        
         nextButton.do {
             $0.size = .large
             $0.color = .primaryMain
@@ -40,7 +45,7 @@ final class OnboardingDescriptionView: BaseView {
     }
     
     override func setUI() {
-        addSubviews(progressBar, descriptionLabel, nextButton)
+        addSubviews(progressBar, descriptionLabel, cardImage, nextButton)
     }
     
     override func setLayout() {
@@ -51,6 +56,11 @@ final class OnboardingDescriptionView: BaseView {
         descriptionLabel.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(20)
             $0.top.equalTo(progressBar.snp.bottom).offset(24)
+        }
+        
+        cardImage.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview()
+            $0.top.equalTo(descriptionLabel.snp.bottom).offset(44)
         }
         
         nextButton.snp.makeConstraints {
