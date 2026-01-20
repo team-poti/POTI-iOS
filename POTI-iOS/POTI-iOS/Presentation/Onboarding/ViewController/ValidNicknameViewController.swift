@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class ValidNicknameViewController: BaseViewController<Any>, NavigationConfigurable {
+final class ValidNicknameViewController: BaseViewController<OnboardingViewModel>, NavigationConfigurable {
     
     func navigationStyle() -> PotiNavigationStyle {
         .backButton

@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class SelectFavoriteIdolGroupViewController: BaseViewController<Any>, NavigationConfigurable {
+final class SelectFavoriteIdolGroupViewController: BaseViewController<OnboardingViewModel>, NavigationConfigurable {
     
     func navigationStyle() -> PotiNavigationStyle {
         .backButton
