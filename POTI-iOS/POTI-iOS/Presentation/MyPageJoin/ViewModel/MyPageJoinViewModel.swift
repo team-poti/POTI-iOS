@@ -103,7 +103,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
             if let joinModel {
                 self.progressStatusModel = ProgressStatusModel(
                     role: .participant,
-                    status: PotStatus.from(postStatus: joinModel.postStatus)
+                    status: ParticipantStatus.from(participantStatus: joinModel.postStatus)
                 )
             } else {
                 self.progressStatusModel = nil
