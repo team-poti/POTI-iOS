@@ -7,7 +7,18 @@
 
 import UIKit
 
-class PotiTabBar: UITabBarController {
+final class PotiTabBar: UITabBarController {
+    
+    private let factory: ViewControllerFactory
+        
+    init(factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,16 +27,17 @@ class PotiTabBar: UITabBarController {
     }
     
     func setTabBar() {
-        let factory = DefaultViewControllerFactory()
         
         let homeVC = factory.makeHomeViewController()
         let vc1 = UINavigationController(rootViewController: homeVC)
         vc1.tabBarItem = UITabBarItem(title: "홈", image: .icnHome, tag: 1)
         
-        let vc2 = UINavigationController(rootViewController: ExampleViewController())
+        let historyVC = MyPageHistoryContainerViewController(initialType: .participation, initialTab: .ongoing)
+        let vc2 = UINavigationController(rootViewController: historyVC)
         vc2.tabBarItem = UITabBarItem(title: "분철 내역", image: .icnHistory, tag: 2)
         
-        let vc3 = UINavigationController(rootViewController: ExampleViewController())
+        let myPageVC = factory.makeMyPageViewController()
+        let vc3 = UINavigationController(rootViewController: myPageVC)
         vc3.tabBarItem = UITabBarItem(title: "마이페이지", image: .icnMypage, tag: 3)
         
         self.viewControllers = [vc1, vc2, vc3]

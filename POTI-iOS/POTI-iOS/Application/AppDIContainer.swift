@@ -16,14 +16,30 @@ final class AppDIContainer {
         DefaultAuthService()
     }
     
-    private func makeNetworkService() -> NetworkService {
+    private func makeTokenRefreshNetworkService() -> NetworkService {
         NetworkService()
+    }
+    
+    private func makeNetworkService() -> NetworkService {
+        NetworkService(interceptor: makeAuthInterceptor())
+    }
+    
+    private func makeTokenRefreshService() -> TokenRefreshService {
+        DefaultTokenRefreshService(
+            networkService: makeTokenRefreshNetworkService()
+        )
+    }
+    
+    private func makeAuthInterceptor() -> AuthInterceptor {
+        AuthInterceptor(
+            tokenRefreshService: makeTokenRefreshService()
+        )
     }
     
     // MARK: - Repository
     
     @MainActor private func makeAuthRepository() -> AuthInterface {
-        DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService())
+        DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService(), tokenRefreshNetworkService: makeTokenRefreshNetworkService())
     }
     
     private func makeHomeRepository() -> HomeInterface {
@@ -32,6 +48,22 @@ final class AppDIContainer {
     
     private func makeGoodsListRepository() -> GoodsListInterface {
         DefaultGoodsListRepository()
+    }
+
+    private func makeOrderRepository() -> OrderInterface {
+        DefaultOrderRepository()
+    }
+    
+    private func makePotDetailRepository() -> PotDetailInterface {
+        DefaultPotDetailRepository()
+    }
+    
+    private func makeManageRepository() -> PostsInterface {
+        DefaultManageRepository()
+    }
+    
+    private func makePotListRepository() -> PotListInterface {
+        DefaultPotListRepository()
     }
     
     private func makeMemberRepository() -> MemberInterface {
@@ -46,12 +78,40 @@ final class AppDIContainer {
         )
     }
     
+    @MainActor private func makeDevLoginUseCase() -> DevLoginUseCase {
+        DefaultDevLoginUseCase(
+            repository: makeAuthRepository()
+        )
+    }
+    
+    @MainActor private func makeRefreshTokenUseCase() -> RefreshTokenUseCase {
+        DefaultRefreshTokenUseCase(
+            repository: makeAuthRepository()
+        )
+    }
+    
     private func makeHomeUseCase() -> HomeUseCase {
         DefaultHomeUseCase(repository: makeHomeRepository())
     }
     
     private func makeGoodsListUseCase() -> GoodsListUseCase {
         DefaultGoodsListUseCase(repository: makeGoodsListRepository())
+    }
+
+    private func makeOrderUseCase() -> OrderUseCase {
+        DefaultOrderUseCase(repository: makeOrderRepository())
+    }
+    
+    private func makePotDetailUseCase() -> PotDetailUseCase {
+        DefaultPotDetailUseCase(repository: makePotDetailRepository())
+    }
+    
+    private func makeManageUseCase() -> PostsUseCase {
+        DefaultManageUseCase(repository: makeManageRepository())
+    }
+    
+    private func makePotListUseCase() -> PotListUseCase {
+        DefaultPotListUseCase(repository: makePotListRepository())
     }
     
     private func makeMemberUseCase() -> MemberUsecase {
@@ -60,8 +120,12 @@ final class AppDIContainer {
     
     // MARK: - ViewModel
     
+    @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
+        LaunchScreenViewModel(refreshTokenUseCase: makeRefreshTokenUseCase())
+    }
+    
     @MainActor func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(loginUseCase: makeLoginUseCase())
+        LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())
     }
     
     func makeHomeViewModel() -> HomeViewModel {
@@ -70,6 +134,30 @@ final class AppDIContainer {
     
     func makeGoodsListViewModel() -> GoodsListViewModel {
         GoodsListViewModel(useCase: makeGoodsListUseCase())
+    }
+      
+    func makeOrderViewModel() -> OrderViewModel {
+        OrderViewModel(useCase: makeOrderUseCase())
+    }
+    
+    func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
+        PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
+    }
+    
+    func makeRecruitDetailViewModel() -> RecruitDetailViewModel {
+        RecruitDetailViewModel()
+    }
+    
+    func makeManageViewModel() -> ParticipantManageViewModel {
+        ParticipantManageViewModel(useCase: makeManageUseCase())
+    }
+    
+    func makeMyPageJoinViewModel() -> MyPageJoinViewModel {
+        MyPageJoinViewModel()
+    }
+    
+    func makePotListViewModel() -> PotListViewModel {
+        PotListViewModel(useCase: makePotListUseCase())
     }
     
     func makeMemberViewModel() -> MemberViewModel {

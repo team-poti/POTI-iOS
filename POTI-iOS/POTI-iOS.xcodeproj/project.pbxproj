@@ -12,11 +12,11 @@
 		335F179D2F1261CD00E13B6F /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 335F179C2F1261CD00E13B6F /* Alamofire */; };
 		335F17A02F1261EA00E13B6F /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 335F179F2F1261EA00E13B6F /* Lottie */; };
 		335F17A32F1262AF00E13B6F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 335F17A22F1262AF00E13B6F /* Kingfisher */; };
-		336E4CB92F16B94000D1D916 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 336E4CB82F16B94000D1D916 /* Config.xcconfig */; };
 		336E4F352F16E49000D1D916 /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F342F16E49000D1D916 /* KakaoSDK */; };
 		336E4F372F16E49000D1D916 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F362F16E49000D1D916 /* KakaoSDKAuth */; };
 		336E4F392F16E49000D1D916 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F382F16E49000D1D916 /* KakaoSDKCommon */; };
 		336E4F3B2F16E49000D1D916 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F3A2F16E49000D1D916 /* KakaoSDKUser */; };
+		61FE56012F2006B300E036AD /* Cosmos in Frameworks */ = {isa = PBXBuildFile; productRef = 61FE56002F2006B300E036AD /* Cosmos */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				61FE56012F2006B300E036AD /* Cosmos in Frameworks */,
 				336E4F392F16E49000D1D916 /* KakaoSDKCommon in Frameworks */,
 				336E4F372F16E49000D1D916 /* KakaoSDKAuth in Frameworks */,
 				335F179D2F1261CD00E13B6F /* Alamofire in Frameworks */,
@@ -111,6 +112,7 @@
 				336E4F362F16E49000D1D916 /* KakaoSDKAuth */,
 				336E4F382F16E49000D1D916 /* KakaoSDKCommon */,
 				336E4F3A2F16E49000D1D916 /* KakaoSDKUser */,
+				61FE56002F2006B300E036AD /* Cosmos */,
 			);
 			productName = "POTI-iOS";
 			productReference = 335F0F2F2F0D72A500E13B6F /* POTI-iOS.app */;
@@ -124,7 +126,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					335F0F2E2F0D72A400E13B6F = {
 						CreatedOnToolsVersion = 16.4;
@@ -147,6 +149,7 @@
 				335F179E2F1261EA00E13B6F /* XCRemoteSwiftPackageReference "lottie-ios" */,
 				335F17A12F1262AF00E13B6F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				61FE55FF2F2006B300E036AD /* XCRemoteSwiftPackageReference "Cosmos" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 335F0F302F0D72A500E13B6F /* Products */;
@@ -163,7 +166,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				336E4CB92F16B94000D1D916 /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -188,6 +190,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P64LJZB7SK;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "POTI-iOS/Resource/Info.plist";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "사진 앨범 접근 권한이 필요합니다.";
@@ -200,7 +203,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "yeonnies.POTI-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kr.POTI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -295,6 +298,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -352,6 +356,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -429,6 +434,14 @@
 				minimumVersion = 2.27.1;
 			};
 		};
+		61FE55FF2F2006B300E036AD /* XCRemoteSwiftPackageReference "Cosmos" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/Cosmos";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 25.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -476,6 +489,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDKUser;
+		};
+		61FE56002F2006B300E036AD /* Cosmos */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61FE55FF2F2006B300E036AD /* XCRemoteSwiftPackageReference "Cosmos" */;
+			productName = Cosmos;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
