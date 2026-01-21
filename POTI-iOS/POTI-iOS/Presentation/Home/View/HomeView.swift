@@ -23,7 +23,7 @@ final class HomeView: BaseView {
         frame: .zero,
         collectionViewLayout: HomeLayoutFactory.createLayout(currentPageNumber: currentPageNumber)
     )
-    private let floatingButton = FloatingButton()
+    let floatingButton = FloatingButton()
     
     // MARK: - Custom Methods
     

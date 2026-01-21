@@ -70,6 +70,10 @@ final class AppDIContainer {
         DefaultPotListRepository()
     }
     
+    private func makeArtistsRepository() -> ArtistsInterface {
+        DefaultArtistsRepository()
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -122,6 +126,10 @@ final class AppDIContainer {
         DefaultPotListUseCase(repository: makePotListRepository())
     }
     
+    private func makeArtistsUseCase() -> ArtistsUsecase {
+        DefaultArtistsUseCase(repository: makeArtistsRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -170,5 +178,9 @@ final class AppDIContainer {
     
     func makePotListViewModel() -> PotListViewModel {
         PotListViewModel(useCase: makePotListUseCase())
+    }
+    
+    func makeArtistsViewModel() -> ArtistsViewModel {
+        ArtistsViewModel(useCase: makeArtistsUseCase())
     }
 }
