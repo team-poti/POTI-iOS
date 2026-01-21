@@ -13,16 +13,12 @@ final class RecruitCompletedCell: UITableViewCell {
     
     private let depositInfoView = DepositInfoView()
     private let joinShipInfoView = JoinShipInfoView()
-    private let completeButton = PotiBottomButton()
-    
-    var onTapCompleteButton: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setStyle()
         setUI()
         setLayout()
-        addTarget()
         self.backgroundColor = .potiWhite
     }
     
@@ -32,24 +28,17 @@ final class RecruitCompletedCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        onTapCompleteButton = nil
     }
     
     private func setStyle() {
         backgroundColor = .potiWhite
-        completeButton.do {
-            $0.color = .secondaryMain
-            $0.isDisabled = false
-            $0.text = "확인"
-        }
     }
     
     private func setUI() {
         selectionStyle = .none
         contentView.addSubviews(
             depositInfoView,
-            joinShipInfoView,
-            completeButton
+            joinShipInfoView
         )
     }
     
@@ -61,28 +50,12 @@ final class RecruitCompletedCell: UITableViewCell {
         joinShipInfoView.snp.makeConstraints {
             $0.top.equalTo(depositInfoView.snp.bottom)
             $0.horizontalEdges.equalTo(depositInfoView)
-        }
-        completeButton.snp.makeConstraints {
-            $0.top.equalTo(joinShipInfoView.snp.bottom).offset(77)
-            $0.horizontalEdges.equalTo(depositInfoView).inset(16)
             $0.bottom.equalToSuperview()
         }
-    }
-    
-    private func addTarget() {
-        completeButton.addTarget(self, action: #selector(completeButtonTapped), for: .touchUpInside)
-    }
-    
-    @objc private func completeButtonTapped() {
-        onTapCompleteButton?()
     }
     
     func configure(model: MyPageJoinModel) {
         depositInfoView.configure(model: model)
         joinShipInfoView.configure(model: model)
-        
-        completeButton.color = .secondaryMain
-        completeButton.text = "입금 완료했어요"
-        completeButton.isDisabled = false
     }
 }
