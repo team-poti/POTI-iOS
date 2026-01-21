@@ -11,9 +11,9 @@ protocol ViewControllerFactory {
     func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController() -> GoodsListViewController
-    func makeMyPageViewController() -> MyPageViewController
-    func makeOrderSheetViewController() -> OrderSheetViewController
+    func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
+    func makeMyPageViewController() -> MyPageViewController
     func makeOnboardingViewController() -> OnboardingViewController
     func makeValidNicknameViewController() -> ValidNicknameViewController
     func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController
@@ -65,9 +65,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makeOrderSheetViewController() -> OrderSheetViewController {
-        OrderSheetViewController(
-            viewModel: diContainer.makeOrderViewModel()
+    func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController {
+        PotOptionsSheetViewController(
+            viewModel: diContainer.makePotOptionsSheetViewModel(postId: postId)
         )
     }
     
@@ -107,4 +107,14 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewController {
+        return PotOrderViewController(
+            viewModel: diContainer.makePotOrderViewModel(
+                postId: postId,
+                shippingId: shippingId,
+                orderItems: orderItems
+            ),
+            factory: self 
+        )
+    }
 }

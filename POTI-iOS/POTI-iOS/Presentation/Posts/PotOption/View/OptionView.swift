@@ -1,5 +1,5 @@
 //
-//  OrderView.swift
+//  OptionView.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/20/26.
@@ -10,14 +10,14 @@ import UIKit
 import SnapKit
 import Then
 
-final class OrderView: BaseView {
+final class OptionView: BaseView {
     
     // MARK: - UI Components
     
     let backgroundView = UIView()
     let containerView = UIView()
     let closeButton = UIButton()
-    let contentView = OrderContentView()
+    let contentView = OptionContentView()
     
     // MARK: - Custom Methods
     

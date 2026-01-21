@@ -5,43 +5,53 @@
 
 import UIKit
 
+import Combine
 import SnapKit
 import Then
 
 final class CustomTextField: BaseView {
-
+    
     // MARK: - Property
-
+    
     var onTapField: (() -> Void)?
     private(set) var variant: TextFieldVariant = .short
     private var uiState: TextFieldUIState = .normal
     private var isTapOnly: Bool = false
 
+    
+    // MARK: - Publisher
+    
+    var textPublisher: AnyPublisher<String, Never> {
+        NotificationCenter.default.publisher(for: UITextField.textDidChangeNotification, object: textField)
+            .compactMap { ($0.object as? UITextField)?.text }
+            .eraseToAnyPublisher()
+    }
+    
     // MARK: - UI Components
-
+    
     private let rootStackView = UIStackView()
-
+    
     private let containerView = UIView()
     private let textField = UITextField()
-
+    
     private let rightAccessoryContainer = UIView()
     private let rightIconView = UIImageView()
     private let countLabel = UILabel()
-
+    
     private let errorStackView = UIStackView()
     private let errorIconView = UIImageView()
     private let errorLabel = UILabel()
-
+    
     private var textFieldTrailingToAccessory: Constraint?
     private var textFieldTrailingToSuperview: Constraint?
-
+    
     // MARK: - Private Setup
-
+    
     override func setStyle() {
         backgroundColor = .clear
         clipsToBounds = false
         containerView.clipsToBounds = false
-
+        
         containerView.do {
             $0.backgroundColor = .potiWhite
             $0.layer.cornerRadius = 8
@@ -70,7 +80,7 @@ final class CustomTextField: BaseView {
             $0.tintColor = .gray700
             $0.isHidden = true
         }
-
+        
         countLabel.do {
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray700
@@ -79,7 +89,7 @@ final class CustomTextField: BaseView {
             $0.setContentCompressionResistancePriority(.required, for: .horizontal)
             $0.setContentHuggingPriority(.required, for: .horizontal)
         }
-
+        
         errorStackView.do {
             $0.axis = .horizontal
             $0.spacing = 0
@@ -87,41 +97,43 @@ final class CustomTextField: BaseView {
             $0.distribution = .fill
             $0.isHidden = true
         }
-
+        
         errorIconView.do {
             $0.contentMode = .scaleAspectFit
             $0.image = .icnNotice
             $0.tintColor = .sementicRed
         }
-
+        
         errorLabel.do {
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .sementicRed
             $0.numberOfLines = 0
         }
-
+        
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapField))
         containerView.addGestureRecognizer(tap)
     }
-
+    
     override func setUI() {
         addSubview(rootStackView)
-
+        
         rootStackView.addArrangedSubviews(containerView, errorStackView)
+        
         containerView.addSubviews(textField, rightAccessoryContainer)
         rightAccessoryContainer.addSubviews(rightIconView, countLabel)
+        
         errorStackView.addArrangedSubviews(errorIconView, errorLabel)
     }
-
+    
     override func setLayout() {
         rootStackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-
+        
         containerView.snp.makeConstraints {
             $0.height.greaterThanOrEqualTo(52)
         }
-
+        
         rightAccessoryContainer.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
@@ -129,39 +141,40 @@ final class CustomTextField: BaseView {
             $0.width.greaterThanOrEqualTo(24)
             $0.width.equalTo(24).priority(750)
         }
-
+        
         rightIconView.snp.makeConstraints {
             $0.center.equalToSuperview()
             $0.width.height.equalTo(24)
         }
-
+        
         countLabel.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-
+        
         textField.snp.makeConstraints {
             $0.top.bottom.equalToSuperview().inset(14)
             $0.leading.equalToSuperview().inset(16)
-
+            
             textFieldTrailingToAccessory = $0.trailing.equalTo(rightAccessoryContainer.snp.leading).offset(-8).constraint
             textFieldTrailingToSuperview = $0.trailing.equalToSuperview().inset(16).constraint
         }
-
+        
         textFieldTrailingToSuperview?.deactivate()
-
+        
         errorIconView.snp.makeConstraints {
             $0.width.height.equalTo(16)
         }
     }
-
+    
     // MARK: - Custom Method
-
+    
     func configure(
         variant: TextFieldVariant,
         placeholder: String? = nil,
         isTapOnly: Bool = false
     ) {
         self.variant = variant
+        
         self.isTapOnly = isTapOnly
 
         if let placeholder {
@@ -179,21 +192,21 @@ final class CustomTextField: BaseView {
         applyVariant()
         apply(state: uiState)
     }
-
+    
     func apply(state: TextFieldUIState) {
         uiState = state
-
+        
         switch state {
         case .normal:
             containerView.layer.borderColor = UIColor.gray300.cgColor
             errorLabel.text = nil
             errorStackView.isHidden = true
-
+            
         case .focused:
             containerView.layer.borderColor = UIColor.potiBlack.cgColor
             errorLabel.text = nil
             errorStackView.isHidden = true
-
+            
         case .error(let message):
             containerView.layer.borderColor = UIColor.sementicRed.cgColor
             errorLabel.text = message
@@ -209,17 +222,17 @@ final class CustomTextField: BaseView {
         textField.text = text
         updateCountIfNeeded()
     }
-
+    
     func getText() -> String {
         return textField.text ?? ""
     }
-
+    
     func updateCount(current: Int, max: Int) {
         countLabel.text = "\(current)/\(max)"
     }
-
+    
     // MARK: - Private Method
-
+    
     private func applyVariant() {
         rightIconView.isHidden = true
         countLabel.isHidden = true
@@ -235,26 +248,26 @@ final class CustomTextField: BaseView {
                 textField.isUserInteractionEnabled = true
             }
         }
-
+        
         containerView.snp.updateConstraints {
             $0.height.greaterThanOrEqualTo(52)
         }
-
+        
         switch variant {
         case .searchNavigate:
             rightIconView.isHidden = false
             rightIconView.image = .icnSearch
-
+            
         case .count(let max):
             countLabel.isHidden = false
             countLabel.text = "0/\(max)"
-
+            
         case .short:
             break
         }
-
+        
         let hasAccessory = (!rightIconView.isHidden) || (!countLabel.isHidden)
-
+        
         if hasAccessory {
             rightAccessoryContainer.isHidden = false
             textFieldTrailingToSuperview?.deactivate()
@@ -266,15 +279,15 @@ final class CustomTextField: BaseView {
         }
         updateCountIfNeeded()
     }
-
+    
     private func updateCountIfNeeded() {
         guard case .count(let max) = variant else { return }
         let count = getText().count
         countLabel.text = "\(count)/\(max)"
     }
-
+    
     // MARK: - Action Method
-
+    
     @objc private func didTapField() {
         if isTapOnly {
             apply(state: .focused)
@@ -293,20 +306,20 @@ final class CustomTextField: BaseView {
 }
 
 extension CustomTextField: UITextFieldDelegate {
-
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
-
+    
     func textFieldDidBeginEditing(_ textField: UITextField) {
         apply(state: .focused)
     }
-
+    
     func textFieldDidEndEditing(_ textField: UITextField) {
         apply(state: .normal)
     }
-
+    
     func textField(
         _ textField: UITextField,
         shouldChangeCharactersIn range: NSRange,
@@ -317,7 +330,7 @@ extension CustomTextField: UITextFieldDelegate {
             guard let r = Range(range, in: current) else { return true }
             let next = current.replacingCharacters(in: r, with: string)
             if next.count > max { return false }
-
+            
             updateCount(current: next.count, max: max)
             return true
         }
@@ -326,7 +339,7 @@ extension CustomTextField: UITextFieldDelegate {
 }
 
 extension CustomTextField {
-
+    
     convenience init(
         variant: TextFieldVariant,
         placeholder: String? = nil,
@@ -337,7 +350,7 @@ extension CustomTextField {
         configure(variant: variant, placeholder: placeholder, isTapOnly: isTapOnly)
         self.onTapField = onTapField
     }
-
+    
     static func searchNavigate(
         placeholder: String,
         onTapField: (() -> Void)? = nil
@@ -348,7 +361,7 @@ extension CustomTextField {
             onTapField: onTapField
         )
     }
-
+    
     static func count(
         placeholder: String,
         max: Int
@@ -359,7 +372,7 @@ extension CustomTextField {
             onTapField: nil
         )
     }
-
+    
     static func short(
         placeholder: String
     ) -> CustomTextField {
