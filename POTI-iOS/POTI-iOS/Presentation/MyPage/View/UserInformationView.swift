@@ -18,9 +18,9 @@ final class UserInformationView: BaseView {
     private let signUpDateLabel = UILabel()
     
     private let recentActivity: String
-    private let signUpDate: Date
+    private let signUpDate: String
     
-    init(recentActivity: String, signUpDate: Date) {
+    init(recentActivity: String, signUpDate: String) {
         self.recentActivity = recentActivity
         self.signUpDate = signUpDate
         super.init(frame: .zero)
@@ -55,7 +55,7 @@ final class UserInformationView: BaseView {
         signUpDateLabel.do {
             $0.textColor = .potiBlack
             $0.font = PotiFontManager.caption12m.font
-            $0.text = "\(signUpDate.toKoreanYMD()) 가입"
+            $0.text = "\(signUpDate.toKoreanYMD() ?? "") 가입"
         }
     }
     

@@ -21,14 +21,13 @@ final class MyPageView: BaseView {
     private let buttonStackView = UIStackView()
     private let ratingView = RatingView(rating: 1.2)
     private let idolButton = ChooseFavoriteIdolButton()
-    private let userInformationView = UserInformationView(recentActivity: "최근 3일 이내 활동", signUpDate: "2024-12-28".toDate())
+    private let userInformationView = UserInformationView(recentActivity: "최근 3일 이내 활동", signUpDate: "2024-12-28")
     private let participationLabel = UILabel()
     let participationView = MyPageNavigationView()
     private let recruitmentLabel = UILabel()
     let recruitmentView = MyPageNavigationView()
     
     override func setStyle() {
-        
         scrollView.do {
             $0.showsVerticalScrollIndicator = false
         }
@@ -85,7 +84,7 @@ final class MyPageView: BaseView {
         addSubview(scrollView)
         scrollView.addSubview(contentView)
         buttonStackView.addArrangedSubviews(ratingView, idolButton)
-
+        
         contentView.addSubviews(profileImage, nickNameLabel, emailLabel, buttonStackView, userInformationView, participationLabel, participationView, recruitmentLabel, recruitmentView)
     }
     
@@ -93,7 +92,7 @@ final class MyPageView: BaseView {
         scrollView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-
+        
         contentView.snp.makeConstraints {
             $0.edges.equalToSuperview()
             $0.width.equalTo(scrollView)
@@ -104,42 +103,42 @@ final class MyPageView: BaseView {
             $0.centerX.equalToSuperview()
             $0.width.height.equalTo(98)
         }
-
+        
         nickNameLabel.snp.makeConstraints {
             $0.top.equalTo(profileImage.snp.bottom).offset(12)
             $0.centerX.equalToSuperview()
         }
-
+        
         emailLabel.snp.makeConstraints {
             $0.top.equalTo(nickNameLabel.snp.bottom).offset(2)
             $0.centerX.equalToSuperview()
         }
-
+        
         buttonStackView.snp.makeConstraints {
             $0.top.equalTo(emailLabel.snp.bottom).offset(12)
             $0.centerX.equalToSuperview()
         }
-
+        
         userInformationView.snp.makeConstraints {
             $0.top.equalTo(buttonStackView.snp.bottom).offset(24)
             $0.leading.trailing.equalToSuperview().inset(16)
         }
-
+        
         participationLabel.snp.makeConstraints {
             $0.top.equalTo(userInformationView.snp.bottom).offset(24)
             $0.leading.equalToSuperview().offset(16)
         }
-
+        
         participationView.snp.makeConstraints {
             $0.top.equalTo(participationLabel.snp.bottom).offset(12)
             $0.leading.trailing.equalToSuperview().inset(16)
         }
-
+        
         recruitmentLabel.snp.makeConstraints {
             $0.top.equalTo(participationView.snp.bottom).offset(24)
             $0.leading.equalToSuperview().offset(16)
         }
-
+        
         recruitmentView.snp.makeConstraints {
             $0.top.equalTo(recruitmentLabel.snp.bottom).offset(12)
             $0.leading.trailing.equalToSuperview().inset(16)

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 import SnapKit
 import Then
 
@@ -38,12 +39,8 @@ final class MyPageNavigationView: BaseView {
     private lazy var ongoingButton = makeFilterButton(type: .ongoing)
     private lazy var completedButton = makeFilterButton(type: .completed)
     
-    private let firstDivider = UIView().then {
-        $0.backgroundColor = .gray300
-    }
-    private let secondDivider = UIView().then {
-        $0.backgroundColor = .gray300
-    }
+    private let firstDivider = UIView()
+    private let secondDivider = UIView()
     
     private var buttons: [MyPageNavigationType: UIButton] = [:]
     private var countLabels: [MyPageNavigationType: UILabel] = [:]
@@ -67,6 +64,14 @@ final class MyPageNavigationView: BaseView {
             $0.axis = .horizontal
             $0.distribution = .fillEqually
             $0.spacing = 17
+        }
+        
+        firstDivider.do {
+            $0.backgroundColor = .gray300
+        }
+        
+        secondDivider.do {
+            $0.backgroundColor = .gray300
         }
     }
     
