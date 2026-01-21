@@ -35,7 +35,7 @@ final class MemberPriceRowView: BaseView {
 
     // MARK: - Custom Method
 
-    //TODO: - 익스텐션 쓰기
+    //TODO: - 익스텐션 쓰기(지금 OrderViewModel에 있음)
     private func formatNumberWithCommas(_ number: NSNumber) -> String? {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
