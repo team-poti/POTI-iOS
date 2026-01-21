@@ -129,7 +129,7 @@ final class RegisterMemberView: BaseView {
         }
         
         hintBackgroundImageView.do {
-            $0.image = UIImage(named: "img-hint")
+            $0.image = UIImage.imgHint
         }
         
         hintLabel.do {
@@ -150,7 +150,7 @@ final class RegisterMemberView: BaseView {
         
         errorIconView.do {
             $0.contentMode = .scaleAspectFit
-            $0.image = UIImage(named: "icn-notice")
+            $0.image = UIImage.icnNotice
             $0.tintColor = .sementicRed
         }
         
@@ -173,6 +173,7 @@ final class RegisterMemberView: BaseView {
             object: nil
         )
         
+        //TODO: - 한번에 뷰컨으로 옮기기
         editButton.addTarget(self, action: #selector(didTapEditButton), for: .touchUpInside)
     }
     

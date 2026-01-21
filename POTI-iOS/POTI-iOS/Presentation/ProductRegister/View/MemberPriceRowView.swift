@@ -35,6 +35,7 @@ final class MemberPriceRowView: BaseView {
 
     // MARK: - Custom Method
 
+    //TODO: - 익스텐션 쓰기
     private func formatNumberWithCommas(_ number: NSNumber) -> String? {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
@@ -109,6 +110,7 @@ final class MemberPriceRowView: BaseView {
         nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
 
+    //TODO: - 한번에 뷰컨으로 옮기기
     private func addTarget() {
         priceTextField.addTarget(self, action: #selector(didChangeText), for: .editingChanged)
     }
