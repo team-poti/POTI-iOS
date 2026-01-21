@@ -84,11 +84,11 @@ final class ParticipantManageViewModel: BaseViewModelType {
         Task { [weak self] in
             do {
                 guard let self else { return }
-
+                
                 let entity = try await self.useCase.execute(postId: 1)
                 self.participants = entity.toParticipantManageModels()
                 self.fetchDataSubject.send()
-
+                
             } catch {
                 print("Error : \(error)")
             }
@@ -102,18 +102,18 @@ final class ParticipantManageViewModel: BaseViewModelType {
         } else {
             expandedSections.insert(section)
         }
-
+        
         // 2. 서버 요청
         Task { [weak self] in
             do {
                 guard let self else { return }
-
+                
                 let entity = try await self.useCase.execute(postId: 1)
                 self.participants = entity.toParticipantManageModels()
-
+                
                 // 3. 서버 응답 후 UI 갱신 트리거 (단 한 번)
                 self.toggleButtonSubject.send(section)
-
+                
             } catch {
                 print("Error : \(error)")
             }

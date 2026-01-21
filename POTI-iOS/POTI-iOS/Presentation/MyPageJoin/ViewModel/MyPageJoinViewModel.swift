@@ -8,47 +8,47 @@
 import Combine
 
 final class MyPageJoinViewModel: BaseViewModelType {
-
+    
     // MARK: - Input
-
+    
     enum Input {
         case viewDidLoad
         case setParticipants([MyPageJoinModel])
         case tapPotInfo
     }
-
+    
     // MARK: - Output
-
+    
     struct Output {
         let fetchData: AnyPublisher<Void, Never>
         let naviPotInfo: AnyPublisher<Void, Never>
     }
-
+    
     private(set) var joinModel: MyPageJoinModel?
-
+    
     /// MyPageJoinDetailViewController -> .statusInfo  섹션에서 분기용으로 사용할 현재 상태
     private(set) var participantStatus: MyPageJoinModel.PostStatus?
     private(set) var progressStatusModel: ProgressStatusModel?
     private(set) var participants: [MyPageJoinModel] = []
-
+    
     // MARK: - Subject
-
+    
     private let fetchDataSubject = PassthroughSubject<Void, Never>()
     private let naviPotInfoSubject = PassthroughSubject<Void, Never>()
-
+    
     let output: Output
-
+    
     // MARK: - Lifecycle
-
+    
     init() {
         self.output = Output(
             fetchData: fetchDataSubject.eraseToAnyPublisher(),
             naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher()
         )
     }
-
+    
     // MARK: - Action
-
+    
     func action(_ trigger: Input) {
         switch trigger {
             
@@ -70,14 +70,14 @@ final class MyPageJoinViewModel: BaseViewModelType {
                 self.progressStatusModel = nil
             }
             fetchDataSubject.send()
-        
+            
         case .tapPotInfo:
             naviPotInfoSubject.send()
         }
     }
     
     // MARK: - Mock
-
+    
     private func makeMockParticipants() -> [MyPageJoinModel] {
         return [
             MyPageJoinModel(

@@ -20,7 +20,7 @@ final class RecruitDetailViewModel: BaseViewModelType {
     }
     
     // MARK: - Output
-
+    
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
         let joinItems: AnyPublisher<[MyPageJoinModel], Never>
@@ -29,11 +29,11 @@ final class RecruitDetailViewModel: BaseViewModelType {
     }
     
     // MARK: - Properties
-
+    
     let output: Output
-
+    
     // MARK: - Subject
-
+    
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
     private let joinItemsSubject = CurrentValueSubject<[MyPageJoinModel], Never>([]) // TODO: - NETWORK - MYPageJoinModel 아님
     private let naviPotInfoSubject = PassthroughSubject<Void, Never>()
@@ -66,15 +66,15 @@ final class RecruitDetailViewModel: BaseViewModelType {
     // MARK: - Private Method
     
     private func fetchRecruitDetail() {
-//        Task {
-//            do {
-//                let data = try await useCase.execute()
-//                self.groupItems = data.toGroupItemModel()
-//                reloadDataSubject.send(())
-//            } catch {
-//                print("Error: \(error)")
-//            }
-//        }
+        //        Task {
+        //            do {
+        //                let data = try await useCase.execute()
+        //                self.groupItems = data.toGroupItemModel()
+        //                reloadDataSubject.send(())
+        //            } catch {
+        //                print("Error: \(error)")
+        //            }
+        //        }
     }
     
     private func loadMockJoinItems() {
@@ -83,7 +83,7 @@ final class RecruitDetailViewModel: BaseViewModelType {
         joinItemsSubject.send(items)
         reloadDataSubject.send(())
     }
-
+    
     private func makeMockParticipants() -> [MyPageJoinModel] {
         return [
             MyPageJoinModel(
