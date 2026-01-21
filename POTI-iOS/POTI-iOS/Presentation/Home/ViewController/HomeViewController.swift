@@ -56,7 +56,6 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
-        self.navigationController?.navigationBar.isHidden = true
     }
     
     override func setDelegate() {
@@ -84,6 +83,14 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
                 self?.viewModel.action(.bannerScrolled(index: page))
             }
             .store(in: &cancellables)
+    }
+    
+    override func addTarget() {
+        rootView.floatingButton.addTarget(
+            self,
+            action: #selector(didTapFloatingButton),
+            for: .touchUpInside
+        )
     }
     
     private func updateBannerFooter(_ page: Int) {
@@ -179,5 +186,11 @@ extension HomeViewController: GoodsHeaderCellDelegate {
         let goodsListViewController = GoodsListViewController(viewModel: goodsListViewModel)
         
         self.navigationController?.pushViewController(goodsListViewController, animated: true)
+    }
+    
+    @objc private func didTapFloatingButton() {
+        let viewModel = ProductRegisterViewModel()
+        let vc = ProductRegisterViewController(viewModel: viewModel)
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
