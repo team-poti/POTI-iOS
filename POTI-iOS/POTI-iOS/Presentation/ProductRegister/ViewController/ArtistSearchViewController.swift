@@ -31,7 +31,7 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
     // MARK: - delegate Method
 
     override func bindViewModel() {
-        // Input → ViewModel
+
         rootView.onChangeQuery = { [weak self] query in
             self?.viewModel.action(.queryChanged(query))
         }
@@ -40,7 +40,6 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
             self?.viewModel.action(.tapDone)
         }
 
-        // Output → View
         viewModel.output.isDoneEnabled
             .receive(on: RunLoop.main)
             .sink { [weak self] isEnabled in

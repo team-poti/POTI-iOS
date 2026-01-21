@@ -59,7 +59,7 @@ final class ArtistSearchView: BaseView {
 
         doneButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
+            $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(4)
         }
     }
 
@@ -83,8 +83,4 @@ final class ArtistSearchView: BaseView {
     @objc private func tapDone() {
         onTapDone?()
     }
-}
-
-#Preview {
-    ArtistSearchView()
 }
