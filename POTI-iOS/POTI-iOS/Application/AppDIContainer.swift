@@ -67,11 +67,11 @@ final class AppDIContainer {
     }
     
     private func makeArtistsRepository() -> ArtistsInterface {
-        DefaultArtistsRepository()
+        DefaultArtistsRepository(networkService: makeNetworkService())
     }
     
     private func makeUsersRepository() -> UsersInterface {
-        DefaultUsersRepository()
+        DefaultUsersRepository(networkService: makeNetworkService())
     }
     
     // MARK: - UseCase

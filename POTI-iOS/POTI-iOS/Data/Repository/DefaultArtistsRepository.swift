@@ -9,7 +9,7 @@ final class DefaultArtistsRepository: ArtistsInterface {
     
     private let networkService: NetworkService
     
-    init(networkService: NetworkService = NetworkService()) {
+    init(networkService: NetworkService) {
         self.networkService = networkService
     }
     

@@ -108,7 +108,7 @@ extension OnboardingViewModel {
                 }
             } catch let error as PotiError {
                 switch error {
-                case .apiError(let message) where message.contains("형식"):
+                case .apiError(let message) where message.contains("2자"):
                     nicknameValidationSubject.send(.invalidFormat)
                 case .apiError(let message) where message.contains("비속어"):
                     nicknameValidationSubject.send(.containsProfanity)

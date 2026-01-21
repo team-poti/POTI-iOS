@@ -75,7 +75,14 @@ private extension LoginViewController {
     
     private func pushToOnboarding() {
         let onboardingVC = factory.makeOnboardingViewController()
-        navigationController?.pushViewController(onboardingVC, animated: true)
+        
+        if navigationController == nil {
+            let navController = UINavigationController(rootViewController: onboardingVC)
+            navController.modalPresentationStyle = .fullScreen
+            present(navController, animated: true)
+        } else {
+            navigationController?.pushViewController(onboardingVC, animated: true)
+        }
     }
     
     private func switchRootToPotiTabBar() {
