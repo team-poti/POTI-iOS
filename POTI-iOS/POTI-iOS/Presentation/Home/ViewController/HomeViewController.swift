@@ -46,6 +46,18 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     weak var scrollDelegate: HomeViewScrollDelegate?
     private let rootView = HomeView()
     private let setHomeData = PassthroughSubject<Void, Never>()
+    private let factory: ViewControllerFactory
+    
+    // MARK: - Initializer
+    
+    init(viewModel: HomeViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Life Cycles
     
@@ -175,16 +187,20 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension HomeViewController: GoodsHeaderCellDelegate {
     func moreButtonDidTap(in section: Int) {
-//        guard let sectionType = HomeSection(rawValue: section) else { return }
+        guard let sectionType = HomeSection(rawValue: section) else { return }
         
-        let networkService = NetworkService()
-        
-        let repository = DefaultGoodsListRepository(networkService: networkService)
-        let useCase = DefaultGoodsListUseCase(repository: repository)
-        
-        let goodsListViewModel = GoodsListViewModel(useCase: useCase)
-        let goodsListViewController = GoodsListViewController(viewModel: goodsListViewModel)
-        
+        let targetArtistId: Int
+            if sectionType == .myGroup {
+                targetArtistId = (viewModel.mainArtistId != -1) ? viewModel.mainArtistId : (viewModel.myGroupItems.first?.artistId ?? 0)
+            } else {
+                targetArtistId = viewModel.otherGroupItems.first?.artistId ?? 0
+            }
+            
+            let goodsListViewController = factory.makeGoodsListViewController(
+                sectionType: sectionType,
+                artistId: targetArtistId
+            )
+        goodsListViewController.title = sectionType.getHeaderTitle(nickName: viewModel.nickname)
         self.navigationController?.pushViewController(goodsListViewController, animated: true)
     }
     
