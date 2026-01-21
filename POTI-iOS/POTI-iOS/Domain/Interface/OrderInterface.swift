@@ -2,9 +2,9 @@
 //  OrderInterface.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/20/26.
+//  Created by mandoo on 1/21/26.
 //
 
 protocol OrderInterface {
-    func fetchOrderOptions() async throws -> OrderEntity
+    func submitOrder(entity: OrderRequestEntity) async throws -> OrderResultEntity
 }

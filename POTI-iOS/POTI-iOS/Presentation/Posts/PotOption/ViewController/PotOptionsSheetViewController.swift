@@ -1,5 +1,5 @@
 //
-//  OrderSheetViewController.swift
+//  PotOptionsSheetViewController.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/19/26.
@@ -11,11 +11,11 @@ import Combine
 import SnapKit
 import Then
 
-final class OrderSheetViewController: BaseViewController<OrderViewModel> {
+final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewModel> {
     
     // MARK: - Properties
     
-    private let rootView = OrderView()
+    private let rootView = OptionView()
     private var currentDropdown: AccordionDropdownView?
     private var deliveryInfoView: SelectedInfoView?
     
@@ -97,7 +97,7 @@ final class OrderSheetViewController: BaseViewController<OrderViewModel> {
 
 // MARK: - Private Methods
 
-private extension OrderSheetViewController {
+private extension PotOptionsSheetViewController {
     func insertViewRespectingOrder(_ infoView: SelectedInfoView) {
         let stackView = rootView.contentView.selectedStackView
         
@@ -181,7 +181,7 @@ private extension OrderSheetViewController {
 
 // MARK: - Sheet & Dropdown
 
-private extension OrderSheetViewController {
+private extension PotOptionsSheetViewController {
     func showSheet() {
         rootView.containerView.transform = CGAffineTransform(translationX: 0, y: 800)
         rootView.backgroundView.alpha = 0
