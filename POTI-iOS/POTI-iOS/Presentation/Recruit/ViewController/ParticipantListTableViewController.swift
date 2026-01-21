@@ -36,7 +36,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     override func setLayout() {
         tableView.snp.makeConstraints {
             $0.top.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(30)
+            $0.bottom.equalToSuperview().inset(30)
             $0.leading.trailing.equalToSuperview()
         }
     }
@@ -60,11 +60,11 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
                 self?.toggleParticipantSection(section)
             }
             .store(in: &cancellables)
+        
         viewModel.output.confirmDepositTriggered
             .receive(on: DispatchQueue.main)
             .sink { purchaseId in
-                print("✅ confirmDeposit triggered: \(purchaseId)")
-                // TODO: 필요하면 알럿/토스트 표시
+                print("🥎confirmDeposit triggered: \(purchaseId)")
             }
             .store(in: &cancellables)
 
