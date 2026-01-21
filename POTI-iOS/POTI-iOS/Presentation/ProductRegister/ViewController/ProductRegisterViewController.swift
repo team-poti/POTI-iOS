@@ -82,11 +82,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         let vm = ArtistSearchViewModel()
         let vc = ArtistSearchViewController(viewModel: vm)
 
-        if let nav = navigationController {
-            nav.pushViewController(vc, animated: true)
-        } else {
-            present(UINavigationController(rootViewController: vc), animated: true)
-        }
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     override func bindViewModel() {
