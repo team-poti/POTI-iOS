@@ -70,6 +70,10 @@ final class ArtistSearchView: BaseView {
     func clearSuggestions() {
         searchField.clearItems()
     }
+    
+    func setSearchItems(_ items: [String]) {
+        searchField.setItems(items)
+    }
 
     func setDoneEnabled(_ isEnabled: Bool) {
         doneButton.isDisabled = !isEnabled
