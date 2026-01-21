@@ -15,7 +15,6 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
 
     private let rootView = ArtistSearchView()
 
-
     // MARK: - Custom Method
 
     func navigationStyle() -> PotiNavigationStyle {

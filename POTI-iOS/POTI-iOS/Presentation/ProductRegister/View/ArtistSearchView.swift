@@ -13,7 +13,7 @@ import Then
 final class ArtistSearchView: BaseView {
 
     // MARK: - Property
-
+    
     var onChangeQuery: ((String) -> Void)?
     var onSelectSuggestion: ((Int, String) -> Void)?
     var onTapDone: (() -> Void)?
@@ -22,7 +22,7 @@ final class ArtistSearchView: BaseView {
 
     private let searchField = CustomSearchField()
     let doneButton = PotiBottomButton()
-
+    
     override func setStyle() {
         searchField.configure(
             placeholder: "아티스트를 검색해보세요",
@@ -36,7 +36,7 @@ final class ArtistSearchView: BaseView {
             $0.isDisabled = true
         }
     }
-
+    
     override func setUI() {
         addSubviews(searchField, doneButton)
 
@@ -47,25 +47,24 @@ final class ArtistSearchView: BaseView {
         searchField.onSelectItem = { [weak self] index, value in
             self?.onSelectSuggestion?(index, value)
         }
-
     }
     
     override func setLayout() {
         searchField.snp.makeConstraints {
-            $0.top.equalTo(self.safeAreaLayoutGuide).offset(12)
+            $0.top.equalToSuperview().offset(12)
             $0.leading.trailing.equalToSuperview().inset(16)
         }
-
+        
         doneButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(4)
         }
     }
-
+    
     func setSuggestions(_ items: [String]) {
         searchField.setItems(items)
     }
-
+    
     func clearSuggestions() {
         searchField.clearItems()
     }
@@ -78,5 +77,4 @@ final class ArtistSearchView: BaseView {
         doneButton.isDisabled = !isEnabled
         doneButton.color = isEnabled ? .secondaryMain : .deactiveMain
     }
-
 }
