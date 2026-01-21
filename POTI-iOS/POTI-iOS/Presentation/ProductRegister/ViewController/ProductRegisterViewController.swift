@@ -83,10 +83,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             self?.viewModel.action(.setMembers(members))
         }
     }
-    
-    override func setLayout() { }
-    
-    
+        
     // MARK: - Custom Method
     
     override func bindViewModel() {
