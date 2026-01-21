@@ -10,18 +10,17 @@ import UIKit
 import SnapKit
 import Then
 
-
 final class ShippingRowView: BaseView {
     
+    var onTap: (() -> Void)?
+
     // MARK: - Initializer
 
-    let index: Int
-    init(index: Int = 0) {
-        self.index = index
-        super.init(frame: .zero)
+    override init(frame: CGRect = .zero) {
+        super.init(frame: frame)
         addTarget()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -141,7 +140,11 @@ final class ShippingRowView: BaseView {
     }
     
     @objc private func didTapCheck() {
-        checkButton.isSelected.toggle()
+        onTap?()
+    }
+
+    func setSelected(_ isSelected: Bool) {
+        checkButton.isSelected = isSelected
     }
     
     func configure(

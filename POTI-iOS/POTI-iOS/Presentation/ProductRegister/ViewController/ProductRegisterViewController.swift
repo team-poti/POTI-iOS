@@ -44,6 +44,8 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         super.viewWillAppear(animated)
+        view.endEditing(true)
+        registerInfoView.clearAllFocus()
         if let tabBarController = self.tabBarController as? PotiTabBar {
             tabBarController.tabBar.isHidden = true
         }
@@ -75,6 +77,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         
         registerInfoView.onTapDeadlineField = { [weak self] in
             guard let self else { return }
+            self.registerInfoView.clearAllFocus()
             self.registerInfoView.deadlineField.setFocused(true)
             self.presentDeadlineBottomSheet()
         }
@@ -223,7 +226,15 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         
         let memberPrices = registerMemberView?.collectPrices() ?? [:]
         let draft = registerInfoView.collectDraft()
-        viewModel.action(.submit(info: draft, memberPrices: memberPrices))
+        let shippings = rootView.registerShippingView.collectSelectedShippings()
+
+        viewModel.action(
+            .submit(
+                info: draft,
+                memberPrices: memberPrices,
+                shippings: shippings
+            )
+        )
     }
     
     // MARK: - Custom Method

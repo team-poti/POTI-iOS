@@ -38,6 +38,21 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
     override func loadView() {
         self.view = rootView
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = true
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = false
+        }
+    }
 
     // MARK: - delegate Method
 

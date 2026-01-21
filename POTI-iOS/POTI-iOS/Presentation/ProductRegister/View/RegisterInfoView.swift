@@ -92,9 +92,11 @@ final class RegisterInfoView: BaseView {
         bankTitleLabel.text = "은행"
 
         artistField.onTapField = { [weak self] in
+            self?.endEditing(true)
             self?.onTapArtistField?()
         }
         deadlineField.onTapField = { [weak self] in
+            self?.endEditing(true)
             self?.onTapDeadlineField?()
         }
 
@@ -151,7 +153,12 @@ final class RegisterInfoView: BaseView {
     }
 
     // MARK: - Functions
-
+    
+    public func clearAllFocus() {
+        deadlineField.setFocused(false)
+        artistField.setFocused(false)
+    }
+    
     struct Draft {
         let artist: String
         let productType: String
