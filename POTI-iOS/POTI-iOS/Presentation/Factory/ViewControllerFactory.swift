@@ -8,14 +8,15 @@
 protocol ViewControllerFactory {
     func makeLaunchScreenViewController() -> LaunchScreenViewController
     @MainActor func makeLoginViewController() -> LoginViewController
+    func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController() -> GoodsListViewController
+    func makeMyPageViewController() -> MyPageViewController
     func makeOrderSheetViewController() -> OrderSheetViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeRecruitDetailViewController() -> RecruitDetailViewController
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
-    func makePotiTabBar() -> PotiTabBar
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -54,11 +55,18 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    func makeMyPageViewController() -> MyPageViewController {
+        MyPageViewController(
+            viewModel: MyPageViewModel()
+        )
+    }
+    
     func makeOrderSheetViewController() -> OrderSheetViewController {
         OrderSheetViewController(
             viewModel: diContainer.makeOrderViewModel()
         )
     }
+    
     func makeRecruitDetailViewController() -> RecruitDetailViewController {
         RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel())
     }
