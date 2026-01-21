@@ -152,7 +152,3 @@ final class ShippingRowView: BaseView {
         setPrice(price)
     }
 }
-
-#Preview() {
-    ShippingRowView()
-}
