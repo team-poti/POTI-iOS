@@ -63,17 +63,35 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         
         viewModel.output.confirmDepositTriggered
             .receive(on: DispatchQueue.main)
-            .sink { purchaseId in
-                print("🥎confirmDeposit triggered: \(purchaseId)")
+            .sink { [weak self] purchaseId in
+                self?.completeButtonTapped(purchaseId: purchaseId)
             }
             .store(in: &cancellables)
-
+        
         viewModel.output.confirmShipTriggered
             .receive(on: DispatchQueue.main)
             .sink { [weak self] purchaseId in
                 self?.presentTrackingNumberBottomSheet(purchaseId: purchaseId)
             }
             .store(in: &cancellables)
+    }
+    
+    private func completeButtonTapped(purchaseId: Int) {
+        let alert = CustomAlertView(
+            title: "잠깐! 정말 입금이 완료되었나요?",
+            message: "확인 후에는 되돌릴 수 없어요",
+            cancelTitle: "이전",
+            confirmTitle: "입금 확인",
+            onLeftButton: { [weak self] in
+                self?.dismiss(animated: true)
+            },
+            onRightButton: { [weak self] in
+                guard let self else { return }
+                // TODO: 배송 완료 처리 reload 0122
+                // 예) self.viewModel.action(.completeDeposit(purchaseId: purchaseId))
+            }
+        )
+        alert.show(on: navigationController?.view ?? view)
     }
     
     // MARK: - TableView Setting
@@ -120,12 +138,12 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             secondPlaceholder: "송장번호를 입력해주세요",
             confirmButtonText: "완료"
         )
-
+        
         // TODO: PATCH 성공 후 서버 재조회가 필요하면 onPatched에서 viewModel.action(.viewDidLoad) 호출
         sheet.onPatched = { [weak self] in
             self?.viewModel.action(.viewDidLoad)
         }
-
+        
         sheet.show(in: self.view)
     }
 }
@@ -166,12 +184,13 @@ extension ParticipantListTableViewController: UITableViewDataSource, UITableView
         cell.onTapToggle = { [weak self] in
             self?.viewModel.action(.toggleButtonTap(section: indexPath.section))
         }
-
-        // 송장번호 입력 / 입금 확인 등 액션 버튼 탭
+        
+        // 입금 확인 버튼
         cell.onTapConfirmDeposit = { [weak self] purchaseId in
             self?.viewModel.action(.confirmDeposit(purchaseId: purchaseId))
         }
-
+        
+        // 송장번호 입력
         cell.onTapConfirmShip = { [weak self] purchaseId in
             self?.viewModel.action(.confirmShip(purchaseId: purchaseId))
         }
