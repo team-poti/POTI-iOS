@@ -95,3 +95,7 @@ final class ProductRegisterView: BaseView {
         }
     }
 }
+
+#Preview() {
+    ProductRegisterView()
+}

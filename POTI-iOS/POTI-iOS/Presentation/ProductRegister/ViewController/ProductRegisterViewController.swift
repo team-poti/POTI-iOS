@@ -23,15 +23,15 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     private var imagePickerView: ImagePickerView {
         rootView.imagePickerView
     }
-
     private var registerInfoView: RegisterInfoView {
         rootView.registerInfoView
     }
-
     private var registerMemberView: RegisterMemberView? {
         findRegisterMemberView(in: rootView)
     }
-
+    private var noticeView: RegisterNoticeView {
+        rootView.registerNoticeView
+    }
     private var currentImages: [UIImage] = []
 
 
@@ -44,6 +44,20 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     // MARK: - UI Setting
 
     override func setUI() {
+        noticeView.configure(
+            title: "모집자 안내 사항",
+            bodyTexts: [
+                "굿즈 구매 가능 기간을 고려해 분철팟 마감 기간을 설정해주세요.",
+                "마감 기간까지 모집 인원이 과반수 이상 충족되지 않을 경우 해당 분철팟은 자동으로 종료되며 분철은 진행되지 않습니다.",
+                "분철팟 모집, 굿즈 구매, 배송 및 참여자와의 거래 과정에서 발생하는 사항에 대한 책임은 모집자에게 있습니다."
+            ]
+        )
+        
+        rootView.registerShippingView.configure(options: [
+            (name: "일반택배", price: 4000),
+            (name: "준등기", price: 1800)
+        ])
+        
         registerInfoView.onTapDeadlineField = { [weak self] in
             guard let self else { return }
             self.registerInfoView.deadlineField.setFocused(true)
@@ -248,6 +262,20 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             setUI()
             setLayout()
             presentationController?.delegate = self
+        }
+        
+        override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+            if let tabBarController = self.tabBarController as? PotiTabBar {
+                tabBarController.tabBar.isHidden = true
+            }
+        }
+
+        override func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+            if let tabBarController = self.tabBarController as? PotiTabBar {
+                tabBarController.tabBar.isHidden = false
+            }
         }
         
         private func setUI() {
