@@ -19,7 +19,7 @@ final class DefaultManageUseCase: PostsUseCase {
     }
     
     func execute(postId: Int) async throws -> ManageEntity {
-        return try await repository.fetchManageData(postId: postId)
+        return try await repository.fetchManagerData(postId: postId)
     }
     
     func confirmDeposit(purchaseId: Int) async throws {

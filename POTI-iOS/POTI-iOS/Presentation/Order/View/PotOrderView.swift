@@ -15,7 +15,7 @@ final class PotOrderView: BaseView {
     // MARK: - UI Components
     
     let headerView = OrderHeaderView()
-    let orderContentView = OrderContentView()
+    let orderContentView = PotOrderContentView()
     let bottomButton = PotiBottomButton()
     
     private let scrollView = UIScrollView()

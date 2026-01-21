@@ -14,8 +14,6 @@ protocol ViewControllerFactory {
     func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
-    func makeOrderSheetViewController() -> OrderSheetViewController
-    func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeOnboardingViewController() -> OnboardingViewController
     func makeValidNicknameViewController() -> ValidNicknameViewController
     func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController
@@ -65,15 +63,11 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         MyPageViewController(
             viewModel: MyPageViewModel()
         )
+    }
+    
     func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController {
         PotOptionsSheetViewController(
             viewModel: diContainer.makePotOptionsSheetViewModel(postId: postId)
-        )
-    }
-    
-    func makeOrderSheetViewController() -> OrderSheetViewController {
-        OrderSheetViewController(
-            viewModel: diContainer.makeOrderViewModel()
         )
     }
     

@@ -1,5 +1,5 @@
 //
-//  OrderContentView.swift
+//  PotOrderContentView.swift.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/21/26.
@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class OrderContentView: BaseView {
+final class PotOrderContentView: BaseView {
     
     // MARK: - UI Components
     
