@@ -57,7 +57,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             viewModel: diContainer.makeGoodsListViewModel()
         )
     }
-    
+  
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
             viewModel: MyPageViewModel()
