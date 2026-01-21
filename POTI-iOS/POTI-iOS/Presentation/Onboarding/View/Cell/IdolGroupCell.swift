@@ -96,12 +96,10 @@ final class IdolGroupCell: UICollectionViewCell {
     // MARK: - Configure
     
     func configure(with item: IdolGroupModel) {
-        
         nameLabel.text = item.name
-        if let url = URL(string: item.image) {
+        if let url = URL(string: item.image ?? "") {
             groupImageView.kf.setImage(
                 with: url,
-                placeholder: UIImage(systemName: "photo"),
                 options: [
                     .transition(.fade(0.2)),
                     .cacheOriginalImage

@@ -45,8 +45,31 @@ final class SelectFavoriteIdolGroupViewController: BaseViewController<Onboarding
         super.viewDidLoad()
         
         // 여기서 데이터 로드!
-        groups = IdolGroupModel.dummyGroups()
-        rootView.collectionView.reloadData()
+        viewModel.action(.loadArtists)
+    }
+    
+    override func bindViewModel() {
+        viewModel.output.artists
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] models in
+                self?.groups = models
+                self?.rootView.collectionView.reloadData()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.onboardingSuccess
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.navigateToHome()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.onboardingFailure
+            .receive(on: DispatchQueue.main)
+            .sink { error in
+                PotiLogger.debug(error)
+            }
+            .store(in: &cancellables)
     }
     
     override func addTarget() {
@@ -57,15 +80,26 @@ final class SelectFavoriteIdolGroupViewController: BaseViewController<Onboarding
 
 extension SelectFavoriteIdolGroupViewController {
     @objc private func skipButtonDidTap() {
-        // TODO: - 루트뷰 탭바로 바꾸기
+        viewModel.action(.submitWithoutArtist)
     }
     
     @objc private func startButtonDidTap() {
-        // TODO: - 서버에 선택한 그룹 id 보내기 + 루트뷰 탭바로 바꾸기
         if let selectedId = selectedGroupId {
-            print("선택된 그룹 ID: \(selectedId)")
+            viewModel.action(.submitWithArtist)
         } else {
         }
+    }
+    
+    private func navigateToHome() {
+        let tabBar = factory.makePotiTabBar()
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let sceneDelegate = windowScene.delegate as? SceneDelegate else {
+            return
+        }
+        
+        sceneDelegate.window?.rootViewController = tabBar
+        sceneDelegate.window?.makeKeyAndVisible()
     }
 }
 
@@ -73,8 +107,8 @@ extension SelectFavoriteIdolGroupViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedGroup = groups[indexPath.item]
         selectedGroupId = selectedGroup.id
-        
-        print("🎯 선택된 그룹: \(selectedGroup.name), ID: \(selectedGroup.id)")
+        viewModel.action(.artistSelected(selectedGroup.id))
+        PotiLogger.debug("선택된 그룹: \(selectedGroup.name), ID: \(selectedGroup.id)")
     }
 }
 
@@ -108,7 +142,6 @@ extension SelectFavoriteIdolGroupViewController: UICollectionViewDataSource {
               ) as? IdolGroupHeaderView else {
             return UICollectionReusableView()
         }
-        
         return header
     }
 }

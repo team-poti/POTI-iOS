@@ -24,11 +24,11 @@ final class OnboardingViewModel: BaseViewModelType {
     
     struct Output {
         let nicknameValidation: AnyPublisher<NicknameValidationResult, Never>
-        let artists: AnyPublisher<[ArtistEntity], Never>
+        let artists: AnyPublisher<[IdolGroupModel], Never>
         let onboardingSuccess: AnyPublisher<Void, Never>
         let onboardingFailure: AnyPublisher<Error, Never>
     }
-    
+        
     enum NicknameValidationResult {
         case valid
         case duplicated
@@ -38,19 +38,31 @@ final class OnboardingViewModel: BaseViewModelType {
     
     // MARK: - Properties
     
+    private(set) var output: Output
+        
     private var nickname: String = ""
     private var selectedArtistId: Int?
         
     private let nicknameValidationSubject = PassthroughSubject<NicknameValidationResult, Never>()
-    private let artistsSubject = PassthroughSubject<[ArtistEntity], Never>()
+    private let artistsSubject = PassthroughSubject<[IdolGroupModel], Never>()
     private let onboardingSuccessSubject = PassthroughSubject<Void, Never>()
     private let onboardingFailureSubject = PassthroughSubject<Error, Never>()
-        
+            
     private var cancellables = Set<AnyCancellable>()
-    private let onboardingUseCase: OnboardingUseCase
+    private let onboardingArtistsUsecase: OnboardingArtistsUsecase
+    private let validNicknameUseCase: ValidNicknameUseCase
+    private let submitOnboardingUseCase: SubmitOnboardingUseCase
+    
+    init(
+        onboardingArtistsUsecase: OnboardingArtistsUsecase,
+        validNicknameUseCase: ValidNicknameUseCase,
+        submitOnboardingUseCase: SubmitOnboardingUseCase
+    ) {
+        self.onboardingArtistsUsecase = onboardingArtistsUsecase
+        self.validNicknameUseCase = validNicknameUseCase
+        self.submitOnboardingUseCase = submitOnboardingUseCase
         
-    var output: Output {
-        Output(
+        self.output = Output(
             nicknameValidation: nicknameValidationSubject.eraseToAnyPublisher(),
             artists: artistsSubject.eraseToAnyPublisher(),
             onboardingSuccess: onboardingSuccessSubject.eraseToAnyPublisher(),
@@ -87,14 +99,13 @@ extension OnboardingViewModel {
     private func validateNickname(_ nickname: String) {
         Task {
             do {
-                let result = try await onboardingUseCase.validateNickname(nickname)
+                let isDuplicated = try await validNicknameUseCase.execute(nickname)
                 
-                if result.isDuplicated {
+                if isDuplicated {
                     nicknameValidationSubject.send(.duplicated)
                 } else {
                     nicknameValidationSubject.send(.valid)
                 }
-                
             } catch let error as PotiError {
                 switch error {
                 case .apiError(let message) where message.contains("형식"):
@@ -113,8 +124,9 @@ extension OnboardingViewModel {
     private func loadArtists() {
         Task {
             do {
-                let artists = try await onboardingUseCase.fetchArtists()
-                artistsSubject.send(artists)
+                let entity = try await onboardingArtistsUsecase.execute()
+                let models = entity.artists.map { $0.toIdolGroupModel() }
+                artistsSubject.send(models)
             } catch {
                 PotiLogger.error(error)
                 onboardingFailureSubject.send(error)
@@ -130,10 +142,9 @@ extension OnboardingViewModel {
         
         Task {
             do {
-                // withArtist가 true면 selectedArtistId 전달, false면 nil
                 let artistId = withArtist ? selectedArtistId : nil
                 
-                try await onboardingUseCase.submitOnboarding(
+                _ = try await submitOnboardingUseCase.execute(
                     nickname: nickname,
                     favoriteArtistId: artistId
                 )
