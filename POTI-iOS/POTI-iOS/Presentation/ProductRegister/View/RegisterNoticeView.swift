@@ -79,8 +79,8 @@ final class RegisterNoticeView: BaseView {
         titleLabel.do {
             $0.numberOfLines = 0
             $0.textAlignment = .left
-            $0.font = PotiFontManager.body14sb.font
-            $0.textColor = .potiBlack
+            $0.font = PotiFontManager.caption12m.font
+            $0.textColor = .gray800
         }
     }
 
