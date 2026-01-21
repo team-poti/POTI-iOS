@@ -5,6 +5,8 @@
 //  Created by 김나연 on 1/10/26.
 //
 
+import Foundation
+
 final class DefaultAuthRepository: AuthInterface {
     
     private let authService: AuthService
@@ -33,7 +35,7 @@ final class DefaultAuthRepository: AuthInterface {
     }
     
     func devLogin() async throws -> LoginResponseEntity {
-        let result = try await networkService.request(target: AuthAPI.devLogin, type: DevLoginResponseDTO.self)
+        let result = try await tokenRefreshNetworkService.request(target: AuthAPI.devLogin, type: DevLoginResponseDTO.self)
         KeychainManager.saveTokens(accessToken: result.accessToken, refreshToken: result.refreshToken)
         return result.toLoginResponseEntity()
     }
@@ -49,7 +51,15 @@ final class DefaultAuthRepository: AuthInterface {
         )
         
         KeychainManager.saveTokens(accessToken: result.accessToken, refreshToken: result.refreshToken)
-        let saved = KeychainManager.getRefreshToken()
-        PotiLogger.debug(" Keychain 저장 완료 - 확인: \(saved ?? "❌")")
+        let verifyAccess = KeychainManager.getAccessToken()
+        let verifyRefresh = KeychainManager.getRefreshToken()
+            
+        guard verifyAccess == result.accessToken,
+              verifyRefresh == result.refreshToken else {
+            PotiLogger.error(NSError(domain: "Keychain 저장 실패!", code: -1))
+            throw PotiError.networkFail
+        }
+            
+        PotiLogger.debug("Keychain 저장 및 검증 완료")
     }
 }
