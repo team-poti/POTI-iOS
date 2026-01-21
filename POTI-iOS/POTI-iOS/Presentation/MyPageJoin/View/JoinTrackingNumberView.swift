@@ -44,9 +44,17 @@ final class JoinTrackingNumberView: BaseView {
         }
         
         copyButton.do {
-            $0.setTitle("복사", for: .normal)
-            $0.setTitleColor(.gray700, for: .normal)
-            $0.titleLabel?.font = PotiFontManager.body14m.font
+            let underlineAttributes: [NSAttributedString.Key: Any] = [
+                .font: PotiFontManager.body14m.font,
+                .foregroundColor: UIColor.gray700,
+                .underlineStyle: NSUnderlineStyle.single.rawValue
+            ]
+            
+            let attributedTitle = NSAttributedString(
+                string: "복사",
+                attributes: underlineAttributes
+            )
+            $0.setAttributedTitle(attributedTitle, for: .normal)
         }
         
         statusLabel.do {
@@ -99,7 +107,10 @@ final class JoinTrackingNumberView: BaseView {
     }
     
     @objc private func didTapCopy() {
+        print("✅ copy tapped")
         guard let text = shipLabel.text, !text.isEmpty else { return }
         UIPasteboard.general.string = text
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        print("📋 pasteboard:", UIPasteboard.general.string ?? "nil")
     }
 }
