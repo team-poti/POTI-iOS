@@ -1,5 +1,5 @@
 //
-//  MemberCell.swift
+//  ArtistsCell.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/16/26.
@@ -10,12 +10,12 @@ import UIKit
 import SnapKit
 import Then
 
-enum MemberCellStyle {
+enum Style {
     case selected
     case unselected
 }
 
-final class MemberCell: UICollectionViewCell {
+final class ArtistsCell: UICollectionViewCell {
     
     // MARK: - UI Components
     
@@ -66,8 +66,8 @@ final class MemberCell: UICollectionViewCell {
     }
 }
 
-extension MemberCell {
-    func configure(name: String, style: MemberCellStyle) {
+extension ArtistsCell {
+    func configure(name: String, style: Style) {
         memberNameLabel.text = name
         
         switch style {

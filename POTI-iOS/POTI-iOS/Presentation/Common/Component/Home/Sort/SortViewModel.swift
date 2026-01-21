@@ -34,7 +34,7 @@ final class SortViewModel: BaseViewModelType {
     
     // MARK: - Subjects
     
-    private let optionsSubject = CurrentValueSubject<[String], Never>(["최신순", "인기순"])
+    private let optionsSubject = CurrentValueSubject<[String], Never>(["최신순", "마감임박순", "평점순"])
     private let selectedIndexSubject: CurrentValueSubject<Int, Never>
     private let onSelectSubject = PassthroughSubject<Int, Never>()
     

@@ -1,5 +1,5 @@
 //
-//  MemberBottomSheet.swift
+//  ArtistsBottomSheet.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/16/26.
@@ -11,11 +11,11 @@ import Combine
 import SnapKit
 import Then
 
-final class MemberBottomSheet: BaseView {
+final class ArtistsBottomSheet: BaseView {
     
     // MARK: - Properties
     
-    private let viewModel: MemberViewModel
+    private let viewModel: ArtistsViewModel
     var onComplete: (([String]) -> Void)?
     private var cancellables = Set<AnyCancellable>()
     
@@ -37,7 +37,7 @@ final class MemberBottomSheet: BaseView {
     
     // MARK: - Initializer
     
-    init(viewModel: MemberViewModel) {
+    init(viewModel: ArtistsViewModel) {
         self.viewModel = viewModel
         super.init(frame: .zero)
         bindViewModel()
@@ -84,7 +84,7 @@ final class MemberBottomSheet: BaseView {
             layout.scrollDirection = .vertical
             
             $0.collectionViewLayout = layout
-            $0.register(MemberCell.self, forCellWithReuseIdentifier: MemberCell.identifier)
+            $0.register(ArtistsCell.self, forCellWithReuseIdentifier: ArtistsCell.identifier)
             $0.dataSource = self
             $0.delegate = self
             $0.backgroundColor = .clear
@@ -168,7 +168,7 @@ final class MemberBottomSheet: BaseView {
     }
     
     private func bindViewModel() {
-        viewModel.output.memberList
+        viewModel.output.artistsList
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.collectionView.reloadData() }
             .store(in: &cancellables)
@@ -223,24 +223,24 @@ final class MemberBottomSheet: BaseView {
 
 // MARK: - Extension
 
-extension MemberBottomSheet: UICollectionViewDataSource, UICollectionViewDelegate {
+extension ArtistsBottomSheet: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.currentMemberList.count
+        return viewModel.currentArtistsList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: MemberCell.identifier,
+            withReuseIdentifier: ArtistsCell.identifier,
             for: indexPath
-        ) as? MemberCell else { return UICollectionViewCell() }
+        ) as? ArtistsCell else { return UICollectionViewCell() }
         
-        let data = viewModel.currentMemberList[indexPath.item]
+        let data = viewModel.currentArtistsList[indexPath.item]
         cell.configure(name: data.name, style: data.isSelected ? .selected : .unselected)
         
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.action(.selectMember(index: indexPath.item))
+        viewModel.action(.selectArtist(index: indexPath.item))
     }
 }

@@ -5,8 +5,7 @@
 //  Created by mandoo on 1/18/26.
 //
 
-struct MemberEntity {
-    let memberId: Int
-    let memberName: String
+struct ArtistsEntity {
+    let artistId: Int
+    let artistName: String
 }
-

@@ -7,30 +7,23 @@
 
 import Alamofire
 
-enum MemberAPI {
-    case fetchMemberList(artistId: Int)
+enum ArtistsAPI {
+    case fetchArtistsList(artistId: Int)
 }
 
-extension MemberAPI: BaseTargetType {
+extension ArtistsAPI: BaseTargetType {
     
     var path: String {
         switch self {
-        case .fetchMemberList(let artistId):
+        case .fetchArtistsList(let artistId):
             return "/api/v1/artists/\(artistId)/members"
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .fetchMemberList:
+        case .fetchArtistsList:
             return .get
-        }
-    }
-    
-    var headers: HeaderType {
-        switch self {
-        case .fetchMemberList:
-            return .basic
         }
     }
 }
