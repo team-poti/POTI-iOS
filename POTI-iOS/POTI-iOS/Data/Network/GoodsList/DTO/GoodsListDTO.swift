@@ -9,6 +9,11 @@ struct GoodsListDTO: Decodable {
     let nickname: String
     let mainArtist: String?
     let groupItems: [GoodsListItemDTO]
+    
+    func toEntity() -> GoodsListEntity {
+        return .init(nickname: nickname, mainArtist: mainArtist, groupItems: groupItems.map { $0.toEntity() }
+        )
+    }
 }
 
 struct GoodsListItemDTO: Decodable {
@@ -20,12 +25,5 @@ struct GoodsListItemDTO: Decodable {
     
     func toEntity() -> GroupItem {
         return .init(title: title, artist: artist, postImage: postImage, postCount: postCount, tag: tag)
-    }
-}
-
-extension GoodsListDTO {
-    func toEntity() -> GoodsListEntity {
-        return .init(nickname: nickname, mainArtist: mainArtist, groupItems: groupItems.map { $0.toEntity() }
-        )
     }
 }

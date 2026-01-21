@@ -55,6 +55,12 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    func makePotListViewController() -> PotListViewController {
+        PotListViewController(
+            viewModel: diContainer.makePotListViewModel()
+        )
+    }
+  
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
             viewModel: MyPageViewModel()
