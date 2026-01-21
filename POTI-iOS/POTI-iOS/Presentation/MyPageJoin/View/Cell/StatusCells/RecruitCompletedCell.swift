@@ -15,7 +15,7 @@ final class RecruitCompletedCell: UITableViewCell {
     private let joinShipInfoView = JoinShipInfoView()
     private let completeButton = PotiBottomButton()
     
-    var onTapConfirmButton: (() -> Void)?
+    var onTapCompleteButton: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -32,7 +32,7 @@ final class RecruitCompletedCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        onTapConfirmButton = nil
+        onTapCompleteButton = nil
     }
     
     private func setStyle() {
@@ -72,9 +72,9 @@ final class RecruitCompletedCell: UITableViewCell {
     private func addTarget() {
         completeButton.addTarget(self, action: #selector(completeButtonTapped), for: .touchUpInside)
     }
-
+    
     @objc private func completeButtonTapped() {
-        //viewModel.action(.tapDepositComplete)
+        onTapCompleteButton?()
     }
     
     func configure(model: MyPageJoinModel) {

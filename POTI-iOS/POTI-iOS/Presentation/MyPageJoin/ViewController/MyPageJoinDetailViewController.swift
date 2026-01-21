@@ -55,9 +55,20 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         tableView.delegate = self
     }
     
+    override func bindViewModel() {
+        viewModel.output.naviPotInfo
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                let factory = DefaultViewControllerFactory()
+                let containerVC = factory.makeParticipantManageViewController()
+                self?.navigationController?.pushViewController(containerVC, animated: true)
+            }
+            .store(in: &cancellables)
+    }
+    
     private func presentDetailBottomSheet() {
         let sheet = DetailBottomSheet(
-            firstTitle: "입금자명",
+            viewModel: BottomSheetViewModel(), firstTitle: "입금자명",
             firstPlaceholder: "입금자명을 입력해주세요",
             secondTitle: "입금 시간",
             secondPlaceholder: "YY-MM-DD TT:MM",
@@ -128,6 +139,9 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
             ) as? JoinPotInfoCell else { return UITableViewCell() }
             if let model = viewModel.joinModel {
                 cell.configure(model: model)
+                cell.onTapPotButton = { [weak self] in
+                    self?.viewModel.action(.tapPotInfo)
+                }
             }
             return cell
             
@@ -173,7 +187,7 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                 if let model = viewModel.joinModel {
                     cell.configure(model: model)
                 }
-                cell.onTapConfirmButton = { [weak self] in
+                cell.onTapCompleteButton = { [weak self] in
                     self?.presentDetailBottomSheet()
                 }
                 return cell
@@ -195,6 +209,9 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                 ) as? ShippingCell else { return UITableViewCell() }
                 if let model = viewModel.joinModel {
                     cell.configure(model: model)
+                }
+                cell.onTapCompleteButton = { [weak self] in
+                    self?.presentDetailBottomSheet()
                 }
                 return cell
                 

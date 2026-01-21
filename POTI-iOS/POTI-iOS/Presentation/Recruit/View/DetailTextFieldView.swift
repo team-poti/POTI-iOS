@@ -92,9 +92,7 @@ final class DetailTextFieldView: BaseView {
             string: placeholder,
             attributes: [
                 .foregroundColor: placeholderColor,
-                .font: PotiFontManager.body16m.font,
-                .underlineStyle: NSUnderlineStyle.single.rawValue,
-                .baselineOffset: 2
+                .font: PotiFontManager.body16m.font
             ]
         )
     }

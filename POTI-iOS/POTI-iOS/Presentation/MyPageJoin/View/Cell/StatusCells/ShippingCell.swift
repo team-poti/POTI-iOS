@@ -16,6 +16,8 @@ final class ShippingCell: UITableViewCell {
     private let joinTrackingNumberView = JoinTrackingNumberView()
     private let completeButton = PotiBottomButton()
     
+    var onTapCompleteButton: (() -> Void)?
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setUI()
@@ -62,7 +64,7 @@ final class ShippingCell: UITableViewCell {
     }
     
     @objc private func completeButtonTapped() {
-        //viewModel.action(.tapShipComplete)
+        onTapCompleteButton?()
     }
     
     func configure(model: MyPageJoinModel) {

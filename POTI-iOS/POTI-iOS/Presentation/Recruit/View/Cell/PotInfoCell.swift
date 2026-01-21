@@ -150,7 +150,5 @@ final class PotInfoCell: UITableViewCell {
     // MARK: - action
     @objc func potButtonTapped(_ sender: Any) {
         onTapPotButton?()
-        //TODO: - input 수정
-        // input.send(.potButtonTapped)
     }
 }

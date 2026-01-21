@@ -14,15 +14,15 @@ final class MyPageJoinViewModel: BaseViewModelType {
     enum Input {
         case viewDidLoad
         case setParticipants([MyPageJoinModel])
+        case tapPotInfo
     }
 
     // MARK: - Output
 
     struct Output {
         let fetchData: AnyPublisher<Void, Never>
+        let naviPotInfo: AnyPublisher<Void, Never>
     }
-
-    // MARK: - Public State (VC에서 읽기)
 
     private(set) var joinModel: MyPageJoinModel?
 
@@ -34,17 +34,48 @@ final class MyPageJoinViewModel: BaseViewModelType {
     // MARK: - Subject
 
     private let fetchDataSubject = PassthroughSubject<Void, Never>()
-
-    // MARK: - Output
+    private let naviPotInfoSubject = PassthroughSubject<Void, Never>()
 
     let output: Output
 
     // MARK: - Lifecycle
 
     init() {
-        self.output = Output(fetchData: fetchDataSubject.eraseToAnyPublisher())
+        self.output = Output(
+            fetchData: fetchDataSubject.eraseToAnyPublisher(),
+            naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher()
+        )
     }
 
+    // MARK: - Action
+
+    func action(_ trigger: Input) {
+        switch trigger {
+            
+        case .viewDidLoad:
+            let mock = makeMockParticipants()
+            action(.setParticipants(mock))
+            
+        case .setParticipants(let participants):
+            self.participants = participants
+            self.joinModel = participants.first
+            /// VC에서 viewModel.participantStatus로 바로 꺼내 쓸 수 있게 디폴트 값 설정
+            self.participantStatus = joinModel?.postStatus
+            if let joinModel {
+                self.progressStatusModel = ProgressStatusModel(
+                    role: .participant,
+                    status: ParticipantStatus.from(participantStatus: joinModel.postStatus)
+                )
+            } else {
+                self.progressStatusModel = nil
+            }
+            fetchDataSubject.send()
+        
+        case .tapPotInfo:
+            naviPotInfoSubject.send()
+        }
+    }
+    
     // MARK: - Mock
 
     private func makeMockParticipants() -> [MyPageJoinModel] {
@@ -83,30 +114,5 @@ final class MyPageJoinViewModel: BaseViewModelType {
                 )
             )
         ]
-    }
-
-    // MARK: - Action
-
-    func action(_ trigger: Input) {
-        switch trigger {
-        case .viewDidLoad:
-            let mock = makeMockParticipants()
-            action(.setParticipants(mock))
-
-        case .setParticipants(let participants):
-            self.participants = participants
-            self.joinModel = participants.first
-            /// VC에서 viewModel.participantStatus로 바로 꺼내 쓸 수 있게 디폴트 값 설정
-            self.participantStatus = joinModel?.postStatus
-            if let joinModel {
-                self.progressStatusModel = ProgressStatusModel(
-                    role: .participant,
-                    status: ParticipantStatus.from(participantStatus: joinModel.postStatus)
-                )
-            } else {
-                self.progressStatusModel = nil
-            }
-            fetchDataSubject.send(())
-        }
     }
 }
