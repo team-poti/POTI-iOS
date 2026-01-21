@@ -67,12 +67,27 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         registerMemberView?.onMembersChanged = { [weak self] members in
             self?.viewModel.action(.setMembers(members))
         }
+
+        registerInfoView.onTapArtistField = { [weak self] in
+            self?.pushArtistSearch()
+        }
     }
 
     override func setLayout() { }
 
 
     // MARK: - Custom Method
+
+    private func pushArtistSearch() {
+        let vm = ArtistSearchViewModel()
+        let vc = ArtistSearchViewController(viewModel: vm)
+
+        if let nav = navigationController {
+            nav.pushViewController(vc, animated: true)
+        } else {
+            present(UINavigationController(rootViewController: vc), animated: true)
+        }
+    }
 
     override func bindViewModel() {
         viewModel.output.images
