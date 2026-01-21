@@ -69,12 +69,3 @@ final class RegisterShippingView: BaseView {
         }
     }
 }
-
-#Preview {
-    let view = RegisterShippingView()
-    view.configure(options: [
-        (name: "일반택배", price: 4000),
-        (name: "준등기", price: 1800)
-    ])
-    return view
-}

@@ -36,9 +36,10 @@ final class ProductRegisterView: BaseView {
             productInfoView,
             memberView,
             shippingView,
-            noticeView,
-            submitButton
+            noticeView
         )
+        
+        addSubview(submitButton)
     }
 
     override func setStyle() {
@@ -59,7 +60,8 @@ final class ProductRegisterView: BaseView {
 
     override func setLayout() {
         scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(submitButton.snp.top).offset(-40)
         }
 
         contentView.snp.makeConstraints {
@@ -85,17 +87,13 @@ final class ProductRegisterView: BaseView {
         noticeView.snp.makeConstraints {
             $0.top.equalTo(shippingView.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
 
         submitButton.snp.makeConstraints {
-            $0.top.equalTo(noticeView.snp.bottom).offset(24)
             $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)
             $0.height.equalTo(56)
-            $0.bottom.equalToSuperview().inset(4)
         }
     }
-}
-
-#Preview() {
-    ProductRegisterView()
 }
