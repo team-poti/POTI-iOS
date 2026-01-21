@@ -90,8 +90,8 @@ final class AppDIContainer {
         DefaultGoodsListUseCase(repository: makeGoodsListRepository())
     }
     
-    private func makeOrderUseCase() -> OrderUseCase {
-        DefaultOrderUseCase(repository: makeOrderRepository())
+    private func makeOrderUseCase() -> SubmitOrderUseCase {
+        DefaultSubmitOrderUseCase(repository: makeOrderRepository())
     }
   
     private func makePotDetailUseCase() -> PotDetailUseCase {
@@ -100,6 +100,10 @@ final class AppDIContainer {
     
     private func makeSubmitUseCase() -> SubmitOrderUseCase {
         DefaultSubmitOrderUseCase(repository: makeOrderRepository())
+    }
+    
+    private func makePotOptionUseCase() -> PotOptionsUseCase {
+        DefaultPotOptionsUseCase(repository: makePostsRepository())
     }
     
     // MARK: - ViewModel
@@ -119,10 +123,6 @@ final class AppDIContainer {
     func makeGoodsListViewModel() -> GoodsListViewModel {
         GoodsListViewModel(useCase: makeGoodsListUseCase())
     }
-    
-    func makeOrderViewModel() -> OrderViewModel {
-        OrderViewModel(useCase: makeOrderUseCase())
-    }
   
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
         PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
@@ -130,5 +130,9 @@ final class AppDIContainer {
     
     func makePotOrderViewModel(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewModel {
         PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems)
+    }
+    
+    func makePotOptionsSheetViewModel(postId: Int) -> PotOptionsViewModel {
+        PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
 }
