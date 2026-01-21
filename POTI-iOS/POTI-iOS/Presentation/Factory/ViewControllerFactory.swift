@@ -14,6 +14,9 @@ protocol ViewControllerFactory {
     func makeMyPageViewController() -> MyPageViewController
     func makeOrderSheetViewController() -> OrderSheetViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
+    func makeOnboardingViewController() -> OnboardingViewController
+    func makeValidNicknameViewController() -> ValidNicknameViewController
+    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController
     func makeRecruitDetailViewController() -> RecruitDetailViewController
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
@@ -54,12 +57,6 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             viewModel: diContainer.makeGoodsListViewModel()
         )
     }
-    
-    func makePotListViewController() -> PotListViewController {
-        PotListViewController(
-            viewModel: diContainer.makePotListViewModel()
-        )
-    }
   
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
@@ -89,5 +86,17 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         PotDetailViewController(
             viewModel: diContainer.makePotDetailViewModel(postId: postId)
         )
+    }
+    
+    func makeOnboardingViewController() -> OnboardingViewController {
+        OnboardingViewController(viewModel: OnboardingViewModel(), factory: self)
+    }
+    
+    func makeValidNicknameViewController() -> ValidNicknameViewController {
+        ValidNicknameViewController(viewModel: OnboardingViewModel(), factory: self)
+    }
+    
+    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController {
+        SelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel(), factory: self)
     }
 }
