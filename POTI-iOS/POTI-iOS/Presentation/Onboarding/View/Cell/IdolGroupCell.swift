@@ -68,15 +68,14 @@ final class IdolGroupCell: UICollectionViewCell {
     
     private func setUI() {
         contentView.addSubviews(containerView, nameLabel)
-        containerView.addSubview(groupImageView)
-        containerView.addSubview(selectedImageView)
+        containerView.addSubviews(groupImageView, selectedImageView)
     }
     
     private func setLayout() {
         containerView.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.centerX.equalToSuperview()
-            $0.width.height.equalTo(90)
+            $0.size.equalTo(90)
         }
         
         groupImageView.snp.makeConstraints {
