@@ -39,7 +39,7 @@ protocol HomeViewScrollDelegate: AnyObject {
     func homeViewDidScroll(yOffset: CGFloat)
 }
 
-final class HomeViewController: BaseViewController<HomeViewModel>{
+final class HomeViewController: BaseViewController<HomeViewModel>, NavigationConfigurable {
     
     // MARK: - Properties
     
@@ -68,6 +68,13 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = false
+        }
     }
     
     override func setDelegate() {
@@ -103,6 +110,12 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
             action: #selector(didTapFloatingButton),
             for: .touchUpInside
         )
+    }
+    
+    // MARK: - Methods
+    
+    func navigationStyle() -> PotiNavigationStyle {
+        return .home
     }
     
     private func updateBannerFooter(_ page: Int) {
@@ -177,7 +190,7 @@ extension HomeViewController: UICollectionViewDataSource {
     }
 }
 
-//MARK: - Extensions
+// MARK: - Extensions
 
 extension HomeViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -190,16 +203,18 @@ extension HomeViewController: GoodsHeaderCellDelegate {
         guard let sectionType = HomeSection(rawValue: section) else { return }
         
         let targetArtistId: Int
-            if sectionType == .myGroup {
-                targetArtistId = (viewModel.mainArtistId != -1) ? viewModel.mainArtistId : (viewModel.myGroupItems.first?.artistId ?? 0)
-            } else {
-                targetArtistId = viewModel.otherGroupItems.first?.artistId ?? 0
-            }
-            
-            let goodsListViewController = factory.makeGoodsListViewController(
-                sectionType: sectionType,
-                artistId: targetArtistId
-            )
+        
+        if sectionType == .myGroup {
+            targetArtistId = (viewModel.mainArtistId != -1) ? viewModel.mainArtistId : 0
+        } else {
+            targetArtistId = 0
+        }
+        
+        let goodsListViewController = factory.makeGoodsListViewController(
+            sectionType: sectionType,
+            artistId: targetArtistId,
+            nickname: viewModel.nickname
+        )
         goodsListViewController.title = sectionType.getHeaderTitle(nickName: viewModel.nickname)
         self.navigationController?.pushViewController(goodsListViewController, animated: true)
     }

@@ -28,9 +28,6 @@ final class HomeView: BaseView {
     // MARK: - Custom Methods
     
     override func setStyle() {
-        
-        // TODO: - 네비바 컴포넌트 추가하기
-        
         homeCollectionView.do {
             $0.backgroundColor = .clear
             $0.isScrollEnabled = true
@@ -50,7 +47,8 @@ final class HomeView: BaseView {
     
     override func setLayout() {
         homeCollectionView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.equalToSuperview().offset(16)
+            $0.bottom.horizontalEdges.equalToSuperview()
         }
         
         floatingButton.snp.makeConstraints {
