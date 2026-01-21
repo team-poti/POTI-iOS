@@ -90,15 +90,21 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeOnboardingViewController() -> OnboardingViewController {
-        OnboardingViewController(viewModel: OnboardingViewModel(), factory: self)
+        OnboardingViewController(
+            viewModel: diContainer.makeOnboardingViewModel(), factory: self
+        )
     }
     
     func makeValidNicknameViewController() -> ValidNicknameViewController {
-        ValidNicknameViewController(viewModel: OnboardingViewModel(), factory: self)
+        ValidNicknameViewController(
+            viewModel: diContainer.makeOnboardingViewModel(), factory: self
+        )
     }
     
     func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController {
-        SelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel(), factory: self)
+        SelectFavoriteIdolGroupViewController(
+            viewModel: diContainer.makeOnboardingViewModel(), factory: self
+        )
     }
     
     func makePotListViewController() -> PotListViewController {

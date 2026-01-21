@@ -70,6 +70,10 @@ final class AppDIContainer {
         DefaultArtistsRepository()
     }
     
+    private func makeUsersRepository() -> UsersInterface {
+        DefaultUsersRepository()
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -118,6 +122,18 @@ final class AppDIContainer {
         DefaultArtistsUseCase(repository: makeArtistsRepository())
     }
     
+    private func makeOnboardingArtistsUsecase() -> OnboardingArtistsUsecase {
+        DefaultOnboardingArtistsUsecase(repository: makeArtistsRepository())
+    }
+    
+    private func makeValidNicknameUseCase() -> ValidNicknameUseCase {
+        DefaultValidNicknameUseCase(repository: makeUsersRepository())
+    }
+    
+    private func makeSubmitOnboardingUseCase() -> SubmitOnboardingUseCase {
+        DefaultSubmitOnboardingUseCase(repository: makeUsersRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -162,5 +178,9 @@ final class AppDIContainer {
     
     func makeArtistsViewModel() -> ArtistsViewModel {
         ArtistsViewModel(useCase: makeArtistsUseCase())
+    }
+    
+    func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(onboardingArtistsUsecase: makeOnboardingArtistsUsecase(), validNicknameUseCase: makeValidNicknameUseCase(), submitOnboardingUseCase: makeSubmitOnboardingUseCase())
     }
 }
