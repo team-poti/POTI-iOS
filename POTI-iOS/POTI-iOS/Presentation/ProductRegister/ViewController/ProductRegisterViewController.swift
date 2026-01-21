@@ -162,6 +162,40 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             .store(in: &cancellables)
     }
 
+    // MARK: - Navigation Action
+
+    override func navigationButtonTapped(_ sender: UIButton) {
+        guard let action = PotiNavigationAction(rawValue: sender.tag) else { return }
+
+        switch action {
+        case .xButton, .back:
+            showExitAlert(for: action)
+        default:
+            super.navigationButtonTapped(sender)
+        }
+    }
+
+    private func showExitAlert(for action: PotiNavigationAction) {
+        let alert = CustomAlertView(
+            title: "지금 나가면 내용이 저장되지 않아요",
+            message: "계속 작성할까요?",
+            cancelTitle: "나가기",
+            confirmTitle: "계속 작성하기",
+            onLeftButton: { [weak self] in
+                guard let self else { return }
+
+                if self.navigationController == nil {
+                    self.dismiss(animated: true)
+                } else {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            },
+            onRightButton: {
+            }
+        )
+        alert.show(on: view)
+    }
+
     // MARK: - Action Method
 
     override func addTarget() {
