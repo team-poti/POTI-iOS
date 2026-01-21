@@ -20,6 +20,7 @@ final class DetailBottomSheet: BaseView {
     private var cancellables = Set<AnyCancellable>()
 
     var onSubmit: ((String, String) -> Void)?
+    var onPatched: (() -> Void)?
     
     // MARK: - UI Components
     
@@ -109,13 +110,13 @@ final class DetailBottomSheet: BaseView {
         }
         
         closeButton.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
+            $0.top.equalToSuperview().offset(8)
             $0.leading.equalToSuperview().inset(4)
             $0.size.equalTo(48)
         }
         
         firstTextFieldView.snp.makeConstraints {
-            $0.top.equalTo(closeButton.snp.bottom).offset(28)
+            $0.top.equalTo(closeButton.snp.bottom).offset(16)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
         secondTextFieldView.snp.makeConstraints {
@@ -162,7 +163,7 @@ final class DetailBottomSheet: BaseView {
         let shouldDisable = first.isEmpty || second.isEmpty
         
         confirmButton.isDisabled = shouldDisable
-        confirmButton.color = shouldDisable ? .deactiveMain : .primaryMain
+        confirmButton.color = shouldDisable ? .deactiveMain : .secondaryMain
     }
     
     // MARK: - Methods

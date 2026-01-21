@@ -107,7 +107,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
                     receiver: "김서현",
                     zipcode: "06000",
                     address: "서울시 강남구 압구정로 77",
-                    phone: "010-5555-6666",
+                    phone: "010-2222-3333",
                     carrier: "CJ대한통운",
                     trackingNumber: "987654321098",
                     shippingStatus: .delivered

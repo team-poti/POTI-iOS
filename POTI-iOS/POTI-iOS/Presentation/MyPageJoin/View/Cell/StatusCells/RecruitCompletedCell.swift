@@ -38,7 +38,7 @@ final class RecruitCompletedCell: UITableViewCell {
     private func setStyle() {
         backgroundColor = .potiWhite
         completeButton.do {
-            $0.color = .primaryMain
+            $0.color = .secondaryMain
             $0.isDisabled = false
             $0.text = "확인"
         }
@@ -81,7 +81,7 @@ final class RecruitCompletedCell: UITableViewCell {
         depositInfoView.configure(model: model)
         joinShipInfoView.configure(model: model)
         
-        completeButton.color = .primaryMain
+        completeButton.color = .secondaryMain
         completeButton.text = "입금 완료했어요"
         completeButton.isDisabled = false
     }

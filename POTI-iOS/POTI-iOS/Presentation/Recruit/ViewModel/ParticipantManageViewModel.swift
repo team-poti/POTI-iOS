@@ -14,7 +14,8 @@ final class ParticipantManageViewModel: BaseViewModelType {
     enum Input {
         case viewDidLoad
         case toggleButtonTap(section: Int)
-        case confirmParticipantActionTap(ParticipantAction)
+        case confirmDeposit(purchaseId: Int)
+        case confirmShip(purchaseId: Int)
     }
     
     // MARK: - Output
@@ -22,7 +23,8 @@ final class ParticipantManageViewModel: BaseViewModelType {
     struct Output {
         let fetchData: AnyPublisher<Void, Never>
         let toggleButtonTapped: AnyPublisher<Int, Never>
-        let participantActionTriggered: AnyPublisher<ParticipantAction, Never>
+        let confirmDepositTriggered: AnyPublisher<Int, Never>
+        let confirmShipTriggered: AnyPublisher<Int, Never>
         let showError: AnyPublisher<String, Never>
     }
     
@@ -33,17 +35,15 @@ final class ParticipantManageViewModel: BaseViewModelType {
     let output: Output
     private(set) var expandedSections: Set<Int> = [] // 섹션 펼침 여부
     private(set) var participants: [ParticipantManageModel] = []
-    
-    enum ParticipantAction {
-        case confirmDeposit(purchaseId: Int)
-        case enterTrackingNumber(purchaseId: Int)
-    }
+    private var onTapConfirmDeposit: ((Int) -> Void)?
+    private var onTapConfirmShip: ((Int) -> Void)?
     
     // MARK: - Subject
     
     private let fetchDataSubject = PassthroughSubject<Void, Never>()
     private let toggleButtonSubject = PassthroughSubject<Int, Never>()
-    private let participantActionSubject = PassthroughSubject<ParticipantAction, Never>()
+    private let confirmDepositSubject = PassthroughSubject<Int, Never>()
+    private let confirmShipSubject = PassthroughSubject<Int, Never>()
     private let errorSubject = PassthroughSubject<String, Never>()
     
     // MARK: - Initializer
@@ -54,7 +54,8 @@ final class ParticipantManageViewModel: BaseViewModelType {
             fetchData:
                 fetchDataSubject.eraseToAnyPublisher(),
             toggleButtonTapped: toggleButtonSubject.eraseToAnyPublisher(),
-            participantActionTriggered: participantActionSubject.eraseToAnyPublisher(),
+            confirmDepositTriggered: confirmDepositSubject.eraseToAnyPublisher(),
+            confirmShipTriggered: confirmShipSubject.eraseToAnyPublisher(),
             showError: errorSubject.eraseToAnyPublisher()
         )
     }
@@ -69,8 +70,12 @@ final class ParticipantManageViewModel: BaseViewModelType {
         case .toggleButtonTap(let section):
             toggleExpandSection(section: section)
             
-        case .confirmParticipantActionTap(let action):
-            handleParticipantAction(action)
+        case .confirmDeposit(let purchaseId):
+            // UI 트리거만 담당 (알럿/바텀시트 등은 VC에서 처리)
+            confirmDepositSubject.send(purchaseId)
+            
+        case .confirmShip(let purchaseId):
+            confirmShipSubject.send(purchaseId)
         }
     }
     
@@ -114,38 +119,6 @@ final class ParticipantManageViewModel: BaseViewModelType {
                 print("Error : \(error)")
             }
         }
-    }
-    
-    private func handleParticipantAction(_ action: ParticipantAction) {
-        switch action {
-        case .confirmDeposit(let purchaseId):
-            participantActionSubject.send(.confirmDeposit(purchaseId: purchaseId))
-            confirmDeposit(purchaseId: purchaseId)
-        case .enterTrackingNumber(let purchaseId):
-            participantActionSubject.send(.enterTrackingNumber(purchaseId: purchaseId))
-        }
-    }
-    
-    private func confirmDeposit(purchaseId: Int) {
-        Task { [weak self] in
-            guard let self else { return }
-
-            do {
-                //try await self.useCase.confirmDeposit(purchaseId: purchaseId)
-
-                // 성공 → 리스트 재조회 → reloadData Output
-                let entity = try await self.useCase.execute(postId: 1) //self.postId TODO~!!!!!!!
-                self.participants = entity.toParticipantManageModels()
-                self.fetchDataSubject.send()
-
-            } catch {
-                self.errorSubject.send("입금 확인에 실패했어요")
-            }
-        }
-    }
-    
-    private func enterTrackingNumber(purchaseId: Int) {
-        
     }
     
     func setParticipants(_ participants: [ParticipantManageModel]) {

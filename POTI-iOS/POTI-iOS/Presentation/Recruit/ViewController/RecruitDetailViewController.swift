@@ -73,7 +73,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 let factory = DefaultViewControllerFactory()
-                let containerVC = factory.makeParticipantManageViewController()
+                let containerVC = factory.makePotDetailViewController(postId: 1)
                 self?.navigationController?.pushViewController(containerVC, animated: true)
             }
             .store(in: &cancellables)
