@@ -7,15 +7,26 @@
 
 import UIKit
 
-final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
+import SnapKit
+import Then
+
+final class DeadlinePickerSheetViewController: BaseViewController<ProductRegisterViewModel>, UIAdaptivePresentationControllerDelegate {
 
     // MARK: - Properties
 
     private let onConfirm: (Date) -> Void
     private let onCancel: () -> Void
 
-    private let datePicker = UIDatePicker()
-    private let toolbar = UIToolbar()
+    private let datePicker = UIDatePicker().then {
+        $0.datePickerMode = .date
+        $0.locale = Locale(identifier: "ko_KR")
+        $0.preferredDatePickerStyle = .wheels
+        $0.minimumDate = Date()
+    }
+
+    private let toolbar = UIToolbar().then {
+        $0.tintColor = .potiBlack
+    }
 
     // MARK: - Initializer
 
@@ -26,13 +37,9 @@ final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePrese
     ) {
         self.onConfirm = onConfirm
         self.onCancel = onCancel
-        super.init(nibName: nil, bundle: nil)
-
-        datePicker.datePickerMode = .date
-        datePicker.locale = Locale(identifier: "ko_KR")
-        datePicker.preferredDatePickerStyle = .wheels
+        super.init(viewModel: ProductRegisterViewModel())
+        
         datePicker.date = initialDate
-        datePicker.minimumDate = Date()
     }
 
     @available(*, unavailable)
@@ -53,10 +60,8 @@ final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePrese
 
     // MARK: - UI
 
-    private func setUI() {
+    override func setUI() {
         view.addSubviews(toolbar, datePicker)
-
-        toolbar.tintColor = .potiBlack
 
         let flex = UIBarButtonItem(systemItem: .flexibleSpace)
         let cancel = UIBarButtonItem(
@@ -75,21 +80,16 @@ final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePrese
         toolbar.items = [cancel, flex, done]
     }
 
-    private func setLayout() {
-        toolbar.translatesAutoresizingMaskIntoConstraints = false
-        datePicker.translatesAutoresizingMaskIntoConstraints = false
+    override func setLayout() {
+        toolbar.snp.makeConstraints {
+            $0.top.leading.trailing.equalToSuperview()
+            $0.height.equalTo(44)
+        }
 
-        NSLayoutConstraint.activate([
-            toolbar.topAnchor.constraint(equalTo: view.topAnchor),
-            toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            toolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            toolbar.heightAnchor.constraint(equalToConstant: 44),
-
-            datePicker.topAnchor.constraint(equalTo: toolbar.bottomAnchor),
-            datePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            datePicker.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        datePicker.snp.makeConstraints {
+            $0.top.equalTo(toolbar.snp.bottom)
+            $0.leading.trailing.bottom.equalToSuperview()
+        }
     }
 
     // MARK: - Actions
