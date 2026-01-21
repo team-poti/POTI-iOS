@@ -238,8 +238,6 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
 
 // MARK: - delegate Method
 
-// MARK: - delegate Method
-
 extension ProductRegisterViewController: PHPickerViewControllerDelegate {
 
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
