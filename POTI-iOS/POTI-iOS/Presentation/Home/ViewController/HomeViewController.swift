@@ -168,7 +168,7 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension HomeViewController: GoodsHeaderCellDelegate {
     func moreButtonDidTap(in section: Int) {
-        guard let sectionType = HomeSection(rawValue: section) else { return }
+//        guard let sectionType = HomeSection(rawValue: section) else { return }
         
         let networkService = NetworkService()
         
