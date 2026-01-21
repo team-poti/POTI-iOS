@@ -14,13 +14,14 @@ final class ProductRegisterView: BaseView {
 
     private let scrollView = UIScrollView()
     private let contentView = UIView()
-
+    
     private let productInfoView = RegisterInfoView()
     private let memberView = RegisterMemberView()
     private let shippingView = RegisterShippingView()
     private let noticeView = RegisterNoticeView()
     private let submitButton = PotiBottomButton()
 
+    var contentScrollView: UIScrollView { scrollView }
     var imagePickerView: ImagePickerView { productInfoView.imagePickerView }
     var registerInfoView: RegisterInfoView { productInfoView }
     var registerMemberView: RegisterMemberView { memberView }

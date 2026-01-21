@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class RegisterInfoView: BaseView {
+final class RegisterInfoView: BaseView, UITextFieldDelegate {
     
     // MARK: - Property
 
@@ -18,6 +18,7 @@ final class RegisterInfoView: BaseView {
     var onTapDeleteImage: ((Int) -> Void)?
     var onTapArtistField: (() -> Void)?
     var onTapDeadlineField: (() -> Void)?
+    var onInputViewDidBeginEditing: ((UIView) -> Void)?
 
     // MARK: - UI Properties
 
@@ -105,6 +106,18 @@ final class RegisterInfoView: BaseView {
             maxVisibleRows: 3,
             showsRightAccessory: false
         )
+        productTypeField.onBeginEditing = { [weak self] textField in
+            self?.onInputViewDidBeginEditing?(textField)
+        }
+        descriptionField.onBeginEditing = { [weak self] textView in
+            self?.onInputViewDidBeginEditing?(textView)
+        }
+        accountField.onBeginEditing = { [weak self] textField in
+            self?.onInputViewDidBeginEditing?(textField)
+        }
+        bankField.onBeginEditing = { [weak self] textField in
+            self?.onInputViewDidBeginEditing?(textField)
+        }
     }
 
     override func setUI() {
@@ -181,5 +194,9 @@ final class RegisterInfoView: BaseView {
 
     func setImages(_ images: [UIImage]) {
         imagePickerView.setImages(images)
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        onInputViewDidBeginEditing?(textField)
     }
 }

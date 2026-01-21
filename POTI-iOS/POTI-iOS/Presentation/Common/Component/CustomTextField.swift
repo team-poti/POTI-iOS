@@ -13,6 +13,7 @@ final class CustomTextField: BaseView {
     // MARK: - Property
 
     var onTapField: (() -> Void)?
+    var onBeginEditing: ((UITextField) -> Void)?
     private(set) var variant: TextFieldVariant = .short
     private var uiState: TextFieldUIState = .normal
     private var isTapOnly: Bool = false
@@ -301,6 +302,7 @@ extension CustomTextField: UITextFieldDelegate {
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
         apply(state: .focused)
+        onBeginEditing?(textField)
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {

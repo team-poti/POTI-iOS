@@ -133,7 +133,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
         case .setArtist(let artistName):
             artistSubject.send(artistName)
             
-        case .submit(let info, let memberPrices, let shippings):
+        case .submit(let info, let memberPrices, _):
             var errors = FieldErrors.empty
 
             if imagesSubject.value.isEmpty {
