@@ -2,7 +2,7 @@
 //  DefaultOrderRepository.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/20/26.
+//  Created by mandoo on 1/21/26.
 //
 
 final class DefaultOrderRepository: OrderInterface {
@@ -12,18 +12,26 @@ final class DefaultOrderRepository: OrderInterface {
         self.networkService = networkService
     }
     
-    func fetchOrderOptions() async throws -> OrderEntity {
+    func submitOrder(entity: OrderRequestEntity) async throws -> OrderResultEntity {
+//        let requestDTO = OrderRequestDTO(
+//            groupBuyPostId: entity.postId,
+//            shippingId: entity.shippingId,
+//            deliveryInfo: .init(
+//                receiverName: entity.receiverName,
+//                zipcode: entity.zipcode,
+//                addressLine: entity.addressLine,
+//                phone: entity.phone
+//            ),
+//            items: entity.items.map { .init(groupBuyOptionId: $0.optionId, count: $0.count) }
+//        )
         
-        // TODO: - 서버 데이터로 변경하기
+//        let responseDTO = try await networkService.request(
+//            target: OrdersAPI.submitOrder(request: requestDTO),
+//            type: OrderParticipationDTO.self
+//        )
+//        
+//        return responseDTO.toEntity()
         
-        let members = mockMembers.map {
-            MemberEntity(id: $0.memberOptionId, name: $0.memberName, price: $0.memberOptionPrice)
-        }
-        
-        let shippings = mockShippings.map {
-            ShippingEntity(id: $0.deliveryOptionId, name: $0.deliveryName, price: $0.deliveryOptionPrice)
-        }
-        
-        return OrderEntity(members: members, shippings: shippings)
+        return OrderResultEntity(participationId: 1)
     }
 }
