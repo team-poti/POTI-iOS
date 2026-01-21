@@ -51,7 +51,6 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
         viewModel.output.didSubmitQuery
             .receive(on: RunLoop.main)
             .sink { [weak self] query in
-                // TODO: - 선택된 아티스트 전달/라우팅 로직은 이후 Coordinator/Router로 이동
                 print("ArtistSearch submitted query:", query)
 
                 if self?.navigationController != nil {
