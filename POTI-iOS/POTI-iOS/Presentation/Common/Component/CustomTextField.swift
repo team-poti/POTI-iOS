@@ -48,14 +48,14 @@ final class CustomTextField: BaseView {
             $0.layer.borderWidth = 1
             $0.layer.borderColor = UIColor.gray300.cgColor
         }
-
+        
         rootStackView.do {
             $0.axis = .vertical
             $0.spacing = 8
             $0.alignment = .fill
             $0.distribution = .fill
         }
-
+        
         textField.do {
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
@@ -175,7 +175,7 @@ final class CustomTextField: BaseView {
         } else {
             textField.attributedPlaceholder = nil
         }
-
+        
         applyVariant()
         apply(state: uiState)
     }
@@ -200,7 +200,11 @@ final class CustomTextField: BaseView {
             errorStackView.isHidden = false
         }
     }
-
+    
+    func setFocused(_ isFocused: Bool) {
+        apply(state: isFocused ? .focused : .normal)
+    }
+    
     func setText(_ text: String?) {
         textField.text = text
         updateCountIfNeeded()
@@ -221,7 +225,6 @@ final class CustomTextField: BaseView {
         countLabel.isHidden = true
         rightAccessoryContainer.isHidden = true
 
-        // 기본은 입력 가능. 단, searchNavigate 또는 tapOnly면 키보드 입력을 막고 탭으로만 처리
         if isTapOnly {
             textField.isUserInteractionEnabled = false
         } else {
@@ -274,12 +277,14 @@ final class CustomTextField: BaseView {
 
     @objc private func didTapField() {
         if isTapOnly {
+            apply(state: .focused)
             onTapField?()
             return
         }
 
         switch variant {
         case .searchNavigate:
+            apply(state: .focused)
             onTapField?()
         default:
             break

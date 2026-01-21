@@ -46,7 +46,7 @@ final class ProductRegisterView: BaseView {
 
         scrollView.do {
             $0.alwaysBounceVertical = true
-            $0.showsVerticalScrollIndicator = true
+            $0.showsVerticalScrollIndicator = false
             $0.keyboardDismissMode = .onDrag
         }
 

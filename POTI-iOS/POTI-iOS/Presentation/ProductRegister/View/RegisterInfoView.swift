@@ -25,7 +25,6 @@ final class RegisterInfoView: BaseView {
     var imagePickerView: ImagePickerView { _imagePickerView }
     
     private let titleLabel = UILabel()
-
     private let fieldsStackView = UIStackView()
     private let artistTitleLabel = UILabel()
     private let productTypeTitleLabel = UILabel()
@@ -38,8 +37,8 @@ final class RegisterInfoView: BaseView {
     private let _artistField = CustomTextField.searchNavigate(placeholder: "아티스트 찾기")
     var artistField: CustomTextField { _artistField }
 
-    //private let _productTypeField = CustomSearchField()
-    //var productTypeField: CustomSearchField { _productTypeField }
+    private let _productTypeField = CustomSearchField()
+    var productTypeField: CustomSearchField { _productTypeField }
 
     private let _deadlineField = CustomTextField.shortNavigate(placeholder: "날짜를 선택해주세요")
     var deadlineField: CustomTextField { _deadlineField }
@@ -111,14 +110,11 @@ final class RegisterInfoView: BaseView {
             self?.onTapDeadlineField?()
         }
 
-        // 상품 종류: 입력 가능 + 아래 SearchListView가 내려오는 필드
-//        productTypeField.configure(
-//            placeholder: "상품 종류를 입력해주세요",
-//            maxVisibleRows: 3,
-//            showsRightAccessory: true
-//        )
-
-        // TODO: - imageCollectionView
+        productTypeField.configure(
+            placeholder: "상품 종류를 입력해주세요",
+            maxVisibleRows: 3,
+            showsRightAccessory: false
+        )
     }
 
     override func setUI() {
@@ -133,7 +129,7 @@ final class RegisterInfoView: BaseView {
 
         fieldsStackView.addArrangedSubviews(
             makeFieldStack(title: artistTitleLabel, field: artistField),
-            makeFieldStack(title: productTypeTitleLabel, field: /*productTypeField*/ UIView()),
+            makeFieldStack(title: productTypeTitleLabel, field: productTypeField),
             makeFieldStack(title: deadlineTitleLabel, field: deadlineField),
             makeFieldStack(title: descriptionTitleLabel, field: descriptionField),
             makeFieldStack(title: accountTitleLabel, field: accountField),
@@ -167,6 +163,26 @@ final class RegisterInfoView: BaseView {
     }
 
     // MARK: - Functions
+
+    struct Draft {
+        let artist: String
+        let productType: String
+        let deadlineText: String
+        let description: String
+        let accountNumber: String
+        let bank: String
+    }
+
+    func collectDraft() -> Draft {
+        return Draft(
+            artist: artistField.getText(),
+            productType: productTypeField.getText(),
+            deadlineText: deadlineField.getText(),
+            description: descriptionField.getText(),
+            accountNumber: accountField.getText(),
+            bank: bankField.getText()
+        )
+    }
 
     func setImages(_ images: [UIImage]) {
         imagePickerView.setImages(images)

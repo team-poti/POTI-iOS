@@ -12,7 +12,11 @@ import Then
 
 final class RegisterMemberView: BaseView {
     
-    // MARK: - Property
+    // MARK: - Properties
+
+    var onMembersChanged: (([String]) -> Void)?
+
+    private var currentMembers: [String] = []
     
     private var rowViews: [MemberPriceRowView] = []
     
@@ -69,6 +73,7 @@ final class RegisterMemberView: BaseView {
             $0.alignment = .fill
             $0.distribution = .fill
             $0.spacing = 20
+            $0.isHidden = true
         }
         
         editButton.do {
@@ -102,6 +107,7 @@ final class RegisterMemberView: BaseView {
                 updated.background.backgroundColor = .potiBlack
                 button.configuration = updated
             }
+            $0.isHidden = true
         }
         
         bottomBoxView.do {
@@ -227,15 +233,15 @@ final class RegisterMemberView: BaseView {
             $0.top.equalTo(titleLabel.snp.bottom).offset(76)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
+
+        applyEmptyStateLayout()
     }
     
     private func applyEmptyStateLayout() {
         isEmptyState = true
-        
         emptyStateLabel.isHidden = false
         emptyStateLabel.text = "아티스트를 먼저 선택해주세요"
         errorStackView.isHidden = true
-        
         rowsStackView.isHidden = true
         editButton.isHidden = true
         bottomBoxView.isHidden = false
@@ -269,8 +275,8 @@ final class RegisterMemberView: BaseView {
         bottomBoxView.isHidden = false
         hintView.isHidden = true
         
-        errorStackView.isHidden = false
-        errorLabel.text = "멤버를 1명 이상 추가해주세요"
+        errorStackView.isHidden = true
+        errorLabel.text = ""
         
         rowsTopOffsetConstraint?.update(offset: 0)
         
@@ -349,6 +355,9 @@ final class RegisterMemberView: BaseView {
     }
     
     func configure(members: [String]) {
+        currentMembers = members
+        onMembersChanged?(members)
+
         rowViews.forEach { $0.removeFromSuperview() }
         rowViews.removeAll()
         rowsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
@@ -364,6 +373,7 @@ final class RegisterMemberView: BaseView {
         if members.isEmpty {
             if hasEverHadMembers {
                 applyEditedEmptyStateLayout()
+                hideEditedEmptyError()
             } else {
                 applyEmptyStateLayout()
             }
@@ -381,6 +391,23 @@ final class RegisterMemberView: BaseView {
     
     func setEditButtonTarget(_ target: Any?, action: Selector) {
         editButton.addTarget(target, action: action, for: .touchUpInside)
+    }
+
+    func showEditedEmptyError(message: String = "멤버를 1명 이상 추가해주세요") {
+        errorLabel.text = message
+        errorStackView.isHidden = false
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
+
+    func hideEditedEmptyError() {
+        errorStackView.isHidden = true
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
+    
+    func getMembers() -> [String] {
+        return currentMembers
     }
     
     func collectPrices() -> [Int: Int] {

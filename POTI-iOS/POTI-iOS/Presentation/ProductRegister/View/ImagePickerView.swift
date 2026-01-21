@@ -73,8 +73,7 @@ final class ImagePickerView: BaseView {
             $0.numberOfLines = 0
         }
         
-        errorStackView.addArrangedSubview(errorIconView)
-        errorStackView.addArrangedSubview(errorLabel)
+        errorStackView.addArrangedSubviews(errorIconView, errorLabel)
     }
 
     override func setLayout() {
