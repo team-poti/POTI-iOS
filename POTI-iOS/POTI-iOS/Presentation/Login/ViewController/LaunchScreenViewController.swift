@@ -8,13 +8,14 @@
 import UIKit
 
 import Combine
+import Lottie
 import SnapKit
 import Then
 
 final class LaunchScreenViewController: BaseViewController<LaunchScreenViewModel> {
     
     private let factory: ViewControllerFactory
-    private let potiLogoView = UIImageView()
+    private let potiLogoView = LottieAnimationView(name: "splash")
     
     init(viewModel: LaunchScreenViewModel, factory: ViewControllerFactory) {
         self.factory = factory
@@ -38,8 +39,7 @@ final class LaunchScreenViewController: BaseViewController<LaunchScreenViewModel
     
     private func setStyle() {
         potiLogoView.do {
-            $0.image = .imgDone
-            $0.contentMode = .scaleAspectFit
+            $0.play()
         }
     }
     
@@ -50,6 +50,7 @@ final class LaunchScreenViewController: BaseViewController<LaunchScreenViewModel
     override func setLayout() {
         potiLogoView.snp.makeConstraints {
             $0.center.equalToSuperview()
+            $0.size.equalTo(126)
         }
     }
     
