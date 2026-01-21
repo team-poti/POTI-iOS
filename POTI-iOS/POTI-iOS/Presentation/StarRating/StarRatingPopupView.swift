@@ -45,16 +45,6 @@ final class StarRatingPopupView: BaseView {
 
     private var currentRating: Double = 0.0
 
-    // MARK: - Initializer
-
-    init() {
-        super.init(frame: .zero)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     // MARK: - Custom Methods
 
     override func setStyle() {
@@ -115,6 +105,7 @@ final class StarRatingPopupView: BaseView {
                 .withTintColor(.gray700, renderingMode: .alwaysOriginal)
             $0.contentMode = .scaleAspectFit
         }
+        
         avgRatingStackView.do {
             $0.axis = .horizontal
             $0.alignment = .center
@@ -333,8 +324,4 @@ final class StarRatingPopupView: BaseView {
             currentRating = latest
             print("saved rating = \(String(format: "%.1f", currentRating))")
         }
-}
-
-#Preview {
-    StarRatingPopupView()
 }
