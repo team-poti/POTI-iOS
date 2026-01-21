@@ -21,7 +21,7 @@ final class ArtistSearchView: BaseView {
     // MARK: - UI
 
     private let searchField = CustomSearchField()
-    private let doneButton = PotiBottomButton()
+    let doneButton = PotiBottomButton()
 
     override func setStyle() {
         searchField.configure(
@@ -48,7 +48,6 @@ final class ArtistSearchView: BaseView {
             self?.onSelectSuggestion?(index, value)
         }
 
-        doneButton.addTarget(self, action: #selector(tapDone), for: .touchUpInside)
     }
     
     override func setLayout() {
@@ -80,7 +79,4 @@ final class ArtistSearchView: BaseView {
         doneButton.color = isEnabled ? .secondaryMain : .deactiveMain
     }
 
-    @objc private func tapDone() {
-        onTapDone?()
-    }
 }

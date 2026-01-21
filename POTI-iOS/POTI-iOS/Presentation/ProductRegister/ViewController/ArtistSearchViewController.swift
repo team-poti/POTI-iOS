@@ -22,6 +22,18 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
         return .backDefault("아티스트 검색")
     }
 
+    override func addTarget() {
+        rootView.doneButton.addTarget(
+            self,
+            action: #selector(didTapDone),
+            for: .touchUpInside
+        )
+    }
+
+    @objc private func didTapDone() {
+        viewModel.action(.tapDone)
+    }
+
     // MARK: - Life Cycle
 
     override func loadView() {
@@ -31,15 +43,11 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
     // MARK: - delegate Method
 
     override func bindViewModel() {
-
+        
         rootView.onChangeQuery = { [weak self] query in
             self?.viewModel.action(.queryChanged(query))
         }
-
-        rootView.onTapDone = { [weak self] in
-            self?.viewModel.action(.tapDone)
-        }
-
+        
         viewModel.output.isDoneEnabled
             .receive(on: RunLoop.main)
             .sink { [weak self] isEnabled in
