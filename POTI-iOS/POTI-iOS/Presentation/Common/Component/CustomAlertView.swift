@@ -15,45 +15,12 @@ final class CustomAlertView: BaseView {
     
     // MARK: - UI Components
     
-    private let containerView = UIView().then {
-        $0.backgroundColor = .potiWhite
-        $0.layer.cornerRadius = 12
-    }
-    
-    private let titleLabel = UILabel().then {
-        $0.font = PotiFontManager.body16sb.font
-        $0.textColor = .potiBlack
-        $0.textAlignment = .center
-    }
-    
-    private let messageLabel = UILabel().then {
-        $0.font = PotiFontManager.body16m.font
-        $0.textColor = .gray800
-        $0.textAlignment = .center
-    }
-    
-    private let buttonStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 8
-        $0.alignment = .fill
-        $0.distribution = .fillEqually
-    }
-    
-    private let leftButton = UIButton().then {
-        $0.backgroundColor = .gray100
-        $0.layer.cornerRadius = 24
-        $0.clipsToBounds = true
-        $0.titleLabel?.font = PotiFontManager.button16sb.font
-        $0.setTitleColor(.gray900, for: .normal)
-    }
-    
-    private let rightButton = UIButton().then {
-        $0.backgroundColor = .poti600
-        $0.layer.cornerRadius = 24
-        $0.clipsToBounds = true
-        $0.titleLabel?.font = PotiFontManager.button16sb.font
-        $0.setTitleColor(.potiWhite, for: .normal)
-    }
+    private let containerView = UIView()
+    private let titleLabel = UILabel()
+    private let messageLabel = UILabel()
+    private let buttonStackView = UIStackView()
+    private let leftButton = UIButton()
+    private let rightButton = UIButton()
     
     // MARK: - Properties
     
@@ -91,6 +58,46 @@ final class CustomAlertView: BaseView {
     
     override func setStyle() {
         backgroundColor = UIColor.black.withAlphaComponent(0.6)
+        
+        containerView.do {
+            $0.backgroundColor = .potiWhite
+            $0.layer.cornerRadius = 12
+        }
+        
+        titleLabel.do {
+            $0.font = PotiFontManager.body16sb.font
+            $0.textColor = .potiBlack
+            $0.textAlignment = .center
+        }
+        
+        messageLabel.do {
+            $0.font = PotiFontManager.body16m.font
+            $0.textColor = .gray800
+            $0.textAlignment = .center
+        }
+        
+        buttonStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 8
+            $0.alignment = .fill
+            $0.distribution = .fillEqually
+        }
+        
+        leftButton.do {
+            $0.backgroundColor = .gray100
+            $0.layer.cornerRadius = 24
+            $0.clipsToBounds = true
+            $0.titleLabel?.font = PotiFontManager.button16sb.font
+            $0.setTitleColor(.gray900, for: .normal)
+        }
+        
+        rightButton.do {
+            $0.backgroundColor = .poti600
+            $0.layer.cornerRadius = 24
+            $0.clipsToBounds = true
+            $0.titleLabel?.font = PotiFontManager.button16sb.font
+            $0.setTitleColor(.potiWhite, for: .normal)
+        }
     }
     
     override func setUI() {
