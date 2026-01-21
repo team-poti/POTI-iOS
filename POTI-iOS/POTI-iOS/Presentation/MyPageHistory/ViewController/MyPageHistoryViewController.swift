@@ -1,0 +1,266 @@
+//
+//  MyPageHistoryViewController.swift
+//  POTI-iOS
+//
+//  Created by neon on 1/20/26.
+//
+
+import UIKit
+import Combine
+
+final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewModel> {
+    
+    // MARK: - Types
+    
+    enum HistoryTab: Int {
+        case ongoing = 0
+        case completed = 1
+    }
+    
+    // MARK: - UI Components
+    
+    private let tabView = MyPageHistoryTabView()
+    private let contentView = MyPageHistoryContentView()
+    private var ongoingEmptyView: MyPageHistoryEmptyView?
+    private var completedEmptyView: MyPageHistoryEmptyView?
+    
+    // MARK: - Properties
+    
+    private var currentTab: HistoryTab = .ongoing
+    private var currentType: MyPageHistoryType = .participation
+    private var isScrollingByUser = false
+    
+    init(viewModel: MyPageHistoryViewModel, initialTab: HistoryTab = .ongoing) {
+        self.currentTab = initialTab
+        super.init(viewModel: viewModel)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Life Cycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.updateTabSelection(to: self.currentTab, animated: false)
+        }
+    }
+    
+    // MARK: - Override Methods
+    
+    override func setUI() {
+        view.addSubviews(tabView, contentView)
+    }
+    
+    override func setLayout() {
+        tabView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(70)
+        }
+        
+        contentView.snp.makeConstraints {
+            $0.top.equalTo(tabView.snp.bottom)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+    }
+    
+    override func setDelegate() {
+        contentView.scrollView.delegate = self
+        contentView.ongoingTableView.dataSource = self
+        contentView.ongoingTableView.delegate = self
+        contentView.completedTableView.dataSource = self
+        contentView.completedTableView.delegate = self
+    }
+    
+    override func addTarget() {
+        tabView.ongoingTabButton.addTarget(self, action: #selector(tabButtonTapped(_:)), for: .touchUpInside)
+        tabView.completedTabButton.addTarget(self, action: #selector(tabButtonTapped(_:)), for: .touchUpInside)
+    }
+    
+    override func bindViewModel() {
+        viewModel.output.currentType
+            .sink { [weak self] type in
+                self?.currentType = type
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.ongoingData
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] data in
+                self?.updateEmptyView(for: .ongoing, isEmpty: data.isEmpty)
+                self?.updateTabCounts()
+                self?.contentView.ongoingTableView.reloadData()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.completedData
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] data in
+                self?.updateEmptyView(for: .completed, isEmpty: data.isEmpty)
+                self?.updateTabCounts()
+                self?.contentView.completedTableView.reloadData()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateTabSelection(to tab: HistoryTab, animated: Bool) {
+        guard currentTab != tab || !animated else { return }
+
+        currentTab = tab
+        
+        tabView.updateTabSelection(tab: tab)
+        
+        let targetButton = tab == .ongoing ? tabView.ongoingTabButton : tabView.completedTabButton
+        tabView.updateTabIndicator(to: targetButton, animated: animated)
+        
+        isScrollingByUser = false
+        let offsetX = CGFloat(tab.rawValue) * view.bounds.width
+        contentView.scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: animated)
+    }
+    
+    private func updateTabCounts() {
+        viewModel.output.ongoingData
+            .combineLatest(viewModel.output.completedData)
+            .first()
+            .sink { [weak self] ongoingData, completedData in
+                self?.tabView.updateCount(for: .ongoing, count: ongoingData.count)
+                self?.tabView.updateCount(for: .completed, count: completedData.count)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateEmptyView(for tab: HistoryTab, isEmpty: Bool) {
+        let tableView = tab == .ongoing ? contentView.ongoingTableView : contentView.completedTableView
+        
+        if isEmpty {
+            let message = currentType.emptyMessage(for: tab == .ongoing)
+            let emptyView = MyPageHistoryEmptyView(message: message)
+            tableView.backgroundView = emptyView
+            
+            if tab == .ongoing {
+                ongoingEmptyView = emptyView
+            } else {
+                completedEmptyView = emptyView
+            }
+        } else {
+            tableView.backgroundView = nil
+            
+            if tab == .ongoing {
+                ongoingEmptyView = nil
+            } else {
+                completedEmptyView = nil
+            }
+        }
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func tabButtonTapped(_ sender: UIButton) {
+        guard let tab = HistoryTab(rawValue: sender.tag) else { return }
+        updateTabSelection(to: tab, animated: true)
+    }
+}
+
+// MARK: - UIScrollViewDelegate
+
+extension MyPageHistoryViewController: UIScrollViewDelegate {
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        isScrollingByUser = true
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard isScrollingByUser else { return }
+        let pageWidth = view.bounds.width
+        let currentPage = Int((scrollView.contentOffset.x + pageWidth / 2) / pageWidth)
+        
+        if let tab = HistoryTab(rawValue: currentPage), tab != currentTab {
+            currentTab = tab
+            tabView.updateTabSelection(tab: tab)
+            
+            let targetButton = tab == .ongoing ? tabView.ongoingTabButton : tabView.completedTabButton
+            tabView.updateTabIndicator(to: targetButton, animated: false)
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        isScrollingByUser = false
+    }
+        
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            isScrollingByUser = false
+        }
+    }
+}
+
+// MARK: - UITableViewDataSource
+
+extension MyPageHistoryViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        var count = 0
+        
+        viewModel.output.ongoingData
+            .combineLatest(viewModel.output.completedData)
+            .first()
+            .sink { ongoingData, completedData in
+                if tableView == self.contentView.ongoingTableView {
+                    count = ongoingData.count
+                } else {
+                    count = completedData.count
+                }
+            }
+            .store(in: &cancellables)
+        
+        return count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: "MyPageHistoryCell",
+            for: indexPath
+        ) as? MyPageHistoryCell else {
+            return UITableViewCell()
+        }
+        
+        viewModel.output.ongoingData
+            .combineLatest(viewModel.output.completedData)
+            .first()
+            .sink { [weak self] ongoingData, completedData in
+                guard let self = self else { return }
+                
+                let item: MyPageHistoryModel
+                
+                if tableView == self.contentView.ongoingTableView {
+                    item = ongoingData[indexPath.row]
+                } else {
+                    item = completedData[indexPath.row]
+                }
+                
+                cell.configure(
+                    artist: item.artistName,
+                    product: item.productName,
+                    status: item.status,
+                    thumbnailURL: item.thumbnailURL
+                )
+            }
+            .store(in: &cancellables)
+        
+        return cell
+    }
+}
+
+// MARK: - UITableViewDelegate
+
+extension MyPageHistoryViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        // TODO: Handle cell tap
+    }
+}

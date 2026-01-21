@@ -8,14 +8,19 @@
 protocol ViewControllerFactory {
     func makeLaunchScreenViewController() -> LaunchScreenViewController
     @MainActor func makeLoginViewController() -> LoginViewController
+    func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController() -> GoodsListViewController
+    func makeMyPageViewController() -> MyPageViewController
     func makeOrderSheetViewController() -> OrderSheetViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
+    func makeOnboardingViewController() -> OnboardingViewController
+    func makeValidNicknameViewController() -> ValidNicknameViewController
+    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController
     func makeRecruitDetailViewController() -> RecruitDetailViewController
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
-    func makePotiTabBar() -> PotiTabBar
+    func makePotListViewController() -> PotListViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -54,11 +59,18 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    func makeMyPageViewController() -> MyPageViewController {
+        MyPageViewController(
+            viewModel: MyPageViewModel()
+        )
+    }
+    
     func makeOrderSheetViewController() -> OrderSheetViewController {
         OrderSheetViewController(
             viewModel: diContainer.makeOrderViewModel()
         )
     }
+    
     func makeRecruitDetailViewController() -> RecruitDetailViewController {
         RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel())
     }
@@ -76,4 +88,23 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             viewModel: diContainer.makePotDetailViewModel(postId: postId)
         )
     }
+    
+    func makeOnboardingViewController() -> OnboardingViewController {
+        OnboardingViewController(viewModel: OnboardingViewModel(), factory: self)
+    }
+    
+    func makeValidNicknameViewController() -> ValidNicknameViewController {
+        ValidNicknameViewController(viewModel: OnboardingViewModel(), factory: self)
+    }
+    
+    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController {
+        SelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel(), factory: self)
+    }
+    
+    func makePotListViewController() -> PotListViewController {
+        PotListViewController(
+            viewModel: diContainer.makePotListViewModel()
+        )
+    }
+    
 }
