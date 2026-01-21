@@ -56,7 +56,7 @@ final class CustomLongTextField: BaseView {
         placeholderLabel.do {
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .gray700
-            $0.numberOfLines = 1
+            $0.numberOfLines = 2
             $0.isHidden = true
         }
 
