@@ -37,8 +37,25 @@ final class LoginViewController: BaseViewController<LoginViewModel> {
     }
     
     override func bindViewModel() {
-        bindLoginSuccess()
-        bindLoginFailure()
+        viewModel.output.navigateToOnboarding
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.pushToOnboarding()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.navigateToHome
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.switchRootToPotiTabBar()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.loginFailure
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] error in
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -52,41 +69,13 @@ extension LoginViewController {
     }
 }
 
-private extension LoginViewController {
-    
-    func bindLoginSuccess() {
-        viewModel.output.loginSuccess
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] type in
-                guard let self else { return }
-
-                switch type {
-                case .kakao:
-                    self.pushToOnboarding()
-                case .dev:
-                    self.switchRootToPotiTabBar()
-                }
-            }
-            .store(in: &cancellables)
-    }
-    
-    func bindLoginFailure() {
-        viewModel.output.loginFailure
-            .receive(on: DispatchQueue.main)
-            .sink { error in
-                PotiLogger.error(error)
-            }
-            .store(in: &cancellables)
-    }
-}
-
 // MARK: - Navigation
 
 private extension LoginViewController {
     
     private func pushToOnboarding() {
-//        let onboardingVC = OnboardingViewController()
-//        navigationController?.pushViewController(onboardingVC, animated: true)
+        let onboardingVC = factory.makeOnboardingViewController()
+        navigationController?.pushViewController(onboardingVC, animated: true)
     }
     
     private func switchRootToPotiTabBar() {

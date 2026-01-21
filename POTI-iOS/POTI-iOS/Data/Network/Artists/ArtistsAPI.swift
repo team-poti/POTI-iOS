@@ -9,6 +9,7 @@ import Alamofire
 
 enum ArtistsAPI {
     case fetchArtistsList(artistId: Int)
+    case fetchOnboardingArtistsList
 }
 
 extension ArtistsAPI: BaseTargetType {
@@ -17,12 +18,14 @@ extension ArtistsAPI: BaseTargetType {
         switch self {
         case .fetchArtistsList(let artistId):
             return "/api/v1/artists/\(artistId)/members"
+        case .fetchOnboardingArtistsList:
+            return "/api/v1/artists"
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .fetchArtistsList:
+        case .fetchArtistsList, .fetchOnboardingArtistsList:
             return .get
         }
     }

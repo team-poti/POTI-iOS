@@ -19,7 +19,8 @@ final class LoginViewModel: BaseViewModelType {
     // MARK: - Output
     
     struct Output {
-        let loginSuccess: AnyPublisher<LoginSuccessType, Never>
+        let navigateToOnboarding: AnyPublisher<Void, Never>
+        let navigateToHome: AnyPublisher<Void, Never>
         let loginFailure: AnyPublisher<Error, Never>
     }
     
@@ -32,7 +33,8 @@ final class LoginViewModel: BaseViewModelType {
     
     // MARK: - Subjects
     
-    private let loginSuccessSubject = PassthroughSubject<LoginSuccessType, Never>()
+    private let navigateToOnboardingSubject = PassthroughSubject<Void, Never>()
+    private let navigateToHomeSubject = PassthroughSubject<Void, Never>()
     private let loginFailureSubject = PassthroughSubject<Error, Never>()
     private var cancellables = Set<AnyCancellable>()
     
@@ -46,7 +48,8 @@ final class LoginViewModel: BaseViewModelType {
         self.loginUseCase = loginUseCase
         self.devLoginUseCase = devLoginUseCase
         self.output = Output(
-            loginSuccess: loginSuccessSubject.eraseToAnyPublisher(),
+            navigateToOnboarding: navigateToOnboardingSubject.eraseToAnyPublisher(),
+            navigateToHome: navigateToHomeSubject.eraseToAnyPublisher(),
             loginFailure: loginFailureSubject.eraseToAnyPublisher()
         )
     }
@@ -63,8 +66,12 @@ final class LoginViewModel: BaseViewModelType {
     private func kakaoLogin() {
         Task {
             do {
-                _ = try await loginUseCase.execute(socialType: "KAKAO")
-                loginSuccessSubject.send(.kakao)
+                let result = try await loginUseCase.execute(socialType: "KAKAO")
+                if result.isNewUser {
+                    navigateToOnboardingSubject.send(())
+                } else {
+                    navigateToHomeSubject.send(())
+                }
             } catch {
                 PotiLogger.error(error)
                 loginFailureSubject.send(error)
@@ -76,7 +83,7 @@ final class LoginViewModel: BaseViewModelType {
         Task {
             do {
                 _ = try await devLoginUseCase.execute()
-                loginSuccessSubject.send(.dev)
+                navigateToHomeSubject.send(())
             } catch {
                 PotiLogger.error(error)
                 loginFailureSubject.send(error)
