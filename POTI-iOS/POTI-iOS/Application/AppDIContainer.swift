@@ -62,6 +62,10 @@ final class AppDIContainer {
         DefaultManageRepository()
     }
     
+    private func makePotListRepository() -> PotListInterface {
+        DefaultPotListRepository()
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -102,6 +106,10 @@ final class AppDIContainer {
         DefaultManageUseCase(repository: makeManageRepository())
     }
     
+    private func makePotListUseCase() -> PotListUseCase {
+        DefaultPotListUseCase(repository: makePotListRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -138,5 +146,9 @@ final class AppDIContainer {
     
     func makeMyPageJoinViewModel() -> MyPageJoinViewModel {
         MyPageJoinViewModel()
+    }
+    
+    func makePotListViewModel() -> PotListViewModel {
+        PotListViewModel(useCase: makePotListUseCase())
     }
 }
