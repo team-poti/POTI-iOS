@@ -86,6 +86,23 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
             .store(in: &cancellables)
     }
     
+    override func addTarget() {
+        super.addTarget()
+
+        rootView.floatingButton.addTarget(
+            self,
+            action: #selector(didTapFloatingButton),
+            for: .touchUpInside
+        )
+    }
+
+    @objc private func didTapFloatingButton() {
+        let viewModel = ProductRegisterViewModel()
+        let vc = ProductRegisterViewController(viewModel: viewModel)
+        
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     private func updateBannerFooter(_ page: Int) {
         if let footer = rootView.homeCollectionView.supplementaryView(
             forElementKind: UICollectionView.elementKindSectionFooter,

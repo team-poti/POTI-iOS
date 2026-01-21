@@ -40,7 +40,7 @@ final class RegisterShippingView: BaseView {
 
     override func setLayout() {
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview()
+            $0.top.equalToSuperview().inset(24)
             $0.leading.equalToSuperview().inset(16)
         }
 
@@ -68,7 +68,6 @@ final class RegisterShippingView: BaseView {
             rowsStackView.addArrangedSubview(row)
         }
     }
-
 }
 
 #Preview {
