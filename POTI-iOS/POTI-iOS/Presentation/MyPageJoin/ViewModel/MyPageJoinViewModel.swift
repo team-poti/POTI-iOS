@@ -85,7 +85,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
                 imageUrlString: "",
                 artistName: "BLACKPINK",
                 title: "Pink Venom 포토카드",
-                postStatus: .recruitCompleted,
+                postStatus: .shipping,
                 orderStatus: .delivered,
                 statusMessage: "모든 진행이 완료되었어요",
                 memberPayments: [
