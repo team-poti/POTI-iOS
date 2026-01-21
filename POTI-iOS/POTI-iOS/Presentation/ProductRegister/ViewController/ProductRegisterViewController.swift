@@ -11,15 +11,15 @@ import Combine
 import PhotosUI
 
 final class ProductRegisterViewController: BaseViewController<ProductRegisterViewModel>, NavigationConfigurable {
-
+    
     func navigationStyle() -> PotiNavigationStyle {
         .xButton
     }
-
+    
     // MARK: - Properties
-
+    
     private let rootView = ProductRegisterView()
-
+    
     private var imagePickerView: ImagePickerView {
         rootView.imagePickerView
     }
@@ -33,10 +33,10 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         rootView.registerNoticeView
     }
     private var currentImages: [UIImage] = []
-
-
+    
+    
     // MARK: - Life Cycle
-
+    
     override func loadView() {
         self.view = rootView
     }
@@ -48,16 +48,16 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             tabBarController.tabBar.isHidden = true
         }
     }
-
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if let tabBarController = self.tabBarController as? PotiTabBar {
             tabBarController.tabBar.isHidden = false
         }
     }
-
+    
     // MARK: - UI Setting
-
+    
     override func setUI() {
         noticeView.configure(
             title: "모집자 안내 사항",
@@ -78,17 +78,14 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             self.registerInfoView.deadlineField.setFocused(true)
             self.presentDeadlineBottomSheet()
         }
-
+        
         registerMemberView?.onMembersChanged = { [weak self] members in
             self?.viewModel.action(.setMembers(members))
         }
     }
-
-    override func setLayout() { }
-
-
+        
     // MARK: - Custom Method
-
+    
     override func bindViewModel() {
         viewModel.output.images
             .receive(on: RunLoop.main)
@@ -98,61 +95,61 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
                 self.imagePickerView.setImages(images)
             }
             .store(in: &cancellables)
-
+        
         viewModel.output.requestPicker
             .receive(on: RunLoop.main)
             .sink { [weak self] remainingLimit in
                 self?.presentPicker(selectionLimit: remainingLimit)
             }
             .store(in: &cancellables)
-
+        
         viewModel.output.fieldErrors
             .receive(on: RunLoop.main)
             .sink { [weak self] errors in
                 guard let self else { return }
-
+                
                 if let message = errors.images {
                     self.rootView.imagePickerView.showError(message)
                 } else {
                     self.rootView.imagePickerView.hideError()
                 }
-
+                
                 if let message = errors.artist {
                     self.registerInfoView.artistField.apply(state: .error(message))
                 } else {
                     self.registerInfoView.artistField.apply(state: .normal)
                 }
-
+                
                 if let message = errors.productType {
                     self.registerInfoView.productTypeField.showError(message)
                 } else {
                     self.registerInfoView.productTypeField.hideError()
                 }
-
+                
                 if let message = errors.deadline {
                     self.registerInfoView.deadlineField.apply(state: .error(message))
                 } else {
                     self.registerInfoView.deadlineField.apply(state: .normal)
                 }
-
+                
                 if let message = errors.description {
                     self.registerInfoView.descriptionField.apply(state: .error(message))
                 } else {
                     self.registerInfoView.descriptionField.apply(state: .normal)
                 }
-
+                
                 if let message = errors.accountNumber {
                     self.registerInfoView.accountField.apply(state: .error(message))
                 } else {
                     self.registerInfoView.accountField.apply(state: .normal)
                 }
-
+                
                 if let message = errors.bank {
                     self.registerInfoView.bankField.apply(state: .error(message))
                 } else {
                     self.registerInfoView.bankField.apply(state: .normal)
                 }
-
+                
                 if let message = errors.members {
                     self.registerMemberView?.showEditedEmptyError(message: message)
                 } else {
@@ -161,31 +158,31 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             }
             .store(in: &cancellables)
     }
-
+    
     // MARK: - Action Method
-
+    
     override func addTarget() {
         imagePickerView.onTapAdd = { [weak self] in
             self?.viewModel.action(.tapAdd)
         }
-
+        
         imagePickerView.onTapDelete = { [weak self] index in
             self?.viewModel.action(.tapDelete(index))
         }
-
+        
         rootView.registerSubmitButton.addTarget(self, action: #selector(tapSubmit), for: .touchUpInside)
     }
-
+    
     @objc private func tapSubmit() {
         view.endEditing(true)
-
+        
         let memberPrices = registerMemberView?.collectPrices() ?? [:]
         let draft = registerInfoView.collectDraft()
         viewModel.action(.submit(info: draft, memberPrices: memberPrices))
     }
-
+    
     // MARK: - Custom Method
-
+    
     private func findRegisterMemberView(in view: UIView) -> RegisterMemberView? {
         if let target = view as? RegisterMemberView {
             return target
@@ -197,17 +194,17 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         }
         return nil
     }
-
+    
     private func presentPicker(selectionLimit: Int) {
         var config = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
         config.filter = .images
         config.selectionLimit = max(0, selectionLimit)
-
+        
         let picker = PHPickerViewController(configuration: config)
         picker.delegate = self
         present(picker, animated: true)
     }
-
+    
     private func presentDeadlineBottomSheet() {
         let sheetVC = DeadlinePickerSheetViewController(
             initialDate: Date(),
@@ -221,108 +218,23 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
                 self?.registerInfoView.deadlineField.setFocused(false)
             }
         )
-
+        
         if let sheet = sheetVC.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = true
             sheet.preferredCornerRadius = 16
         }
-
+        
         present(sheetVC, animated: true)
     }
-
+    
     private static func format(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "yyyy.MM.dd"
         return formatter.string(from: date)
     }
-
-    // MARK: - Deadline Bottom Sheet
-
-    private final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
-        
-        private let onConfirm: (Date) -> Void
-        private let onCancel: () -> Void
-        
-        
-        private let datePicker = UIDatePicker()
-        private let toolbar = UIToolbar()
-                
-        init(
-            initialDate: Date,
-            onConfirm: @escaping (Date) -> Void,
-            onCancel: @escaping () -> Void
-        ) {
-            self.onConfirm = onConfirm
-            self.onCancel = onCancel
-            super.init(nibName: nil, bundle: nil)
-            
-            datePicker.datePickerMode = .date
-            datePicker.locale = Locale(identifier: "ko_KR")
-            datePicker.preferredDatePickerStyle = .wheels
-            datePicker.date = initialDate
-            datePicker.minimumDate = Date()
-        }
-        
-        @available(*, unavailable)
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        
-        override func viewDidLoad() {
-            super.viewDidLoad()
-            view.backgroundColor = .potiWhite
-            
-            setUI()
-            setLayout()
-            presentationController?.delegate = self
-        }
-        
-        private func setUI() {
-            view.addSubviews(toolbar, datePicker)
-            
-            toolbar.tintColor = .potiBlack
-            
-            let flex = UIBarButtonItem(systemItem: .flexibleSpace)
-            let cancel = UIBarButtonItem(title: "취소", style: .plain, target: self, action: #selector(tapCancel))
-            let done = UIBarButtonItem(title: "완료", style: .done, target: self, action: #selector(tapDone))
-            toolbar.items = [cancel, flex, done]
-        }
-        
-        private func setLayout() {
-            toolbar.translatesAutoresizingMaskIntoConstraints = false
-            datePicker.translatesAutoresizingMaskIntoConstraints = false
-            
-            NSLayoutConstraint.activate([
-                toolbar.topAnchor.constraint(equalTo: view.topAnchor),
-                toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                toolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                toolbar.heightAnchor.constraint(equalToConstant: 44),
-                
-                datePicker.topAnchor.constraint(equalTo: toolbar.bottomAnchor),
-                datePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                datePicker.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-            ])
-        }
-        
-        @objc private func tapCancel() {
-            onCancel()
-            dismiss(animated: true)
-        }
-        
-        @objc private func tapDone() {
-            onConfirm(datePicker.date)
-            dismiss(animated: true)
-        }
-        
-        func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-            onCancel()
-        }
-    }
 }
-
 
 // MARK: - delegate Method
 
