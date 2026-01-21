@@ -19,6 +19,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
     
     private let tableView = UITableView()
     private var participants: [MyPageJoinModel] = []
+    private let backgroundView = UIView()
     
     //MARK: - LifeCycle
     
@@ -29,7 +30,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
     
     override func setUI() {
         setTableView()
-        view.addSubview(tableView)
+        view.addSubviews(tableView, backgroundView)
     }
     
     override func setLayout() {
@@ -45,8 +46,13 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
             $0.register(ParticipantManageViewCell.self)
             $0.register(EmptyManageViewCell.self)
             $0.separatorStyle = .singleLine
+            $0.allowsSelection = false
             $0.showsVerticalScrollIndicator = false
             $0.sectionHeaderTopPadding = 0
+            $0.backgroundColor = .potiWhite
+        }
+        backgroundView.do {
+            $0.backgroundColor = .potiWhite
         }
     }
     

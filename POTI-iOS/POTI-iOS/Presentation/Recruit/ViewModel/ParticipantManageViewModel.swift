@@ -71,7 +71,6 @@ final class ParticipantManageViewModel: BaseViewModelType {
             toggleExpandSection(section: section)
             
         case .confirmDeposit(let purchaseId):
-            // UI 트리거만 담당 (알럿/바텀시트 등은 VC에서 처리)
             confirmDepositSubject.send(purchaseId)
             
         case .confirmShip(let purchaseId):
