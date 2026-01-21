@@ -29,10 +29,7 @@ final class ParticipantInfoLabelView: BaseView {
     }
     
     override func setUI() {
-        addSubviews(
-            titleLabel,
-            infoLabel
-        )
+        addSubviews(titleLabel, infoLabel)
     }
     
     override func setLayout() {
@@ -49,22 +46,22 @@ final class ParticipantInfoLabelView: BaseView {
     }
     
     // TODO: - Participant~Case에서 configure(model: ParticipantManageModel) 로 받아서 아래처럼 처리
-
-//    func configure(title: String, info: String) {
-//        titleLabel.text = title
-//        infoLabel.text = info
-//    }
+    
+    //    func configure(title: String, info: String) {
+    //        titleLabel.text = title
+    //        infoLabel.text = info
+    //    }
     
     func configure(title: String, infos: [String]) { // 행간 정해지면 나연언니한테 물어보기!
         titleLabel.setLabel(title, font: .body14sb)
-
+        
         let text = infos
             .filter { !$0.isEmpty }
             .joined(separator: "\n")
-
+        
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 6   // 디쟌쌤들께 물어보기 TODO!!
-
+        
         let attributedText = NSAttributedString(
             string: text,
             attributes: [
@@ -73,7 +70,7 @@ final class ParticipantInfoLabelView: BaseView {
                 .paragraphStyle: paragraphStyle
             ]
         )
-
+        
         infoLabel.attributedText = attributedText
     }
 }

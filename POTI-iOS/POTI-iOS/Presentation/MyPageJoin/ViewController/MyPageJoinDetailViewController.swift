@@ -18,12 +18,12 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setTableView()
         viewModel.action(.viewDidLoad)
     }
     
     override func setUI() {
         view.addSubview(tableView)
+        setTableView()
     }
     
     override func setLayout() {
@@ -206,8 +206,4 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
             }
         }
     }
-}
-
-#Preview {
-    MyPageJoinDetailViewController(viewModel: MyPageJoinViewModel())
 }

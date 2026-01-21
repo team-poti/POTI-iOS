@@ -28,7 +28,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
     
     // MARK: - Properties
     
-    private let useCase: ManageUseCase
+    private let useCase: PostsUseCase
     private var cancellables = Set<AnyCancellable>()
     let output: Output
     private(set) var expandedSections: Set<Int> = [] // 섹션 펼침 여부
@@ -48,7 +48,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: ManageUseCase) {
+    init(useCase: PostsUseCase) {
         self.useCase = useCase
         self.output = Output(
             fetchData:

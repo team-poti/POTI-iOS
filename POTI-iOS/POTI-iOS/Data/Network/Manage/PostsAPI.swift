@@ -1,5 +1,5 @@
 //
-//  ManageAPI.swift
+//  PostsAPI.swift
 //  POTI-iOS
 //
 //  Created by 이서현 on 1/18/26.
@@ -7,13 +7,13 @@
 
 import Alamofire
 
-enum ManageAPI: BaseTargetType {
+enum PostsAPI: BaseTargetType {
     case fetchManage(postId: Int)
     
     var path: String {
         switch self {
         case .fetchManage(let postId):
-            return "/posts/\(postId)/participants"
+            return "/api/v1/posts/\(postId)/participants"
         }
     }
     

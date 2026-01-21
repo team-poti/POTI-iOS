@@ -12,18 +12,6 @@ import Then
 
 final class ParticipantManageHeaderView: BaseView {
     
-    // MARK: - Lifecycle
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        self.backgroundColor = .potiWhite
-        addTarget()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     //MARK: - UI component
     
     private let titleLabel = UILabel()
@@ -49,6 +37,7 @@ final class ParticipantManageHeaderView: BaseView {
             titleLabel,
             participantHeaderButton
         )
+        addTarget()
     }
     
     override func setLayout() {

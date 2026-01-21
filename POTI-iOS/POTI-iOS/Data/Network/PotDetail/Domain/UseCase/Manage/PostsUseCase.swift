@@ -1,20 +1,20 @@
 //
-//  ManageUseCase.swift
+//  PostsUseCase.swift
 //  POTI-iOS
 //
 //  Created by 이서현 on 1/18/26.
 //
 
-protocol ManageUseCase {
+protocol PostsUseCase {
     func execute(postId: Int) async throws -> ManageEntity
     //func confirmDeposit(purchaseId: Int) async throws
 }
 
-final class DefaultManageUseCase: ManageUseCase {
+final class DefaultManageUseCase: PostsUseCase {
     
-    private let repository: ManageInterface
+    private let repository: PostsInterface
     
-    init(repository: ManageInterface) {
+    init(repository: PostsInterface) {
         self.repository = repository
     }
     

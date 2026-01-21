@@ -5,7 +5,6 @@
 //  Created by 이서현 on 1/19/26.
 //
 
-import Foundation
 import UIKit
 
 struct MyPageJoinModel: Hashable {
@@ -50,10 +49,8 @@ struct MyPageJoinModel: Hashable {
     }
 }
 
-// MARK: - Status Enums (네이밍 충돌 방지용: MyPageJoinModel 내부 enum)
-
 extension MyPageJoinModel {
-    enum PostStatus: String, Hashable { // !!!!!!!채륜오빠 status랑 다른 건지 확인해봐야함!!
+    enum PostStatus: String, Hashable {
         case recruiting = "RECRUITING"
         case recruitCompleted = "RECRUIT_COMPLETED"
         case depositCompleted = "DEPOSIT_COMPLETED"

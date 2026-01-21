@@ -22,10 +22,7 @@ final class PotInfoCell: UITableViewCell {
         status: .recruiting
     )
     
-    static let identifier = "PotInfoCell"
-    
     var onTapPotButton: (() -> Void)? // TODO: - input output 패턴 넣기
-    
     
     // MARK: - UI Component
     
@@ -50,7 +47,7 @@ final class PotInfoCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setStyle() {
+    private func setStyle() {
         contentView.layer.borderColor = UIColor.red.cgColor
         potIdLabel.do {
             $0.setLabel(
@@ -112,7 +109,6 @@ final class PotInfoCell: UITableViewCell {
     }
     
     func setLayout() {
-        
         potIdLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(12)
             $0.leading.equalToSuperview().inset(16)
@@ -148,11 +144,7 @@ final class PotInfoCell: UITableViewCell {
     }
     
     private func addTarget() {
-        potButton.addTarget(
-            self,
-            action: #selector(potButtonTapped(_:)),
-            for: .touchUpInside
-        )
+        potButton.addTarget(self, action: #selector(potButtonTapped(_:)), for: .touchUpInside)
     }
     
     // MARK: - action

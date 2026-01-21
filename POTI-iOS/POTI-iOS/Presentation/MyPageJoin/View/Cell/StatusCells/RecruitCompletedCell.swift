@@ -6,24 +6,26 @@
 //
 
 import UIKit
+
 import SnapKit
 
 final class RecruitCompletedCell: UITableViewCell {
-
+    
     private let depositInfoView = DepositInfoView()
     private let joinShipInfoView = JoinShipInfoView()
     private let completeButton = PotiBottomButton()
     
     var onTapConfirmButton: (() -> Void)?
-
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setUI()
         setStyle()
+        setUI()
         setLayout()
+        addTarget()
         self.backgroundColor = .potiWhite
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -34,13 +36,14 @@ final class RecruitCompletedCell: UITableViewCell {
     }
     
     private func setStyle() {
+        backgroundColor = .potiWhite
         completeButton.do {
             $0.color = .primaryMain
             $0.isDisabled = false
             $0.text = "확인"
         }
     }
-
+    
     private func setUI() {
         selectionStyle = .none
         contentView.addSubviews(
@@ -48,9 +51,8 @@ final class RecruitCompletedCell: UITableViewCell {
             joinShipInfoView,
             completeButton
         )
-        completeButton.addTarget(self, action: #selector(didTapConfirmButton), for: .touchUpInside)
     }
-
+    
     private func setLayout() {
         depositInfoView.snp.makeConstraints {
             $0.top.equalToSuperview()
@@ -66,7 +68,15 @@ final class RecruitCompletedCell: UITableViewCell {
             $0.bottom.equalToSuperview()
         }
     }
-
+    
+    private func addTarget() {
+        completeButton.addTarget(
+            self,
+            action: #selector(didTapConfirmButton),
+            for: .touchUpInside
+        )
+    }
+    
     func configure(model: MyPageJoinModel) {
         depositInfoView.configure(model: model)
         joinShipInfoView.configure(model: model)
@@ -77,7 +87,6 @@ final class RecruitCompletedCell: UITableViewCell {
     }
     
     @objc private func didTapConfirmButton() {
-           onTapConfirmButton?()
-       }
-
+        onTapConfirmButton?()
+    }
 }

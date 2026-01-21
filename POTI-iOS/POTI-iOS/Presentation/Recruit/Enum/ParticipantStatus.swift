@@ -14,7 +14,7 @@ enum ParticipantStatus {
     case paid
     case startShip
     case completed
-
+    
     func statusText(role: UserRole) -> String {
         switch self {
         case .waitRecruit:
@@ -78,33 +78,33 @@ enum ParticipantStatus {
     }
     
     var badgeColor: UIColor {
-            switch self {
-            case .waitRecruit, .waitPayCheck:
-                return .sementicRed
-            case .waitPay, .completed:
-                return .gray700
-            case .paid, .startShip:
-                return .poti600
-            }
+        switch self {
+        case .waitRecruit, .waitPayCheck:
+            return .sementicRed
+        case .waitPay, .completed:
+            return .gray700
+        case .paid, .startShip:
+            return .poti600
         }
+    }
 }
 
 extension ParticipantStatus {
     static func from(postStatus: MyPageJoinModel.PostStatus) -> ParticipantStatus {
         switch postStatus {
-
+            
         case .recruiting:
             return .waitRecruit
-
+            
         case .recruitCompleted:
             return .waitPay
-
+            
         case .depositCompleted:
             return .paid
-
+            
         case .shipping:
             return .startShip
-
+            
         case .completed:
             return .completed
         }
@@ -115,15 +115,15 @@ extension ParticipantStatus {
     var progressImage: UIImage? {
         switch self {
         case .waitRecruit, .waitPay:
-            return UIImage(named: "img_step0")
+            return .imgStep0
         case .waitPayCheck:
-            return UIImage(named: "img_step1")
+            return .imgStep1
         case .paid:
-            return UIImage(named: "img_step2")
+            return .imgStep2
         case .startShip:
-            return UIImage(named: "img_step3")
+            return .imgStep3
         case .completed:
-            return UIImage(named: "img_step4")
+            return .imgStep4
         }
     }
 }

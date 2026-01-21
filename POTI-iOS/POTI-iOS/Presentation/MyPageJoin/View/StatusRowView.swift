@@ -5,7 +5,6 @@
 //  Created by 이서현 on 1/19/26.
 //
 
-/// 복사 아래 밑줄!!!!!!!!!!!!!!!!!
 import UIKit
 
 import SnapKit
@@ -19,16 +18,6 @@ final class StatusRowView: BaseView {
     
     // MARK: - Init
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    // MARK: - Setup
-    
     override func setStyle() {
         statusLabel.do {
             $0.font = PotiFontManager.body16sb.font
@@ -38,10 +27,8 @@ final class StatusRowView: BaseView {
     override func setUI() {
         addSubview(statusLabel)
     }
-    // MARK: - Layout
     
     override func setLayout() {
-        
         statusLabel.snp.makeConstraints {
             $0.edges.equalToSuperview()
             $0.centerY.equalToSuperview()

@@ -19,7 +19,7 @@ final class ParticipantStatusCaseView: BaseView {
     private var onTapAction : (() -> Void)?
     
     // MARK: - Custom Method
-
+    
     override func setStyle() {
         
         containerStackView.do {
@@ -37,17 +37,14 @@ final class ParticipantStatusCaseView: BaseView {
             $0.isHidden = true
         }
     }
-
+    
     override func setUI() {
         addSubview(containerStackView)
-        containerStackView.addArrangedSubviews(
-            infoLabelStackView,
-            actionButton
-        )
+        containerStackView.addArrangedSubviews(infoLabelStackView, actionButton)
         containerStackView.setCustomSpacing(32, after: infoLabelStackView)
-        actionButton.addTarget(self, action: #selector(actionButtonDidTap), for: .touchUpInside)
+        addTarget()
     }
-
+    
     override func setLayout() {
         containerStackView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(32)
@@ -60,8 +57,12 @@ final class ParticipantStatusCaseView: BaseView {
         }
     }
     
+    private func addTarget() {
+        actionButton.addTarget(self, action: #selector(actionButtonDidTap), for: .touchUpInside)
+    }
+    
     //MARK: - Action
-
+    
     //TODO: - Input output
     @objc
     private func actionButtonDidTap() {
@@ -84,16 +85,16 @@ extension ParticipantStatusCaseView {
         onTapAction: (() -> Void)? = nil
     ) {
         reset()
-
+        
         var items: [(title: String, infos: [String])] = []
-
+        
         var buttonTitle: String = ""
-
+        
         switch status {
         case .waitPay, .waitRecruit:
             self.isHidden = true
             return
-
+            
         case .waitPayCheck:
             self.isHidden = false
             items = [
@@ -104,7 +105,7 @@ extension ParticipantStatusCaseView {
                  ])
             ]
             buttonTitle = "입금 확인"
-
+            
         case .paid:
             self.isHidden = false
             items = [
@@ -113,7 +114,7 @@ extension ParticipantStatusCaseView {
                 (title: "연락처", infos: [model.shipInfo?.phoneText ?? ""])
             ]
             buttonTitle = "송장 번호 입력"
-
+            
         case .startShip:
             self.isHidden = false
             items = [
@@ -122,16 +123,16 @@ extension ParticipantStatusCaseView {
                 (title: "연락처", infos: [model.shipInfo?.phoneText ?? ""]),
                 (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
             ]
-
+            
         case .completed:
             self.isHidden = false
             items = [
                 (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
             ]
         }
-
+        
         infoLabelStackView.configure(items: items)
-
+        
         if !buttonTitle.isEmpty {
             actionButton.isHidden = false
             actionButton.setTitle(buttonTitle, for: .normal)

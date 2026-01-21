@@ -12,8 +12,6 @@ import Then
 
 final class EmptyManageViewCell: UITableViewCell {
     
-    static let identifier = "EmptyManageViewCell"
-    
     // MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

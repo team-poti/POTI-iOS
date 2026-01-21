@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 import SnapKit
 
 final class DepositCompletedCell: UITableViewCell {
@@ -16,16 +17,20 @@ final class DepositCompletedCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setup()
+        setStyle()
+        setUI()
         setLayout()
-        self.backgroundColor = .potiWhite
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setup() {
+    private func setStyle() {
+        backgroundColor = .potiWhite
+    }
+    
+    private func setUI() {
         selectionStyle = .none
         contentView.addSubviews (
             depositStatusRowView,

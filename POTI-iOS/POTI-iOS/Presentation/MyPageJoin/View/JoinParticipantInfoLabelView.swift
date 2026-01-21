@@ -48,23 +48,16 @@ final class JoinParticipantInfoLabelView: BaseView {
         }
     }
     
-    // TODO: - Participant~Case에서 configure(model: ParticipantManageModel) 로 받아서 아래처럼 처리
-
-//    func configure(title: String, info: String) {
-//        titleLabel.text = title
-//        infoLabel.text = info
-//    }
-    
     func configure(title: String, infos: [String]) {
         titleLabel.setLabel(title, font: .body14sb)
-
+        
         let text = infos
             .filter { !$0.isEmpty }
             .joined(separator: "\n")
-
+        
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 6   // 디쟌쌤들께 물어보기 TODO!!
-
+        paragraphStyle.lineSpacing = 6 // 디쟌쌤들께 물어보기 TODO!! << QA...
+        
         let attributedText = NSAttributedString(
             string: text,
             attributes: [
@@ -73,7 +66,7 @@ final class JoinParticipantInfoLabelView: BaseView {
                 .paragraphStyle: paragraphStyle
             ]
         )
-
+        
         infoLabel.attributedText = attributedText
     }
 }

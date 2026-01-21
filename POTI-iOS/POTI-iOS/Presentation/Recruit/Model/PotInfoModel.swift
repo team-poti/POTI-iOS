@@ -5,8 +5,6 @@
 //  Created by 이서현 on 1/13/26.
 //
 
-import UIKit
-
 struct PotInfoModel {
     let potId: Int
     let thumbnail: String

@@ -11,7 +11,6 @@ import SnapKit
 import Then
 
 final class JoinProgressStatusViewCell: UITableViewCell {
-
     
     // MARK: - Lifecycle
     
@@ -34,14 +33,14 @@ final class JoinProgressStatusViewCell: UITableViewCell {
         potStatusMessageView.configure(text: "")
         progressStatusBar.image = nil
     }
-
+    
     // MARK: - UI Component
     
     private let progressTitleLabel = UILabel()
     private let potStatusMessageView = StatusMessageView()
     private let progressStatusBar = UIImageView()
     private let divideView = UIView()
-
+    
     // MARK: - Custom Method
     
     private func setStyle() {

@@ -38,7 +38,7 @@ final class ProgressStatusViewCell: UITableViewCell {
     private let progressStatusBar = UIImageView()
     private let divideView = UIView()
 
-    func setStyle() {
+    private func setStyle() {
         progressTitleLabel.do {
             $0.setLabel("진행 상황", font: .body16sb)
             $0.textColor = .potiBlack
@@ -54,7 +54,7 @@ final class ProgressStatusViewCell: UITableViewCell {
         }
     }
     
-    func setUI() {
+    private func setUI() {
         contentView.addSubviews(
             progressTitleLabel,
             potStatusMessageView,
@@ -63,7 +63,7 @@ final class ProgressStatusViewCell: UITableViewCell {
         )
     }
     
-    func setLayout() {
+    private func setLayout() {
         progressTitleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(20)
             $0.leading.equalToSuperview().inset(16)

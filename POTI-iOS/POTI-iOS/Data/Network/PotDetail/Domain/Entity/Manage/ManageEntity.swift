@@ -5,11 +5,11 @@
 //  Created by 이서현 on 1/17/26.
 //
 
-struct ManageEntity: Hashable {
+struct ManageEntity {
     let participants: [ParticipantEntity]
 }
 
-struct ParticipantEntity: Hashable {
+struct ParticipantEntity {
     let orderId: Int
     let userId: Int
     let profileImage: String?
@@ -22,26 +22,32 @@ struct ParticipantEntity: Hashable {
     let shippingInfo: ShippingInfoEntity?
 }
 
-struct PriceInfoEntity: Hashable {
+struct PriceInfoEntity {
     let memberPerPrices: [MemberPerPriceEntity]
     let shippingName: String
     let shippingPrice: Int
     let totalPrice: Int
 }
 
-struct MemberPerPriceEntity: Hashable {
+struct MemberPerPriceEntity {
     let name: String
     let price: Int
 }
 
-struct DepositInfoEntity: Hashable {
+struct DepositInfoEntity {
     let depositorName: String
     let depositTime: String
 }
 
-struct ShippingInfoEntity: Hashable {
+struct ShippingInfoEntity {
     let receiverName: String
     let address: String
     let phone: String
     let trackingNumber: String?
+}
+
+extension ManageEntity {
+    func toParticipantManageModels() -> [ParticipantManageModel] {
+        participants.map { $0.toParticipantManageModel() }
+    }
 }

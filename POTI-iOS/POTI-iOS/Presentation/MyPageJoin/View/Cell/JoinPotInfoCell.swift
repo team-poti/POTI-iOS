@@ -13,10 +13,7 @@ import Then
 
 final class JoinPotInfoCell: UITableViewCell {
     
-    static let identifier = "JoinPotInfoCell"
-    
     var onTapPotButton: (() -> Void)? // TODO: - input output 패턴 넣기
-    
     
     // MARK: - UI Component
     
@@ -145,7 +142,7 @@ final class JoinPotInfoCell: UITableViewCell {
     
     func configure(model: MyPageJoinModel) {
         potIdLabel.text = "참여 번호 poti-" + String(model.participationId)
-
+        
         if let url = URL(string: model.imageUrlString) {
             thumbnailView.kf.setImage(
                 with: url,
@@ -154,7 +151,7 @@ final class JoinPotInfoCell: UITableViewCell {
         } else {
             thumbnailView.image = UIImage(named: "placeholder")
         }
-
+        
         artistLabel.text = model.artistName
         potTitleLabel.text = model.title
         potStatusLabel.text = model.postStatus.potStatusText

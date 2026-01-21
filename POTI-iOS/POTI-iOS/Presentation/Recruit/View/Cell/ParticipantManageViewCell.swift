@@ -21,7 +21,6 @@ final class ParticipantManageViewCell: UITableViewCell {
             let totalPrice: Int
             let depositState: ParticipantStatus
         }
-        
     
     // MARK: - Lifecycle
     
@@ -50,7 +49,7 @@ final class ParticipantManageViewCell: UITableViewCell {
     private let totalPriceLabel = UILabel()
     private let depositStateLabel = UILabel()
 
-    func setStyle() {
+    private func setStyle() {
         membersLabel.do {
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
@@ -151,6 +150,7 @@ final class ParticipantManageViewCell: UITableViewCell {
             $0.bottom.equalToSuperview().inset(16)
         }
     }
+    
     func configure(model: Model) {
         membersLabel.text = model.memberNamesText.joined(separator: ", ")
 
@@ -181,6 +181,7 @@ final class ParticipantManageViewCell: UITableViewCell {
         depositStateLabel.textColor = model.depositState.badgeColor
     }
     
+    ///configure로 빼자!! 0120
 //    func configure(model: Model) {
 //        membersLabel.text = model.memberNamesText.joined(separator: ", ")
 //        depositorInfoLabel.text = "\(model.depositorNameText)\n\(model.addressText)\n\(model.phoneText)"

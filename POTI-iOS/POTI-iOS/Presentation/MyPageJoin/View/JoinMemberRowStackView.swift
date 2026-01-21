@@ -11,19 +11,11 @@ import SnapKit
 import Then
 
 final class JoinMemberRowStackView: BaseView {
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
+    
     // MARK: - UI Components
-
+    
     private let memberListStackView = UIStackView()
-
+    
     // MARK: - Custom Method
     
     override func setStyle() {
@@ -34,13 +26,13 @@ final class JoinMemberRowStackView: BaseView {
             $0.distribution = .fill
         }
     }
-
+    
     override func setUI() {
         self.addSubview(
             memberListStackView
         )
     }
-
+    
     override func setLayout() {
         memberListStackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
@@ -55,15 +47,14 @@ extension JoinMemberRowStackView {
             $0.removeFromSuperview()
         }
     }
-
+    
     func configure(model: ParticipantManageModel) {
         configure(rows: model.memberRows.map { ($0.name, $0.price) })
     }
-
+    
     func configure(rows: [(name: String, price: Int)]) {
         reset()
-        
-        rows.forEach { row in // row 추가해주기
+        rows.forEach { row in
             let iconStackView = IconStackView(
                 iconName: "icn-member",
                 title: row.name,
@@ -73,14 +64,4 @@ extension JoinMemberRowStackView {
             memberListStackView.addArrangedSubview(iconStackView)
         }
     }
-}
-
-#Preview {
-    let view = JoinMemberRowStackView()
-    view.configure(rows: [
-        (name: "유진", price: 5000),
-        (name: "가을", price: 6000),
-        (name: "레이", price: 7000)
-    ])
-    return view
 }

@@ -32,7 +32,7 @@ final class ParticipantManageListCell: UITableViewCell {
     private let participantMemberLabel = UILabel()
     private let statusLabel = UILabel()
     private let toggleButton = UIButton()
-
+    
     private let grayBackgroundView = UIView()
     private let profileImageView = UIImageView()
     private let nicknameLabel = UILabel()
@@ -42,7 +42,7 @@ final class ParticipantManageListCell: UITableViewCell {
     private let divideTopView = DivideView()
     private let divideBottomView = DivideView()
     private let emptyView = UIView()
-
+    
     private var participantCaseZeroHeightConstraint: Constraint?
     private var paddingZeroHeightConstraint: Constraint?
     
@@ -52,6 +52,7 @@ final class ParticipantManageListCell: UITableViewCell {
         setStyle()
         setUI()
         setLayout()
+        addTarget()
     }
     
     required init?(coder: NSCoder) {
@@ -71,6 +72,7 @@ final class ParticipantManageListCell: UITableViewCell {
     //MARK: - Custom Method
     
     private func setStyle() {
+        emptyView.backgroundColor = .potiWhite
         participantMemberLabel.do {
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
@@ -83,40 +85,34 @@ final class ParticipantManageListCell: UITableViewCell {
         toggleButton.do {
             $0.setImage(UIImage(resource: .icnArrowDownLg), for: .normal)
         }
-
         rootStackView.do {
             $0.axis = .vertical
             $0.alignment = .fill
             $0.distribution = .fill
             $0.spacing = 0
         }
-
         grayBackgroundView.do {
             $0.backgroundColor = .gray100
             $0.layer.cornerRadius = 12
         }
-
         profileImageView.do {
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = 12
             $0.layer.masksToBounds = true
         }
-
         nicknameLabel.do {
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .potiBlack
         }
-
         depositLabel.do {
             $0.font = PotiFontManager.body14sb.font
             $0.textColor = .potiBlack
             $0.text = "입금 금액"
         }
-        emptyView.backgroundColor = .potiWhite
     }
     
-    func setUI() {
+    private func setUI() {
         contentView.addSubview(rootStackView)
         
         rootStackView.addArrangedSubviews(
@@ -132,7 +128,7 @@ final class ParticipantManageListCell: UITableViewCell {
             statusLabel,
             toggleButton
         )
-
+        
         grayBackgroundView.addSubviews(
             profileImageView,
             nicknameLabel,
@@ -144,20 +140,17 @@ final class ParticipantManageListCell: UITableViewCell {
             totalStackView,
             participantCaseView
         )
-
+        
         // 기본은 접힘
         grayBackgroundView.isHidden = true
         bottomDivideView.isHidden = true
-
-        toggleButton.addTarget(self, action: #selector(didTapToggle), for: .touchUpInside)
     }
     
-    func setLayout() {
+    private func setLayout() {
         rootStackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
-            //$0.top.equalToSuperview().inset(0)
         }
-
+        
         divideView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(1)
@@ -167,29 +160,29 @@ final class ParticipantManageListCell: UITableViewCell {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(1)
         }
-
+        
         headerContainerView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(64)
         }
-
+        
         participantMemberLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(20)
             $0.leading.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(16)
             $0.width.equalTo(235)
         }
-
+        
         toggleButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
             $0.centerY.equalTo(participantMemberLabel)
         }
-
+        
         statusLabel.snp.makeConstraints {
             $0.trailing.equalTo(toggleButton.snp.leading).offset(-8)
             $0.centerY.equalTo(participantMemberLabel)
         }
-
+        
         grayBackgroundView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
@@ -199,76 +192,78 @@ final class ParticipantManageListCell: UITableViewCell {
             $0.top.equalTo(grayBackgroundView.snp.bottom).offset(20)
             $0.height.equalTo(0.1)
         }
-
+        
         profileImageView.snp.makeConstraints {
             $0.top.leading.equalTo(grayBackgroundView).inset(16)
             $0.size.equalTo(24)
         }
-
+        
         nicknameLabel.snp.makeConstraints {
             $0.leading.equalTo(profileImageView.snp.trailing).offset(12)
             $0.centerY.equalTo(profileImageView)
         }
-
+        
         divideTopView.snp.makeConstraints {
             $0.top.equalTo(profileImageView.snp.bottom).offset(16)
             $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
-
+        
         depositLabel.snp.makeConstraints {
             $0.top.equalTo(divideTopView.snp.bottom).offset(16)
             $0.leading.equalTo(grayBackgroundView).inset(16)
         }
-
+        
         memberRowStackView.snp.makeConstraints {
             $0.top.equalTo(depositLabel.snp.bottom).offset(12)
             $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
-
+        
         shippingStackView.snp.makeConstraints {
             $0.top.equalTo(memberRowStackView.snp.bottom).offset(8)
             $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
-
+        
         divideBottomView.snp.makeConstraints {
             $0.top.equalTo(shippingStackView.snp.bottom).offset(8)
             $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
-
+        
         totalStackView.snp.makeConstraints {
             $0.top.equalTo(divideBottomView.snp.bottom).offset(8)
             $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
         }
-
+        
         participantCaseView.snp.makeConstraints {
             $0.top.equalTo(totalStackView.snp.bottom)
             $0.horizontalEdges.equalTo(grayBackgroundView).inset(16)
             $0.bottom.equalTo(grayBackgroundView).inset(16)
             participantCaseZeroHeightConstraint = $0.height.equalTo(0).constraint
         }
-        //participantCaseZeroHeightConstraint?.deactivate()
+    }
+    
+    private func addTarget() {
+        toggleButton.addTarget(self, action: #selector(didTapToggle), for: .touchUpInside)
     }
 }
 
 extension ParticipantManageListCell {
     func configure(model: ParticipantManageModel, isExpanded: Bool, isLast: Bool) {
-        // header
+        /// header
         participantMemberLabel.text = model.memberTitle.joined(separator: ", ")
         statusLabel.text = model.participantstatus.badgeText
         statusLabel.textColor = model.participantstatus.badgeColor
         updateToggleButton(isExpanded: isExpanded)
         
-
-        // gray content
+        /// gray content
         nicknameLabel.text = model.nickname
         if let url = URL(string: model.profileImage) {
             profileImageView.kf.setImage(with: url, placeholder: UIImage(named: "placeholder"))
         }
-
+        
         memberRowStackView.configure(model: model)
         shippingStackView.configure(title: model.shippingText, price: model.shippingPrice)
         totalStackView.configure(title: "총 입금 금액", price: model.totalPrice)
-
+        
         participantCaseView.configure(
             status: model.participantstatus,
             model: model,
@@ -277,7 +272,7 @@ extension ParticipantManageListCell {
                 self.onTapStatusAction?(model)
             }
         )
-
+        
         switch model.participantstatus {
         case .waitPay, .waitRecruit:
             participantCaseZeroHeightConstraint?.activate()
@@ -295,7 +290,7 @@ extension ParticipantManageListCell {
         let image = UIImage(
             resource: isExpanded ? .icnArrowUpLg : .icnArrowDownLg
         ).withRenderingMode(.alwaysTemplate)
-
+        
         toggleButton.setImage(image, for: .normal)
         toggleButton.tintColor = .gray800
     }

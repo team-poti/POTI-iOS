@@ -20,8 +20,6 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setDelegate()
-        bindViewModel()
         viewModel.action(.viewDidLoad)
     }
     
@@ -53,7 +51,6 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] items in
                 guard let self else { return }
-                print("✅ joinItems arrived:", items.count)
                 self.participants = items
                 self.tableView.reloadData()
             }
@@ -148,8 +145,8 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             ) as? ParticipantManageViewCell else { return UITableViewCell() }
             let isLastRow = indexPath.row == participants.count - 1
             cell.separatorInset = isLastRow
-                ? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
-                : UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+            ? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            : UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
             let item = participants[indexPath.row]
             cell.configure(model: .mockStartShip)
             return cell
@@ -157,20 +154,20 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
     }
     
     //header
-        func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-            guard let section = Section(rawValue: section) else { return nil }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard let section = Section(rawValue: section) else { return nil }
+        
+        switch section {
+        case .participantInfo:
+            let headerView = ParticipantManageHeaderView()
+            let count = participants.count
+            headerView.configure(count: count)
+            return headerView
             
-            switch section {
-            case .participantInfo:
-                let headerView = ParticipantManageHeaderView()
-                let count = participants.count
-                headerView.configure(count: count)
-                return headerView
-                
-            default:
-                return nil
-            }
+        default:
+            return nil
         }
+    }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard let section = Section(rawValue: section) else { return 0 }

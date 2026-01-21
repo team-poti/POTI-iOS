@@ -71,17 +71,17 @@ final class IconStackView: BaseView {
     }
     
     override func setUI() {
-        self.addSubviews(
+        addSubviews(
             iconStackView,
             priceLabel
         )
-    }
-    
-    override func setLayout() {
         iconStackView.addArrangedSubviews(
             iconImageView,
             titleLabel
         )
+    }
+    
+    override func setLayout() {
         
         iconStackView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview()
@@ -101,7 +101,7 @@ final class IconStackView: BaseView {
 
 extension IconStackView {
     func configure(title: String, price: Int) {
-            titleLabel.text = title
-            priceLabel.text = "\(price.formattedWithComma)원"
-        }
+        titleLabel.text = title
+        priceLabel.text = "\(price.formattedWithComma)원"
+    }
 }

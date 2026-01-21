@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 enum PotStatus {
     case recruiting
     case recruitCompleted

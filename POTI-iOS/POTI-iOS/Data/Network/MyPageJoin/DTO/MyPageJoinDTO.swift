@@ -5,13 +5,6 @@
 //  Created by 이서현 on 1/19/26.
 //
 
-
-struct MyPageJoinResponseDTO: Decodable {
-    let code: Int
-    let message: String
-    let data: MyPageJoinDTO
-}
-
 struct MyPageJoinDTO: Decodable {
     let participationId: Int
     let imageUrl: String
@@ -25,14 +18,10 @@ struct MyPageJoinDTO: Decodable {
     let shippingInfo: MyShippingInfoDTO
 }
 
-// MARK: - MemberPayment
-
 struct MemberPaymentDTO: Decodable {
     let memberName: String
     let price: Int
 }
-
-// MARK: - PaymentInfo
 
 struct PaymentInfoDTO: Decodable {
     let shippingFee: Int
@@ -42,8 +31,6 @@ struct PaymentInfoDTO: Decodable {
     let accountNumber: String?
     let depositDeadline: String?
 }
-
-// MARK: - MyShippingInfo
 
 struct MyShippingInfoDTO: Decodable {
     let shippingMethod: String

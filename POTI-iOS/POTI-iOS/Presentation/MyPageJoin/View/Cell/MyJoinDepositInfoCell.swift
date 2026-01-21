@@ -10,7 +10,6 @@ import UIKit
 import SnapKit
 import Then
 
-
 /// 입금 정보!!!!!!!! 모집자 !!!!!
 final class MyJoinDepositInfoCell: UITableViewCell {
     

@@ -2,15 +2,8 @@
 //  ManageDTO.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/15/26.
+//  Created by 이서현 on 1/15/26.
 //
-
-
-struct ManageResponseDTO: Decodable {
-    let code: Int
-    let message: String
-    let data: ManageResponseDataDTO
-}
 
 struct ManageResponseDataDTO: Decodable {
     let participants: [ParticipantManageDTO]

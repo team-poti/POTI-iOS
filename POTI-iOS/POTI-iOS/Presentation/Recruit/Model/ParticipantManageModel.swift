@@ -40,12 +40,6 @@ struct ParticipantManageModel: Hashable {
     }
 }
 
-extension ManageEntity {
-    func toParticipantManageModels() -> [ParticipantManageModel] {
-        participants.map { $0.toParticipantManageModel() }
-    }
-}
-
 extension ParticipantManageModel {
 
     /// ParticipantManageViewCell 에서 사용

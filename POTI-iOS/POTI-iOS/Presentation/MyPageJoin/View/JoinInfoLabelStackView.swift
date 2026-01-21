@@ -17,7 +17,7 @@ final class JoinInfoLabelStackView: BaseView {
     private let infoStackView = UIStackView()
     
     // MARK: - Custom Method
-
+    
     override func setStyle() {
         infoStackView.do {
             $0.axis = .vertical
@@ -26,7 +26,7 @@ final class JoinInfoLabelStackView: BaseView {
             $0.distribution = .fill
         }
     }
-
+    
     override func setUI() {
         self.addSubview(infoStackView)
     }
@@ -43,7 +43,7 @@ extension JoinInfoLabelStackView {
             $0.removeFromSuperview()
         }
     }
-
+    
     func configure(items: [(title: String, infos: [String])]) {
         reset()
         items.forEach { item in

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 import SnapKit
 
 final class ShippingCell: UITableViewCell {
@@ -17,7 +18,7 @@ final class ShippingCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setup()
+        setUI()
         setLayout()
         self.backgroundColor = .potiWhite
     }
@@ -26,7 +27,7 @@ final class ShippingCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setup() {
+    private func setUI() {
         selectionStyle = .none
         contentView.addSubviews(
             depositStatusRowView,

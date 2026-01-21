@@ -12,16 +12,6 @@ import Then
 
 final class DetailTextFieldView: BaseView {
     
-    // MARK: - Lifecycle
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     // MARK: - UI Components
     
     private let containerView = UIView()
@@ -33,8 +23,6 @@ final class DetailTextFieldView: BaseView {
     var text: String {
         customTextField.text ?? ""
     }
-    
-    /// Emits whenever the text field value changes (editingChanged)
     var onTextChanged: ((String) -> Void)?
     
     // MARK: - Custom Method
@@ -62,7 +50,7 @@ final class DetailTextFieldView: BaseView {
             titleLabel,
             customTextField
         )
-        customTextField.addTarget(self, action: #selector(textFieldEditingChanged), for: .editingChanged)
+        addTarget()
     }
     
     override func setLayout() {
@@ -77,6 +65,10 @@ final class DetailTextFieldView: BaseView {
             $0.leading.trailing.bottom.equalTo(containerView)
             $0.height.equalTo(52)
         }
+    }
+    
+    private func addTarget() {
+        customTextField.addTarget(self, action: #selector(textFieldEditingChanged), for: .editingChanged)
     }
     
     private func setTextFieldInset(_ inset: CGFloat) {

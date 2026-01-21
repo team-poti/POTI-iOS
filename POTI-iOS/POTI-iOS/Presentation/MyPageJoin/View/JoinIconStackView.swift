@@ -12,7 +12,6 @@ import Then
 
 final class JoinIconStackView: BaseView {
     
-    
     private let iconName: String
     private let title: String
     
@@ -52,8 +51,7 @@ final class JoinIconStackView: BaseView {
     }
     
     override func setUI() {
-        self.addSubview(iconStackView)
-        
+        addSubview(iconStackView)
         iconStackView.addArrangedSubviews(
             iconImageView,
             titleLabel
@@ -74,6 +72,6 @@ final class JoinIconStackView: BaseView {
 
 extension JoinIconStackView {
     func configure(title: String) {
-            titleLabel.text = title
-        }
+        titleLabel.text = title
+    }
 }

@@ -13,7 +13,6 @@ final class MyPageJoinViewModel: BaseViewModelType {
 
     enum Input {
         case viewDidLoad
-        /// 외부에서 참가자 목록을 주입(서버 붙기 전/프리뷰/테스트용)
         case setParticipants([MyPageJoinModel])
     }
 
@@ -91,14 +90,13 @@ final class MyPageJoinViewModel: BaseViewModelType {
     func action(_ trigger: Input) {
         switch trigger {
         case .viewDidLoad:
-            // 서버 붙기 전 임시 mock 데이터
             let mock = makeMockParticipants()
             action(.setParticipants(mock))
 
         case .setParticipants(let participants):
             self.participants = participants
             self.joinModel = participants.first
-            //  VC에서 viewModel.participantStatus로 바로 꺼내 쓸 수 있게 디폴트 값 설정
+            /// VC에서 viewModel.participantStatus로 바로 꺼내 쓸 수 있게 디폴트 값 설정
             self.participantStatus = joinModel?.postStatus
             if let joinModel {
                 self.progressStatusModel = ProgressStatusModel(

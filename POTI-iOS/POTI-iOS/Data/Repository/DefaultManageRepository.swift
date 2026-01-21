@@ -5,7 +5,7 @@
 //  Created by 이서현 on 1/18/26.
 //
 
-final class DefaultManageRepository: ManageInterface {
+final class DefaultManageRepository: PostsInterface {
     private let networkService: NetworkService
     
     init(networkService: NetworkService = NetworkService()) {
