@@ -66,8 +66,8 @@ final class AppDIContainer {
         DefaultPotListRepository()
     }
     
-    private func makeMemberRepository() -> MemberInterface {
-            DefaultMemberRepository(networkService: makeNetworkService())
+    private func makeArtistsRepository() -> ArtistsInterface {
+        DefaultArtistsRepository()
     }
     
     // MARK: - UseCase
@@ -114,8 +114,8 @@ final class AppDIContainer {
         DefaultPotListUseCase(repository: makePotListRepository())
     }
     
-    private func makeMemberUseCase() -> MemberUsecase {
-            DefaultMemberUseCase(repository: makeMemberRepository())
+    private func makeArtistsUseCase() -> ArtistsUsecase {
+        DefaultArtistsUseCase(repository: makeArtistsRepository())
     }
     
     // MARK: - ViewModel
@@ -160,7 +160,7 @@ final class AppDIContainer {
         PotListViewModel(useCase: makePotListUseCase())
     }
     
-    func makeMemberViewModel() -> MemberViewModel {
-            MemberViewModel(useCase: makeMemberUseCase())
+    func makeArtistsViewModel() -> ArtistsViewModel {
+        ArtistsViewModel(useCase: makeArtistsUseCase())
     }
 }
