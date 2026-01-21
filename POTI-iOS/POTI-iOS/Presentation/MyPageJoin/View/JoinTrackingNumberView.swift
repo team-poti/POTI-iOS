@@ -107,7 +107,6 @@ final class JoinTrackingNumberView: BaseView {
     }
     
     @objc private func didTapCopy() {
-        print("✅ copy tapped")
         guard let text = shipLabel.text, !text.isEmpty else { return }
         UIPasteboard.general.string = text
         UIImpactFeedbackGenerator(style: .light).impactOccurred()

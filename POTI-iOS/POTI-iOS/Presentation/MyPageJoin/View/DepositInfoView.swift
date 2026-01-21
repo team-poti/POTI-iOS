@@ -130,7 +130,6 @@ final class DepositInfoView: BaseView {
     }
     
     @objc private func didTapCopy() {
-        print("✅ copy tapped")
         guard let text = accountLabel.text, !text.isEmpty else { return }
         UIPasteboard.general.string = text
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
