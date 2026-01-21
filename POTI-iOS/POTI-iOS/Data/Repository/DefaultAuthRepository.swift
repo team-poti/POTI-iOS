@@ -33,7 +33,7 @@ final class DefaultAuthRepository: AuthInterface {
     }
     
     func devLogin() async throws -> LoginResponseEntity {
-        let result = try await networkService.request(target: AuthAPI.devLogin, type: DevLoginResponseDTO.self)
+        let result = try await tokenRefreshNetworkService.request(target: AuthAPI.devLogin, type: DevLoginResponseDTO.self)
         KeychainManager.saveTokens(accessToken: result.accessToken, refreshToken: result.refreshToken)
         return result.toLoginResponseEntity()
     }
