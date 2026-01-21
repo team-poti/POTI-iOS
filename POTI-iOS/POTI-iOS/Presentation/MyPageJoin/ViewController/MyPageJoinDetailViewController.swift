@@ -17,22 +17,31 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private let tableView = UITableView()
+    private let completeButton = PotiBottomButton()
+    private var tableViewBottomConstraint: Constraint?
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
+        updateCompleteButton()
     }
     
     override func setUI() {
-        view.addSubview(tableView)
+        view.addSubviews(tableView, completeButton)
         setTableView()
+        setCompleteButton()
     }
     
     override func setLayout() {
         tableView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.horizontalEdges.equalToSuperview()
+            tableViewBottomConstraint = $0.bottom.equalToSuperview().constraint
+        }
+        completeButton.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(38)
         }
     }
     
@@ -45,9 +54,93 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             $0.register(RecruitCompletedCell.self)
             $0.register(DepositCompletedCell.self)
             $0.register(ShippingCell.self)
+            $0.allowsSelection = false
             $0.separatorStyle = .none
             $0.showsVerticalScrollIndicator = false
         }
+    }
+    
+    private func setCompleteButton() {
+        completeButton.color = .secondaryMain
+        completeButton.isDisabled = false
+        completeButton.isHidden = true
+        completeButton.addTarget(self, action: #selector(didTapCompleteButton), for: .touchUpInside)
+    }
+    
+    private func updateCompleteButton() {
+        guard let status = viewModel.participantStatus else {
+            completeButton.isHidden = true
+            tableViewBottomConstraint?.update(inset: 0)
+            UIView.animate(withDuration: 0.25) {
+                self.view.layoutIfNeeded()
+            }
+            return
+        }
+        
+        switch status {
+        case .recruitCompleted:
+            completeButton.isHidden = false
+            completeButton.text = "입금 완료했어요"
+            tableViewBottomConstraint?.update(inset: 94)
+            
+        case .shipping:
+            completeButton.isHidden = false
+            completeButton.text = "배송을 받았어요"
+            tableViewBottomConstraint?.update(inset: 94)
+            
+        default:
+            completeButton.isHidden = true
+            tableViewBottomConstraint?.update(inset: 0)
+        }
+        UIView.animate(withDuration: 0.25) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @objc private func didTapCompleteButton() {
+        if viewModel.participantStatus == .recruiting {
+            presentDetailBottomSheet()
+        } else {
+            completeButtonTapped()
+        }
+    }
+    
+    private func presentDetailBottomSheet() {
+        let sheet = DetailBottomSheet(
+            viewModel: BottomSheetViewModel(), firstTitle: "입금자명",
+            firstPlaceholder: "입금자명을 입력해주세요",
+            secondTitle: "입금 시간",
+            secondPlaceholder: "YY-MM-DD TT:MM",
+            confirmButtonText: "완료"
+        )
+        sheet.show(in: self.view)
+    }
+    
+    private func completeButtonTapped() {
+        let alert = CustomAlertView(
+            title: "잠깐! 정말 상품을 수령했나요?",
+            message: "거래가 종료되면 되돌릴 수 없어요",
+            cancelTitle: "이전",
+            confirmTitle: "배송 완료",
+            onLeftButton: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            },
+            onRightButton: { [weak self] in
+                guard let self else { return }
+                
+                let starRating = StarRatingPopupView(
+                    onCompleteButton: {
+                        // TODO: 완료(별점 전송 등)
+                    },
+                    onSkipButton: {
+                        // TODO: 건너뛰기 처리
+                    }
+                )
+                
+                starRating.show(on: self.navigationController?.view ?? self.view)
+            }
+        )
+        alert.show(on: navigationController?.view ?? view)
     }
     
     override func setDelegate() {
@@ -55,15 +148,21 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         tableView.delegate = self
     }
     
-    private func presentDetailBottomSheet() {
-        let sheet = DetailBottomSheet(
-            firstTitle: "입금자명",
-            firstPlaceholder: "입금자명을 입력해주세요",
-            secondTitle: "입금 시간",
-            secondPlaceholder: "YY-MM-DD TT:MM",
-            confirmButtonText: "완료"
-        )
-        sheet.show(in: self.view)
+    override func bindViewModel() {
+        viewModel.output.naviPotInfo
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                let factory = DefaultViewControllerFactory()
+                let containerVC = factory.makePotDetailViewController(postId: 1)
+                self?.navigationController?.pushViewController(containerVC, animated: true)
+            }
+            .store(in: &cancellables)
+        viewModel.output.naviPotInfo
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.updateCompleteButton()
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -128,6 +227,9 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
             ) as? JoinPotInfoCell else { return UITableViewCell() }
             if let model = viewModel.joinModel {
                 cell.configure(model: model)
+                cell.onTapPotButton = { [weak self] in
+                    self?.viewModel.action(.tapPotInfo)
+                }
             }
             return cell
             
@@ -153,7 +255,7 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
             
         case .statusInfo:
             let status = viewModel.participantStatus ?? .recruiting
-            
+            updateCompleteButton()
             switch status {
             case .recruiting:
                 guard let cell = tableView.dequeueReusableCell(
@@ -164,7 +266,6 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                     cell.configure(model: model)
                 }
                 return cell
-                
             case .recruitCompleted:
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: RecruitCompletedCell.identifier,
@@ -173,11 +274,7 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                 if let model = viewModel.joinModel {
                     cell.configure(model: model)
                 }
-                cell.onTapConfirmButton = { [weak self] in
-                    self?.presentDetailBottomSheet()
-                }
                 return cell
-                
             case .depositCompleted:
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: DepositCompletedCell.identifier,
@@ -187,7 +284,6 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                     cell.configure(model: model)
                 }
                 return cell
-                
             case .shipping:
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: ShippingCell.identifier,
@@ -197,7 +293,6 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                     cell.configure(model: model)
                 }
                 return cell
-                
             case .completed:
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: DepositCompletedCell.identifier,

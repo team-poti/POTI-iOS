@@ -36,7 +36,7 @@ final class ParticipantInfoLabelView: BaseView {
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.leading.equalToSuperview()
-            $0.width.equalTo(311)
+            $0.trailing.equalToSuperview().inset(16)
         }
         infoLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
@@ -52,7 +52,7 @@ final class ParticipantInfoLabelView: BaseView {
     //        infoLabel.text = info
     //    }
     
-    func configure(title: String, infos: [String]) { // 행간 정해지면 나연언니한테 물어보기!
+    func configure(title: String, infos: [String]) { 
         titleLabel.setLabel(title, font: .body14sb)
         
         let text = infos
@@ -60,7 +60,7 @@ final class ParticipantInfoLabelView: BaseView {
             .joined(separator: "\n")
         
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 6   // 디쟌쌤들께 물어보기 TODO!!
+        paragraphStyle.lineSpacing = 6
         
         let attributedText = NSAttributedString(
             string: text,

@@ -8,45 +8,76 @@
 import Combine
 
 final class MyPageJoinViewModel: BaseViewModelType {
-
+    
     // MARK: - Input
-
+    
     enum Input {
         case viewDidLoad
         case setParticipants([MyPageJoinModel])
+        case tapPotInfo
     }
-
+    
     // MARK: - Output
-
+    
     struct Output {
         let fetchData: AnyPublisher<Void, Never>
+        let naviPotInfo: AnyPublisher<Void, Never>
     }
-
-    // MARK: - Public State (VC에서 읽기)
-
+    
     private(set) var joinModel: MyPageJoinModel?
-
+    
     /// MyPageJoinDetailViewController -> .statusInfo  섹션에서 분기용으로 사용할 현재 상태
     private(set) var participantStatus: MyPageJoinModel.PostStatus?
     private(set) var progressStatusModel: ProgressStatusModel?
     private(set) var participants: [MyPageJoinModel] = []
-
+    
     // MARK: - Subject
-
+    
     private let fetchDataSubject = PassthroughSubject<Void, Never>()
-
-    // MARK: - Output
-
+    private let naviPotInfoSubject = PassthroughSubject<Void, Never>()
+    
     let output: Output
-
+    
     // MARK: - Lifecycle
-
+    
     init() {
-        self.output = Output(fetchData: fetchDataSubject.eraseToAnyPublisher())
+        self.output = Output(
+            fetchData: fetchDataSubject.eraseToAnyPublisher(),
+            naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher()
+        )
     }
-
+    
+    // MARK: - Action
+    
+    func action(_ trigger: Input) {
+        switch trigger {
+            
+        case .viewDidLoad:
+            let mock = makeMockParticipants()
+            action(.setParticipants(mock))
+            
+        case .setParticipants(let participants):
+            self.participants = participants
+            self.joinModel = participants.first
+            /// VC에서 viewModel.participantStatus로 바로 꺼내 쓸 수 있게 디폴트 값 설정
+            self.participantStatus = joinModel?.postStatus
+            if let joinModel {
+                self.progressStatusModel = ProgressStatusModel(
+                    role: .participant,
+                    status: ParticipantStatus.from(participantStatus: joinModel.postStatus)
+                )
+            } else {
+                self.progressStatusModel = nil
+            }
+            fetchDataSubject.send()
+            
+        case .tapPotInfo:
+            naviPotInfoSubject.send()
+        }
+    }
+    
     // MARK: - Mock
-
+    
     private func makeMockParticipants() -> [MyPageJoinModel] {
         return [
             MyPageJoinModel(
@@ -54,7 +85,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
                 imageUrlString: "",
                 artistName: "BLACKPINK",
                 title: "Pink Venom 포토카드",
-                postStatus: .recruitCompleted,
+                postStatus: .shipping,
                 orderStatus: .delivered,
                 statusMessage: "모든 진행이 완료되었어요",
                 memberPayments: [
@@ -76,37 +107,12 @@ final class MyPageJoinViewModel: BaseViewModelType {
                     receiver: "김서현",
                     zipcode: "06000",
                     address: "서울시 강남구 압구정로 77",
-                    phone: "010-5555-6666",
+                    phone: "010-2222-3333",
                     carrier: "CJ대한통운",
                     trackingNumber: "987654321098",
                     shippingStatus: .delivered
                 )
             )
         ]
-    }
-
-    // MARK: - Action
-
-    func action(_ trigger: Input) {
-        switch trigger {
-        case .viewDidLoad:
-            let mock = makeMockParticipants()
-            action(.setParticipants(mock))
-
-        case .setParticipants(let participants):
-            self.participants = participants
-            self.joinModel = participants.first
-            /// VC에서 viewModel.participantStatus로 바로 꺼내 쓸 수 있게 디폴트 값 설정
-            self.participantStatus = joinModel?.postStatus
-            if let joinModel {
-                self.progressStatusModel = ProgressStatusModel(
-                    role: .participant,
-                    status: ParticipantStatus.from(participantStatus: joinModel.postStatus)
-                )
-            } else {
-                self.progressStatusModel = nil
-            }
-            fetchDataSubject.send(())
-        }
     }
 }

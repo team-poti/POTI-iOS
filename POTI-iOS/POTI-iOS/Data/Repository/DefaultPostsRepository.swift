@@ -50,7 +50,7 @@ final class DefaultPostsRepository: PostsInterface {
                 profileImage: "https://example.com/profile1.png",
                 nickname: "안유진사랑해",
                 memberNames: ["리즈"],
-                status: .waitPay,
+                status: .startShip,
                 priceInfo: PriceInfoEntity(
                     memberPerPrices: [
                         MemberPerPriceEntity(name: "리즈", price: 3500)
@@ -73,7 +73,7 @@ final class DefaultPostsRepository: PostsInterface {
                 profileImage: "https://example.com/profile2.png",
                 nickname: "참여자2",
                 memberNames: ["레이", "이서"],
-                status: .waitPayCheck,
+                status: .paid,
                 priceInfo: PriceInfoEntity(
                     memberPerPrices: [
                         MemberPerPriceEntity(name: "레이", price: 3500),
@@ -89,7 +89,7 @@ final class DefaultPostsRepository: PostsInterface {
                 ),
                 shippingInfo: ShippingInfoEntity(
                     receiverName: "이수민",
-                    address: "(01234) 서울특별시 솜트구...",
+                    address: "(01234) 서울특별시 서대문구 연희동",
                     phone: "010-2345-2345",
                     trackingNumber: nil
                 )

@@ -22,7 +22,7 @@ final class PotInfoCell: UITableViewCell {
         status: .recruiting
     )
     
-    var onTapPotButton: (() -> Void)? // TODO: - input output 패턴 넣기
+    var onTapPotButton: (() -> Void)?
     
     // MARK: - UI Component
     
@@ -149,9 +149,6 @@ final class PotInfoCell: UITableViewCell {
     
     // MARK: - action
     @objc func potButtonTapped(_ sender: Any) {
-        print("potButtonTapped")
         onTapPotButton?()
-        //TODO: - input 수정
-        // input.send(.potButtonTapped)
     }
 }

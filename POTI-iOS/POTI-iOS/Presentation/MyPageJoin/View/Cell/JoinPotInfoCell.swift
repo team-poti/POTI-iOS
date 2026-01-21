@@ -13,7 +13,7 @@ import Then
 
 final class JoinPotInfoCell: UITableViewCell {
     
-    var onTapPotButton: (() -> Void)? // TODO: - input output 패턴 넣기
+    var onTapPotButton: (() -> Void)?
     
     // MARK: - UI Component
     
@@ -134,12 +134,9 @@ final class JoinPotInfoCell: UITableViewCell {
     @objc func potButtonTapped(_ sender: Any) {
         print("potButtonTapped")
         onTapPotButton?()
-        
-        //TODO: - input 수정 -> VM 로 추후에 옮기자
-        
-        // input.send(.potButtonTapped)
     }
     
+    /// 0121 어떻게 재사용할 수 있을지 고민.. (PotInfoCell 이랑 JoinInfoCell)
     func configure(model: MyPageJoinModel) {
         potIdLabel.text = "참여 번호 poti-" + String(model.participationId)
         

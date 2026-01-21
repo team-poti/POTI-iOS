@@ -19,6 +19,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
     
     private let tableView = UITableView()
     private var participants: [MyPageJoinModel] = []
+    private let backgroundView = UIView()
     
     //MARK: - LifeCycle
     
@@ -29,7 +30,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
     
     override func setUI() {
         setTableView()
-        view.addSubview(tableView)
+        view.addSubviews(tableView, backgroundView)
     }
     
     override func setLayout() {
@@ -45,8 +46,13 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
             $0.register(ParticipantManageViewCell.self)
             $0.register(EmptyManageViewCell.self)
             $0.separatorStyle = .singleLine
+            $0.allowsSelection = false
             $0.showsVerticalScrollIndicator = false
             $0.sectionHeaderTopPadding = 0
+            $0.backgroundColor = .potiWhite
+        }
+        backgroundView.do {
+            $0.backgroundColor = .potiWhite
         }
     }
     
@@ -57,6 +63,24 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
                 guard let self else { return }
                 self.participants = items
                 self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.naviPotInfo
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                let factory = DefaultViewControllerFactory()
+                let containerVC = factory.makeParticipantManageViewController()
+                self?.navigationController?.pushViewController(containerVC, animated: true)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.naviManageInfo
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                let factory = DefaultViewControllerFactory()
+                let containerVC = factory.makePotDetailViewController(postId: 1)
+                self?.navigationController?.pushViewController(containerVC, animated: true)
             }
             .store(in: &cancellables)
     }
@@ -121,6 +145,9 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
                 for: indexPath
             ) as? PotInfoCell else { return UITableViewCell() }
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            cell.onTapPotButton = { [weak self] in
+                self?.viewModel.action(.tapPotInfo)
+            }
             return cell
             
         case .progress:
@@ -166,6 +193,9 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             let headerView = ParticipantManageHeaderView()
             let count = participants.count
             headerView.configure(count: count)
+            headerView.onTapHeaderButton = { [weak self] in
+                self?.viewModel.action(.tapManageInfo)
+            }
             return headerView
             
         default:
