@@ -12,8 +12,6 @@ import Then
 
 final class SortCell: UITableViewCell {
     
-    static let identifier: String = "SortCell"
-    
     // MARK: - UI Components
     
     private let optionLabel = UILabel()
