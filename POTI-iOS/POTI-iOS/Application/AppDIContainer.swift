@@ -56,7 +56,10 @@ final class AppDIContainer {
     
     private func makePotDetailRepository() -> PotDetailInterface {
         DefaultPotDetailRepository()
-        
+    }
+    
+    private func makeOrderRepository() -> OrderInterface {
+        DefaultOrderRepository()
     }
     
     // MARK: - UseCase
@@ -93,7 +96,10 @@ final class AppDIContainer {
   
     private func makePotDetailUseCase() -> PotDetailUseCase {
         DefaultPotDetailUseCase(repository: makePotDetailRepository())
-
+    }
+    
+    private func makeSubmitUseCase() -> SubmitOrderUseCase {
+        DefaultSubmitOrderUseCase(repository: makeOrderRepository())
     }
     
     // MARK: - ViewModel
@@ -120,5 +126,9 @@ final class AppDIContainer {
   
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
         PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
+    }
+    
+    func makePotOrderViewModel(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewModel {
+        PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems)
     }
 }

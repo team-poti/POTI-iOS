@@ -66,4 +66,15 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             viewModel: diContainer.makePotDetailViewModel(postId: postId)
         )
     }
+    
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewController {
+        return PotOrderViewController(
+            viewModel: diContainer.makePotOrderViewModel(
+                postId: postId,
+                shippingId: shippingId,
+                orderItems: orderItems
+            ),
+            factory: self 
+        )
+    }
 }
