@@ -59,6 +59,24 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
                 self.tableView.reloadData()
             }
             .store(in: &cancellables)
+        
+        viewModel.output.naviPotInfo
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in
+                    let factory = DefaultViewControllerFactory()
+                    let containerVC = factory.makeParticipantManageViewController()
+                    self?.navigationController?.pushViewController(containerVC, animated: true)
+                }
+                .store(in: &cancellables)
+        
+        viewModel.output.naviManageInfo
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                let factory = DefaultViewControllerFactory()
+                let containerVC = factory.makeParticipantManageViewController()
+                self?.navigationController?.pushViewController(containerVC, animated: true)
+            }
+            .store(in: &cancellables)
     }
     
     override func setDelegate() {
@@ -121,6 +139,9 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
                 for: indexPath
             ) as? PotInfoCell else { return UITableViewCell() }
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            cell.onTapPotButton = { [weak self] in
+                    self?.viewModel.action(.tapPotInfo)
+                }
             return cell
             
         case .progress:
@@ -166,6 +187,9 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             let headerView = ParticipantManageHeaderView()
             let count = participants.count
             headerView.configure(count: count)
+            headerView.onTapHeaderButton = { [weak self] in
+                self?.viewModel.action(.tapManageInfo)
+            }
             return headerView
             
         default:

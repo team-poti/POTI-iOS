@@ -15,6 +15,8 @@ final class RecruitDetailViewModel: BaseViewModelType {
     
     enum Input {
         case viewDidLoad
+        case tapPotInfo
+        case tapManageInfo
     }
     
     // MARK: - Output
@@ -22,6 +24,8 @@ final class RecruitDetailViewModel: BaseViewModelType {
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
         let joinItems: AnyPublisher<[MyPageJoinModel], Never>
+        let naviPotInfo: AnyPublisher<Void, Never>
+        let naviManageInfo: AnyPublisher<Void, Never>
     }
     
     // MARK: - Properties
@@ -32,13 +36,17 @@ final class RecruitDetailViewModel: BaseViewModelType {
 
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
     private let joinItemsSubject = CurrentValueSubject<[MyPageJoinModel], Never>([]) // TODO: - NETWORK - MYPageJoinModel 아님
+    private let naviPotInfoSubject = PassthroughSubject<Void, Never>()
+    private let naviManageInfoSubject = PassthroughSubject<Void, Never>()
     
     // MARK: - Initializer
     
     init() {
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher(),
-            joinItems: joinItemsSubject.eraseToAnyPublisher()
+            joinItems: joinItemsSubject.eraseToAnyPublisher(),
+            naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher(),
+            naviManageInfo: naviManageInfoSubject.eraseToAnyPublisher()
         )
     }
     
@@ -49,7 +57,10 @@ final class RecruitDetailViewModel: BaseViewModelType {
         case .viewDidLoad:
             fetchRecruitDetail()
             loadMockJoinItems()
-
+        case .tapPotInfo:
+            naviPotInfoSubject.send()
+        case .tapManageInfo:
+            naviManageInfoSubject.send()
         }
     }
     // MARK: - Private Method
