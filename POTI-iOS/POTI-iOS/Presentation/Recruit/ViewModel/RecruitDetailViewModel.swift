@@ -31,7 +31,7 @@ final class RecruitDetailViewModel: BaseViewModelType {
     // MARK: - Subject
 
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
-    private let joinItemsSubject = CurrentValueSubject<[MyPageJoinModel], Never>([])
+    private let joinItemsSubject = CurrentValueSubject<[MyPageJoinModel], Never>([]) // TODO: - NETWORK - MYPageJoinModel 아님
     
     // MARK: - Initializer
     

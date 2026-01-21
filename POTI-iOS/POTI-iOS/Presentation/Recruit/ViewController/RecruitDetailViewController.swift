@@ -11,7 +11,11 @@ import Combine
 import SnapKit
 import Then
 
-class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel> {
+class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, NavigationConfigurable {
+    
+    func navigationStyle() -> PotiNavigationStyle {
+        return .backDefault("진행 중인 분철")
+    }
     
     private let tableView = UITableView()
     private var participants: [MyPageJoinModel] = []

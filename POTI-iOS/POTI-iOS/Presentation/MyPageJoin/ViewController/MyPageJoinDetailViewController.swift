@@ -10,7 +10,11 @@ import UIKit
 import SnapKit
 import Then
 
-class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel> {
+class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, NavigationConfigurable {
+    
+    func navigationStyle() -> PotiNavigationStyle {
+        return .backDefault("진행 중인 분철")
+    }
     
     private let tableView = UITableView()
     

@@ -22,6 +22,7 @@ final class ParticipantManageHeaderView: BaseView {
     //MARK: - Custom Method
     
     override func setStyle() {
+        backgroundColor = .potiWhite
         titleLabel.do {
             $0.textColor = .potiBlack
             $0.textAlignment = .center

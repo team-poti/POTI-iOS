@@ -11,7 +11,11 @@ import Combine
 import SnapKit
 import Then
 
-final class ParticipantListTableViewController: BaseViewController<ParticipantManageViewModel> {
+final class ParticipantListTableViewController: BaseViewController<ParticipantManageViewModel>, NavigationConfigurable {
+    
+    func navigationStyle() -> PotiNavigationStyle {
+        return .backDefault("참여자 관리")
+    }
     
     // MARK: - UI
     

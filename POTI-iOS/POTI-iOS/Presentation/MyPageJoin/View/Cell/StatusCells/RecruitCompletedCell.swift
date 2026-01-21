@@ -70,11 +70,11 @@ final class RecruitCompletedCell: UITableViewCell {
     }
     
     private func addTarget() {
-        completeButton.addTarget(
-            self,
-            action: #selector(didTapConfirmButton),
-            for: .touchUpInside
-        )
+        completeButton.addTarget(self, action: #selector(completeButtonTapped), for: .touchUpInside)
+    }
+
+    @objc private func completeButtonTapped() {
+        //viewModel.action(.tapDepositComplete)
     }
     
     func configure(model: MyPageJoinModel) {
@@ -82,11 +82,7 @@ final class RecruitCompletedCell: UITableViewCell {
         joinShipInfoView.configure(model: model)
         
         completeButton.color = .primaryMain
-        completeButton.text = "입금을 완료했어요"
+        completeButton.text = "입금 완료했어요"
         completeButton.isDisabled = false
-    }
-    
-    @objc private func didTapConfirmButton() {
-        onTapConfirmButton?()
     }
 }

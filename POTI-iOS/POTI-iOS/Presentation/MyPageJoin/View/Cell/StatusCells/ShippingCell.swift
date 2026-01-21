@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 
 final class ShippingCell: UITableViewCell {
-
+    
     private let depositStatusRowView = StatusRowView()
     private let joinShipInfoView = JoinShipInfoView()
     private let joinTrackingNumberView = JoinTrackingNumberView()
@@ -22,11 +22,11 @@ final class ShippingCell: UITableViewCell {
         setLayout()
         self.backgroundColor = .potiWhite
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     private func setUI() {
         selectionStyle = .none
         contentView.addSubviews(
@@ -36,7 +36,7 @@ final class ShippingCell: UITableViewCell {
             completeButton
         )
     }
-
+    
     private func setLayout() {
         depositStatusRowView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(28)
@@ -55,6 +55,14 @@ final class ShippingCell: UITableViewCell {
             $0.bottom.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
+    }
+    
+    private func addTarget() {
+        completeButton.addTarget(self, action: #selector(completeButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func completeButtonTapped() {
+        //viewModel.action(.tapShipComplete)
     }
     
     func configure(model: MyPageJoinModel) {
