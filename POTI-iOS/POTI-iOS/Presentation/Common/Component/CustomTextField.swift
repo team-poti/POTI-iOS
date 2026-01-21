@@ -16,6 +16,8 @@ final class CustomTextField: BaseView {
     var onTapField: (() -> Void)?
     private(set) var variant: TextFieldVariant = .short
     private var uiState: TextFieldUIState = .normal
+    private var isTapOnly: Bool = false
+
     
     // MARK: - Publisher
     
@@ -168,10 +170,13 @@ final class CustomTextField: BaseView {
     
     func configure(
         variant: TextFieldVariant,
-        placeholder: String? = nil
+        placeholder: String? = nil,
+        isTapOnly: Bool = false
     ) {
         self.variant = variant
         
+        self.isTapOnly = isTapOnly
+
         if let placeholder {
             textField.attributedPlaceholder = NSAttributedString(
                 string: placeholder,
@@ -209,6 +214,10 @@ final class CustomTextField: BaseView {
         }
     }
     
+    func setFocused(_ isFocused: Bool) {
+        apply(state: isFocused ? .focused : .normal)
+    }
+    
     func setText(_ text: String?) {
         textField.text = text
         updateCountIfNeeded()
@@ -228,13 +237,16 @@ final class CustomTextField: BaseView {
         rightIconView.isHidden = true
         countLabel.isHidden = true
         rightAccessoryContainer.isHidden = true
-        
-        switch variant {
-        case .searchNavigate:
+
+        if isTapOnly {
             textField.isUserInteractionEnabled = false
-            
-        default:
-            textField.isUserInteractionEnabled = true
+        } else {
+            switch variant {
+            case .searchNavigate:
+                textField.isUserInteractionEnabled = false
+            default:
+                textField.isUserInteractionEnabled = true
+            }
         }
         
         containerView.snp.updateConstraints {
@@ -277,10 +289,16 @@ final class CustomTextField: BaseView {
     // MARK: - Action Method
     
     @objc private func didTapField() {
+        if isTapOnly {
+            apply(state: .focused)
+            onTapField?()
+            return
+        }
+
         switch variant {
         case .searchNavigate:
+            apply(state: .focused)
             onTapField?()
-            
         default:
             break
         }
@@ -325,10 +343,11 @@ extension CustomTextField {
     convenience init(
         variant: TextFieldVariant,
         placeholder: String? = nil,
+        isTapOnly: Bool = false,
         onTapField: (() -> Void)? = nil
     ) {
         self.init(frame: .zero)
-        configure(variant: variant, placeholder: placeholder)
+        configure(variant: variant, placeholder: placeholder, isTapOnly: isTapOnly)
         self.onTapField = onTapField
     }
     
@@ -361,6 +380,18 @@ extension CustomTextField {
             variant: .short,
             placeholder: placeholder,
             onTapField: nil
+        )
+    }
+
+    static func shortNavigate(
+        placeholder: String,
+        onTapField: (() -> Void)? = nil
+    ) -> CustomTextField {
+        CustomTextField(
+            variant: .short,
+            placeholder: placeholder,
+            isTapOnly: true,
+            onTapField: onTapField
         )
     }
 }

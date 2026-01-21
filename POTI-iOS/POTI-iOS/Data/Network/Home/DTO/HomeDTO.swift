@@ -11,6 +11,16 @@ struct HomeDTO: Decodable {
     let myGroupItems: [GoodsItemDTO]
     let otherGroupItems: [GoodsItemDTO]
     let banners: [BannerItemDTO]
+    
+    func toEntity() -> HomeEntity {
+        return .init(
+            nickname: nickname,
+            mainArtist: mainArtist,
+            myGroupItems: myGroupItems.map { $0.toEntity() },
+            otherGroupItems: otherGroupItems.map { $0.toEntity() },
+            banners: banners.map { $0.toEntity() }
+        )
+    }
 }
 
 struct GoodsItemDTO: Decodable {
@@ -31,17 +41,5 @@ struct BannerItemDTO: Decodable {
     
     func toEntity() -> BannerItem {
         return .init(postId: postId, imageUrl: imageUrl)
-    }
-}
-
-extension HomeDTO {
-    func toEntity() -> HomeEntity {
-        return .init(
-            nickname: nickname,
-            mainArtist: mainArtist,
-            myGroupItems: myGroupItems.map { $0.toEntity() },
-            otherGroupItems: otherGroupItems.map { $0.toEntity() },
-            banners: banners.map { $0.toEntity() }
-        )
     }
 }

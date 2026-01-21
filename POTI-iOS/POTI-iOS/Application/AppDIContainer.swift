@@ -49,6 +49,10 @@ final class AppDIContainer {
     private func makeGoodsListRepository() -> GoodsListInterface {
         DefaultGoodsListRepository()
     }
+
+    private func makeOrderRepository() -> OrderInterface {
+        DefaultOrderRepository()
+    }
     
     private func makePostsRepository() -> PostsInterface {
         DefaultPostsRepository()
@@ -60,6 +64,14 @@ final class AppDIContainer {
     
     private func makeOrderRepository() -> OrderInterface {
         DefaultOrderRepository()
+    }
+    
+    private func makeManageRepository() -> PostsInterface {
+        DefaultManageRepository()
+    }
+    
+    private func makePotListRepository() -> PotListInterface {
+        DefaultPotListRepository()
     }
     
     // MARK: - UseCase
@@ -89,6 +101,10 @@ final class AppDIContainer {
     private func makeGoodsListUseCase() -> GoodsListUseCase {
         DefaultGoodsListUseCase(repository: makeGoodsListRepository())
     }
+
+    private func makeOrderUseCase() -> OrderUseCase {
+        DefaultOrderUseCase(repository: makeOrderRepository())
+    }
     
     private func makeOrderUseCase() -> SubmitOrderUseCase {
         DefaultSubmitOrderUseCase(repository: makeOrderRepository())
@@ -104,6 +120,14 @@ final class AppDIContainer {
     
     private func makePotOptionUseCase() -> PotOptionsUseCase {
         DefaultPotOptionsUseCase(repository: makePostsRepository())
+    }
+    
+    private func makeManageUseCase() -> PostsUseCase {
+        DefaultManageUseCase(repository: makeManageRepository())
+    }
+    
+    private func makePotListUseCase() -> PotListUseCase {
+        DefaultPotListUseCase(repository: makePotListRepository())
     }
     
     // MARK: - ViewModel
@@ -134,5 +158,25 @@ final class AppDIContainer {
     
     func makePotOptionsSheetViewModel(postId: Int) -> PotOptionsViewModel {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
+    }
+      
+    func makeOrderViewModel() -> OrderViewModel {
+        OrderViewModel(useCase: makeOrderUseCase())
+    }
+    
+    func makeRecruitDetailViewModel() -> RecruitDetailViewModel {
+        RecruitDetailViewModel()
+    }
+    
+    func makeManageViewModel() -> ParticipantManageViewModel {
+        ParticipantManageViewModel(useCase: makeManageUseCase())
+    }
+    
+    func makeMyPageJoinViewModel() -> MyPageJoinViewModel {
+        MyPageJoinViewModel()
+    }
+    
+    func makePotListViewModel() -> PotListViewModel {
+        PotListViewModel(useCase: makePotListUseCase())
     }
 }
