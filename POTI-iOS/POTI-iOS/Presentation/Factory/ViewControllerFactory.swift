@@ -8,16 +8,21 @@
 protocol ViewControllerFactory {
     func makeLaunchScreenViewController() -> LaunchScreenViewController
     @MainActor func makeLoginViewController() -> LoginViewController
+    func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController() -> GoodsListViewController
     func makeMyPageViewController() -> MyPageViewController
-    func makePotiTabBar() -> PotiTabBar
+    func makeOrderSheetViewController() -> OrderSheetViewController
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController
+    func makeRecruitDetailViewController() -> RecruitDetailViewController
+    func makeParticipantManageViewController() -> ParticipantListTableViewController
+    func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
-
+    
     private let diContainer: AppDIContainer
-
+    
     init(diContainer: AppDIContainer = .shared) {
         self.diContainer = diContainer
     }
@@ -27,11 +32,15 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             viewModel: diContainer.makeLaunchScreenViewModel(), factory: self
         )
     }
-
+    
     @MainActor func makeLoginViewController() -> LoginViewController {
         LoginViewController(
             viewModel: diContainer.makeLoginViewModel(), factory: self
         )
+    }
+    
+    func makePotiTabBar() -> PotiTabBar {
+        PotiTabBar(factory: self)
     }
     
     func makeHomeViewController() -> HomeViewController {
@@ -52,7 +61,27 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makePotiTabBar() -> PotiTabBar {
-        PotiTabBar(factory: self)
+    func makeOrderSheetViewController() -> OrderSheetViewController {
+        OrderSheetViewController(
+            viewModel: diContainer.makeOrderViewModel()
+        )
+    }
+    
+    func makeRecruitDetailViewController() -> RecruitDetailViewController {
+        RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel())
+    }
+    
+    func makeParticipantManageViewController() -> ParticipantListTableViewController {
+        ParticipantListTableViewController(viewModel: diContainer.makeManageViewModel())
+    }
+    
+    func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController {
+        MyPageJoinDetailViewController(viewModel: diContainer.makeMyPageJoinViewModel())
+    }
+    
+    func makePotDetailViewController(postId: Int) -> PotDetailViewController {
+        PotDetailViewController(
+            viewModel: diContainer.makePotDetailViewModel(postId: postId)
+        )
     }
 }

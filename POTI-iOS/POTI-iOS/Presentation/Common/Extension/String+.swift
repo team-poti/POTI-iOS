@@ -34,4 +34,18 @@ extension String {
         
         return outputFormatter.string(from: date)
     }
+    
+    func formattedDateString() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = .current
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
+        
+        guard let date = formatter.date(from: self) else {
+            return ""
+        }
+        
+        formatter.dateFormat = "yyyy-MM-dd H:mm"
+        return formatter.string(from: date)
+    }
 }
