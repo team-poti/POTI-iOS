@@ -21,8 +21,7 @@ final class RegisterInfoView: BaseView {
 
     // MARK: - UI Properties
 
-    private let _imagePickerView = ImagePickerView()
-    var imagePickerView: ImagePickerView { _imagePickerView }
+    private(set) var imagePickerView = ImagePickerView()
     
     private let titleLabel = UILabel()
     private let fieldsStackView = UIStackView()
@@ -34,23 +33,12 @@ final class RegisterInfoView: BaseView {
     private let bankTitleLabel = UILabel()
     private let bottomBoxView = UIView()
 
-    private let _artistField = CustomTextField.searchNavigate(placeholder: "아티스트 찾기")
-    var artistField: CustomTextField { _artistField }
-
-    private let _productTypeField = CustomSearchField()
-    var productTypeField: CustomSearchField { _productTypeField }
-
-    private let _deadlineField = CustomTextField.shortNavigate(placeholder: "날짜를 선택해주세요")
-    var deadlineField: CustomTextField { _deadlineField }
-
-    private let _descriptionField = CustomLongTextField.long(placeholder: "분철팟 설명을 자세히 적어주세요\n예) 굿즈 구성 / 구매 여부 / 예상 배송일 등")
-    var descriptionField: CustomLongTextField { _descriptionField }
-
-    private let _accountField = CustomTextField.short(placeholder: "계좌번호를 입력해주세요")
-    var accountField: CustomTextField { _accountField }
-
-    private let _bankField = CustomTextField.short(placeholder: "은행 정보를 입력해주세요")
-    var bankField: CustomTextField { _bankField }
+    private(set) var artistField = CustomTextField.searchNavigate(placeholder: "아티스트 찾기")
+    private(set) var productTypeField = CustomSearchField()
+    private(set) var deadlineField = CustomTextField.shortNavigate(placeholder: "날짜를 선택해주세요")
+    private(set) var descriptionField = CustomLongTextField.long(placeholder: "분철팟 설명을 자세히 적어주세요\n예) 굿즈 구성 / 구매 여부 / 예상 배송일 등")
+    private(set) var accountField = CustomTextField.short(placeholder: "계좌번호를 입력해주세요")
+    private(set) var bankField = CustomTextField.short(placeholder: "은행 정보를 입력해주세요")
 
     // MARK: - UI Setting
 

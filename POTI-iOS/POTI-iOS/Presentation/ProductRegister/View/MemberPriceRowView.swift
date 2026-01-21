@@ -45,7 +45,6 @@ final class MemberPriceRowView: BaseView {
         backgroundColor = .clear
 
         nameLabel.do {
-            $0.text = ""
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
             $0.numberOfLines = 1
@@ -138,10 +137,25 @@ final class MemberPriceRowView: BaseView {
         return Int(digits)
     }
 
+    func configure(
+        name: String,
+        price: Int?
+    ) {
+        nameLabel.text = name
+
+        if let price, let formatted = formatNumberWithCommas(NSNumber(value: price)) {
+            priceTextField.text = formatted
+        } else {
+            priceTextField.text = ""
+        }
+    }
+
+    @available(*, deprecated, message: "configure(name:price:)를 사용하세요.")
     func setName(_ name: String) {
         nameLabel.text = name
     }
 
+    @available(*, deprecated, message: "configure(name:price:)를 사용하세요.")
     func setPrice(_ text: String) {
         priceTextField.text = text
     }

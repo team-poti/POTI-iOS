@@ -364,8 +364,8 @@ final class RegisterMemberView: BaseView {
         
         for (idx, name) in members.enumerated() {
             let row = MemberPriceRowView(index: idx)
-            row.setName(name)
-            
+            row.configure(name: name, price: nil)
+
             rowsStackView.addArrangedSubview(row)
             rowViews.append(row)
         }
@@ -386,7 +386,11 @@ final class RegisterMemberView: BaseView {
     
     func setPrice(_ text: String, at index: Int) {
         guard rowViews.indices.contains(index) else { return }
-        rowViews[index].setPrice(text)
+
+        let name = currentMembers.indices.contains(index) ? currentMembers[index] : ""
+        let digits = text.replacingOccurrences(of: ",", with: "")
+        let price = Int(digits)
+        rowViews[index].configure(name: name, price: price)
     }
     
     func setEditButtonTarget(_ target: Any?, action: Selector) {
