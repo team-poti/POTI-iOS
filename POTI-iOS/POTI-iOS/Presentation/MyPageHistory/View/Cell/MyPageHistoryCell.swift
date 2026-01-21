@@ -60,7 +60,7 @@ final class MyPageHistoryCell: UITableViewCell {
         
         thumbnailImageView.do {
             $0.contentMode = .scaleAspectFill
-            $0.image = .imgLottie
+            $0.image = .imgSelected
             $0.layer.cornerRadius = 8
             $0.clipsToBounds = true
         }
