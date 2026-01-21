@@ -69,7 +69,6 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
     private let fieldErrorsSubject = CurrentValueSubject<FieldErrors, Never>(.empty)
 
-
     // MARK: - Initializer
 
     init(maxCount: Int = 5) {

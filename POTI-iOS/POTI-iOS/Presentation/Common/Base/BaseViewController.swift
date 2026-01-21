@@ -97,7 +97,10 @@ class BaseViewController<VM: BaseViewModelType>: UIViewController, NavigationAct
 
         switch action {
         case .back, .xButton:
-            if self.navigationController == nil {
+            if let navController = self.navigationController,
+               navController.viewControllers.first == self {
+                self.tabBarController?.selectedIndex = 0
+            } else if self.navigationController == nil {
                 self.dismiss(animated: true)
             } else {
                 self.navigationController?.popViewController(animated: true)

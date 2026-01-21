@@ -20,6 +20,7 @@ protocol ViewControllerFactory {
     func makeRecruitDetailViewController() -> RecruitDetailViewController
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
+    func makePotListViewController() -> PotListViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -57,7 +58,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             viewModel: diContainer.makeGoodsListViewModel()
         )
     }
-  
+    
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
             viewModel: MyPageViewModel()
@@ -99,4 +100,11 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController {
         SelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel(), factory: self)
     }
+    
+    func makePotListViewController() -> PotListViewController {
+        PotListViewController(
+            viewModel: diContainer.makePotListViewModel()
+        )
+    }
+    
 }
