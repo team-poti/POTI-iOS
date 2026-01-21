@@ -7,25 +7,13 @@
 
 import UIKit
 
+import Combine
+
 final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel>, NavigationConfigurable {
-
-    // MARK: - Properties
-
 
     // MARK: - UI Components
 
     private let rootView = ArtistSearchView()
-
-    // MARK: - Life Cycle
-
-    override func loadView() {
-        self.view = rootView
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        rootView.focusQuery()
-    }
 
 
     // MARK: - Custom Method
@@ -34,10 +22,16 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
         return .backDefault("아티스트 검색")
     }
 
+    // MARK: - Life Cycle
+
+    override func loadView() {
+        self.view = rootView
+    }
 
     // MARK: - delegate Method
 
     override func bindViewModel() {
+        // Input → ViewModel
         rootView.onChangeQuery = { [weak self] query in
             self?.viewModel.action(.queryChanged(query))
         }
@@ -45,5 +39,27 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
         rootView.onTapDone = { [weak self] in
             self?.viewModel.action(.tapDone)
         }
+
+        // Output → View
+        viewModel.output.isDoneEnabled
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isEnabled in
+                self?.rootView.setDoneEnabled(isEnabled)
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.didSubmitQuery
+            .receive(on: RunLoop.main)
+            .sink { [weak self] query in
+                // TODO: - 선택된 아티스트 전달/라우팅 로직은 이후 Coordinator/Router로 이동
+                print("ArtistSearch submitted query:", query)
+
+                if self?.navigationController != nil {
+                    self?.navigationController?.popViewController(animated: true)
+                } else {
+                    self?.dismiss(animated: true)
+                }
+            }
+            .store(in: &cancellables)
     }
 }

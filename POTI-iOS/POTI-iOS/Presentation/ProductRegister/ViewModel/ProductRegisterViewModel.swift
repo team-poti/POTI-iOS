@@ -41,7 +41,6 @@ final class ProductRegisterViewModel: BaseViewModelType {
     private let imagesSubject = CurrentValueSubject<[UIImage], Never>([])
     private let requestPickerSubject = PassthroughSubject<Int, Never>()
 
-
     // MARK: - Initializer
 
     init(maxCount: Int = 5) {

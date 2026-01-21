@@ -10,93 +10,77 @@ import UIKit
 import SnapKit
 import Then
 
-final class ArtistSearchView: BaseView, NavigationConfigurable {
-    
-    func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("아티스트 검색")
-    }
-    
+final class ArtistSearchView: BaseView {
+
     // MARK: - Property
 
     var onChangeQuery: ((String) -> Void)?
-
+    var onSelectSuggestion: ((Int, String) -> Void)?
     var onTapDone: (() -> Void)?
 
-    // MARK: - UI Components
+    // MARK: - UI
 
-    private let searchBoxView = UIView()
-    private let searchTextField = UITextField()
-    private let searchIconView = UIImageView()
+    private let searchField = CustomSearchField()
     private let doneButton = PotiBottomButton()
 
-    // MARK: - Life Cycle
-
-    // MARK: - Custom Method
-
     override func setStyle() {
-        backgroundColor = .potiWhite
+        searchField.configure(
+            placeholder: "아티스트를 검색해보세요",
+            maxVisibleRows: 3,
+            showsRightAccessory: true
+        )
         
-        searchTextField.do {
-            $0.placeholder = "분철할 그룹을 검색해보세요"
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
-        }
-
         doneButton.do {
             $0.text = "완료"
             $0.color = .deactiveMain
-            $0.size = .large
             $0.isDisabled = true
         }
     }
 
     override func setUI() {
-        addSubviews(searchBoxView, searchTextField, doneButton)
+        addSubviews(searchField, doneButton)
 
-        searchTextField.addTarget(self, action: #selector(didChangeQuery), for: .editingChanged)
-        doneButton.addTarget(self, action: #selector(didTapDoneButton), for: .touchUpInside)
+        searchField.onQueryChanged = { [weak self] text in
+            self?.onChangeQuery?(text)
+        }
+
+        searchField.onSelectItem = { [weak self] index, value in
+            self?.onSelectSuggestion?(index, value)
+        }
+
+        doneButton.addTarget(self, action: #selector(tapDone), for: .touchUpInside)
     }
-
+    
     override func setLayout() {
-        searchTextField.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(12)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(56)
+        searchField.snp.makeConstraints {
+            $0.top.equalTo(self.safeAreaLayoutGuide).offset(12)
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
 
         doneButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalTo(safeAreaLayoutGuide).inset(24)
+            $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
         }
     }
 
-    // MARK: - Action Method
+    func setSuggestions(_ items: [String]) {
+        searchField.setItems(items)
+    }
+
+    func clearSuggestions() {
+        searchField.clearItems()
+    }
 
     func setDoneEnabled(_ isEnabled: Bool) {
         doneButton.isDisabled = !isEnabled
-        doneButton.color = isEnabled ? .primaryMain : .secondaryMain
+        doneButton.color = isEnabled ? .secondaryMain : .deactiveMain
     }
 
-    func setQuery(_ text: String?) {
-        searchTextField.text = text
-    }
-
-    func focusQuery() {
-        searchTextField.becomeFirstResponder()
-    }
-
-    // MARK: - delegate Method
-
-    @objc private func didChangeQuery() {
-        onChangeQuery?(searchTextField.text ?? "")
-        setDoneEnabled(!(searchTextField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-    }
-
-    @objc private func didTapDoneButton() {
+    @objc private func tapDone() {
         onTapDone?()
     }
 }
 
-#Preview() {
+#Preview {
     ArtistSearchView()
 }
