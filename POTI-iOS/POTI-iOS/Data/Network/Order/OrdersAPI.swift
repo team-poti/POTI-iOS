@@ -13,7 +13,7 @@ enum OrdersAPI: BaseTargetType {
     var path: String {
         switch self {
         case .submitOrder:
-            return "/orders"
+            return "/api/v1/orders"
         }
     }
     
