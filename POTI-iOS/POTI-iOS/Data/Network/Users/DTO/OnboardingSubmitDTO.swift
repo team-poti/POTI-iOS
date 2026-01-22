@@ -5,7 +5,6 @@
 //  Created by neon on 1/22/26.
 //
 
-
 struct OnboardingSubmitDTO: Codable {
     let nickname: String
     let favoriteArtistId: Int?
