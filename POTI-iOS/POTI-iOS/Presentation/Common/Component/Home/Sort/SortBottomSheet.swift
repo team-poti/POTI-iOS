@@ -18,6 +18,7 @@ final class SortBottomSheet: BaseView {
     private let viewModel: SortViewModel
     private var cancellables = Set<AnyCancellable>()
     var onSelectCompletion: ((Int) -> Void)?
+    var onDismissCompletion: (() -> Void)?
     
     // MARK: - UI Components
     
@@ -133,7 +134,7 @@ final class SortBottomSheet: BaseView {
     
     // MARK: - Methods
     
-    func show(in view: UIView) {
+    func show(on view: UIView) {
         view.addSubview(self)
         self.snp.makeConstraints { $0.edges.equalToSuperview() }
         containerView.transform = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height)
@@ -152,6 +153,7 @@ final class SortBottomSheet: BaseView {
             self.containerView.transform = CGAffineTransform(translationX: 0, y: 500)
             self.backgroundView.alpha = 0
         }) { _ in
+            self.onDismissCompletion?()
             self.removeFromSuperview()
         }
     }

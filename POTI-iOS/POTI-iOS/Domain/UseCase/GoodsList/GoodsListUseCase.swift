@@ -6,7 +6,7 @@
 //
 
 protocol GoodsListUseCase {
-    func execute() async throws -> GoodsListEntity
+    func execute(artistId: Int, sort: String, page: Int) async throws -> GoodsListEntity
 }
 
 final class DefaultGoodsListUseCase: GoodsListUseCase {
@@ -16,8 +16,12 @@ final class DefaultGoodsListUseCase: GoodsListUseCase {
         self.repository = repository
     }
     
-    func execute() async throws -> GoodsListEntity {
-        return try await repository.fetchGoodsListData()
+    func execute(artistId: Int, sort: String, page: Int) async throws -> GoodsListEntity {
+        return try await repository.fetchGoodsListData(
+            artistId: artistId,
+            sort: sort,
+            page: page
+        )
     }
 }
 

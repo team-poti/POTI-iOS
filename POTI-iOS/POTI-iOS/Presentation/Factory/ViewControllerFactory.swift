@@ -10,7 +10,7 @@ protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
     func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
-    func makeGoodsListViewController() -> GoodsListViewController
+    func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController
     func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
@@ -49,13 +49,12 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeHomeViewController() -> HomeViewController {
         HomeViewController(
-            viewModel: diContainer.makeHomeViewModel()
+            viewModel: diContainer.makeHomeViewModel(),factory: self  
         )
     }
     
-    func makeGoodsListViewController() -> GoodsListViewController {
-        GoodsListViewController(
-            viewModel: diContainer.makeGoodsListViewModel()
+    func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController {
+        GoodsListViewController(viewModel: diContainer.makeGoodsListViewModel(sectionType: sectionType, artistId: artistId, nickname: nickname)
         )
     }
     
@@ -114,7 +113,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
                 shippingId: shippingId,
                 orderItems: orderItems
             ),
-            factory: self 
+            factory: self
         )
     }
 }
