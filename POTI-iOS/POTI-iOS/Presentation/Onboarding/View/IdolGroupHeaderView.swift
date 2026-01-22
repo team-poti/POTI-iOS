@@ -28,10 +28,12 @@ final class IdolGroupHeaderView: UICollectionReusableView {
     private func setStyle() {
         descriptionLabel.do {
             $0.textColor = .potiBlack
-            // TODO: - 나중에 텍스트필드에 적은 닉네임 델리게이트로 보내기
-            $0.text = "포티님의 최애 그룹 한 팀을 선택해주세요"
             $0.font = PotiFontManager.title18sb.font
         }
+    }
+    
+    func configure(nickname: String) {
+        descriptionLabel.text = "\(nickname)님의 최애 그룹 한 팀을 선택해주세요"
     }
     
     private func setUI() {

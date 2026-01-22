@@ -40,7 +40,7 @@ final class OnboardingViewController: BaseViewController<OnboardingViewModel>, N
 
 extension OnboardingViewController {
     @objc private func nextButtonDidTap() {
-        let validNicknameVC = factory.makeValidNicknameViewController()
+        let validNicknameVC = factory.makeValidNicknameViewController(viewModel: viewModel)
         self.navigationController?.pushViewController(validNicknameVC, animated: true)
     }
 }

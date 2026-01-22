@@ -15,8 +15,8 @@ protocol ViewControllerFactory {
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
     func makeOnboardingViewController() -> OnboardingViewController
-    func makeValidNicknameViewController() -> ValidNicknameViewController
-    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController
+    func makeValidNicknameViewController(viewModel: OnboardingViewModel) -> ValidNicknameViewController
+    func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController
     func makeRecruitDetailViewController() -> RecruitDetailViewController
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
@@ -89,15 +89,17 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeOnboardingViewController() -> OnboardingViewController {
-        OnboardingViewController(viewModel: OnboardingViewModel(), factory: self)
+        OnboardingViewController(
+            viewModel: diContainer.makeOnboardingViewModel(), factory: self
+        )
     }
     
-    func makeValidNicknameViewController() -> ValidNicknameViewController {
-        ValidNicknameViewController(viewModel: OnboardingViewModel(), factory: self)
+    func makeValidNicknameViewController(viewModel: OnboardingViewModel) -> ValidNicknameViewController {
+        ValidNicknameViewController(viewModel: viewModel, factory: self)
     }
     
-    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController {
-        SelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel(), factory: self)
+    func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController {
+        SelectFavoriteIdolGroupViewController(viewModel: viewModel, factory: self)
     }
     
     func makePotListViewController() -> PotListViewController {
