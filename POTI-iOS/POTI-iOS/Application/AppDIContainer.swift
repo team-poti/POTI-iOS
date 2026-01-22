@@ -192,8 +192,8 @@ final class AppDIContainer {
         RecruitDetailViewModel(postId: postId, postsSaleUseCase: makePostsSaleUseCase())
     }
     
-    func makeManageViewModel() -> ParticipantManageViewModel {
-        ParticipantManageViewModel(useCase: makeManageUseCase())
+    func makeManageViewModel(postId: Int) -> ParticipantManageViewModel {
+        ParticipantManageViewModel(postId: postId, useCase: makeManageUseCase())
     }
     
     func makeMyPageJoinViewModel() -> MyPageJoinViewModel {
