@@ -55,7 +55,7 @@ final class AppDIContainer {
     }
     
     private func makeOrderRepository() -> OrderInterface {
-        DefaultOrderRepository()
+        DefaultOrderRepository(networkService: makeNetworkService())
     }
     
     private func makePostsRepository() -> PostsInterface {

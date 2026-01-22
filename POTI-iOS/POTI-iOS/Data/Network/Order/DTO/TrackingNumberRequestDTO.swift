@@ -5,7 +5,7 @@
 //  Created by 이서현 on 1/22/26.
 //
 
-struct TrackingNumberRequestDTO: Decodable {
+struct TrackingNumberRequestDTO: Encodable {
     let carrier: String
     let trackingNumber: String
 }

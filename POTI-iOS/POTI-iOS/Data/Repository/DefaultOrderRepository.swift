@@ -8,7 +8,7 @@
 final class DefaultOrderRepository: OrderInterface {
     private let networkService: NetworkService
     
-    init(networkService: NetworkService = NetworkService()) {
+    init(networkService: NetworkService) {
         self.networkService = networkService
     }
     
