@@ -94,6 +94,10 @@ final class AppDIContainer {
         DefaultPaymentsRepository(networkService: makeNetworkService())
     }
     
+    private func makeParticipationsRepository() -> ParticipationsInterface {
+        DefaultParticipationsRepository(networkService: makeNetworkService())
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -178,6 +182,10 @@ final class AppDIContainer {
         DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
     }
     
+    private func makeParticipationssDetailUseCase() -> ParticipationsDetailUseCase {
+        DefaultParticipationsDetailUseCase(repository: makeParticipationsRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -225,8 +233,10 @@ final class AppDIContainer {
         )
     }
     
-    func makeMyPageJoinViewModel() -> MyPageJoinViewModel {
-        MyPageJoinViewModel()
+    func makeMyPageJoinViewModel(participationId: Int) -> MyPageJoinViewModel {
+        MyPageJoinViewModel(
+            participationId: participationId,
+            usecase: makeParticipationssDetailUseCase())
     }
     
     func makePotListViewModel(title: String, artistId: Int, artistName: String) -> PotListViewModel {

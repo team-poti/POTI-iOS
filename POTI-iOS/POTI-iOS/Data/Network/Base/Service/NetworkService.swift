@@ -25,7 +25,12 @@ final class NetworkService: Sendable {
         
         let parameters: Parameters?
         let parameterType: String
-        
+        print("🌍 [NetworkService] baseURL:", baseURL)           // 너희가 쓰는 방식으로
+        print("🌍 [NetworkService] path:", target.path)
+        print("🌍 [NetworkService] method:", target.method)
+        print("🌍 [NetworkService] headers:", target.headers)
+        print("🌍 [NetworkService] query:", target.queryParameters ?? [:])
+        print("🌍 [NetworkService] body:", target.bodyParameters ?? [:])
         if let query = target.queryParameters {
             parameters = query
             parameterType = "QUERY"

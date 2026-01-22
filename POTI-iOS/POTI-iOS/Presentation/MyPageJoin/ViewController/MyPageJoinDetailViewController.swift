@@ -20,6 +20,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     private let backgroundView = UIView()
     private let completeButton = PotiBottomButton()
     private var tableViewBottomConstraint: Constraint?
+    private var viewState: JoinDetailViewState?
     
     // MARK: - Lifecycle
     
@@ -167,6 +168,25 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     override func bindViewModel() {
+        // 1) 화면 상태 내려받기 (progress, myJoinDepositInfo 포함)
+        viewModel.output.viewState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                self?.viewState = state
+                self?.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+        
+        // 2) VM이 "리로드 해" 신호 주는 경우(에러처리/부분 업데이트 용)
+        viewModel.output.reloadData
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.updateCompleteButton()
+                self?.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+        
+        // (기존 naviPotInfo 바인딩은 그대로)
         viewModel.output.naviPotInfo
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -256,9 +276,10 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                 withIdentifier: JoinProgressStatusViewCell.identifier,
                 for: indexPath
             ) as? JoinProgressStatusViewCell else { return UITableViewCell() }
-            if let model = viewModel.progressStatusModel {
+            if let model = viewState?.progress {
                 cell.configure(model: model)
             }
+            
             return cell
             
         case .myJoinDepositInfo:
@@ -266,8 +287,8 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                 withIdentifier: MyJoinDepositInfoCell.identifier,
                 for: indexPath
             ) as? MyJoinDepositInfoCell else { return UITableViewCell() }
-            if let model = viewModel.joinModel {
-                cell.configure(model: model)
+            if let state = viewState?.myJoinDepositInfo {
+                cell.configure(state: state)
             }
             return cell
             

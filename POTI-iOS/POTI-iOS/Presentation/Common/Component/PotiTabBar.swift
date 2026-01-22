@@ -36,7 +36,7 @@ final class PotiTabBar: UITabBarController {
         let vc2 = UINavigationController(rootViewController: historyVC)
         vc2.tabBarItem = UITabBarItem(title: "분철 내역", image: .icnHistory, tag: 2)
         
-        let myPageVC = factory.makeRecruitDetailViewController(postId: 101)
+        let myPageVC = factory.makeMyPageJoinDetailViewController(participantId: 1005)
         let vc3 = UINavigationController(rootViewController: myPageVC)
         vc3.tabBarItem = UITabBarItem(title: "마이페이지", image: .icnMypage, tag: 3)
         

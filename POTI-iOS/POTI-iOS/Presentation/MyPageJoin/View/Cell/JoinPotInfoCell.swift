@@ -62,6 +62,7 @@ final class JoinPotInfoCell: UITableViewCell {
         potTitleLabel.do {
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
+            $0.numberOfLines = 2
         }
         
         potStatusLabel.do {

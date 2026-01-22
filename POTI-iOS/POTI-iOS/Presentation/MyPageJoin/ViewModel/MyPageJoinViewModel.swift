@@ -8,6 +8,7 @@
 import Combine
 
 final class MyPageJoinViewModel: BaseViewModelType {
+    private let participationId: Int
     
     // MARK: - Input
     
@@ -20,8 +21,10 @@ final class MyPageJoinViewModel: BaseViewModelType {
     // MARK: - Output
     
     struct Output {
+        let reloadData: AnyPublisher<Void, Never>
         let fetchData: AnyPublisher<Void, Never>
         let naviPotInfo: AnyPublisher<Void, Never>
+        let viewState: AnyPublisher<JoinDetailViewState?, Never>
     }
     
     private(set) var joinModel: MyPageJoinModel?
@@ -33,29 +36,50 @@ final class MyPageJoinViewModel: BaseViewModelType {
     
     // MARK: - Subject
     
+    private let reloadDataSubject = PassthroughSubject<Void, Never>()
     private let fetchDataSubject = PassthroughSubject<Void, Never>()
     private let naviPotInfoSubject = PassthroughSubject<Void, Never>()
+    private let viewStateSubject = CurrentValueSubject<JoinDetailViewState?, Never>(nil)
     
     let output: Output
+    private let usecase: ParticipationsDetailUseCase
+    private let viewStateMapper = JoinDetailViewStateMapper()
     
     // MARK: - Lifecycle
     
-    init() {
+    init(
+        participationId: Int,
+        usecase: ParticipationsDetailUseCase
+    ) {
+        self.participationId = participationId
+        self.usecase = usecase
         self.output = Output(
+            reloadData: reloadDataSubject.eraseToAnyPublisher(),
             fetchData: fetchDataSubject.eraseToAnyPublisher(),
-            naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher()
+            naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher(),
+            viewState: viewStateSubject.eraseToAnyPublisher()
         )
+        print("✅ MyPageJoinViewModel init - participationId:", participationId)
+    }
+    
+    deinit {
+        print("🧨 MyPageJoinViewModel deinit - participationId:", participationId)
     }
     
     // MARK: - Action
     
     func action(_ trigger: Input) {
+        print("➡️ MyPageJoinViewModel action:", trigger)
         switch trigger {
-            
         case .viewDidLoad:
-            let mock = makeMockParticipants()
-            action(.setParticipants(mock))
-            
+            print("🟦 viewDidLoad received - will fetch, participationId:", participationId)
+            Task { [weak self] in
+                guard let self else {
+                    print("⚠️ viewDidLoad Task: self nil (ViewModel released before fetch)")
+                    return
+                }
+                await self.fetchParticipationsDetail(participationId: self.participationId)
+            }
         case .setParticipants(let participants):
             self.participants = participants
             self.joinModel = participants.first
@@ -76,43 +100,21 @@ final class MyPageJoinViewModel: BaseViewModelType {
         }
     }
     
-    // MARK: - Mock
+    // MARK: - Private Method
     
-    private func makeMockParticipants() -> [MyPageJoinModel] {
-        return [
-            MyPageJoinModel(
-                participationId: 5,
-                imageUrlString: "",
-                artistName: "BLACKPINK",
-                title: "Pink Venom 포토카드",
-                postStatus: .shipping,
-                orderStatus: .delivered,
-                statusMessage: "모든 진행이 완료되었어요",
-                memberPayments: [
-                    .init(memberName: "제니", price: 9000),
-                    .init(memberName: "로제", price: 9000),
-                    .init(memberName: "지수", price: 9000),
-                    .init(memberName: "리사", price: 9000)
-                ],
-                paymentInfo: .init(
-                    shippingFee: 4000,
-                    totalAmount: 40000,
-                    depositStatus: .completed,
-                    bank: "우리은행",
-                    accountNumber: "1002-345-678901",
-                    depositDeadline: "2025-12-30T02:50"
-                ),
-                shippingInfo: .init(
-                    shippingMethod: "일반택배",
-                    receiver: "김서현",
-                    zipcode: "06000",
-                    address: "서울시 강남구 압구정로 77",
-                    phone: "010-2222-3333",
-                    carrier: "CJ대한통운",
-                    trackingNumber: "987654321098",
-                    shippingStatus: .delivered
-                )
-            )
-        ]
+    private func fetchParticipationsDetail(participationId: Int) async {
+        print("🌐 fetchParticipationsDetail start - participationId:", participationId)
+        do {
+            let entity = try await usecase.execute(participationId: participationId)
+            print("✅ fetchParticipationsDetail success - entity:", entity)
+            let state = viewStateMapper.map(entity: entity)
+            
+            viewStateSubject.send(state)
+            reloadDataSubject.send()
+        } catch {
+            print("❌ fetchParticipationsDetail error type:", String(reflecting: type(of: error)))
+            print("❌ fetchParticipationsDetail error:", error)
+            print("❌ fetchParticipationsDetail localizedDescription:", error.localizedDescription)
+        }
     }
 }
