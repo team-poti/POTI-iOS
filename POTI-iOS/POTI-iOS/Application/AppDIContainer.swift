@@ -82,6 +82,10 @@ final class AppDIContainer {
         DefaultPostsRepository(networkService: makeNetworkService())
     }
     
+    private func makePaymentsRepository() -> PaymentsInterface {
+        DefaultPaymentsRepository(networkService: makeNetworkService())
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -154,6 +158,10 @@ final class AppDIContainer {
         DefaultSubmitOnboardingUseCase(repository: makeUsersRepository())
     }
     
+    private func makePaymentsUseCase() -> PaymentsUseCase {
+        DefaultPaymentsUseCase(repository: makePaymentsRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -193,7 +201,11 @@ final class AppDIContainer {
     }
     
     func makeManageViewModel(postId: Int) -> ParticipantManageViewModel {
-        ParticipantManageViewModel(postId: postId, useCase: makeManageUseCase())
+        ParticipantManageViewModel(
+            postId: postId,
+            postsParticipantsUseCase: makeManageUseCase(),
+            paymentsUseCase: makePaymentsUseCase()
+        )
     }
     
     func makeMyPageJoinViewModel() -> MyPageJoinViewModel {

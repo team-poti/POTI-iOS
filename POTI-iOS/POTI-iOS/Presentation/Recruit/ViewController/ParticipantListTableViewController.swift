@@ -89,7 +89,6 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             onLeftButton: { [weak self] in
                 self?.dismiss(animated: true)
             },
-            // CustomAlertView가 orderId를 넘겨주더라도, 이 화면에서는 이미 orderId를 알고 있으니 그대로 사용
             onRightButton: { [weak self] in
                 self?.viewModel.action(.confirmDeposit(orderId: orderId))
             }
