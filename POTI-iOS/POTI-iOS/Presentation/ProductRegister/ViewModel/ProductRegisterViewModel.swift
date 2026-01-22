@@ -201,10 +201,6 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 errors.images = "사진을 1장 이상 등록해주세요"
             }
 
-            if info.artist.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                errors.artist = "아티스트를 선택해주세요"
-            }
-
             let selectedArtistId = info.artistId ?? selectedArtist?.artistId ?? selectedArtistSubject.value?.artistId
             if selectedArtistId == nil {
                 errors.artist = "아티스트를 선택해주세요"

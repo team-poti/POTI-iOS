@@ -14,6 +14,8 @@ final class CustomLongTextField: BaseView {
 
     // MARK: - Property
 
+    public var onBeginEditing: ((UITextView) -> Void)?
+
     private var uiState: TextFieldUIState = .normal
 
     // MARK: - UI Components
@@ -185,6 +187,7 @@ extension CustomLongTextField: UITextViewDelegate {
 
     func textViewDidBeginEditing(_ textView: UITextView) {
         apply(state: .focused)
+        onBeginEditing?(textView)
         updatePlaceholderIfNeeded()
     }
 

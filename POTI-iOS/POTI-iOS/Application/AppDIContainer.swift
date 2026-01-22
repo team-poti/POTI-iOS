@@ -43,19 +43,19 @@ final class AppDIContainer {
     }
     
     private func makeHomeRepository() -> HomeInterface {
-        DefaultHomeRepository()
+        DefaultHomeRepository(networkService: makeNetworkService())
     }
     
     private func makeGoodsListRepository() -> GoodsListInterface {
-        DefaultGoodsListRepository()
+        DefaultGoodsListRepository(networkService: makeNetworkService())
     }
-
+    
     private func makeOrderRepository() -> OrderInterface {
         DefaultOrderRepository()
     }
     
     private func makePostsRepository() -> PostsInterface {
-        DefaultPostsRepository()
+        DefaultPostsRepository(networkService: makeNetworkService())
     }
     
     private func makePotDetailRepository() -> PotDetailInterface {
@@ -63,7 +63,7 @@ final class AppDIContainer {
     }
     
     private func makeManageRepository() -> PostsInterface {
-        DefaultPostsRepository()
+        DefaultPostsRepository(networkService: makeNetworkService())
     }
     
     private func makePotListRepository() -> PotListInterface {
@@ -71,7 +71,15 @@ final class AppDIContainer {
     }
     
     private func makeArtistsRepository() -> ArtistsInterface {
-        DefaultArtistsRepository()
+        DefaultArtistsRepository(networkService: makeNetworkService())
+    }
+    
+    private func makeUsersRepository() -> UsersInterface {
+        DefaultUsersRepository(networkService: makeNetworkService())
+    }
+    
+    private func makePotsSaleRepository() -> PostsInterface {
+        DefaultPostsRepository(networkService: makeNetworkService())
     }
     
     private func makeRegisterRepository() -> RegisterInterface {
@@ -109,7 +117,7 @@ final class AppDIContainer {
     private func makeOrderUseCase() -> SubmitOrderUseCase {
         DefaultSubmitOrderUseCase(repository: makeOrderRepository())
     }
-  
+    
     private func makePotDetailUseCase() -> PotDetailUseCase {
         DefaultPotDetailUseCase(repository: makePotDetailRepository())
     }
@@ -122,7 +130,7 @@ final class AppDIContainer {
         DefaultPotOptionsUseCase(repository: makePostsRepository())
     }
     
-    private func makeManageUseCase() -> PostsUseCase {
+    private func makeManageUseCase() -> PostsParticipantsUseCase {
         DefaultManageUseCase(repository: makeManageRepository())
     }
     
@@ -146,6 +154,22 @@ final class AppDIContainer {
         DefaultRegisterPostsUseCase(repository: makeRegisterRepository())
     }
     
+    private func makePostsSaleUseCase() -> PostsSaleUseCase {
+        DefaultPostsSaleUseCase(repository: makePostsRepository())
+    }
+    
+    private func makeOnboardingArtistsUsecase() -> OnboardingArtistsUsecase {
+        DefaultOnboardingArtistsUsecase(repository: makeArtistsRepository())
+    }
+    
+    private func makeValidNicknameUseCase() -> ValidNicknameUseCase {
+        DefaultValidNicknameUseCase(repository: makeUsersRepository())
+    }
+    
+    private func makeSubmitOnboardingUseCase() -> SubmitOnboardingUseCase {
+        DefaultSubmitOnboardingUseCase(repository: makeUsersRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -160,10 +184,10 @@ final class AppDIContainer {
         HomeViewModel(useCase: makeHomeUseCase())
     }
     
-    func makeGoodsListViewModel() -> GoodsListViewModel {
-        GoodsListViewModel(useCase: makeGoodsListUseCase())
+    func makeGoodsListViewModel(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewModel {
+        GoodsListViewModel(useCase: makeGoodsListUseCase(),sectionType: sectionType,artistId: artistId,nickname: nickname)
     }
-  
+    
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
         PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
     }
@@ -175,13 +199,13 @@ final class AppDIContainer {
     func makePotOptionsSheetViewModel(postId: Int) -> PotOptionsViewModel {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
-      
+    
     func makeOrderViewModel(postId: Int) -> PotOptionsViewModel {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
     
-    func makeRecruitDetailViewModel() -> RecruitDetailViewModel {
-        RecruitDetailViewModel()
+    func makeRecruitDetailViewModel(postId: Int) -> RecruitDetailViewModel {
+        RecruitDetailViewModel(postId: postId, postsSaleUseCase: makePostsSaleUseCase())
     }
     
     func makeManageViewModel() -> ParticipantManageViewModel {
@@ -209,5 +233,13 @@ final class AppDIContainer {
     
     func makeArtistSearchViewModel() -> ArtistSearchViewModel {
         ArtistSearchViewModel(registerArtistsUseCase: makeRegisterArtistsUseCase())
+    }
+    
+    func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(
+            onboardingArtistsUsecase: makeOnboardingArtistsUsecase(),
+            validNicknameUseCase: makeValidNicknameUseCase(),
+            submitOnboardingUseCase: makeSubmitOnboardingUseCase()
+        )
     }
 }

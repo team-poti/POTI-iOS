@@ -299,7 +299,7 @@ extension ParticipantManageListCell {
         )
         
         switch model.participantstatus {
-        case .waitPay, .waitRecruit:
+        case .waitPay, .waitPayCheck:
             participantCaseZeroHeightConstraint?.activate()
         default:
             participantCaseZeroHeightConstraint?.deactivate()

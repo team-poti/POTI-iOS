@@ -13,7 +13,7 @@ protocol GoodsListViewScrollDelegate: AnyObject {
     func goodsListViewDidScroll(yOffset: CGFloat)
 }
 
-final class GoodsListViewController: BaseViewController<GoodsListViewModel> {
+final class GoodsListViewController: BaseViewController<GoodsListViewModel>, NavigationConfigurable {
     
     // MARK: - Properties
     
@@ -30,7 +30,6 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel> {
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
-        self.navigationController?.navigationBar.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -62,6 +61,13 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel> {
             }
             .store(in: &cancellables)
     }
+    
+    // MARK: - Method
+    
+    func navigationStyle() -> PotiNavigationStyle {
+        let title = viewModel.sectionType.getHeaderTitle(nickName: viewModel.nickname) ?? ""
+        return .backDefault(title)
+    }
 }
 
 // MARK: - UICollectionViewDataSource
@@ -91,8 +97,18 @@ extension GoodsListViewController: UICollectionViewDataSource {
         
         switch kind {
         case UICollectionView.elementKindSectionHeader:
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: GoodsListHeaderCell.identifier, for: indexPath) as! GoodsListHeaderCell
+            let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: GoodsListHeaderCell.identifier,
+                for: indexPath
+            ) as! GoodsListHeaderCell
+            
             header.delegate = self
+            
+            header.configure(
+                text: viewModel.currentSortText,
+                isFilterVisible: (viewModel.sectionType != .otherGroup)
+            )
             return header
             
         default:
@@ -106,13 +122,34 @@ extension GoodsListViewController: UICollectionViewDataSource {
 extension GoodsListViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollDelegate?.goodsListViewDidScroll(yOffset: scrollView.contentOffset.y)
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height - 100 {
+            viewModel.action(.loadNextPage)
+        }
     }
 }
 
 extension GoodsListViewController: GoodsListHeaderCellDelegate {
     func filterButtonDidTap() {
+        let initialIndex = (viewModel.currentSort == "LATEST") ? 0 : 1
+        let sortViewModel = SortViewModel(initialIndex: initialIndex)
+        let bottomSheet = SortBottomSheet(viewModel: sortViewModel)
         
-        // TODO: - 멤버 모달 이후 구현하기
+        bottomSheet.onSelectCompletion = { [weak self] index in
+            self?.viewModel.action(.didTapSortOption(index: index))
+        }
         
+        bottomSheet.onDismissCompletion = { [weak self] in
+            if let header = self?.rootView.goodsListCollectionView.supplementaryView(
+                forElementKind: UICollectionView.elementKindSectionHeader,
+                at: IndexPath(item: 0, section: 0)
+            ) as? GoodsListHeaderCell {
+                header.setFilterButtonState(isSelected: false)
+            }
+        }
+        bottomSheet.show(on: self.navigationController?.view ?? self.view)
     }
 }

@@ -10,14 +10,14 @@ protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
     func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
-    func makeGoodsListViewController() -> GoodsListViewController
+    func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController
     func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
     func makeOnboardingViewController() -> OnboardingViewController
-    func makeValidNicknameViewController() -> ValidNicknameViewController
-    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController
-    func makeRecruitDetailViewController() -> RecruitDetailViewController
+    func makeValidNicknameViewController(viewModel: OnboardingViewModel) -> ValidNicknameViewController
+    func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController
+    func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
     func makePotListViewController() -> PotListViewController
@@ -51,14 +51,12 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeHomeViewController() -> HomeViewController {
         HomeViewController(
-            viewModel: diContainer.makeHomeViewModel(),
-            factory: self
+            viewModel: diContainer.makeHomeViewModel(),factory: self
         )
     }
     
-    func makeGoodsListViewController() -> GoodsListViewController {
-        GoodsListViewController(
-            viewModel: diContainer.makeGoodsListViewModel()
+    func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController {
+        GoodsListViewController(viewModel: diContainer.makeGoodsListViewModel(sectionType: sectionType, artistId: artistId, nickname: nickname)
         )
     }
     
@@ -74,8 +72,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makeRecruitDetailViewController() -> RecruitDetailViewController {
-        RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel())
+    func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController {
+        RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel(postId: postId))
     }
     
     func makeParticipantManageViewController() -> ParticipantListTableViewController {
@@ -93,15 +91,17 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeOnboardingViewController() -> OnboardingViewController {
-        OnboardingViewController(viewModel: OnboardingViewModel(), factory: self)
+        OnboardingViewController(
+            viewModel: diContainer.makeOnboardingViewModel(), factory: self
+        )
     }
     
-    func makeValidNicknameViewController() -> ValidNicknameViewController {
-        ValidNicknameViewController(viewModel: OnboardingViewModel(), factory: self)
+    func makeValidNicknameViewController(viewModel: OnboardingViewModel) -> ValidNicknameViewController {
+        ValidNicknameViewController(viewModel: viewModel, factory: self)
     }
     
-    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController {
-        SelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel(), factory: self)
+    func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController {
+        SelectFavoriteIdolGroupViewController(viewModel: viewModel, factory: self)
     }
     
     func makePotListViewController() -> PotListViewController {
@@ -129,7 +129,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeProductRegisterViewController() -> ProductRegisterViewController {
         ProductRegisterViewController(
-            viewModel: diContainer.makeProductRegisterViewModel(), factory: self
+            viewModel: diContainer.makeProductRegisterViewModel(),
+            factory: self
         )
     }
 }

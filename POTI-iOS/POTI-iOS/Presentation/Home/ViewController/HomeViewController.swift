@@ -39,7 +39,7 @@ protocol HomeViewScrollDelegate: AnyObject {
     func homeViewDidScroll(yOffset: CGFloat)
 }
 
-final class HomeViewController: BaseViewController<HomeViewModel>{
+final class HomeViewController: BaseViewController<HomeViewModel>, NavigationConfigurable {
     
     private let factory: ViewControllerFactory
 
@@ -56,6 +56,18 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     weak var scrollDelegate: HomeViewScrollDelegate?
     private let rootView = HomeView()
     private let setHomeData = PassthroughSubject<Void, Never>()
+    private let factory: ViewControllerFactory
+    
+    // MARK: - Initializer
+    
+    init(viewModel: HomeViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Life Cycles
     
@@ -66,6 +78,13 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = false
+        }
     }
     
     override func setDelegate() {
@@ -101,6 +120,12 @@ final class HomeViewController: BaseViewController<HomeViewModel>{
             action: #selector(didTapFloatingButton),
             for: .touchUpInside
         )
+    }
+    
+    // MARK: - Methods
+    
+    func navigationStyle() -> PotiNavigationStyle {
+        return .home
     }
     
     private func updateBannerFooter(_ page: Int) {
@@ -175,7 +200,7 @@ extension HomeViewController: UICollectionViewDataSource {
     }
 }
 
-//MARK: - Extensions
+// MARK: - Extensions
 
 extension HomeViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -185,16 +210,22 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension HomeViewController: GoodsHeaderCellDelegate {
     func moreButtonDidTap(in section: Int) {
-//        guard let sectionType = HomeSection(rawValue: section) else { return }
+        guard let sectionType = HomeSection(rawValue: section) else { return }
         
-        let networkService = NetworkService()
+        let targetArtistId: Int
         
-        let repository = DefaultGoodsListRepository(networkService: networkService)
-        let useCase = DefaultGoodsListUseCase(repository: repository)
+        if sectionType == .myGroup {
+            targetArtistId = (viewModel.mainArtistId != -1) ? viewModel.mainArtistId : 0
+        } else {
+            targetArtistId = 0
+        }
         
-        let goodsListViewModel = GoodsListViewModel(useCase: useCase)
-        let goodsListViewController = GoodsListViewController(viewModel: goodsListViewModel)
-        
+        let goodsListViewController = factory.makeGoodsListViewController(
+            sectionType: sectionType,
+            artistId: targetArtistId,
+            nickname: viewModel.nickname
+        )
+        goodsListViewController.title = sectionType.getHeaderTitle(nickName: viewModel.nickname)
         self.navigationController?.pushViewController(goodsListViewController, animated: true)
     }
     

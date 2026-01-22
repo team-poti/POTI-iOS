@@ -63,6 +63,8 @@ final class IdolGroupCell: UICollectionViewCell {
             $0.font = PotiFontManager.caption12m.font
             $0.textColor = .gray800
             $0.textAlignment = .center
+            $0.numberOfLines = 2
+            $0.lineBreakMode = .byWordWrapping
         }
     }
     
@@ -89,6 +91,7 @@ final class IdolGroupCell: UICollectionViewCell {
         nameLabel.snp.makeConstraints {
             $0.top.equalTo(containerView.snp.bottom).offset(6)
             $0.centerX.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(2)
             $0.bottom.equalToSuperview()
         }
     }
@@ -96,12 +99,10 @@ final class IdolGroupCell: UICollectionViewCell {
     // MARK: - Configure
     
     func configure(with item: IdolGroupModel) {
-        
         nameLabel.text = item.name
-        if let url = URL(string: item.image) {
+        if let url = URL(string: item.image ?? "") {
             groupImageView.kf.setImage(
                 with: url,
-                placeholder: UIImage(systemName: "photo"),
                 options: [
                     .transition(.fade(0.2)),
                     .cacheOriginalImage

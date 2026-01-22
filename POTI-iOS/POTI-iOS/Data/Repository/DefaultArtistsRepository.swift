@@ -6,9 +6,10 @@
 //
 
 final class DefaultArtistsRepository: ArtistsInterface {
+    
     private let networkService: NetworkService
     
-    init(networkService: NetworkService = NetworkService()) {
+    init(networkService: NetworkService) {
         self.networkService = networkService
     }
     
@@ -31,5 +32,13 @@ final class DefaultArtistsRepository: ArtistsInterface {
             ArtistsEntity(artistId: 5, artistName: "리즈"),
             ArtistsEntity(artistId: 6, artistName: "이서")
         ]
+    }
+    
+    func fetchOnboardingArtists() async throws -> OnboardingArtistsEntity {
+        let result = try await networkService.request(
+            target: ArtistsAPI.fetchOnboardingArtistsList,
+            type: OnboardingArtistsResponseDTO.self
+        )
+        return result.toEntity()
     }
 }

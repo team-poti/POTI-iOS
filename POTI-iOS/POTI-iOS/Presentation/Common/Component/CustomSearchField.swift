@@ -14,6 +14,8 @@ final class CustomSearchField: BaseView {
 
     var onQueryChanged: ((String) -> Void)?
     var onSelectItem: ((Int, String) -> Void)?
+    var onBeginEditing: ((UITextField) -> Void)?
+    var onListVisibilityChanged: ((CGFloat) -> Void)?
 
     private var isListVisible: Bool = false
     private var textFieldTrailingConstraint: Constraint?
@@ -119,6 +121,8 @@ final class CustomSearchField: BaseView {
         rightAccessoryContainer.addSubview(rightIconView)
         errorStackView.addArrangedSubviews(errorIconView, errorLabel)
         addTarget()
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleContainerTap))
+        containerView.addGestureRecognizer(tapGesture)
     }
 
     override func setLayout() {
@@ -250,6 +254,7 @@ final class CustomSearchField: BaseView {
         searchListView.isUserInteractionEnabled = true
 
         let targetHeight = searchListView.requiredHeight
+        onListVisibilityChanged?(targetHeight)
 
         searchListView.alpha = 0
         searchListView.transform = CGAffineTransform(translationX: 0, y: -6)
@@ -278,6 +283,8 @@ final class CustomSearchField: BaseView {
         guard isListVisible else { return }
 
         isListVisible = false
+
+        onListVisibilityChanged?(0)
 
         searchListHeightConstraint?.update(offset: 0)
 
@@ -322,6 +329,10 @@ final class CustomSearchField: BaseView {
         let query = getText()
         onQueryChanged?(query)
     }
+
+    @objc private func handleContainerTap() {
+        textField.becomeFirstResponder()
+    }
 }
 
 // MARK: - delegate Method
@@ -335,7 +346,7 @@ extension CustomSearchField: UITextFieldDelegate {
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
         apply(state: .focused)
-
+        onBeginEditing?(textField)
         if searchListView.itemsCount > 0 {
             showList(animated: true)
         }
