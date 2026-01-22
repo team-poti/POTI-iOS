@@ -126,7 +126,7 @@ final class AppDIContainer {
         DefaultPotOptionsUseCase(repository: makePostsRepository())
     }
     
-    private func makeManageUseCase() -> PostsUseCase {
+    private func makeManageUseCase() -> PostsParticipantsUseCase {
         DefaultManageUseCase(repository: makeManageRepository())
     }
     

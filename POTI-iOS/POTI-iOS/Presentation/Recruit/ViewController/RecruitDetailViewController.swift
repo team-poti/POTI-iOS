@@ -152,6 +152,9 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
                 for: indexPath
             ) as? PotInfoCell else { return UITableViewCell() }
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            if let potInfo = viewState?.potInfo {
+                    cell.configure(model: potInfo)
+                }
             cell.onTapPotButton = { [weak self] in
                 self?.viewModel.action(.tapPotInfo)
             }
