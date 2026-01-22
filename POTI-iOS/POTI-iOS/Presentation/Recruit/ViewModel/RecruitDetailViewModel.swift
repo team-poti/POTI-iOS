@@ -78,7 +78,6 @@ final class RecruitDetailViewModel: BaseViewModelType {
     // MARK: - Private Method
     
     private func fetchRecruitDetail(postId: Int) async {
-        // TODO: - 실제 UseCase 연결 예정
         do {
             let entity = try await postsSaleUseCase.execute(postId: postId)
             let state = viewStateMapper.map(entity: entity)
@@ -88,42 +87,5 @@ final class RecruitDetailViewModel: BaseViewModelType {
         } catch {
             print("🚘 fetchRecruitDetail error:", error)
         }
-        
-//        let participants: [RecruitParticipantEntity] = [
-//            RecruitParticipantEntity(
-//                orderId: 103,
-//                userId: 99,
-//                memberNames: ["리즈"],
-//                status: .shipped,
-//                priceInfo: RecruitPriceInfoEntity(
-//                    shippingName: "준등기",
-//                    totalPrice: 7500
-//                ),
-//                shippingInfo: RecruitShippingInfoEntity(
-//                    receiverName: "이수민",
-//                    address: "(01234) 서울특별시 솜트구...",
-//                    phone: "010-2345-2345"
-//                )
-//            )
-//        ]
-//        
-//        let entity = RecruitDetailEntity(
-//            postId: 100,
-//            totalCount: participants.count,
-//            imageUrl: "https://poti-bucket.s3.amazonaws.com/lovedive.png",
-//            artistName: "NCT WISH",
-//            title: "러브다이브 위드뮤 분철",
-//            postStatus: .delivered,
-//            statusMessage: "거래가 종료되었어요",
-//            participants: participants
-//        )
-//        
-//        let state = viewStateMapper.map(
-//            entity: entity,
-//            role: currentUserRole,
-//            currentUserId: 99 // TODO: 로그인 유저 id로 교체
-//        )
-//        viewStateSubject.send(state)
-//        reloadDataSubject.send(())
     }
 }
