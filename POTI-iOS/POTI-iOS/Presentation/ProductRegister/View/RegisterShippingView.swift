@@ -12,6 +12,12 @@ final class RegisterShippingView: BaseView {
     private let titleLabel = UILabel()
     private let rowsStackView = UIStackView()
     private let bottomBoxView = UIView()
+    private var selectedIndices: Set<Int> = []
+    
+    struct ShippingRequest {
+        let deliveryMethodId: Int
+        let price: Int
+    }
 
     override func setStyle() {
         backgroundColor = .clear
@@ -61,11 +67,50 @@ final class RegisterShippingView: BaseView {
 
     func configure(options: [(name: String, price: Int)]) {
         rowsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        selectedIndices = [0]
 
-        options.forEach { option in
+        for (index, option) in options.enumerated() {
             let row = ShippingRowView()
             row.configure(name: option.name, price: option.price)
+            row.setSelected(selectedIndices.contains(index))
+            row.onTap = { [weak self] in
+                guard let self = self else { return }
+                if self.selectedIndices.contains(index) {
+                    if self.selectedIndices.count == 1 {
+                        return
+                    }
+                    self.selectedIndices.remove(index)
+                } else {
+                    self.selectedIndices.insert(index)
+                }
+                for (i, view) in self.rowsStackView.arrangedSubviews.enumerated() {
+                    if let shippingRow = view as? ShippingRowView {
+                        shippingRow.setSelected(self.selectedIndices.contains(i))
+                    }
+                }
+            }
             rowsStackView.addArrangedSubview(row)
         }
+    }
+    
+    func collectSelectedShippings() -> [ShippingRequest] {
+        var result: [ShippingRequest] = []
+
+        for index in selectedIndices.sorted() {
+            switch index {
+            case 0:
+                result.append(
+                    ShippingRequest(deliveryMethodId: 1, price: 4000)
+                )
+            case 1:
+                result.append(
+                    ShippingRequest(deliveryMethodId: 2, price: 1800)
+                )
+            default:
+                break
+            }
+        }
+
+        return result
     }
 }
