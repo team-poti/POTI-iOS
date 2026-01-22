@@ -162,6 +162,10 @@ final class AppDIContainer {
         DefaultSubmitOnboardingUseCase(repository: makeUsersRepository())
     }
     
+    private func makeGetMyPageInformationUseCase() -> GetMyPageInformationUseCase {
+        DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -218,5 +222,9 @@ final class AppDIContainer {
     
     func makeOnboardingViewModel() -> OnboardingViewModel {
         OnboardingViewModel(onboardingArtistsUsecase: makeOnboardingArtistsUsecase(), validNicknameUseCase: makeValidNicknameUseCase(), submitOnboardingUseCase: makeSubmitOnboardingUseCase())
+    }
+    
+    func makeMyPageViewModel() -> MyPageViewModel {
+        MyPageViewModel(getMyPageInformationUseCase: makeGetMyPageInformationUseCase())
     }
 }

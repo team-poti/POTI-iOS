@@ -14,12 +14,12 @@ public final class ChooseFavoriteIdolButton: UIButton {
     private let favoriteIdolLabel = UILabel()
     private let arrowImageView = UIImageView()
     
-    init(title: String? = nil) {
+    init(hasFavoriteArtist: Bool = false, favoriteArtistName: String? = nil) {
         super.init(frame: .zero)
         setStyle()
         setUI()
         setLayout()
-        configure(title: title)
+        configure(hasFavoriteArtist: hasFavoriteArtist, favoriteArtistName: favoriteArtistName)
     }
     
     required init?(coder: NSCoder) {
@@ -64,7 +64,16 @@ public final class ChooseFavoriteIdolButton: UIButton {
         }
     }
     
-    func configure(title: String? = nil) {
-        favoriteIdolLabel.text = title ?? "나의 최애 선택하기"
+    func configure(
+        hasFavoriteArtist: Bool,
+        favoriteArtistName: String?
+    ) {
+        if hasFavoriteArtist,
+           let name = favoriteArtistName,
+           !name.isEmpty {
+            favoriteIdolLabel.text = name
+        } else {
+            favoriteIdolLabel.text = "나의 최애 선택하기"
+        }
     }
 }
