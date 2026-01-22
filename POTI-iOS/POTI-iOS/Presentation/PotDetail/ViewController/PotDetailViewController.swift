@@ -64,27 +64,22 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     }
     
     @objc private func joinButtonDidTap() {
-        let sheetVC = factory.makePotOptionsSheetViewController(postId: viewModel.postId)
-        
-        sheetVC.modalPresentationStyle = .overFullScreen
+        let optionsSheetVC = factory.makePotOptionsSheetViewController(postId: viewModel.postId)
+        optionsSheetVC.modalPresentationStyle = .overFullScreen
 
-        present(sheetVC, animated: false)
-        
-        sheetVC.onComplete = { [weak self] in
+        optionsSheetVC.onContinue = { [weak self] shippingId, orderItems in
             guard let self = self else { return }
-            
+
             let orderVC = self.factory.makePotOrderViewController(
                 postId: self.viewModel.postId,
-                shippingId: 0,
-                orderItems: []
+                shippingId: shippingId,
+                orderItems: orderItems
             )
-            
             self.navigationController?.pushViewController(orderVC, animated: true)
         }
-        
-        self.present(sheetVC, animated: false)
+        self.present(optionsSheetVC, animated: false)
     }
-    
+
 }
 
 // MARK: - UICollectionViewDataSource
@@ -170,3 +165,4 @@ extension PotDetailViewController: UICollectionViewDataSource {
 
 extension PotDetailViewController: UICollectionViewDelegate {
 }
+

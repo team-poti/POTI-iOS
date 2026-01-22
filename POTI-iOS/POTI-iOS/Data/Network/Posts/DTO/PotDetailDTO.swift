@@ -45,7 +45,7 @@ struct PotDetailDTO: Decodable {
 }
 
 struct PostImageDTO: Decodable {
-    let sortOrder: Int
+    let order: Int
     let url: String
 }
 

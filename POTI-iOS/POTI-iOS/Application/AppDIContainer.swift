@@ -63,7 +63,7 @@ final class AppDIContainer {
     }
     
     private func makePotDetailRepository() -> PotDetailInterface {
-        DefaultPotDetailRepository()
+        DefaultPotDetailRepository(networkService: makeNetworkService())
     }
     
     private func makeManageRepository() -> PostsInterface {
@@ -192,7 +192,7 @@ final class AppDIContainer {
         PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems)
     }
     
-    func makePotOptionsSheetViewModel(postId: Int) -> PotOptionsViewModel {
+    func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
     

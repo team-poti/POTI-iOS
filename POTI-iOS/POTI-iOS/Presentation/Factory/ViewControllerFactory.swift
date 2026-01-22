@@ -68,7 +68,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController {
         PotOptionsSheetViewController(
-            viewModel: diContainer.makePotOptionsSheetViewModel(postId: postId)
+            viewModel: diContainer.makePotOptionsViewModel(postId: postId)
         )
     }
     
