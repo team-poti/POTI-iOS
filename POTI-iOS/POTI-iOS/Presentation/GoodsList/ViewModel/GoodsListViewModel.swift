@@ -28,7 +28,7 @@ final class GoodsListViewModel: BaseViewModelType {
     private let useCase: GoodsListUseCase
     let sectionType: HomeSection
     let nickname: String
-    private let artistId: Int
+    private(set) var artistId: Int
     
     private var cancellables = Set<AnyCancellable>()
     let output: Output

@@ -16,38 +16,38 @@ protocol PotListHeaderCellDelegate: AnyObject {
 }
 
 final class PotListHeaderCell: UICollectionReusableView {
-
+    
     // MARK: - Property
-
+    
     weak var delegate: PotListHeaderCellDelegate?
-
+    
     // MARK: - UI Components
-
+    
     private let leftFilterButton = UIButton()
     private let rightFilterButton = UIButton()
-
+    
     // MARK: - Initializer
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-
+        
         setStyle()
         setUI()
         setLayout()
         addTarget()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     // MARK: - Custom Methods
-
+    
     private func setStyle() {
         leftFilterButton.do {
-
+            
             // TODO: - 멤버선택 바텀시트 추가 후 변경 텍스트로 변경하기
-
+            
             $0.setTitle("멤버 선택", for: .normal)
             $0.setTitleColor(.potiBlack, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
@@ -57,10 +57,6 @@ final class PotListHeaderCell: UICollectionReusableView {
         }
         
         rightFilterButton.do {
-
-            // TODO: - 정렬 바텀시트 추가 후 변경 텍스트로 변경하기
-
-            $0.setTitle("평점순", for: .normal)
             $0.setTitleColor(.potiBlack, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
             $0.setImage(.icnArrowDownSm, for: .normal)
@@ -68,11 +64,11 @@ final class PotListHeaderCell: UICollectionReusableView {
             $0.semanticContentAttribute = .forceRightToLeft
         }
     }
-
+    
     private func setUI() {
         addSubviews(leftFilterButton, rightFilterButton)
     }
-
+    
     private func setLayout() {
         leftFilterButton.snp.makeConstraints {
             $0.leading.top.equalToSuperview()
@@ -82,22 +78,26 @@ final class PotListHeaderCell: UICollectionReusableView {
             $0.trailing.top.equalToSuperview()
         }
     }
-
-    // MARK: - Private Method
-
+    
+    // MARK: - Methods
+    
     private func addTarget() {
         leftFilterButton.addTarget(self, action: #selector(leftFilterButtonTapped), for: .touchUpInside)
         
         rightFilterButton.addTarget(self, action: #selector(rightFilterButtonTapped), for: .touchUpInside)
     }
-
+    
+    func setSortButtonTitle(_ title: String) {
+        rightFilterButton.setTitle(title, for: .normal)
+    }
+    
     //MARK: - Action
     
     @objc private func leftFilterButtonTapped() {
         leftFilterButton.isSelected.toggle()
         delegate?.leftFilterButtonDidTap()
     }
-
+    
     @objc private func rightFilterButtonTapped() {
         rightFilterButton.isSelected.toggle()
         delegate?.rightFilterButtonDidTap()
@@ -107,9 +107,20 @@ final class PotListHeaderCell: UICollectionReusableView {
 // MARK: - Extension
 
 extension PotListHeaderCell {
-    func configure() {
-
-        // TODO: - 필터링 바텀시트랑 연결하기
-
+    func configure(leftText: String, rightText: String) {
+        leftFilterButton.setTitle(leftText, for: .normal)
+        rightFilterButton.setTitle(rightText, for: .normal)
+    }
+    
+    func setFilterButtonState(isLeft: Bool, isSelected: Bool) {
+        if isLeft {
+            leftFilterButton.isSelected = isSelected
+        } else {
+            rightFilterButton.isSelected = isSelected
+        }
+    }
+    
+    func setLeftFilterButtonTitle(_ title: String) {
+        leftFilterButton.setTitle(title, for: .normal)
     }
 }

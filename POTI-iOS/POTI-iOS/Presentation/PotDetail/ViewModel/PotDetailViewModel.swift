@@ -25,7 +25,7 @@ final class PotDetailViewModel: BaseViewModelType {
     // MARK: - Properties
     
     private let useCase: PotDetailUseCase
-    private let postId: Int
+    let postId: Int
     private var cancellables = Set<AnyCancellable>()
     
     let output: Output
@@ -61,7 +61,7 @@ final class PotDetailViewModel: BaseViewModelType {
     private func fetchPotDetail() {
         Task {
             do {
-                let entity = try await useCase.execute()
+                let entity = try await useCase.execute(postId: self.postId)
                 let model = entity.toPotDetailModel()
                 
                 self.potDetailModel = model
@@ -70,10 +70,13 @@ final class PotDetailViewModel: BaseViewModelType {
                         ParticipantDisplayModel(userInfo: participant, selectedMember: memberName)
                     }
                 }
-                let isEnabled = (model.status == "RECRUITING")
-                output.isJoinButtonEnabled.send(isEnabled)
                 
-                reloadDataSubject.send(())
+                let isEnabled = (model.status == "RECRUITING")
+                
+                await MainActor.run {
+                    output.isJoinButtonEnabled.send(isEnabled)
+                    reloadDataSubject.send(())
+                }
             } catch {
                 print("PotDetail fetch Error: \(error)")
                 output.isJoinButtonEnabled.send(false)

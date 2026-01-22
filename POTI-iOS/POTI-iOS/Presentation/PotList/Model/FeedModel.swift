@@ -6,6 +6,7 @@
 //
 
 struct FeedModel {
+    let potId: Int
     var recruiter: RecruiterModel
     let profileImage: String
     let rating: Double

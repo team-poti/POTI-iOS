@@ -60,12 +60,9 @@ final class SortBottomSheet: BaseView {
         }
         
         tableView.do {
-            
-            // MARK: - 서현이꺼 머지하고 extension 적용해서 cell 등록 수정하기
-            
             $0.delegate = self
             $0.dataSource = self
-            $0.register(SortCell.self, forCellReuseIdentifier: SortCell.identifier)
+            $0.register(SortCell.self)
             $0.separatorStyle = .none
             $0.isScrollEnabled = false
             $0.rowHeight = UITableView.automaticDimension

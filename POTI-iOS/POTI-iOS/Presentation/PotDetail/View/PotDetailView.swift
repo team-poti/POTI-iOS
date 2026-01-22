@@ -24,6 +24,8 @@ final class PotDetailView: BaseView {
         
         potDetailCollectionView.do {
             $0.backgroundColor = .clear
+            $0.showsVerticalScrollIndicator = false
+            
             $0.register(DetailBannerCell.self)
             $0.register(DetailInfoCell.self)
             $0.register(DetailUploaderCell.self)

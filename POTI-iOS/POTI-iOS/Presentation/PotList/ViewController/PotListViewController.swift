@@ -13,12 +13,24 @@ protocol PotListViewScrollDelegate: AnyObject {
     func potsListViewDidScroll(yOffset: CGFloat)
 }
 
-final class PotListViewController: BaseViewController<PotListViewModel>{
+final class PotListViewController: BaseViewController<PotListViewModel>, NavigationConfigurable {
     
     // MARK: - Properties
     
     weak var scrollDelegate: PotListViewScrollDelegate?
     private let rootView = PotListView()
+    private let factory: ViewControllerFactory
+    
+    // MARK: - Initializer
+    
+    init(viewModel: PotListViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Life Cycles
     
@@ -28,8 +40,8 @@ final class PotListViewController: BaseViewController<PotListViewModel>{
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationBar()
         viewModel.action(.viewDidLoad)
-        self.navigationController?.navigationBar.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -57,9 +69,67 @@ final class PotListViewController: BaseViewController<PotListViewModel>{
         viewModel.output.reloadData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                self?.rootView.potsListCollectionView.reloadData()
+                guard let self = self else { return }
+                self.rootView.potsListCollectionView.reloadData()
             }
             .store(in: &cancellables)
+        
+        viewModel.output.sortTitle
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] title in
+                self?.updateHeaderSortTitle(title)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.filterTitle
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] title in
+                self?.updateHeaderFilterTitle(title)
+            }
+            .store(in: &cancellables)
+    }
+    
+    // MARK: - Methods
+    
+    func navigationStyle() -> PotiNavigationStyle {
+        return .backSubtitle(title: viewModel.title, subtitle: viewModel.artistName)
+    }
+    
+    func setupNavigationBar() {
+        let style = navigationStyle()
+        PotiNavigationBar.configure(
+            navigationItem: self.navigationItem,
+            navigationController: self.navigationController,
+            style: style,
+            target: self
+        )
+    }
+    
+    private func setHeaderButtonState(isLeft: Bool, isSelected: Bool) {
+        if let header = rootView.potsListCollectionView.supplementaryView(
+            forElementKind: UICollectionView.elementKindSectionHeader,
+            at: IndexPath(item: 0, section: 0)
+        ) as? PotListHeaderCell {
+            header.setFilterButtonState(isLeft: isLeft, isSelected: isSelected)
+        }
+    }
+    
+    private func updateHeaderSortTitle(_ title: String) {
+        if let header = rootView.potsListCollectionView.supplementaryView(
+            forElementKind: UICollectionView.elementKindSectionHeader,
+            at: IndexPath(item: 0, section: 0)
+        ) as? PotListHeaderCell {
+            header.setSortButtonTitle(title)
+        }
+    }
+    
+    private func updateHeaderFilterTitle(_ title: String) {
+        if let header = rootView.potsListCollectionView.supplementaryView(
+            forElementKind: UICollectionView.elementKindSectionHeader,
+            at: IndexPath(item: 0, section: 0)
+        ) as? PotListHeaderCell {
+            header.setLeftFilterButtonTitle(title)
+        }
     }
 }
 
@@ -104,14 +174,47 @@ extension PotListViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollDelegate?.potsListViewDidScroll(yOffset: scrollView.contentOffset.y)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedPot = viewModel.pots[indexPath.item]
+        let detailVC = factory.makePotDetailViewController(postId: selectedPot.potId)
+        self.navigationController?.pushViewController(detailVC, animated: true)
+    }
 }
 
 extension PotListViewController: PotListHeaderCellDelegate {
     func leftFilterButtonDidTap() {
-        // TODO: - 멤버 모달 이후 구현하기
+        let bottomSheet = factory.makeArtistsBottomSheet(
+            artistId: viewModel.artistId,
+            selectedIds: viewModel.selectedMemberIds
+        )
+        
+        bottomSheet.onComplete = { [weak self] data in
+            self?.viewModel.action(.filterByMembers(members: data.ids, names: data.names))
+        }
+        
+        bottomSheet.onDismissCompletion = { [weak self] in
+            self?.setHeaderButtonState(isLeft: true, isSelected: false)
+        }
+        
+        bottomSheet.show(in: self.navigationController?.view ?? self.view)
     }
     
     func rightFilterButtonDidTap() {
-        // TODO: - 필터링 모달 이후 구현하기
+        let initialIndex = viewModel.currentSortIndex
+        
+        let bottomSheet = factory.makeSortBottomSheet(type: .pot, initialIndex: initialIndex)
+        
+        bottomSheet.onSelectCompletion = { [weak self] index in
+            self?.viewModel.action(.didTapSortOption(index: index))
+        }
+        
+        bottomSheet.onDismissCompletion = { [weak self] in
+            self?.setHeaderButtonState(isLeft: false, isSelected: false)
+        }
+        
+        bottomSheet.show(on: self.navigationController?.view ?? self.view)
     }
 }
+
+

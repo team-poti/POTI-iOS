@@ -152,7 +152,9 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
                             self.dismiss(animated: true)
                         }
                     }
-                    completeView.show(in: self.view)
+                    let targetView = self.navigationController?.view ?? self.view
+                    completeView.show(in: targetView!)
+                    
                     self.view.endEditing(true)
                 } else {
                     print("참여 실패")
@@ -164,7 +166,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     // MARK: - Method
     
     func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("팟")
+        return .backDefault("포티타임의 팟")
     }
     
     // MARK: - Action
