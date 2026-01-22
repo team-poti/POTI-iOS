@@ -6,50 +6,21 @@
 //
 
 struct RegisterArtistsResponseDTO: Decodable {
-    let code: Int
-    let msg: String
-    let data: DataDTO
+    let artists: [RegisterArtistDTO]
+}
 
-    struct DataDTO: Decodable {
-        let artists: [ArtistDTO]
-    }
-
-    struct ArtistDTO: Decodable {
-        let artistId: Int?
-        let name: String?
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case code
-        case msg
-        case message
-        case data
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        self.code = try container.decode(Int.self, forKey: .code)
-
-        if let msg = try? container.decode(String.self, forKey: .msg) {
-            self.msg = msg
-        } else if let message = try? container.decode(String.self, forKey: .message) {
-            self.msg = message
-        } else {
-            self.msg = ""
-        }
-
-        self.data = try container.decode(DataDTO.self, forKey: .data)
-    }
+struct RegisterArtistDTO: Decodable {
+    let artistId: Int?
+    let name: String?
 }
 
 extension RegisterArtistsResponseDTO {
     func toEntities() -> [RegisterArtistEntity] {
-        data.artists.map { $0.toEntity() }
+        artists.map { $0.toEntity() }
     }
 }
 
-extension RegisterArtistsResponseDTO.ArtistDTO {
+extension RegisterArtistDTO {
     func toEntity() -> RegisterArtistEntity {
         return RegisterArtistEntity(
             artistId: artistId,
