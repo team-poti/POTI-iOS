@@ -245,5 +245,6 @@ extension HomeViewController: GoodsHeaderCellDelegate {
         let viewModel = ProductRegisterViewModel()
         let vc = ProductRegisterViewController(viewModel: viewModel)
         self.navigationController?.pushViewController(vc, animated: true)
+//        KeychainManager.deleteAllTokens()
     }
 }
