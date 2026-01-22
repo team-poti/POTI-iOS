@@ -113,7 +113,7 @@ extension ParticipantStatus {
         switch participantStatus {
             
         case .recruiting:
-            return .waitPay
+            return .recruiting
         case .recruitCompleted:
             return .waitPayCheck
         case .depositCompleted:

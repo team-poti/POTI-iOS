@@ -55,7 +55,7 @@ final class AppDIContainer {
     }
     
     private func makeOrderRepository() -> OrderInterface {
-        DefaultOrderRepository()
+        DefaultOrderRepository(networkService: makeNetworkService())
     }
     
     private func makePostsRepository() -> PostsInterface {
@@ -88,6 +88,10 @@ final class AppDIContainer {
     
     private func makePotsSaleRepository() -> PostsInterface {
         DefaultPostsRepository(networkService: makeNetworkService())
+    }
+    
+    private func makePaymentsRepository() -> PaymentsInterface {
+        DefaultPaymentsRepository(networkService: makeNetworkService())
     }
     
     // MARK: - UseCase
@@ -162,6 +166,14 @@ final class AppDIContainer {
         DefaultSubmitOnboardingUseCase(repository: makeUsersRepository())
     }
     
+    private func makePaymentsUseCase() -> PaymentsConfirmUseCase {
+        DefaultPaymentsUseCase(repository: makePaymentsRepository())
+    }
+    
+    private func makeOrdersDeliveriesUseCase() -> OrdersDeliveriesUseCase {
+        DefaultOrdersDeliveriesUseCase(repository: makeOrderRepository())
+    }
+    
     private func makeGetMyPageInformationUseCase() -> GetMyPageInformationUseCase {
         DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
     }
@@ -204,8 +216,13 @@ final class AppDIContainer {
         RecruitDetailViewModel(postId: postId, postsSaleUseCase: makePostsSaleUseCase())
     }
     
-    func makeManageViewModel() -> ParticipantManageViewModel {
-        ParticipantManageViewModel(useCase: makeManageUseCase())
+    func makeManageViewModel(postId: Int) -> ParticipantManageViewModel {
+        ParticipantManageViewModel(
+            postId: postId,
+            postsParticipantsUseCase: makeManageUseCase(),
+            paymentsUseCase: makePaymentsUseCase(),
+            ordersDeliveriesUseCase: makeOrdersDeliveriesUseCase()
+        )
     }
     
     func makeMyPageJoinViewModel() -> MyPageJoinViewModel {

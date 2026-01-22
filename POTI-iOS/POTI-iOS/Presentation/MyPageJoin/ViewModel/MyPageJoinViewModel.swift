@@ -27,7 +27,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
     private(set) var joinModel: MyPageJoinModel?
     
     /// MyPageJoinDetailViewController -> .statusInfo  섹션에서 분기용으로 사용할 현재 상태
-    private(set) var participantStatus: MyPageJoinModel.PostStatus?
+    private(set) var participantOrderStatus: MyPageJoinModel.PostStatus?
     private(set) var progressStatusModel: ProgressStatusModel?
     private(set) var participants: [MyPageJoinModel] = []
     
@@ -60,7 +60,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
             self.participants = participants
             self.joinModel = participants.first
             /// VC에서 viewModel.participantStatus로 바로 꺼내 쓸 수 있게 디폴트 값 설정
-            self.participantStatus = joinModel?.postStatus
+            self.participantOrderStatus = joinModel?.postStatus
             if let joinModel {
                 self.progressStatusModel = ProgressStatusModel(
                     role: .participant,

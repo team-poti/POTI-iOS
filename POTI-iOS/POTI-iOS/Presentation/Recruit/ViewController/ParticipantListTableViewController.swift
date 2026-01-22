@@ -20,12 +20,31 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     // MARK: - UI
     
     private let tableView = UITableView()
+    private var lastSectionCount: Int = 0
+    
+    // 송장번호 입력 bottom sheet를 잡아두었다가 PATCH 성공 시 닫기
+    private var trackingNumberSheet: DetailBottomSheet?
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
+        lastSectionCount = viewModel.participants.count
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = true
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = false
+        }
     }
     
     override func setUI() {
@@ -50,7 +69,9 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         viewModel.output.fetchData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                self?.tableView.reloadData()
+                guard let self else { return }
+                self.lastSectionCount = self.viewModel.participants.count
+                self.tableView.reloadData()
             }
             .store(in: &cancellables)
         
@@ -63,20 +84,30 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         
         viewModel.output.confirmDepositTriggered
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] purchaseId in
-                self?.completeButtonTapped(purchaseId: purchaseId)
+            .sink { [weak self] orderId in
+                self?.completeButtonTapped(orderId: orderId)
             }
             .store(in: &cancellables)
         
         viewModel.output.confirmShipTriggered
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] purchaseId in
-                self?.presentTrackingNumberBottomSheet(purchaseId: purchaseId)
+            .sink { [weak self] orderId in
+                self?.presentTrackingNumberBottomSheet(orderId: orderId)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.trackingNumberPatched
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self else { return }
+                self.trackingNumberSheet?.dismiss()
+                self.trackingNumberSheet = nil
+                self.viewModel.action(.viewDidLoad)
             }
             .store(in: &cancellables)
     }
     
-    private func completeButtonTapped(purchaseId: Int) {
+    private func completeButtonTapped(orderId: Int) {
         let alert = CustomAlertView(
             title: "잠깐! 정말 입금이 완료되었나요?",
             message: "확인 후에는 되돌릴 수 없어요",
@@ -86,9 +117,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
                 self?.dismiss(animated: true)
             },
             onRightButton: { [weak self] in
-                guard let self else { return }
-                // TODO: 배송 완료 처리 reload 0122
-                // 예) self.viewModel.action(.completeDeposit(purchaseId: purchaseId))
+                self?.viewModel.action(.confirmDeposit(orderId: orderId))
             }
         )
         alert.show(on: navigationController?.view ?? view)
@@ -114,6 +143,18 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     // MARK: - Action
     
     private func toggleParticipantSection(_ section: Int) {
+        let currentCount = viewModel.participants.count
+        guard currentCount == lastSectionCount, section < currentCount else {
+            lastSectionCount = currentCount
+            
+            CATransaction.begin()
+            CATransaction.setAnimationDuration(0.25)
+            CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .linear))
+            tableView.reloadData()
+            CATransaction.commit()
+            return
+        }
+        
         let indexPath = IndexPath(row: 0, section: section)
         
         CATransaction.begin()
@@ -129,7 +170,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     
     // MARK: - BottomSheet
     
-    private func presentTrackingNumberBottomSheet(purchaseId: Int) {
+    private func presentTrackingNumberBottomSheet(orderId: Int) {
         let sheet = DetailBottomSheet(
             viewModel: BottomSheetViewModel(),
             firstTitle: "배송업체",
@@ -139,12 +180,18 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             confirmButtonText: "완료"
         )
         
-        // TODO: PATCH 성공 후 서버 재조회가 필요하면 onPatched에서 viewModel.action(.viewDidLoad) 호출
-        sheet.onPatched = { [weak self] in
-            self?.viewModel.action(.viewDidLoad)
+        // sheet를 잡아두었다가 PATCH 성공 시 닫기
+        self.trackingNumberSheet = sheet
+        
+        // 입력 완료 → PATCH 실행
+        sheet.onSubmit = { [weak self] carrier, trackingNumber in
+            
+            self?.viewModel.action(
+                .patchTrackingNumber(orderId: orderId, carrier: carrier, trackingNumber: trackingNumber)
+            )
         }
         
-        sheet.show(in: self.view)
+        sheet.show(in: self.navigationController?.view ?? view)
     }
 }
 
@@ -186,13 +233,13 @@ extension ParticipantListTableViewController: UITableViewDataSource, UITableView
         }
         
         // 입금 확인 버튼
-        cell.onTapConfirmDeposit = { [weak self] purchaseId in
-            self?.viewModel.action(.confirmDeposit(purchaseId: purchaseId))
+        cell.onTapConfirmDeposit = { [weak self] orderId in
+            self?.completeButtonTapped(orderId: orderId)
         }
         
         // 송장번호 입력
-        cell.onTapConfirmShip = { [weak self] purchaseId in
-            self?.viewModel.action(.confirmShip(purchaseId: purchaseId))
+        cell.onTapConfirmShip = { [weak self] orderId in
+            self?.viewModel.action(.confirmShip(orderId: orderId))
         }
         
         return cell

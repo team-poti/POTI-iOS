@@ -32,16 +32,16 @@ import UIKit
  */
 
 enum ParticipantStatus: String {
+    case recruiting = "RECRUITING"
     case waitPay = "WAIT_PAY"
     case waitPayCheck = "WAIT_PAY_CHECK"
     case paid = "PAID"
-    case ready = "READY"
     case shipped = "SHIPPED"
     case delivered = "DELIVERED"
     
     func statusText(role: UserRole) -> String {
         switch self {
-        case .waitPay:
+        case .recruiting:
             switch role {
             case .host:
                 return "참여자들을 기다리고 있어요"
@@ -49,7 +49,7 @@ enum ParticipantStatus: String {
                 return "다른 참여자들을 기다리고 있어요"
             }
             
-        case .waitPayCheck:
+        case .waitPay:
             switch role {
             case .host:
                 return "입금을 기다리는 중이에요. 입금 확인을 기다리는 참여자가 있어요"
@@ -57,7 +57,7 @@ enum ParticipantStatus: String {
                 return "지금 입금해주세요! 모집자가 입금 내역을 확인하고 있어요"
             }
             
-        case .paid:
+        case .waitPayCheck:
             switch role {
             case .host:
                 return "입금 확인을 기다리는 참여자가 있어요"
@@ -65,7 +65,7 @@ enum ParticipantStatus: String {
                 return "모집자가 입금 내역을 확인하고 있어요"
             }
             
-        case .ready:
+        case .paid:
             switch role {
             case .host:
                 return "배송을 기다리는 참여자가 있어요"
@@ -92,10 +92,10 @@ enum ParticipantStatus: String {
     
     var badgeText: String {
         switch self {
-        case .waitPay: return "모집 대기"
-        case .waitPayCheck: return "입금 대기"
-        case .paid: return "입금 확인중"
-        case .ready: return "입금 완료"
+        case .recruiting: return "모집 대기"
+        case .waitPay: return "입금 대기"
+        case .waitPayCheck: return "입금 확인중"
+        case .paid: return "입금 완료"
         case .shipped: return "배송 시작"
         case .delivered: return "배송 완료"
         }
@@ -103,11 +103,11 @@ enum ParticipantStatus: String {
     
     var badgeColor: UIColor {
         switch self {
-        case .waitPay, .paid:
+        case .recruiting, .waitPayCheck:
             return .sementicRed
-        case .waitPayCheck, .delivered:
+        case .waitPay, .delivered:
             return .gray700
-        case .ready, .shipped:
+        case .paid, .shipped:
             return .poti600
         }
     }
@@ -118,13 +118,13 @@ extension ParticipantStatus {
         switch postStatus {
             
         case .recruiting:
-            return .waitPay
+            return .recruiting
             
         case .recruitCompleted:
-            return .waitPayCheck
+            return .waitPay
             
         case .depositCompleted:
-            return .ready
+            return .paid
             
         case .shipping:
             return .shipped
@@ -138,11 +138,11 @@ extension ParticipantStatus {
 extension ParticipantStatus {
     var progressImage: UIImage? {
         switch self {
-        case .waitPay, .waitPayCheck:
+        case .recruiting, .waitPay:
             return .imgStep0
-        case .paid:
+        case .waitPayCheck:
             return .imgStep1
-        case .ready:
+        case .paid:
             return .imgStep2
         case .shipped:
             return .imgStep3

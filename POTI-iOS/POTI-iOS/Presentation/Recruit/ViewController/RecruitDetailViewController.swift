@@ -35,6 +35,20 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
         viewModel.action(.viewDidLoad)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = true
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = false
+        }
+    }
+    
     override func setUI() {
         setTableView()
         view.addSubviews(tableView, backgroundView)
@@ -86,7 +100,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 let factory = DefaultViewControllerFactory()
-                let containerVC = factory.makeParticipantManageViewController()
+                let containerVC = factory.makeParticipantManageViewController(postId: 101)
                 self?.navigationController?.pushViewController(containerVC, animated: true)
             }
             .store(in: &cancellables)

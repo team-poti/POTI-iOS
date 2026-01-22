@@ -7,4 +7,9 @@
 
 protocol OrderInterface {
     func submitOrder(entity: OrderRequestEntity) async throws -> OrderResultEntity
+    
+    func patchTrackingNumber(
+        orderId: Int,
+        entity: TrackingNumberRequestEntity
+    ) async throws -> TrackingNumberResponseEntity
 }

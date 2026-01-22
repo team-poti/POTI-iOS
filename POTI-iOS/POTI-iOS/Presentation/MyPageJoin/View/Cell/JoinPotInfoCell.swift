@@ -44,7 +44,7 @@ final class JoinPotInfoCell: UITableViewCell {
     
     private func setStyle() {
         potIdLabel.do {
-            $0.setLabel("", font: .body14m)
+            $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray800
         }
         
@@ -55,17 +55,17 @@ final class JoinPotInfoCell: UITableViewCell {
         }
         
         artistLabel.do {
-            $0.setLabel("", font: .body14m)
+            $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray800
         }
         
         potTitleLabel.do {
-            $0.setLabel("", font: .body16m)
+            $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
         }
         
         potStatusLabel.do {
-            $0.setLabel("", font: .body14sb)
+            $0.font = PotiFontManager.body14sb.font
         }
         
         potButton.do {

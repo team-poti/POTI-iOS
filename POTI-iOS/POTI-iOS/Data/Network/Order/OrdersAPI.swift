@@ -9,11 +9,14 @@ import Alamofire
 
 enum OrdersAPI: BaseTargetType {
     case submitOrder(request: OrderRequestDTO)
+    case patchTrackingNumber(orderId: Int, request: TrackingNumberRequestDTO)
     
     var path: String {
         switch self {
         case .submitOrder:
             return "/api/v1/orders"
+        case .patchTrackingNumber(let orderId, _):
+            return "/api/v1/orders/\(orderId)/deliveries"
         }
     }
     
@@ -21,6 +24,8 @@ enum OrdersAPI: BaseTargetType {
         switch self {
         case .submitOrder:
             return .post
+        case .patchTrackingNumber:
+            return .patch
         }
     }
     
@@ -40,6 +45,11 @@ enum OrdersAPI: BaseTargetType {
                     "groupBuyOptionId": $0.groupBuyOptionId,
                     "count": $0.count
                 ]}
+            ]
+        case .patchTrackingNumber(let orderId, let request):
+            return [
+                "carrier": request.carrier,
+                "trackingNumber": request.trackingNumber
             ]
         }
     }

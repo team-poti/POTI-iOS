@@ -6,10 +6,10 @@
 //
 
 struct ManageEntity {
-    let participants: [ParticipantEntity]
+    let participants: [ManageParticipantEntity]
 }
 
-struct ParticipantEntity {
+struct ManageParticipantEntity {
     let orderId: Int
     let userId: Int
     let profileImage: String?
@@ -44,10 +44,4 @@ struct ShippingInfoEntity {
     let address: String
     let phone: String
     let trackingNumber: String?
-}
-
-extension ManageEntity {
-    func toParticipantManageModels() -> [ParticipantManageModel] {
-        participants.map { $0.toParticipantManageModel() }
-    }
 }
