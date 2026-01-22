@@ -19,7 +19,7 @@ final class JoinParticipantInfoLabelView: BaseView {
     override func setStyle() {
         titleLabel.do {
             $0.textColor = .potiBlack
-            $0.font = PotiFontManager.body14sb.font
+            $0.font = PotiFontManager.body16sb.font
         }
         
         infoLabel.do {

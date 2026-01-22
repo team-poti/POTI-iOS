@@ -17,6 +17,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private let tableView = UITableView()
+    private let backgroundView = UIView()
     private let completeButton = PotiBottomButton()
     private var tableViewBottomConstraint: Constraint?
     
@@ -71,6 +72,9 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             $0.allowsSelection = false
             $0.separatorStyle = .none
             $0.showsVerticalScrollIndicator = false
+        }
+        backgroundView.do {
+            $0.backgroundColor = .potiWhite
         }
     }
     
