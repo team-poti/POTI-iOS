@@ -36,6 +36,10 @@ final class AppDIContainer {
         )
     }
     
+    private func makeImageUploadService() -> ImageUploadService {
+        DefaultImageUploadService(networkService: makeNetworkService())
+    }
+    
     // MARK: - Repository
     
     @MainActor private func makeAuthRepository() -> AuthInterface {
@@ -76,6 +80,10 @@ final class AppDIContainer {
     
     private func makeUsersRepository() -> UsersInterface {
         DefaultUsersRepository(networkService: makeNetworkService())
+    }
+    
+    private func makeImagesRepository() -> ImagesInterface {
+        DefaultImagesRepository(imageUploadService: makeImageUploadService())
     }
     
     private func makePotsSaleRepository() -> PostsInterface {
@@ -166,6 +174,10 @@ final class AppDIContainer {
         DefaultOrdersDeliveriesUseCase(repository: makeOrderRepository())
     }
     
+    private func makeGetMyPageInformationUseCase() -> GetMyPageInformationUseCase {
+        DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -227,5 +239,9 @@ final class AppDIContainer {
     
     func makeOnboardingViewModel() -> OnboardingViewModel {
         OnboardingViewModel(onboardingArtistsUsecase: makeOnboardingArtistsUsecase(), validNicknameUseCase: makeValidNicknameUseCase(), submitOnboardingUseCase: makeSubmitOnboardingUseCase())
+    }
+    
+    func makeMyPageViewModel() -> MyPageViewModel {
+        MyPageViewModel(getMyPageInformationUseCase: makeGetMyPageInformationUseCase())
     }
 }

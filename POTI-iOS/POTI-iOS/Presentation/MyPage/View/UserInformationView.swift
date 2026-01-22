@@ -55,7 +55,6 @@ final class UserInformationView: BaseView {
         signUpDateLabel.do {
             $0.textColor = .potiBlack
             $0.font = PotiFontManager.caption12m.font
-            $0.text = "\(signUpDate.toKoreanYMD() ?? "") 가입"
         }
     }
     
@@ -85,5 +84,12 @@ final class UserInformationView: BaseView {
             $0.top.equalTo(recentActivityLabel.snp.bottom)
             $0.centerY.equalTo(secondBulletImage)
         }
+    }
+}
+
+extension UserInformationView {
+    func configure(recentActivity: String, signUpDate: String) {
+        recentActivityLabel.text = recentActivity
+        signUpDateLabel.text = "\(signUpDate.toKoreanYMD() ?? "") 가입"
     }
 }
