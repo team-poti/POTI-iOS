@@ -19,8 +19,13 @@ final class ProductRegisterViewModel: BaseViewModelType {
         case tapDelete(Int)
         case didFinishPicking([PHPickerResult])
         case deadlineSelected(Date)
-        case submit(info: RegisterInfoView.Draft, memberPrices: [Int: Int])
+        case submit(
+            info: RegisterInfoView.Draft,
+            memberPrices: [Int: Int],
+            shippings: [RegisterShippingView.ShippingRequest]
+        )
         case setMembers([String])
+        case setArtist(String)
 
         // TODO: - 상품 등록 화면 다른 액션
     }
@@ -48,6 +53,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
     private let requestPickerSubject = PassthroughSubject<Int, Never>()
     private let deadlineSubject = CurrentValueSubject<Date?, Never>(nil)
     private let membersSubject = CurrentValueSubject<[String], Never>([])
+    private let artistSubject = CurrentValueSubject<String, Never>("")
     private var hasEverHadMembers: Bool = false
 
     struct FieldErrors {
@@ -124,14 +130,18 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 hasEverHadMembers = true
             }
             
-        case .submit(let info, let memberPrices):
+        case .setArtist(let artistName):
+            artistSubject.send(artistName)
+            
+        case .submit(let info, let memberPrices, _):
             var errors = FieldErrors.empty
 
             if imagesSubject.value.isEmpty {
                 errors.images = "사진을 1장 이상 등록해주세요"
             }
 
-            if info.artist.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            //안되면 artistSubject 대신 artist
+            if artistSubject.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 errors.artist = "아티스트를 선택해주세요"
             }
 
