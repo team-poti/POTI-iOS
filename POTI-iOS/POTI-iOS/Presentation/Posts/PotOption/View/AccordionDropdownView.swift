@@ -145,7 +145,7 @@ final class AccordionDropdownView: BaseView {
         let finalHeight = min(totalContentHeight, maxHeight)
         tableView.isScrollEnabled = totalContentHeight > maxHeight
         
-        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseOut, .allowUserInteraction]) { 
+        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseOut, .allowUserInteraction]) {
             self.alpha = 1
             self.whiteLayerView.alpha = 1
             self.heightConstraint?.update(offset: finalHeight)

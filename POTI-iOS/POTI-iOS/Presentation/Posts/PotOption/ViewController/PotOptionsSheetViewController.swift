@@ -2,7 +2,7 @@
 //  PotOptionsSheetViewController.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/19/26.
+//  Created by mandoo on 1/23/26.
 //
 
 import UIKit
@@ -18,9 +18,7 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
     private let rootView = OptionView()
     private var currentDropdown: AccordionDropdownView?
     private var deliveryInfoView: SelectedInfoView?
-    
-    var onComplete: (() -> Void)?
-    var onDismissCompletion: (() -> Void)?
+    var onContinue: ((_ shippingId: Int,_ orderItems: [OrderOptionItem]) -> Void)?
     
     // MARK: - Life Cycles
     
@@ -30,7 +28,6 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .clear
         
         bind()
         setActions()
@@ -92,17 +89,11 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
         
         content.memberButton.addTarget(self, action: #selector(toggleMember), for: .touchUpInside)
         content.deliveryButton.addTarget(self, action: #selector(toggleDelivery), for: .touchUpInside)
-        content.bottomButton.addTarget(self, action: #selector(didTapComplete), for: .touchUpInside)
+        content.bottomButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         
         rootView.closeButton.addTarget(self, action: #selector(dismissSheet), for: .touchUpInside)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissSheet))
         rootView.backgroundView.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc private func didTapComplete() {
-        dismissSheet {
-            self.onComplete?()
-        }
     }
 }
 
@@ -188,15 +179,27 @@ private extension PotOptionsSheetViewController {
             }
         }
     }
+    
+    @objc private func continueButtonTapped() {
+        guard
+            let shippingId = viewModel.selectedShippingId()
+        else { return }
+        
+        let orderItems = viewModel.makeOrderItems()
+        
+        dismiss(animated: false) { [weak self] in
+            self?.onContinue?(shippingId, orderItems)
+        }
+    }
 }
 
 // MARK: - Sheet & Dropdown
 
 private extension PotOptionsSheetViewController {
     func showSheet() {
-        rootView.containerView.transform = CGAffineTransform(translationX: 0, y: -800)
+        rootView.containerView.transform = CGAffineTransform(translationX: 0, y: 800)
         rootView.backgroundView.alpha = 0
-        UIView.animate(withDuration: 0.6) {
+        UIView.animate(withDuration: 0.3) {
             self.rootView.containerView.transform = .identity
             self.rootView.backgroundView.alpha = 1
         }
@@ -235,19 +238,12 @@ private extension PotOptionsSheetViewController {
         currentDropdown = dropdown
     }
     
-    @objc private func dismissSheet() {
-        dismissSheet(completion: nil)
-    }
-    
-    @objc func dismissSheet(completion: (() -> Void)? = nil) {
+    @objc func dismissSheet() {
         UIView.animate(withDuration: 0.3, animations: {
             self.rootView.containerView.transform = CGAffineTransform(translationX: 0, y: 800)
             self.rootView.backgroundView.alpha = 0
         }) { _ in
-            self.dismiss(animated: false) {
-                self.onDismissCompletion?()
-                completion?()
-            }
+            self.dismiss(animated: false)
         }
     }
     
@@ -259,3 +255,4 @@ private extension PotOptionsSheetViewController {
         handleDropdown(anchor: rootView.contentView.deliveryButton, isMember: false)
     }
 }
+
