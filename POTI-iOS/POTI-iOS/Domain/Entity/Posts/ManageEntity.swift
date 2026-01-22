@@ -15,7 +15,7 @@ struct ParticipantEntity {
     let profileImage: String?
     let nickname: String
     let memberNames: [String]
-    let status: ParticipantStatus
+    let status: ParticipantOrderStatus
 
     let priceInfo: PriceInfoEntity
     let depositInfo: DepositInfoEntity?

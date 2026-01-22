@@ -80,7 +80,7 @@ extension ParticipantStatusCaseView {
     }
     
     func configure(
-        status: ParticipantStatus,
+        status: ParticipantOrderStatus,
         model: ParticipantManageModel,
         onTapAction: (() -> Void)? = nil
     ) {

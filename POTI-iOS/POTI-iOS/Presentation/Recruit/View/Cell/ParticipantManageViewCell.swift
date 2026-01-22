@@ -19,7 +19,7 @@ final class ParticipantManageViewCell: UITableViewCell {
             let phoneText: String
             let shippingText: String
             let totalPrice: Int
-            let depositState: ParticipantStatus
+            let depositState: ParticipantOrderStatus
         }
     
     // MARK: - Lifecycle

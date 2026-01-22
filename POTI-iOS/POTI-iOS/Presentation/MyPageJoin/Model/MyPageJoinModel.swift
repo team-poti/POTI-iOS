@@ -160,7 +160,7 @@ extension MyPageJoinModel {
             phoneText: shippingInfo.phone,
             shippingText: shippingInfo.shippingMethod,
             totalPrice: paymentInfo.totalAmount,
-            depositState: ParticipantStatus.from(postStatus: postStatus)
+            depositState: ParticipantOrderStatus.from(postStatus: postStatus)
         )
     }
 }

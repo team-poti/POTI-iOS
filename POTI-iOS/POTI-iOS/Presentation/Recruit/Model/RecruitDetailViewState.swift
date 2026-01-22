@@ -24,7 +24,7 @@ struct PotInfoViewState {
 struct ProgressViewState {
     let postStatus: PostStatus
     let role: UserRole
-    let participantStatus: ParticipantStatus
+    let participantStatus: ParticipantOrderStatus
     
     var statusText: String {
         switch postStatus {
@@ -68,7 +68,7 @@ struct ProgressViewState {
 struct RecruitDetailViewStateMapper {
     private func resolveParticipantStatus(
         participants: [RecruitParticipantEntity]
-    ) -> ParticipantStatus {
+    ) -> ParticipantOrderStatus {
 
         // 모집자 기준: 대표 상태 (우선순위)
         if participants.contains(where: { $0.status == .waitPay }) {

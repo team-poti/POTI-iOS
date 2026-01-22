@@ -10,7 +10,7 @@ struct ParticipantManageModel: Hashable {
     let profileImage: String // 프로필 이미지
     let nickname: String // 닉네임
     let memberTitle: [String]
-    let participantstatus: ParticipantStatus // 상태 (입금 확인 중 , 배송 완료..)
+    let participantstatus: ParticipantOrderStatus // 상태 (입금 확인 중 , 배송 완료..)
     let memberRows: [MemberRow]
     let shippingText: String // 준등기
     let shippingPrice: Int // 1500

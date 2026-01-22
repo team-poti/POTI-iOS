@@ -15,7 +15,7 @@ final class ProgressStatusViewCell: UITableViewCell {
     struct Model {
         let postStatus: PostStatus
         let role: UserRole
-        let participantStatus: ParticipantStatus
+        let participantStatus: ParticipantOrderStatus
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

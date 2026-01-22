@@ -13,5 +13,5 @@ struct ParticipantModel: Hashable {
     let phoneText: String
     let shippingText: String
     let totalPrice: Int
-    let depositStateText: ParticipantStatus
+    let depositStateText: ParticipantOrderStatus
 }

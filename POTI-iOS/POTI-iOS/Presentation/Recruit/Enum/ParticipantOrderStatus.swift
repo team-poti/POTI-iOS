@@ -31,7 +31,7 @@ import UIKit
  }
  */
 
-enum ParticipantStatus: String {
+enum ParticipantOrderStatus: String {
     case waitPay = "WAIT_PAY"
     case waitPayCheck = "WAIT_PAY_CHECK"
     case paid = "PAID"
@@ -113,8 +113,8 @@ enum ParticipantStatus: String {
     }
 }
 
-extension ParticipantStatus {
-    static func from(postStatus: MyPageJoinModel.PostStatus) -> ParticipantStatus {
+extension ParticipantOrderStatus {
+    static func from(postStatus: MyPageJoinModel.PostStatus) -> ParticipantOrderStatus {
         switch postStatus {
             
         case .recruiting:
@@ -135,7 +135,7 @@ extension ParticipantStatus {
     }
 }
 
-extension ParticipantStatus {
+extension ParticipantOrderStatus {
     var progressImage: UIImage? {
         switch self {
         case .waitPay, .waitPayCheck:
