@@ -43,7 +43,7 @@ final class PotOrderViewModel: BaseViewModelType {
     
     let postId: Int
     private let shippingId: Int
-    private let orderItems: [OrderOptionItem]
+    private let orderItems: [OrderItem]
     
     // MARK: - Subjects
     
@@ -54,7 +54,7 @@ final class PotOrderViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: SubmitOrderUseCase, postId: Int, shippingId: Int,orderItems: [OrderOptionItem]) {
+    init(useCase: SubmitOrderUseCase, postId: Int, shippingId: Int,orderItems: [OrderItem]) {
         self.useCase = useCase
         self.postId = postId
         self.shippingId = shippingId
@@ -134,7 +134,7 @@ final class PotOrderViewModel: BaseViewModelType {
     private func requestSubmitOrder() {
         Task {
             do {
-                let entity = OrderRequestEntity(
+                let entity = OrdersEntity(
                     postId: self.postId,
                     shippingId: self.shippingId,
                     receiverName: name,
@@ -143,6 +143,7 @@ final class PotOrderViewModel: BaseViewModelType {
                     phone: phone,
                     items: self.orderItems
                 )
+                
                 _ = try await useCase.execute(orderInfo: entity)
                 output.orderResult.send(true)
             } catch {

@@ -32,6 +32,7 @@ final class HomeViewModel: BaseViewModelType {
     
     private let useCase: HomeUseCase
     private var cancellables = Set<AnyCancellable>()
+    private(set) var isMyGroupMixed: Bool = false
     
     let output: Output
     
@@ -75,6 +76,10 @@ final class HomeViewModel: BaseViewModelType {
                 self.otherGroupItems = data.toOtherGoodsModelList()
                 self.nickname = data.nickname
                 self.mainArtistId = data.mainArtistId ?? 0
+                
+                if !myGroupItems.isEmpty {
+                    self.isMyGroupMixed = myGroupItems.contains { $0.artistId != self.mainArtistId }
+                }
                 
                 reloadDataSubject.send(())
             } catch {

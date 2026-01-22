@@ -12,27 +12,24 @@ final class DefaultOrderRepository: OrderInterface {
         self.networkService = networkService
     }
     
-    func submitOrder(entity: OrderRequestEntity) async throws -> OrderResultEntity {
-//        let requestDTO = OrderRequestDTO(
-//            groupBuyPostId: entity.postId,
-//            shippingId: entity.shippingId,
-//            deliveryInfo: .init(
-//                receiverName: entity.receiverName,
-//                zipcode: entity.zipcode,
-//                addressLine: entity.addressLine,
-//                phone: entity.phone
-//            ),
-//            items: entity.items.map { .init(groupBuyOptionId: $0.optionId, count: $0.count) }
-//        )
+    func submitOrder(entity: OrdersEntity) async throws -> OrderResponseEntity {
+        let requestDTO = OrdersDTO(
+            groupBuyPostId: entity.postId,
+            shippingId: entity.shippingId,
+            deliveryInfo: .init(
+                receiverName: entity.receiverName,
+                zipcode: entity.zipcode,
+                addressLine: entity.addressLine,
+                phone: entity.phone
+            ),
+            items: entity.items.map { .init(groupBuyOptionId: $0.optionId, count: $0.count) }
+        )
         
-//        let responseDTO = try await networkService.request(
-//            target: OrdersAPI.submitOrder(request: requestDTO),
-//            type: OrderParticipationDTO.self
-//        )
-//
-//        return responseDTO.toEntity()
-        
-        return OrderResultEntity(participationId: 1)
+        let result = try await networkService.request(
+            target: OrdersAPI.submitOrder(request: requestDTO),
+            type: OrderResponseDTO.self
+        )
+        return result.toOrderResponseEntity()
     }
     
     func patchTrackingNumber(orderId: Int, entity: TrackingNumberRequestEntity) async throws -> TrackingNumberResponseEntity {
@@ -40,12 +37,12 @@ final class DefaultOrderRepository: OrderInterface {
             carrier: entity.carrier,
             trackingNumber: entity.trackingNumber
         )
-
+        
         let responseDTO = try await networkService.request(
             target: OrdersAPI.patchTrackingNumber(orderId: orderId, request: requestDTO),
             type: TrackingNumberResponseDTO.self
         )
-
+        
         return responseDTO.toEntity()
     }
 }

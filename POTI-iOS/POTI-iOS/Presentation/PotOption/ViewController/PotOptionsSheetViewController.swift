@@ -18,7 +18,7 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
     private let rootView = OptionView()
     private var currentDropdown: AccordionDropdownView?
     private var deliveryInfoView: SelectedInfoView?
-    var onContinue: ((_ shippingId: Int,_ orderItems: [OrderOptionItem]) -> Void)?
+    var onContinue: ((_ shippingId: Int,_ orderItems: [OrderItem]) -> Void)?
     
     // MARK: - Life Cycles
     
