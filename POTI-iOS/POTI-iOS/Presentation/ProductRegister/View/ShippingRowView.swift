@@ -14,8 +14,6 @@ final class ShippingRowView: BaseView {
     
     var onTap: (() -> Void)?
 
-    // MARK: - Initializer
-
     override init(frame: CGRect = .zero) {
         super.init(frame: frame)
         addTarget()
@@ -24,8 +22,6 @@ final class ShippingRowView: BaseView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - UI Components
 
     private let checkButton = UIButton()
     private let nameLabel = UILabel()

@@ -11,7 +11,9 @@ import Combine
 import PhotosUI
 
 final class ProductRegisterViewController: BaseViewController<ProductRegisterViewModel>, NavigationConfigurable {
-    // MARK: - Keyboard Avoidance Properties
+    
+    // MARK: - Keyboard
+    
     private weak var currentFocusedInputView: UIView?
     private var isKeyboardShown = false
     private var lastKeyboardHeight: CGFloat = 0
@@ -131,7 +133,9 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
     // MARK: - Keyboard Avoidance
+    
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard !isKeyboardShown else { return }
         guard
