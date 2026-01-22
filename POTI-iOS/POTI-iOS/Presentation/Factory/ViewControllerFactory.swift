@@ -10,13 +10,13 @@ protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
     func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
-    func makeGoodsListViewController() -> GoodsListViewController
+    func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController
     func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
     func makeOnboardingViewController() -> OnboardingViewController
-    func makeValidNicknameViewController() -> ValidNicknameViewController
-    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController
+    func makeValidNicknameViewController(viewModel: OnboardingViewModel) -> ValidNicknameViewController
+    func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
@@ -49,13 +49,12 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeHomeViewController() -> HomeViewController {
         HomeViewController(
-            viewModel: diContainer.makeHomeViewModel()
+            viewModel: diContainer.makeHomeViewModel(),factory: self  
         )
     }
     
-    func makeGoodsListViewController() -> GoodsListViewController {
-        GoodsListViewController(
-            viewModel: diContainer.makeGoodsListViewModel()
+    func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController {
+        GoodsListViewController(viewModel: diContainer.makeGoodsListViewModel(sectionType: sectionType, artistId: artistId, nickname: nickname)
         )
     }
     
@@ -90,15 +89,17 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeOnboardingViewController() -> OnboardingViewController {
-        OnboardingViewController(viewModel: OnboardingViewModel(), factory: self)
+        OnboardingViewController(
+            viewModel: diContainer.makeOnboardingViewModel(), factory: self
+        )
     }
     
-    func makeValidNicknameViewController() -> ValidNicknameViewController {
-        ValidNicknameViewController(viewModel: OnboardingViewModel(), factory: self)
+    func makeValidNicknameViewController(viewModel: OnboardingViewModel) -> ValidNicknameViewController {
+        ValidNicknameViewController(viewModel: viewModel, factory: self)
     }
     
-    func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController {
-        SelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel(), factory: self)
+    func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController {
+        SelectFavoriteIdolGroupViewController(viewModel: viewModel, factory: self)
     }
     
     func makePotListViewController() -> PotListViewController {
@@ -114,7 +115,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
                 shippingId: shippingId,
                 orderItems: orderItems
             ),
-            factory: self 
+            factory: self
         )
     }
 }

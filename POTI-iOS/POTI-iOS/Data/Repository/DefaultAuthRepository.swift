@@ -25,7 +25,7 @@ final class DefaultAuthRepository: AuthInterface {
     
     func kakaoLogin() async throws -> LoginResponseEntity {
         let kakaoToken = try await authService.kakaoRequest()
-        let result = try await networkService.request(
+        let result = try await tokenRefreshNetworkService.request(
             target: AuthAPI.login(socialType: "KAKAO", token: kakaoToken), type: LoginResponseDTO.self
             )
         

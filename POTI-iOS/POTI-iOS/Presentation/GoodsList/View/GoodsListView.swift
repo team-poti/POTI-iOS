@@ -24,8 +24,6 @@ final class GoodsListView: BaseView {
     
     override func setStyle() {
         
-        // TODO: - 네비바 컴포넌트 추가하기
-        
         goodsListCollectionView.do {
             $0.backgroundColor = .potiWhite
             $0.isScrollEnabled = true

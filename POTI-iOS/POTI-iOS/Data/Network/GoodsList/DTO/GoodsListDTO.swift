@@ -8,22 +8,36 @@
 struct GoodsListDTO: Decodable {
     let nickname: String
     let mainArtist: String?
-    let groupItems: [GoodsListItemDTO]
+    let mainArtistId: Int?
+    let hasNext: Bool?
+    let groupItems: [GoodsListItemDTO]?
     
     func toEntity() -> GoodsListEntity {
-        return .init(nickname: nickname, mainArtist: mainArtist, groupItems: groupItems.map { $0.toEntity() }
+        return .init(
+            nickname: nickname,
+            mainArtist: mainArtist,
+            mainArtistId: mainArtistId ?? -1,
+            hasNext: hasNext ?? false,
+            groupItems: groupItems?.map { $0.toEntity() } ?? []
         )
     }
 }
 
 struct GoodsListItemDTO: Decodable {
-    let title: String
-    let artist: String
+    let artist: String?
+    let artistId: Int?
     let postImage: String?
-    let postCount: Int
-    let tag: String
+    let postTitle: String?
+    let postCount: Int?
+    let tag: String?
     
     func toEntity() -> GroupItem {
-        return .init(title: title, artist: artist, postImage: postImage, postCount: postCount, tag: tag)
+        return .init(
+            title: postTitle ?? "", 
+            artist: artist ?? "",
+            postImage: postImage,
+            postCount: postCount ?? 0,
+            tag: tag ?? ""
+        )
     }
 }
