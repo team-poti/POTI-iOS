@@ -134,6 +134,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             self.presentDeadlineBottomSheet()
         }
         
+        //TODO: - ArtistEdit으로 교체
         registerMemberView.onTapEditButton = { [weak self] in
             guard let self else { return }
 
@@ -392,8 +393,10 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             onRightButton: {
             }
         )
-        alert.show(on: view)
+        alert.show(on: navigationController?.view ?? view)
     }
+    
+    
 
     // MARK: - Action Method
     

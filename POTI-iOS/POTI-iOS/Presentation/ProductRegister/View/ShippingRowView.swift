@@ -113,7 +113,7 @@ final class ShippingRowView: BaseView {
         }
 
         snp.makeConstraints {
-            $0.height.equalTo(56)
+            $0.height.equalTo(28)
         }
         priceTextField.setContentHuggingPriority(.defaultLow, for: .horizontal)
         priceTextField.setContentCompressionResistancePriority(.required, for: .horizontal)

@@ -265,7 +265,7 @@ final class CustomSearchField: BaseView {
             UIView.animate(
                 withDuration: 0.3,
                 delay: 0,
-                options: [.curveEaseOut],
+                options: [.curveLinear],
                 animations: {
                     self.searchListView.alpha = 1
                     self.searchListView.transform = .identity

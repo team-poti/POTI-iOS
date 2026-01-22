@@ -92,9 +92,9 @@ final class ProductRegisterView: BaseView {
         }
 
         submitButton.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)
-            $0.height.equalTo(56)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(60)
         }
     }
 }
