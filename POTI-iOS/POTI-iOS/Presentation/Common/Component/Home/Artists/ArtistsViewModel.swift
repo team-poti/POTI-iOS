@@ -23,7 +23,7 @@ final class ArtistsViewModel: BaseViewModelType {
     struct Output {
         let artistsList: AnyPublisher<[(name: String, isSelected: Bool)], Never>
         let isCompleteEnabled: AnyPublisher<Bool, Never>
-        let selectedMemberIds: AnyPublisher<[Int], Never>
+        let selectedMemberData: AnyPublisher<(ids: [Int], names: [String]), Never>
     }
     
     let output: Output
@@ -35,21 +35,23 @@ final class ArtistsViewModel: BaseViewModelType {
     var currentArtistsList: [(name: String, isSelected: Bool)] {
         return artistsListSubject.value
     }
+    private let initialSelectedIds: [Int]
     
     // MARK: - Subjects
     
     private let artistsListSubject = CurrentValueSubject<[(name: String, isSelected: Bool)], Never>([])
     private let isCompleteEnabledSubject = CurrentValueSubject<Bool, Never>(false)
-    private let selectedMemberIdsSubject = PassthroughSubject<[Int], Never>()
+    private let selectedMemberDataSubject = PassthroughSubject<(ids: [Int], names: [String]), Never>()
     
-    init(useCase: ArtistsUsecase, artistId: Int) {
+    init(useCase: ArtistsUsecase, artistId: Int, selectedIds: [Int]) {
         self.useCase = useCase
         self.artistId = artistId
+        self.initialSelectedIds = selectedIds
         
         self.output = Output(
             artistsList: artistsListSubject.eraseToAnyPublisher(),
             isCompleteEnabled: isCompleteEnabledSubject.eraseToAnyPublisher(),
-            selectedMemberIds: selectedMemberIdsSubject.eraseToAnyPublisher()
+            selectedMemberData: selectedMemberDataSubject.eraseToAnyPublisher()
         )
     }
     
@@ -72,12 +74,33 @@ private extension ArtistsViewModel {
         Task {
             do {
                 let entities = try await useCase.execute(artistId: artistId)
+                
+                if entities.isEmpty {
+                    await MainActor.run {
+                        artistsListSubject.send([])
+                        isCompleteEnabledSubject.send(false)
+                    }
+                    return
+                }
+                
                 self.originalEntities = entities
                 
-                let uiModels = entities.map { (name: $0.artistName, isSelected: false) }
-                artistsListSubject.send(uiModels) 
+                let uiModels = entities.map { entity -> (name: String, isSelected: Bool) in
+                    let isSelected = initialSelectedIds.contains(entity.artistId)
+                    return (name: entity.artistName, isSelected: isSelected)
+                }
+                
+                await MainActor.run {
+                    artistsListSubject.send(uiModels)
+                    let hasSelection = uiModels.contains { $0.isSelected }
+                    isCompleteEnabledSubject.send(hasSelection)
+                }
             } catch {
-                print("Failed to fetch members: \(error)")
+                print("Network Error: \(error)")
+                await MainActor.run {
+                    artistsListSubject.send([])
+                    isCompleteEnabledSubject.send(false)
+                }
             }
         }
     }
@@ -98,15 +121,15 @@ private extension ArtistsViewModel {
     }
     
     func handleComplete() {
-        let selectedIds = artistsListSubject.value.enumerated()
+        let selectedData = artistsListSubject.value.enumerated()
             .filter { $0.element.isSelected }
-            .compactMap { index, _ -> Int? in
-                if index < originalEntities.count {
-                    return originalEntities[index].artistId
-                }
-                return nil
-            }
         
-        selectedMemberIdsSubject.send(selectedIds)
+        let selectedIds = selectedData.compactMap { index, _ in
+            index < originalEntities.count ? originalEntities[index].artistId : nil
+        }
+        
+        let selectedNames = selectedData.map { $0.element.name }
+        
+        selectedMemberDataSubject.send((ids: selectedIds, names: selectedNames))
     }
 }

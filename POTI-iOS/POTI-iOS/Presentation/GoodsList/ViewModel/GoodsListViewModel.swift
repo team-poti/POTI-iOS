@@ -30,10 +30,6 @@ final class GoodsListViewModel: BaseViewModelType {
     let nickname: String
     private(set) var artistId: Int
     
-    func getArtistId() -> Int {
-        return self.artistId
-    }
-    
     private var cancellables = Set<AnyCancellable>()
     let output: Output
     

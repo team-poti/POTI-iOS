@@ -73,6 +73,20 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
                 self.rootView.potsListCollectionView.reloadData()
             }
             .store(in: &cancellables)
+        
+        viewModel.output.sortTitle
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] title in
+                self?.updateHeaderSortTitle(title)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.filterTitle
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] title in
+                self?.updateHeaderFilterTitle(title)
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Methods
@@ -97,6 +111,24 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
             at: IndexPath(item: 0, section: 0)
         ) as? PotListHeaderCell {
             header.setFilterButtonState(isLeft: isLeft, isSelected: isSelected)
+        }
+    }
+    
+    private func updateHeaderSortTitle(_ title: String) {
+        if let header = rootView.potsListCollectionView.supplementaryView(
+            forElementKind: UICollectionView.elementKindSectionHeader,
+            at: IndexPath(item: 0, section: 0)
+        ) as? PotListHeaderCell {
+            header.setSortButtonTitle(title)
+        }
+    }
+    
+    private func updateHeaderFilterTitle(_ title: String) {
+        if let header = rootView.potsListCollectionView.supplementaryView(
+            forElementKind: UICollectionView.elementKindSectionHeader,
+            at: IndexPath(item: 0, section: 0)
+        ) as? PotListHeaderCell {
+            header.setLeftFilterButtonTitle(title)
         }
     }
 }
@@ -146,10 +178,13 @@ extension PotListViewController: UICollectionViewDelegate {
 
 extension PotListViewController: PotListHeaderCellDelegate {
     func leftFilterButtonDidTap() {
-        let bottomSheet = factory.makeArtistsBottomSheet(artistId: viewModel.artistId)
+        let bottomSheet = factory.makeArtistsBottomSheet(
+            artistId: viewModel.artistId,
+            selectedIds: viewModel.selectedMemberIds
+        )
         
-        bottomSheet.onComplete = { [weak self] (selectedMemberIds: [Int]) in
-            self?.viewModel.action(.filterByMembers(members: selectedMemberIds))
+        bottomSheet.onComplete = { [weak self] data in
+            self?.viewModel.action(.filterByMembers(members: data.ids, names: data.names))
         }
         
         bottomSheet.onDismissCompletion = { [weak self] in
@@ -160,9 +195,9 @@ extension PotListViewController: PotListHeaderCellDelegate {
     }
     
     func rightFilterButtonDidTap() {
-        let initialIndex = (viewModel.currentSort == "LATEST") ? 0 : 1
-        let sortViewModel = SortViewModel(initialIndex: initialIndex)
-        let bottomSheet = SortBottomSheet(viewModel: sortViewModel)
+        let initialIndex = viewModel.currentSortIndex
+        
+        let bottomSheet = factory.makeSortBottomSheet(type: .pot, initialIndex: initialIndex)
         
         bottomSheet.onSelectCompletion = { [weak self] index in
             self?.viewModel.action(.didTapSortOption(index: index))

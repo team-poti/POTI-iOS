@@ -16,7 +16,7 @@ final class ArtistsBottomSheet: BaseView {
     // MARK: - Properties
     
     private let viewModel: ArtistsViewModel
-    var onComplete: (([Int]) -> Void)?
+    var onComplete: (((ids: [Int], names: [String])) -> Void)?
     var onDismissCompletion: (() -> Void)?
     private var cancellables = Set<AnyCancellable>()
     
@@ -187,10 +187,10 @@ final class ArtistsBottomSheet: BaseView {
             }
             .store(in: &cancellables)
         
-        viewModel.output.selectedMemberIds
+        viewModel.output.selectedMemberData
             .receive(on: RunLoop.main)
-            .sink { [weak self] selectedIds in
-                self?.onComplete?(selectedIds)
+            .sink { [weak self] data in
+                self?.onComplete?(data)
                 self?.dismiss()
             }
             .store(in: &cancellables)

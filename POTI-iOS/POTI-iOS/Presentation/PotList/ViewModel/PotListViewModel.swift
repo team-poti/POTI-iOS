@@ -13,7 +13,7 @@ final class PotListViewModel: BaseViewModelType {
     
     enum Input {
         case viewDidLoad
-        case filterByMembers(members: [Int])
+        case filterByMembers(members: [Int], names: [String])
         case didTapSortOption(index: Int)
     }
     
@@ -21,6 +21,8 @@ final class PotListViewModel: BaseViewModelType {
     
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
+        let sortTitle = CurrentValueSubject<String, Never>("최신순")
+        let filterTitle = CurrentValueSubject<String, Never>("멤버 선택")
     }
     
     // MARK: - Properties
@@ -29,16 +31,29 @@ final class PotListViewModel: BaseViewModelType {
     let title: String
     let artistId: Int
     let artistName: String
-    private var selectedMemberIds: [Int] = []
+    var selectedMemberIds: [Int] = []
     
-    var currentSort: String = "HOT"
-    private var currentPage: Int = 0
+    var currentSort: String = "LATEST"
+    
     var currentSortIndex: Int {
-        return currentSort == "HOT" ? 1 : 0
+        switch currentSort {
+        case "LATEST": return 0
+        case "DEADLINE": return 1
+        case "RATING": return 2
+        default: return 0
+        }
     }
+    
     var currentSortText: String {
-        return currentSort == "HOT" ? "인기순" : "최신순"
+        switch currentSort {
+        case "LATEST": return "최신순"
+        case "DEADLINE": return "마감임박순"
+        case "RATING": return "평점순"
+        default: return "최신순"
+        }
     }
+    
+    private var currentPage: Int = 0
     private var hasNextPage: Bool = true
     private var isFetching: Bool = false
     
@@ -61,6 +76,8 @@ final class PotListViewModel: BaseViewModelType {
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher()
         )
+        
+        self.output.sortTitle.send(currentSortText)
     }
     
     // MARK: - Action
@@ -71,8 +88,9 @@ final class PotListViewModel: BaseViewModelType {
             fetchPotListData(isFirstPage: true)
         case .didTapSortOption(let index):
             updateSort(index: index)
-        case .filterByMembers(let ids):
+        case .filterByMembers(let ids, let names):
             self.selectedMemberIds = ids
+            updateFilterTitle(names: names)
             fetchPotListData(isFirstPage: true)
         }
     }
@@ -116,13 +134,38 @@ final class PotListViewModel: BaseViewModelType {
     }
     
     private func updateSort(index: Int) {
-        let newSort = (index == 0) ? "LATEST" : "HOT"
+        let newSort: String
+        switch index {
+        case 0: newSort = "LATEST"
+        case 1: newSort = "DEADLINE"
+        case 2: newSort = "RATING"
+        default: newSort = "LATEST"
+        }
         
         guard currentSort != newSort else { return }
         
         self.currentSort = newSort
         self.currentPage = 0
         self.hasNextPage = true
+        
+        self.output.sortTitle.send(currentSortText)
         fetchPotListData(isFirstPage: true)
+    }
+    
+    private func updateFilterTitle(names: [String]) {
+        if names.isEmpty {
+            output.filterTitle.send("멤버 선택")
+            return
+        }
+        
+        switch names.count {
+        case 1:
+            output.filterTitle.send(names[0])
+        case 2:
+            output.filterTitle.send("\(names[0]), \(names[1])")
+        default:
+            let extraCount = names.count - 2
+            output.filterTitle.send("\(names[0]), \(names[1]) 외 \(extraCount)명")
+        }
     }
 }

@@ -35,6 +35,7 @@ struct GoodsListItemDTO: Decodable {
         return .init(
             title: postTitle ?? "", 
             artist: artist ?? "",
+            artistId: artistId ?? -1,
             postImage: postImage,
             postCount: postCount ?? 0,
             tag: tag ?? ""

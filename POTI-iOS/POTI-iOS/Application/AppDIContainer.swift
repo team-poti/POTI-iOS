@@ -204,8 +204,8 @@ final class AppDIContainer {
         return PotListViewModel(useCase: makePotListUseCase(),title: title,artistId: artistId, artistName: artistName)
     }
     
-    func makeArtistsViewModel(artistId: Int) -> ArtistsViewModel {
-        ArtistsViewModel(useCase: makeArtistsUseCase(), artistId: artistId)
+    func makeArtistsViewModel(artistId: Int, selectedIds: [Int]) -> ArtistsViewModel {
+        return ArtistsViewModel(useCase: makeArtistsUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
     
     func makeOnboardingViewModel() -> OnboardingViewModel {

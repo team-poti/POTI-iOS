@@ -148,7 +148,8 @@ extension GoodsListViewController: UICollectionViewDelegate {
         
         let potListVC = factory.makePotListViewController(
             title: goods.title,
-            artistId: viewModel.getArtistId(), artistName: goods.artist
+            artistId: goods.artistId,
+            artistName: goods.artist
         )
         
         self.navigationController?.pushViewController(potListVC, animated: true)
@@ -158,8 +159,7 @@ extension GoodsListViewController: UICollectionViewDelegate {
 extension GoodsListViewController: GoodsListHeaderCellDelegate {
     func filterButtonDidTap() {
         let initialIndex = (viewModel.currentSort == "LATEST") ? 0 : 1
-        let sortViewModel = SortViewModel(initialIndex: initialIndex)
-        let bottomSheet = SortBottomSheet(viewModel: sortViewModel)
+        let bottomSheet = factory.makeSortBottomSheet(type: .goods, initialIndex: initialIndex)
         
         bottomSheet.onSelectCompletion = { [weak self] index in
             self?.viewModel.action(.didTapSortOption(index: index))

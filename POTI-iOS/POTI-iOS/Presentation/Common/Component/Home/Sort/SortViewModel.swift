@@ -7,6 +7,18 @@
 
 import Combine
 
+enum SortType {
+    case goods
+    case pot
+    
+    var options: [String] {
+        switch self {
+        case .goods: return ["최신순", "인기순"]
+        case .pot:   return ["최신순", "마감임박순", "평점순"]
+        }
+    }
+}
+
 final class SortViewModel: BaseViewModelType {
     
     // MARK: - Input
@@ -23,7 +35,17 @@ final class SortViewModel: BaseViewModelType {
         let onSelect: AnyPublisher<Int, Never>
     }
     
+    // MARK: - Properties
+    
     let output: Output
+    private let sortType: SortType
+    
+    // MARK: - Subjects
+    
+    private let optionsSubject: CurrentValueSubject<[String], Never>
+    private let selectedIndexSubject: CurrentValueSubject<Int, Never>
+    private let onSelectSubject = PassthroughSubject<Int, Never>()
+    
     var currentOptions: [String] {
         return optionsSubject.value
     }
@@ -32,14 +54,14 @@ final class SortViewModel: BaseViewModelType {
         return selectedIndexSubject.value
     }
     
-    // MARK: - Subjects
+    // MARK: - Initializer
     
-    private let optionsSubject = CurrentValueSubject<[String], Never>(["최신순", "인기순"])
-    private let selectedIndexSubject: CurrentValueSubject<Int, Never>
-    private let onSelectSubject = PassthroughSubject<Int, Never>()
-    
-    init(initialIndex: Int) {
-        self.selectedIndexSubject = .init(initialIndex)
+    init(type: SortType, initialIndex: Int) {
+        self.sortType = type
+        
+        let initialOptions = type.options
+        self.optionsSubject = CurrentValueSubject<[String], Never>(initialOptions)
+        self.selectedIndexSubject = CurrentValueSubject<Int, Never>(initialIndex)
         
         self.output = Output(
             options: optionsSubject.eraseToAnyPublisher(),
@@ -51,7 +73,14 @@ final class SortViewModel: BaseViewModelType {
     // MARK: - Methods
     
     func getSortString(for index: Int) -> String {
-        return index == 0 ? "LATEST" : "HOT"
+        switch sortType {
+        case .goods:
+            return index == 0 ? "LATEST" : "HOT"
+        case .pot:
+            if index == 0 { return "LATEST" }
+            if index == 1 { return "DEADLINE" }
+            return "RATING"
+        }
     }
     
     func action(_ trigger: Input) {

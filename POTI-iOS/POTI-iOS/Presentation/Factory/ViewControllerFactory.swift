@@ -21,8 +21,8 @@ protocol ViewControllerFactory {
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
-    func makeArtistsBottomSheet(artistId: Int) -> ArtistsBottomSheet
-    func makeSortBottomSheet(initialIndex: Int) -> SortBottomSheet
+    func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
+    func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -119,13 +119,13 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makeArtistsBottomSheet(artistId: Int) -> ArtistsBottomSheet {
-        let viewModel = diContainer.makeArtistsViewModel(artistId: artistId)
+    func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet {
+        let viewModel = diContainer.makeArtistsViewModel(artistId: artistId, selectedIds: selectedIds)
         return ArtistsBottomSheet(viewModel: viewModel)
     }
     
-    func makeSortBottomSheet(initialIndex: Int) -> SortBottomSheet {
-        let viewModel = SortViewModel(initialIndex: initialIndex)
+    func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet {
+        let viewModel = SortViewModel(type: type, initialIndex: initialIndex)
         return SortBottomSheet(viewModel: viewModel)
     }
 }
