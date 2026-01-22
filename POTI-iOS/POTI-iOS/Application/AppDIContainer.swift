@@ -55,7 +55,7 @@ final class AppDIContainer {
     }
     
     private func makePostsRepository() -> PostsInterface {
-        DefaultPostsRepository()
+        DefaultPostsRepository(networkService: makeNetworkService())
     }
     
     private func makePotDetailRepository() -> PotDetailInterface {
@@ -63,7 +63,7 @@ final class AppDIContainer {
     }
     
     private func makeManageRepository() -> PostsInterface {
-        DefaultPostsRepository()
+        DefaultPostsRepository(networkService: makeNetworkService())
     }
     
     private func makePotListRepository() -> PotListInterface {
@@ -72,6 +72,10 @@ final class AppDIContainer {
     
     private func makeArtistsRepository() -> ArtistsInterface {
         DefaultArtistsRepository()
+    }
+    
+    private func makePotsSaleRepository() -> PostsInterface {
+        DefaultPostsRepository(networkService: makeNetworkService())
     }
     
     // MARK: - UseCase
@@ -130,6 +134,10 @@ final class AppDIContainer {
         DefaultArtistsUseCase(repository: makeArtistsRepository())
     }
     
+    private func makePostsSaleUseCase() -> PostsSaleUseCase {
+        DefaultPostsSaleUseCase(repository: makePostsRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -164,8 +172,8 @@ final class AppDIContainer {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
     
-    func makeRecruitDetailViewModel() -> RecruitDetailViewModel {
-        RecruitDetailViewModel()
+    func makeRecruitDetailViewModel(postId: Int) -> RecruitDetailViewModel {
+        RecruitDetailViewModel(postId: postId, postsSaleUseCase: makePostsSaleUseCase())
     }
     
     func makeManageViewModel() -> ParticipantManageViewModel {

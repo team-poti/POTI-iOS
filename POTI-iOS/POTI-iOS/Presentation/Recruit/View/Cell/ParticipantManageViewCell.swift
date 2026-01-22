@@ -193,7 +193,7 @@ final class ParticipantManageViewCell: UITableViewCell {
 //    }
 }
 
-// MARK: - Mock
+// MARK: - Mock 아직 이 부분 연결 전입니당
 
 extension ParticipantManageViewCell.Model {
 
@@ -205,7 +205,7 @@ extension ParticipantManageViewCell.Model {
         phoneText: "010-5555-6666",
         shippingText: "일반택배",
         totalPrice: 40000,
-        depositState: .startShip
+        depositState: .ready
     )
 
     /// 입금 확인중
@@ -238,7 +238,7 @@ extension ParticipantManageViewCell.Model {
         phoneText: "010-7777-8888",
         shippingText: "CJ대한통운",
         totalPrice: 36000,
-        depositState: .startShip
+        depositState: .ready
     )
 
     /// 배송 완료
@@ -249,7 +249,7 @@ extension ParticipantManageViewCell.Model {
         phoneText: "010-9999-0000",
         shippingText: "우체국택배",
         totalPrice: 52000,
-        depositState: .completed
+        depositState: .paid
     )
 
     /// Preview / 기본 사용용
