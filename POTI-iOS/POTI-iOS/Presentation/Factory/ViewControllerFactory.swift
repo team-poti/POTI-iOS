@@ -62,7 +62,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
-            viewModel: MyPageViewModel()
+            viewModel: diContainer.makeMyPageViewModel()
         )
     }
     

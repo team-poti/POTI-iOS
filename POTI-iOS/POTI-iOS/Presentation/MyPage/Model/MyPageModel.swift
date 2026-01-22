@@ -8,14 +8,15 @@
 import Foundation
 
 struct MyPageModel {
+    let userId: Int
     let nickname: String
     let email: String
     let profileImage: String?
     let ratingAverage: Double
     let activityMessage: String
-    let joinedDate: Date
+    let joinedDate: String
     let hasFavoriteArtist: Bool
-    let FavoriteArtistName: String?
+    let favoriteArtistName: String?
     let participationSummary: ParticipationSummary
     let recruitSummary: RecruitSummary
 }

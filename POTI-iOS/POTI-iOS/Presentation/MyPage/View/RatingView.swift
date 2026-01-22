@@ -70,3 +70,10 @@ final class RatingView: BaseView {
         }
     }
 }
+
+extension RatingView {
+    func update(rating: Double) {
+        self.rating = rating
+        ratingLabel.text = String(format: "%.1f", rating)
+    }
+}
