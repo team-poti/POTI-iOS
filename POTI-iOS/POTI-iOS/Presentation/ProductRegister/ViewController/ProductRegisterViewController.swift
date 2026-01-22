@@ -231,7 +231,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     private static func format(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "yyyy.MM.dd"
+        formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
     }
 }
