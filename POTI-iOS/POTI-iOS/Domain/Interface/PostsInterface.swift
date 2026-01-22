@@ -9,4 +9,6 @@ protocol PostsInterface {
     func fetchOrderOptions(postId: Int) async throws -> PotOptionsEntity
     
     func fetchManagerData(postId: Int) async throws -> ManageEntity
+    
+    func fetchSaleDetail(postId: Int) async throws -> RecruitDetailEntity
 }

@@ -17,7 +17,7 @@ protocol ViewControllerFactory {
     func makeOnboardingViewController() -> OnboardingViewController
     func makeValidNicknameViewController() -> ValidNicknameViewController
     func makeSelectFavoriteIdolGroupViewController() -> SelectFavoriteIdolGroupViewController
-    func makeRecruitDetailViewController() -> RecruitDetailViewController
+    func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
     func makePotListViewController() -> PotListViewController
@@ -71,8 +71,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makeRecruitDetailViewController() -> RecruitDetailViewController {
-        RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel())
+    func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController {
+        RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel(postId: postId))
     }
     
     func makeParticipantManageViewController() -> ParticipantListTableViewController {

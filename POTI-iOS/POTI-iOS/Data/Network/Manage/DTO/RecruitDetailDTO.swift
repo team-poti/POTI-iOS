@@ -7,13 +7,14 @@
 
 struct RecruitDetailDTO: Decodable {
     let postId: Int
+    let orderNumber: String
     let totalCount: Int
     let imageUrl: String
     let artistName: String
     let title: String
     let postStatus: String
     let statusMessage: String
-    let participants: [RecruitParticipantDTO]
+    let participant: [RecruitParticipantDTO]
 }
 
 struct RecruitParticipantDTO: Decodable {
@@ -40,13 +41,14 @@ extension RecruitDetailDTO {
     func toEntity() -> RecruitDetailEntity {
         return RecruitDetailEntity(
             postId: postId,
+            orderNumber: orderNumber,
             totalCount: totalCount,
             imageUrl: imageUrl,
             artistName: artistName,
             title: title,
-            postStatus: PostStatus(rawValue: postStatus)!,
+            postStatus: PostStatus(rawValue: postStatus) ?? .recruiting,
             statusMessage: statusMessage,
-            participants: participants.map { $0.toEntity() }
+            participant: participant.map { $0.toEntity() }
         )
     }
 }
@@ -57,7 +59,7 @@ extension RecruitParticipantDTO {
             orderId: orderId,
             userId: userId,
             memberNames: memberNames,
-            status: ParticipantStatus(rawValue: status)!,
+            status: ParticipantStatus(rawValue: status) ?? .waitPay,
             priceInfo: priceInfo.toEntity(),
             shippingInfo: shippingInfo.toEntity()
         )
