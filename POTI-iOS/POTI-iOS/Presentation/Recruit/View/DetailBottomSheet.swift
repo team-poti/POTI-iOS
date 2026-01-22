@@ -16,9 +16,11 @@ final class DetailBottomSheet: BaseView {
     
     // MARK: - Properties
     
-    // private let viewModel: ParticipantManageViewModel
+    private let viewModel: BottomSheetViewModel
     private var cancellables = Set<AnyCancellable>()
-    var onSelectCompletion: ((Int) -> Void)?
+
+    var onSubmit: ((String, String) -> Void)?
+    var onPatched: (() -> Void)?
     
     // MARK: - UI Components
     
@@ -32,12 +34,14 @@ final class DetailBottomSheet: BaseView {
     // MARK: - Initializer
     
     init(
+        viewModel: BottomSheetViewModel,
         firstTitle: String,
         firstPlaceholder: String,
         secondTitle: String,
         secondPlaceholder: String,
         confirmButtonText: String
     ) {
+        self.viewModel = viewModel
         super.init(frame: .zero)
         
         firstTextFieldView.configure(
@@ -90,6 +94,7 @@ final class DetailBottomSheet: BaseView {
             confirmButton
         )
         setAddTarget()
+        bindViewModel()
         ///리팩할 때 뷰컨으로 옮길 예정!!!!!! 0120
     }
     
@@ -105,13 +110,13 @@ final class DetailBottomSheet: BaseView {
         }
         
         closeButton.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
+            $0.top.equalToSuperview().offset(8)
             $0.leading.equalToSuperview().inset(4)
             $0.size.equalTo(48)
         }
         
         firstTextFieldView.snp.makeConstraints {
-            $0.top.equalTo(closeButton.snp.bottom).offset(28)
+            $0.top.equalTo(closeButton.snp.bottom).offset(16)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
         secondTextFieldView.snp.makeConstraints {
@@ -125,21 +130,14 @@ final class DetailBottomSheet: BaseView {
     }
     
     private func bindViewModel() {
-        //        Publishers.CombineLatest(viewModel.output.options, viewModel.output.selectedIndex)
-        //            .receive(on: RunLoop.main)
-        //            .sink { [weak self] _ in
-        //                self?.tableView.reloadData()
-        //                self?.updateTableViewHeight()
-        //            }
-        //            .store(in: &cancellables)
-        //
-        //        viewModel.output.onSelect
-        //            .receive(on: RunLoop.main)
-        //            .sink { [weak self] index in
-        //                self?.onSelectCompletion?(index)
-        //                self?.dismiss()
-        //            }
-        //            .store(in: &cancellables)
+        viewModel.output.submit
+            .receive(on: RunLoop.main)
+            .sink { [weak self] payload in
+                guard let self else { return }
+                self.onSubmit?(payload.depositor, payload.depositTime)
+                self.dismiss()
+            }
+            .store(in: &cancellables)
     }
     
     private func setAddTarget() {
@@ -156,7 +154,6 @@ final class DetailBottomSheet: BaseView {
             self?.updateConfirmButtonState()
         }
         
-        // Initial state
         updateConfirmButtonState()
     }
     
@@ -166,7 +163,7 @@ final class DetailBottomSheet: BaseView {
         let shouldDisable = first.isEmpty || second.isEmpty
         
         confirmButton.isDisabled = shouldDisable
-        confirmButton.color = shouldDisable ? .deactiveMain : .primaryMain
+        confirmButton.color = shouldDisable ? .deactiveMain : .secondaryMain
     }
     
     // MARK: - Methods
@@ -195,6 +192,8 @@ final class DetailBottomSheet: BaseView {
     }
     
     @objc private func didTapConfirmButton() {
-        //로직
+        let depositor = firstTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let depositTime = secondTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        viewModel.action(.tapComplete(depositor: depositor, depositTime: depositTime))
     }
 }

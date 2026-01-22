@@ -13,7 +13,7 @@ enum HomeAPI: BaseTargetType {
     var path: String {
         switch self {
         case .fetchHome:
-            return "/home"
+            return "api/v1/home"
         }
     }
     

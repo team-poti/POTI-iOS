@@ -200,12 +200,12 @@ extension ParticipantManageViewCell.Model {
     /// 기본 케이스 (입금 대기)
     static let mockWaitPay: ParticipantManageViewCell.Model = .init(
         memberNamesText: ["제니", "로제", "지수", "리사"],
-        depositorNameText: "김서현",
+        depositorNameText: "이명진",
         addressText: "(06000) 서울시 강남구 압구정로 77",
         phoneText: "010-5555-6666",
         shippingText: "일반택배",
         totalPrice: 40000,
-        depositState: .waitPay
+        depositState: .startShip
     )
 
     /// 입금 확인중
@@ -253,5 +253,5 @@ extension ParticipantManageViewCell.Model {
     )
 
     /// Preview / 기본 사용용
-    static let mock: ParticipantManageViewCell.Model = mockWaitPay
+    static let mock: ParticipantManageViewCell.Model = mockStartShip
 }

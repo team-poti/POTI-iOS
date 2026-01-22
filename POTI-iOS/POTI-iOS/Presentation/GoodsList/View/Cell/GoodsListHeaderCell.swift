@@ -42,10 +42,9 @@ final class GoodsListHeaderCell: UICollectionReusableView {
     // MARK: - Custom Methods
     
     private func setStyle() {
+        self.backgroundColor = .potiWhite
+        
         filterButton.do {
-            
-            // TODO: - 정렬 바텀시트 추가 후 변경 텍스트로 변경하기
-            
             $0.setTitle("인기순", for: .normal)
             $0.setTitleColor(.potiBlack, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
@@ -82,10 +81,13 @@ final class GoodsListHeaderCell: UICollectionReusableView {
 // MARK: - Extension
 
 extension GoodsListHeaderCell {
-    func configure() {
-        
-        // TODO: - 정렬 바텀시트랑 연결하기
-        
+    func configure(text: String, isFilterVisible: Bool) {
+        filterButton.setTitle(text, for: .normal)
+        filterButton.isHidden = !isFilterVisible
+    }
+
+    func setFilterButtonState(isSelected: Bool) {
+        filterButton.isSelected = isSelected
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  OrderContentView.swift
+//  OptionContentView.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/20/26.
@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class OrderContentView: BaseView {
+final class OptionContentView: BaseView {
     
     // MARK: - UI Components
     

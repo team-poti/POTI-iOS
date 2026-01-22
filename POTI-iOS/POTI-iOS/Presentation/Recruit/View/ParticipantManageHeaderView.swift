@@ -64,9 +64,6 @@ final class ParticipantManageHeaderView: BaseView {
     // MARK: - action
     
     @objc func headerButtonTapped(_ sender: Any) {
-        print("headerButtonTapped")
         onTapHeaderButton?()
-        //TODO: - input .. action 추후 수정
-        // input.send(.potButtonTapped)
     }
 }

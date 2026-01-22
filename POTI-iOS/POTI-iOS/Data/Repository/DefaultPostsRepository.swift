@@ -1,18 +1,34 @@
 //
-//  DefaultManageRepository.swift
+//  DefaultPostsRepository.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/18/26.
+//  Created by mandoo on 1/20/26.
 //
 
-final class DefaultManageRepository: PostsInterface {
+final class DefaultPostsRepository: PostsInterface {
     private let networkService: NetworkService
     
     init(networkService: NetworkService = NetworkService()) {
         self.networkService = networkService
     }
     
-    func fetchManageData(postId: Int) async throws -> ManageEntity {
+    func fetchOrderOptions(postId: Int) async throws -> PotOptionsEntity {
+        
+        // TODO: - 서버 데이터로 변경하기
+        
+        let members = mockMembers.map {
+            MemberEntity(id: $0.memberOptionId, name: $0.memberName, price: $0.memberOptionPrice)
+        }
+        
+        let shippings = mockShippings.map {
+            ShippingEntity(id: $0.deliveryOptionId, name: $0.deliveryName, price: $0.deliveryOptionPrice)
+        }
+        
+        return PotOptionsEntity(members: members, shippings: shippings)
+    }
+    
+    
+    func fetchManagerData(postId: Int) async throws -> ManageEntity {
         // TODO: - 서버 데이터 연결하기
         
         //        let responseDTO = try await networkService.request(
@@ -34,7 +50,7 @@ final class DefaultManageRepository: PostsInterface {
                 profileImage: "https://example.com/profile1.png",
                 nickname: "안유진사랑해",
                 memberNames: ["리즈"],
-                status: .waitPay,
+                status: .startShip,
                 priceInfo: PriceInfoEntity(
                     memberPerPrices: [
                         MemberPerPriceEntity(name: "리즈", price: 3500)
@@ -57,7 +73,7 @@ final class DefaultManageRepository: PostsInterface {
                 profileImage: "https://example.com/profile2.png",
                 nickname: "참여자2",
                 memberNames: ["레이", "이서"],
-                status: .waitPayCheck,
+                status: .paid,
                 priceInfo: PriceInfoEntity(
                     memberPerPrices: [
                         MemberPerPriceEntity(name: "레이", price: 3500),
@@ -73,7 +89,7 @@ final class DefaultManageRepository: PostsInterface {
                 ),
                 shippingInfo: ShippingInfoEntity(
                     receiverName: "이수민",
-                    address: "(01234) 서울특별시 솜트구...",
+                    address: "(01234) 서울특별시 서대문구 연희동",
                     phone: "010-2345-2345",
                     trackingNumber: nil
                 )
@@ -111,6 +127,5 @@ final class DefaultManageRepository: PostsInterface {
             )]
                 
         return ManageEntity(participants: participants)
-        
     }
 }

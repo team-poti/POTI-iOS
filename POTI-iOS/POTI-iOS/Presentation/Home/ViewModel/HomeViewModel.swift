@@ -39,6 +39,7 @@ final class HomeViewModel: BaseViewModelType {
     private(set) var myGroupItems: [GoodsModel] = []
     private(set) var otherGroupItems: [GoodsModel] = []
     private(set) var nickname: String = ""
+    private(set) var mainArtistId: Int = 0
     
     // MARK: - Initializer
     
@@ -73,6 +74,7 @@ final class HomeViewModel: BaseViewModelType {
                 self.myGroupItems = data.toMyGoodsModelList()
                 self.otherGroupItems = data.toOtherGoodsModelList()
                 self.nickname = data.nickname
+                self.mainArtistId = data.mainArtistId ?? 0
                 
                 reloadDataSubject.send(())
             } catch {

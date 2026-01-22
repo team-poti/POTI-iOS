@@ -8,11 +8,15 @@
 struct GoodsListEntity {
     let nickname: String
     let mainArtist: String?
+    let mainArtistId: Int
+    let hasNext: Bool
     let groupItems: [GroupItem]
     
-    init(nickname: String, mainArtist: String?, groupItems: [GroupItem]) {
+    init(nickname: String, mainArtist: String?, mainArtistId: Int, hasNext: Bool, groupItems: [GroupItem]) {
         self.nickname = nickname
         self.mainArtist = mainArtist
+        self.mainArtistId = mainArtistId
+        self.hasNext = hasNext
         self.groupItems = groupItems
     }
     

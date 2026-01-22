@@ -12,8 +12,17 @@ import Then
 
 final class ParticipantManageListCell: UITableViewCell {
     
+    /// (구버전 호환) 상태 액션 버튼 탭 시 model을 그대로 넘겨줌
     var onTapStatusAction: ((ParticipantManageModel) -> Void)?
+
+    /// 토글 버튼 탭
     var onTapToggle: (() -> Void)?
+
+    /// (신규) 입금 확인 버튼 탭
+    var onTapConfirmDeposit: ((Int) -> Void)?
+
+    /// (신규) 송장 번호 입력 버튼 탭
+    var onTapConfirmShip: ((Int) -> Void)?
     
     private let totalStackView = IconStackView(
         iconName: "icn-priceAngle",
@@ -63,6 +72,8 @@ final class ParticipantManageListCell: UITableViewCell {
         super.prepareForReuse()
         onTapToggle = nil
         onTapStatusAction = nil
+        onTapConfirmDeposit = nil
+        onTapConfirmShip = nil
         memberRowStackView.reset()
         participantCaseZeroHeightConstraint?.deactivate()
         grayBackgroundView.isHidden = true
@@ -269,7 +280,21 @@ extension ParticipantManageListCell {
             model: model,
             onTapAction: { [weak self] in
                 guard let self else { return }
+
+                // (구버전 호환)
                 self.onTapStatusAction?(model)
+
+                // (신규) 상태에 따라 VC로 분기 신호 전달
+                switch model.participantstatus {
+                case .waitPayCheck:
+                    self.onTapConfirmDeposit?(model.purchaseId)
+
+                case .paid:
+                    self.onTapConfirmShip?(model.purchaseId)
+
+                default:
+                    break
+                }
             }
         )
         
