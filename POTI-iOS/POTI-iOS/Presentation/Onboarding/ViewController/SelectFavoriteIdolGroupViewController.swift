@@ -142,6 +142,8 @@ extension SelectFavoriteIdolGroupViewController: UICollectionViewDataSource {
               ) as? IdolGroupHeaderView else {
             return UICollectionReusableView()
         }
+        let nickname = viewModel.nickname
+        header.configure(nickname: nickname)
         return header
     }
 }

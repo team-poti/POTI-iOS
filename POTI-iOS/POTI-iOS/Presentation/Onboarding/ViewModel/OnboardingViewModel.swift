@@ -40,7 +40,7 @@ final class OnboardingViewModel: BaseViewModelType {
     
     private(set) var output: Output
         
-    private var nickname: String = ""
+    var nickname: String = ""
     private var selectedArtistId: Int?
         
     private let nicknameValidationSubject = PassthroughSubject<NicknameValidationResult, Never>()

@@ -75,7 +75,7 @@ extension ValidNicknameViewController {
     }
     
     private func moveToNextScreen() {
-        let selectFavoriteIdolGroupVC = factory.makeSelectFavoriteIdolGroupViewController()
+        let selectFavoriteIdolGroupVC = factory.makeSelectFavoriteIdolGroupViewController(viewModel: viewModel)
         self.navigationController?.pushViewController(selectFavoriteIdolGroupVC, animated: true)
     }
 }
