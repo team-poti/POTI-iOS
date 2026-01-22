@@ -5,7 +5,7 @@
 //  Created by neon on 1/22/26.
 //
 
-import UIKit
+import Foundation
 
 final class DefaultImagesRepository: ImagesInterface {
     
@@ -15,26 +15,17 @@ final class DefaultImagesRepository: ImagesInterface {
         self.imageUploadService = imageUploadService
     }
     
-    func uploadImages(images: [UIImage]) async throws -> [String] {
-        // 1. 확장자 배열 생성 (모두 jpg로)
-        let extensions = images.map { _ in "jpg" }
-        
-        // 2. Presigned URL 받기 (type은 "POST"로 고정)
-        let presignedUrls = try await imageUploadService.getPresignedUrls(
+    func fetchPresignedUrls(count: Int) async throws -> [PresignedUrlEntity] {
+        let extensions = Array(repeating: "jpg", count: count)
+        let response = try await imageUploadService.getPresignedUrls(
             type: "POST",
             extensions: extensions
         )
         
-        // 3. 각 이미지를 S3에 업로드
-        var uploadedFileNames: [String] = []
-        
-        for (index, image) in images.enumerated() {
-            let presignedUrl = presignedUrls[index].url
-            try await imageUploadService.uploadImage(image: image, to: presignedUrl)
-            uploadedFileNames.append(presignedUrls[index].fileName)
-        }
-        
-        PotiLogger.debug("이미지 업로드 완료: \(uploadedFileNames)")
-        return uploadedFileNames
+        return try response.data.urls.map { try $0.toEntity() }
+    }
+    
+    func uploadImage(data: Data, to url: URL) async throws {
+        try await imageUploadService.uploadImage(data: data, to: url)
     }
 }

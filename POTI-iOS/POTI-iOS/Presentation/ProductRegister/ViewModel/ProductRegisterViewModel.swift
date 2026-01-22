@@ -47,6 +47,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
     private let registerTitlesUseCase: RegisterTitlesUseCase
     private let registerPostsUseCase: RegisterPostsUseCase
+    private let imagesRepository: ImagesInterface
 
     private let titlesSubject = CurrentValueSubject<[String], Never>([])
     private let imagesSubject = CurrentValueSubject<[UIImage], Never>([])
@@ -84,11 +85,13 @@ final class ProductRegisterViewModel: BaseViewModelType {
     init(
         maxCount: Int = 5,
         registerTitlesUseCase: RegisterTitlesUseCase,
-        registerPostsUseCase: RegisterPostsUseCase
+        registerPostsUseCase: RegisterPostsUseCase,
+        imagesRepository: ImagesInterface
     ) {
         self.maxCount = maxCount
         self.registerTitlesUseCase = registerTitlesUseCase
         self.registerPostsUseCase = registerPostsUseCase
+        self.imagesRepository = imagesRepository
 
         self.output = Output(
             images: imagesSubject.eraseToAnyPublisher(),
@@ -262,6 +265,19 @@ final class ProductRegisterViewModel: BaseViewModelType {
                         return
                     }
 
+                    let imageDatas = self.imagesSubject.value.compactMap {
+                        $0.jpegData(compressionQuality: 0.8)
+                    }
+
+                    let presigned = try await self.imagesRepository.fetchPresignedUrls(count: imageDatas.count)
+
+                    // S3 업로드
+                    var imageFileNames: [String] = []
+                    for (data, item) in zip(imageDatas, presigned) {
+                        try await self.imagesRepository.uploadImage(data: data, to: item.uploadUrl)
+                        imageFileNames.append(item.fileName)
+                    }
+
                     let entity = RegisterRequestEntity(
                         artistId: artistId,
                         title: info.productType,
@@ -269,7 +285,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
                         deadline: info.deadlineText,
                         bankName: info.bank,
                         accountNumber: info.accountNumber,
-                        imageUrls: [],
+                        imageUrls: imageFileNames,
                         options: [],
                         shippings: []
                     )

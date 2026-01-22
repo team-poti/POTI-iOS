@@ -235,7 +235,8 @@ final class AppDIContainer {
     func makeProductRegisterViewModel() -> ProductRegisterViewModel {
         ProductRegisterViewModel(
             registerTitlesUseCase: makeRegisterTitlesUseCase(),
-            registerPostsUseCase: makeRegisterPostsUseCase()
+            registerPostsUseCase: makeRegisterPostsUseCase(),
+            imagesRepository: makeImagesRepository()
         )
     }
     

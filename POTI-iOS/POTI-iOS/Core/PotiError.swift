@@ -19,6 +19,7 @@ enum PotiError: Error, LocalizedError, Equatable {
     case networkFail
     case missingConfig(key: String)
     case kakaoOuathError
+    case invalidPresignedUrl
     
     var needsRelogin: Bool {
         switch self {
@@ -53,6 +54,8 @@ enum PotiError: Error, LocalizedError, Equatable {
             return "\(key) 설정이 누락되었습니다."
         case .kakaoOuathError:
             return "카카오톡 로그인에 실패했습니다."
+        case .invalidPresignedUrl:
+            return "유효하지 않은 업로드 URL입니다"
         }
     }
 }
