@@ -60,18 +60,19 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
 
     override func bindViewModel() {
         
-        // 검색어 변경
         rootView.onChangeQuery = { [weak self] query in
             guard let self else { return }
+            self.rootView.setDoneEnabled(false)
             self.viewModel.action(.queryChanged(query))
         }
         
-        // 리스트 아이템 선택
         rootView.onSelectItem = { [weak self] index, name in
-            self?.viewModel.action(.selectArtist(index: index))
+            guard let self else { return }
+            self.rootView.setQueryText(name)
+            self.rootView.setDoneEnabled(true)
+            self.viewModel.action(.selectArtist(index: index))
         }
         
-        // 검색 결과 수신 → ViewModel + View 동기화
         viewModel.output.artists
             .receive(on: RunLoop.main)
             .sink { [weak self] artists in
@@ -79,7 +80,6 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
             }
             .store(in: &cancellables)
         
-        // 최종 아티스트 선택 완료
         viewModel.output.didSelectArtist
             .receive(on: RunLoop.main)
             .sink { [weak self] artist in

@@ -81,6 +81,10 @@ final class ArtistSearchView: BaseView {
     func setSearchItems(_ items: [String]) {
         searchField.setItems(items)
     }
+    
+    func setQueryText(_ text: String) {
+        searchField.setText(text)
+    }
 
     func setDoneEnabled(_ isEnabled: Bool) {
         doneButton.isDisabled = !isEnabled

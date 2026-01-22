@@ -20,6 +20,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     
     private let rootView = ProductRegisterView()
     private let diContainer: AppDIContainer
+    private let titleQuerySubject = PassthroughSubject<String, Never>()
     
     // MARK: - Initializer
 
@@ -63,6 +64,10 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         if let tabBarController = self.tabBarController as? PotiTabBar {
             tabBarController.tabBar.isHidden = true
         }
+        
+        view.endEditing(true)
+        registerInfoView.artistField.setFocused(false)
+        registerInfoView.deadlineField.setFocused(false)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -103,11 +108,41 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         registerMemberView.onMembersChanged = { [weak self] members in
             self?.viewModel.action(.setMembers(members))
         }
+        
+        // 상품 종류(타이틀) 실시간 검색
+        registerInfoView.productTypeField.onQueryChanged = { [weak self] keyword in
+            self?.titleQuerySubject.send(keyword)
+        }
+
+        registerInfoView.productTypeField.onSelectItem = { [weak self] _, value in
+            guard let self else { return }
+            self.registerInfoView.productTypeField.setText(value)
+            self.registerInfoView.productTypeField.clearItems()
+            self.view.endEditing(true)
+        }
     }
         
     // MARK: - Custom Method
     
     override func bindViewModel() {
+        // 상품 종류 검색어 debounce (300ms)
+        titleQuerySubject
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] keyword in
+                guard let self else { return }
+
+                // 빈 문자열이면 목록 숨김
+                if keyword.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    self.registerInfoView.productTypeField.clearItems()
+                    return
+                }
+
+                // ✅ 선택된 artistId + keyword로 titles API 호출은 ViewModel이 처리
+                self.viewModel.action(.fetchTitles(keyword: keyword))
+            }
+            .store(in: &cancellables)
+        
         viewModel.output.images
             .receive(on: RunLoop.main)
             .sink { [weak self] images in
@@ -121,6 +156,15 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             .receive(on: RunLoop.main)
             .sink { [weak self] remainingLimit in
                 self?.presentPicker(selectionLimit: remainingLimit)
+            }
+            .store(in: &cancellables)
+        
+        // titles 검색 결과 -> productTypeField 리스트 업데이트
+        viewModel.output.titles
+            .receive(on: RunLoop.main)
+            .sink { [weak self] titles in
+                guard let self else { return }
+                self.registerInfoView.productTypeField.setItems(titles)
             }
             .store(in: &cancellables)
         
@@ -264,8 +308,11 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         searchVC.onSelectArtist = { [weak self] artist in
             guard let self else { return }
 
-            self.viewModel.action(.setArtist(artist))
+            // 검색 화면에서 돌아올 때 포커스(테두리/키보드) 정리
+            self.view.endEditing(true)
+            self.registerInfoView.artistField.setFocused(false)
 
+            self.viewModel.action(.setArtist(artist))
             self.registerInfoView.artistField.setText(artist.name)
         }
 

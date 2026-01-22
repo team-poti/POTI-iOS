@@ -23,6 +23,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
         case submit(info: RegisterInfoView.Draft, memberPrices: [Int: Int])
         case setMembers([String?])
         case setArtist(RegisterArtistEntity)
+        case fetchTitles(keyword: String)
     }
 
     // MARK: - Output
@@ -33,6 +34,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
         let deadline: AnyPublisher<Date?, Never>
         let fieldErrors: AnyPublisher<FieldErrors, Never>
         let titleSuggestions: AnyPublisher<[String], Never>
+        let titles: AnyPublisher<[String], Never>
     }
 
     let output: Output
@@ -44,13 +46,13 @@ final class ProductRegisterViewModel: BaseViewModelType {
     private let registerTitlesUseCase: RegisterTitlesUseCase
     private let registerPostsUseCase: RegisterPostsUseCase
 
-    private let titleSuggestionsSubject = CurrentValueSubject<[String], Never>([])
-
+    private let titlesSubject = CurrentValueSubject<[String], Never>([])
     private let imagesSubject = CurrentValueSubject<[UIImage], Never>([])
     private let requestPickerSubject = PassthroughSubject<Int, Never>()
     private let deadlineSubject = CurrentValueSubject<Date?, Never>(nil)
     private let membersSubject = CurrentValueSubject<[String], Never>([])
     private let selectedArtistSubject = CurrentValueSubject<RegisterArtistEntity?, Never>(nil)
+    private var selectedArtist: RegisterArtistEntity?
     private var hasEverHadMembers: Bool = false
 
     struct FieldErrors {
@@ -88,7 +90,8 @@ final class ProductRegisterViewModel: BaseViewModelType {
             requestPicker: requestPickerSubject.eraseToAnyPublisher(),
             deadline: deadlineSubject.eraseToAnyPublisher(),
             fieldErrors: fieldErrorsSubject.eraseToAnyPublisher(),
-            titleSuggestions: titleSuggestionsSubject.eraseToAnyPublisher()
+            titleSuggestions: titlesSubject.eraseToAnyPublisher(),
+            titles: titlesSubject.eraseToAnyPublisher()
         )
     }
 
@@ -126,29 +129,8 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 }
             }
             
-        case .productTypeQueryChanged(let artistId, let keyword):
-            let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else {
-                titleSuggestionsSubject.send([])
-                return
-            }
-
-            Task { [weak self] in
-                guard let self else { return }
-                do {
-                    let titles = try await self.registerTitlesUseCase.execute(
-                        artistId: artistId,
-                        keyword: trimmed
-                    )
-                    await MainActor.run {
-                        self.titleSuggestionsSubject.send(titles as! [String])
-                    }
-                } catch {
-                    await MainActor.run {
-                        self.titleSuggestionsSubject.send([])
-                    }
-                }
-            }
+        case .productTypeQueryChanged(_, let keyword):
+            action(.fetchTitles(keyword: keyword))
             
         case .deadlineSelected(let date):
             deadlineSubject.send(date)
@@ -161,7 +143,56 @@ final class ProductRegisterViewModel: BaseViewModelType {
             }
             
         case .setArtist(let artist):
+            selectedArtist = artist
             selectedArtistSubject.send(artist)
+
+            // 아티스트 선택되면 artist error 해제
+            var errors = fieldErrorsSubject.value
+            errors.artist = nil
+            fieldErrorsSubject.send(errors)
+
+            // 이전 검색 결과 초기화
+            titlesSubject.send([])
+            
+        case .fetchTitles(let keyword):
+            let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            // 입력이 비면 리스트 비움
+            guard !trimmed.isEmpty else {
+                titlesSubject.send([])
+                return
+            }
+
+            // 아티스트 선택 안 된 상태에서 상품 종류 입력 -> artist 에러
+            guard let artistId = selectedArtist?.artistId ?? selectedArtistSubject.value?.artistId else {
+                var errors = fieldErrorsSubject.value
+                errors.artist = "아티스트를 먼저 선택해주세요"
+                fieldErrorsSubject.send(errors)
+                titlesSubject.send([])
+                return
+            }
+
+            // 아티스트가 선택되어 있으면 artist error는 해제
+            var errors = fieldErrorsSubject.value
+            errors.artist = nil
+            fieldErrorsSubject.send(errors)
+
+            Task { [weak self] in
+                guard let self else { return }
+                do {
+                    let titles = try await self.registerTitlesUseCase.execute(
+                        artistId: artistId,
+                        keyword: trimmed
+                    )
+                    await MainActor.run {
+                        self.titlesSubject.send(titles as! [String])
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.titlesSubject.send([])
+                    }
+                }
+            }
             
         case .submit(let info, let memberPrices):
             var errors = FieldErrors.empty
@@ -174,7 +205,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 errors.artist = "아티스트를 선택해주세요"
             }
 
-            let selectedArtistId = info.artistId ?? selectedArtistSubject.value?.artistId
+            let selectedArtistId = info.artistId ?? selectedArtist?.artistId ?? selectedArtistSubject.value?.artistId
             if selectedArtistId == nil {
                 errors.artist = "아티스트를 선택해주세요"
             }
@@ -219,7 +250,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
             Task { [weak self] in
                 guard let self else { return }
                 do {
-                    guard let artistId = info.artistId ?? self.selectedArtistSubject.value?.artistId else {
+                    guard let artistId = info.artistId ?? self.selectedArtist?.artistId ?? self.selectedArtistSubject.value?.artistId else {
                         await MainActor.run {
                             var current = self.fieldErrorsSubject.value
                             current.artist = "아티스트를 선택해주세요"

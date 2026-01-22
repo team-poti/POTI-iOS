@@ -9,7 +9,7 @@ final class DefaultRegisterRepository: RegisterInterface {
 
     private let networkService: NetworkService
 
-    init(networkService: NetworkService = NetworkService()) {
+    init(networkService: NetworkService) {
         self.networkService = networkService
     }
 

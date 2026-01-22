@@ -25,7 +25,6 @@ enum RegisterAPI: BaseTargetType {
         }
     }
 
-    // GET 쿼리 파라미터
     var queryParameters: [String : String]? {
         switch self {
         case .fetchTitles(let artistId, let keyword):

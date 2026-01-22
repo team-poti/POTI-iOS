@@ -29,7 +29,7 @@ final class ArtistSearchViewModel: BaseViewModelType {
     
     private let registerArtistsUseCase: RegisterArtistsUseCase
     private var searchTask: Task<Void, Never>?
-    private let debounceNanos: UInt64 = 300_000_000 // 300ms
+    private let debounceNanos: UInt64 = 300_000_000
 
     private var currentQuery: String = ""
 
@@ -76,7 +76,6 @@ final class ArtistSearchViewModel: BaseViewModelType {
             searchTask = Task { [weak self] in
                 guard let self else { return }
 
-                // debounce 300ms
                 try? await Task.sleep(nanoseconds: self.debounceNanos)
                 guard !Task.isCancelled else { return }
 
