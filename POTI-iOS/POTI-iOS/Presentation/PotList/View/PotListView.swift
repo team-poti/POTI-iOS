@@ -24,9 +24,6 @@ final class PotListView: BaseView {
     // MARK: - Custom Methods
 
     override func setStyle() {
-
-        // TODO: - 네비바 컴포넌트 추가하기
-
         potsListCollectionView.do {
             $0.backgroundColor = .potiWhite
             $0.isScrollEnabled = true

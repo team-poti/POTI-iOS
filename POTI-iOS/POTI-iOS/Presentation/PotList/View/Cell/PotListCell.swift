@@ -219,8 +219,8 @@ extension PotListCell {
     }
     
     private func setRecruitingStyle(current: Int, total: Int, members: [String]) {
-        let currentString = "\(current)"
-        let totalString = "/\(total)"
+        let currentString = "\(current.formattedWithComma)"
+        let totalString = "/\(total.formattedWithComma)"
         let fullCountText = NSMutableAttributedString(string: currentString + totalString)
         
         fullCountText.addAttribute(.foregroundColor, value: UIColor.sementicRed, range: (fullCountText.string as NSString).range(of: totalString))
@@ -237,7 +237,7 @@ extension PotListCell {
     }
     
     private func setPriceLabel(price: Int) {
-        let priceString = "\(price)원~"
+        let priceString = "\(price.formattedWithComma)원~"
         let perPersonString = " / 인"
         let fullPriceText = NSMutableAttributedString(string: priceString + perPersonString)
         

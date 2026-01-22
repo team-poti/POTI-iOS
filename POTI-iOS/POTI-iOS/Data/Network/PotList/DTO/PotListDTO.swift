@@ -57,14 +57,14 @@ struct PotListItemDTO: Decodable {
 struct RecruiterDTO: Decodable { 
     let userId: Int
     let nickname: String
-    let profileImage: String
+    let profileImage: String?
     let rating: Double
 
     func toEntity() -> Recruiter {
         return .init(
             userId: userId,
             nickname: nickname,
-            profileImage: profileImage,
+            profileImage: profileImage ?? "",
             rating: rating
         )
     }
