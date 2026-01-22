@@ -41,8 +41,8 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
     private let maxCount: Int
 
-    private let registerTitlesUseCase: RegisterTitlesUseCase?
-    private let registerPostsUseCase: RegisterPostsUseCase?
+    private let registerTitlesUseCase: RegisterTitlesUseCase
+    private let registerPostsUseCase: RegisterPostsUseCase
 
     private let titleSuggestionsSubject = CurrentValueSubject<[String], Never>([])
 
@@ -76,8 +76,8 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
     init(
         maxCount: Int = 5,
-        registerTitlesUseCase: RegisterTitlesUseCase? = nil,
-        registerPostsUseCase: RegisterPostsUseCase? = nil
+        registerTitlesUseCase: RegisterTitlesUseCase,
+        registerPostsUseCase: RegisterPostsUseCase
     ) {
         self.maxCount = maxCount
         self.registerTitlesUseCase = registerTitlesUseCase
@@ -133,12 +133,10 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 return
             }
 
-            guard let registerTitlesUseCase else { return }
-
             Task { [weak self] in
                 guard let self else { return }
                 do {
-                    let titles = try await registerTitlesUseCase.execute(
+                    let titles = try await self.registerTitlesUseCase.execute(
                         artistId: artistId,
                         keyword: trimmed
                     )
@@ -156,8 +154,9 @@ final class ProductRegisterViewModel: BaseViewModelType {
             deadlineSubject.send(date)
             
         case .setMembers(let members):
-            membersSubject.send(members as! [String])
-            if !members.isEmpty {
+            let normalized = members.compactMap { $0 }
+            membersSubject.send(normalized)
+            if !normalized.isEmpty {
                 hasEverHadMembers = true
             }
             
@@ -217,10 +216,6 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
             guard !errors.hasError else { return }
 
-            guard let registerPostsUseCase else {
-                return
-            }
-
             Task { [weak self] in
                 guard let self else { return }
                 do {
@@ -245,7 +240,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
                         shippings: []
                     )
 
-                    _ = try await registerPostsUseCase.execute(entity)
+                    _ = try await self.registerPostsUseCase.execute(entity)
 
                     // TODO: 성공 Output(예: 등록 완료 이벤트) 필요하면 publisher 추가
                 } catch {

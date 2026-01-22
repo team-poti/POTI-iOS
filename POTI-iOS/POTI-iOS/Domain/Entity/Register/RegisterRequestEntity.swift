@@ -12,20 +12,11 @@ public struct RegisterRequestEntity {
     public let artistId: Int
     public let title: String
     public let content: String
-
-    /// yyyy-MM-dd 형식으로 전송
     public let deadline: String
-
     public let bankName: String
     public let accountNumber: String
-
-    /// presigned 업로드 후 받은 S3 리스트
     public let imageUrls: [String]
-
-    /// 선택된 멤버 리스트
     public let options: [Option]
-
-    /// 배송 옵션 리스트
     public let shippings: [Shipping]
 
     public init(

@@ -19,6 +19,22 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     // MARK: - Properties
     
     private let rootView = ProductRegisterView()
+    private let diContainer: AppDIContainer
+    
+    // MARK: - Initializer
+
+    init(
+        viewModel: ProductRegisterViewModel,
+        diContainer: AppDIContainer
+    ) {
+        self.diContainer = diContainer
+        super.init(viewModel: viewModel)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private var imagePickerView: ImagePickerView {
         rootView.imagePickerView
@@ -241,7 +257,9 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     }
     
     private func presentArtistSearch() {
-        let searchVC = ArtistSearchViewController(viewModel: ArtistSearchViewModel())
+        let searchVC = ArtistSearchViewController(
+            viewModel: diContainer.makeArtistSearchViewModel()
+        )
 
         searchVC.onSelectArtist = { [weak self] artist in
             guard let self else { return }

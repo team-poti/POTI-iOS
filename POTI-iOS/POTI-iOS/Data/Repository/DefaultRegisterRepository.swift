@@ -9,7 +9,7 @@ final class DefaultRegisterRepository: RegisterInterface {
 
     private let networkService: NetworkService
 
-    init(networkService: NetworkService) {
+    init(networkService: NetworkService = NetworkService()) {
         self.networkService = networkService
     }
 
@@ -20,16 +20,15 @@ final class DefaultRegisterRepository: RegisterInterface {
             target: RegisterAPI.registerPosts(dto),
             type: RegisterResponseDTO.self
         )
-
         return result.toEntity()
     }
 
-    func fetchTitles(artistId: Int, keyword: String) async throws -> [String?] {
+    func fetchTitles(artistId: Int, keyword: String) async throws -> [String] {
         let result = try await networkService.request(
             target: RegisterAPI.fetchTitles(artistId: artistId, keyword: keyword),
             type: RegisterTitlesResponseDTO.self
         )
-        return result.toEntities()
+        return result.toEntities().compactMap { $0 }
     }
 
     func fetchArtists(keyword: String) async throws -> [RegisterArtistEntity] {

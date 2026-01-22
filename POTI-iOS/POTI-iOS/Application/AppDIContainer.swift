@@ -74,6 +74,10 @@ final class AppDIContainer {
         DefaultArtistsRepository()
     }
     
+    private func makeRegisterRepository() -> RegisterInterface {
+        DefaultRegisterRepository(networkService: makeNetworkService())
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -130,6 +134,18 @@ final class AppDIContainer {
         DefaultArtistsUseCase(repository: makeArtistsRepository())
     }
     
+    private func makeRegisterArtistsUseCase() -> RegisterArtistsUseCase {
+        DefaultRegisterArtistsUseCase(repository: makeRegisterRepository())
+    }
+    
+    private func makeRegisterTitlesUseCase() -> RegisterTitlesUseCase {
+        DefaultRegisterTitlesUseCase(repository: makeRegisterRepository())
+    }
+    
+    private func makeRegisterPostsUseCase() -> RegisterPostsUseCase {
+        DefaultRegisterPostsUseCase(repository: makeRegisterRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -182,5 +198,31 @@ final class AppDIContainer {
     
     func makeArtistsViewModel() -> ArtistsViewModel {
         ArtistsViewModel(useCase: makeArtistsUseCase())
+    }
+    
+    @MainActor func makeProductRegisterViewModel() -> ProductRegisterViewModel {
+        ProductRegisterViewModel(
+            registerTitlesUseCase: makeRegisterTitlesUseCase(),
+            registerPostsUseCase: makeRegisterPostsUseCase()
+        )
+    }
+    
+    @MainActor func makeArtistSearchViewModel() -> ArtistSearchViewModel {
+        ArtistSearchViewModel(registerArtistsUseCase: makeRegisterArtistsUseCase())
+    }
+    
+    // MARK: - ViewController
+
+    @MainActor func makeProductRegisterViewController() -> ProductRegisterViewController {
+        ProductRegisterViewController(
+            viewModel: makeProductRegisterViewModel(),
+            diContainer: self
+        )
+    }
+
+    @MainActor func makeArtistSearchViewController() -> ArtistSearchViewController {
+        ArtistSearchViewController(
+            viewModel: makeArtistSearchViewModel()
+        )
     }
 }

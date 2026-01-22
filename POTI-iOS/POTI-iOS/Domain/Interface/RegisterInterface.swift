@@ -7,6 +7,6 @@
 
 protocol RegisterInterface {
     func registerPosts(_ entity: RegisterRequestEntity) async throws -> RegisterResponseEntity
-    func fetchTitles(artistId: Int, keyword: String) async throws -> [String?]
+    func fetchTitles(artistId: Int, keyword: String) async throws -> [String]
     func fetchArtists(keyword: String) async throws -> [RegisterArtistEntity]
 }

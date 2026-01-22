@@ -41,6 +41,16 @@ protocol HomeViewScrollDelegate: AnyObject {
 
 final class HomeViewController: BaseViewController<HomeViewModel>{
     
+    private let diContainer: AppDIContainer
+
+    init(
+        viewModel: HomeViewModel,
+        diContainer: AppDIContainer
+    ) {
+        self.diContainer = diContainer
+        super.init(viewModel: viewModel)
+    }
+    
     // MARK: - Properties
     
     weak var scrollDelegate: HomeViewScrollDelegate?
@@ -189,8 +199,22 @@ extension HomeViewController: GoodsHeaderCellDelegate {
     }
     
     @objc private func didTapFloatingButton() {
-        let viewModel = ProductRegisterViewModel()
-        let vc = ProductRegisterViewController(viewModel: viewModel)
+        let networkService = NetworkService()
+        let registerRepository = DefaultRegisterRepository(networkService: networkService)
+
+        let registerTitlesUseCase = DefaultRegisterTitlesUseCase(repository: registerRepository)
+        let registerPostsUseCase = DefaultRegisterPostsUseCase(repository: registerRepository)
+
+        let viewModel = ProductRegisterViewModel(
+            registerTitlesUseCase: registerTitlesUseCase,
+            registerPostsUseCase: registerPostsUseCase
+        )
+
+        let vc = ProductRegisterViewController(
+            viewModel: viewModel,
+            diContainer: diContainer
+        )
+        
         self.navigationController?.pushViewController(vc, animated: true)
     }
 }

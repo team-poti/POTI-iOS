@@ -27,20 +27,23 @@ final class ArtistSearchViewModel: BaseViewModelType {
 
     let output: Output
     
+    private let registerArtistsUseCase: RegisterArtistsUseCase
+    private var searchTask: Task<Void, Never>?
+    private let debounceNanos: UInt64 = 300_000_000 // 300ms
+
     private var currentQuery: String = ""
 
     private var currentArtists: [RegisterArtistEntity] = []
     private var selectedArtist: RegisterArtistEntity?
 
     private let isDoneEnabledSubject = CurrentValueSubject<Bool, Never>(false)
-
     private let artistsSubject = CurrentValueSubject<[RegisterArtistEntity], Never>([])
-
     private let didSelectArtistSubject = PassthroughSubject<RegisterArtistEntity, Never>()
 
     // MARK: - Life Cycle
 
-    init() {
+    init(registerArtistsUseCase: RegisterArtistsUseCase) {
+        self.registerArtistsUseCase = registerArtistsUseCase
         self.output = Output(
             isDoneEnabled: isDoneEnabledSubject.eraseToAnyPublisher(),
             artists: artistsSubject.eraseToAnyPublisher(),
@@ -56,8 +59,43 @@ final class ArtistSearchViewModel: BaseViewModelType {
             let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
             currentQuery = trimmed
 
+            // 입력이 바뀌면 선택 상태는 해제
             selectedArtist = nil
             isDoneEnabledSubject.send(false)
+
+            // 빈 검색어면 리스트 비우기
+            if trimmed.isEmpty {
+                setArtists([])
+                return
+            }
+
+            // 이전 검색 취소
+            searchTask?.cancel()
+
+            let requestedQuery = trimmed
+            searchTask = Task { [weak self] in
+                guard let self else { return }
+
+                // debounce 300ms
+                try? await Task.sleep(nanoseconds: self.debounceNanos)
+                guard !Task.isCancelled else { return }
+
+                // 최신 query인지 확인
+                guard self.currentQuery == requestedQuery else { return }
+
+                do {
+                    let artists = try await self.registerArtistsUseCase.execute(keyword: requestedQuery)
+                    await MainActor.run {
+                        print("[ArtistSearchVM] artists fetched count:", artists.count)
+                        self.setArtists(artists)
+                    }
+                } catch {
+                    await MainActor.run {
+                        print("[ArtistSearchVM] fetchArtists error:", error)
+                        self.setArtists([])
+                    }
+                }
+            }
 
         case .selectArtist(let index):
             guard currentArtists.indices.contains(index) else { return }
@@ -74,11 +112,10 @@ final class ArtistSearchViewModel: BaseViewModelType {
         }
     }
 
-    func setArtists(_ artists: [RegisterArtistEntity]) {
+    private func setArtists(_ artists: [RegisterArtistEntity]) {
         currentArtists = artists
         artistsSubject.send(artists)
 
-        // 현재 선택이 목록에 없으면 선택 해제
         if let selected = selectedArtist,
            !artists.contains(where: { $0.artistId == selected.artistId }) {
             selectedArtist = nil

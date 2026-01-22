@@ -63,13 +63,11 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
         // 검색어 변경
         rootView.onChangeQuery = { [weak self] query in
             guard let self else { return }
-            print("[ArtistSearchVC] query changed:", query)
             self.viewModel.action(.queryChanged(query))
         }
         
         // 리스트 아이템 선택
         rootView.onSelectItem = { [weak self] index, name in
-            print("[ArtistSearchVC] select artist index:", index, "name:", name)
             self?.viewModel.action(.selectArtist(index: index))
         }
         
@@ -77,15 +75,7 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
         viewModel.output.artists
             .receive(on: RunLoop.main)
             .sink { [weak self] artists in
-                guard let self else { return }
-                
-                print("[ArtistSearchVC] artists received count:", artists.count)
-                
-                self.viewModel.setArtists(artists)
-                
-                self.rootView.setSearchItems(
-                    artists.compactMap { $0.name }
-                )
+                self?.rootView.setSearchItems(artists.compactMap { $0.name })
             }
             .store(in: &cancellables)
         
@@ -94,9 +84,7 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
             .receive(on: RunLoop.main)
             .sink { [weak self] artist in
                 guard let self else { return }
-                
-                print("[ArtistSearchVC] didSelectArtist:", artist.name, "id:", artist.artistId)
-                
+                                
                 self.onSelectArtist?(artist)
                 
                 if self.navigationController != nil {

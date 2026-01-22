@@ -49,7 +49,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeHomeViewController() -> HomeViewController {
         HomeViewController(
-            viewModel: diContainer.makeHomeViewModel()
+            viewModel: diContainer.makeHomeViewModel(),
+            diContainer: diContainer
         )
     }
     
@@ -114,7 +115,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
                 shippingId: shippingId,
                 orderItems: orderItems
             ),
-            factory: self 
+            factory: self
         )
     }
 }
