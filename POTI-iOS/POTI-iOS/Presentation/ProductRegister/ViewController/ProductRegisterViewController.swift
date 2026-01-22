@@ -19,16 +19,16 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     // MARK: - Properties
     
     private let rootView = ProductRegisterView()
-    private let diContainer: AppDIContainer
+    private let factory: ViewControllerFactory
     private let titleQuerySubject = PassthroughSubject<String, Never>()
     
     // MARK: - Initializer
 
     init(
         viewModel: ProductRegisterViewModel,
-        diContainer: AppDIContainer
+        factory: ViewControllerFactory
     ) {
-        self.diContainer = diContainer
+        self.factory = factory
         super.init(viewModel: viewModel)
     }
 
@@ -301,9 +301,8 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     }
     
     private func presentArtistSearch() {
-        let searchVC = ArtistSearchViewController(
-            viewModel: diContainer.makeArtistSearchViewModel()
-        )
+        
+        let searchVC = factory.makeArtistSearchViewController()
 
         searchVC.onSelectArtist = { [weak self] artist in
             guard let self else { return }
