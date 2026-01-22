@@ -50,6 +50,7 @@ struct Pot {
 
     func toFeedModel() -> FeedModel {
         FeedModel(
+            potId: potId,
             recruiter: recruiter.toRecruiterModel(),
             profileImage: recruiter.profileImage,
             rating: recruiter.rating,

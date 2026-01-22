@@ -7,10 +7,11 @@ import UIKit
 
 final class PotDetailViewController: BaseViewController<PotDetailViewModel>, NavigationConfigurable {
     func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("{닉네임}의 팟")
+        return .backDefault("포티타임의 팟")
     }
     
     private let rootView = PotDetailView()
+    private let factory: ViewControllerFactory
     
     override func loadView() {
         self.view = rootView
@@ -19,11 +20,22 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
+        self.definesPresentationContext = true
+    }
+    
+    init(viewModel: PotDetailViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func setDelegate() {
         rootView.potDetailCollectionView.delegate = self
         rootView.potDetailCollectionView.dataSource = self
+        rootView.joinButton.addTarget(self, action: #selector(joinButtonDidTap), for: .touchUpInside)
     }
     
     override func bindViewModel() {
@@ -31,15 +43,10 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self = self else { return }
-                if let nickname = self.viewModel.potDetailModel?.uploader.nickname {
-                    PotiNavigationBar.configure(
-                        navigationItem: self.navigationItem,
-                        navigationController: self.navigationController,
-                        style: .backDefault("\(nickname)의 팟"),
-                        target: self
-                    )
-                }
                 
+                if let nickname = self.viewModel.potDetailModel?.uploader.nickname {
+                    self.title = "\(nickname)의 팟"
+                }
                 self.rootView.potDetailCollectionView.reloadData()
             }
             .store(in: &cancellables)
@@ -55,6 +62,29 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
             }
             .store(in: &cancellables)
     }
+    
+    @objc private func joinButtonDidTap() {
+        let sheetVC = factory.makePotOptionsSheetViewController(postId: viewModel.postId)
+        
+        sheetVC.modalPresentationStyle = .overFullScreen
+
+        present(sheetVC, animated: false)
+        
+        sheetVC.onComplete = { [weak self] in
+            guard let self = self else { return }
+            
+            let orderVC = self.factory.makePotOrderViewController(
+                postId: self.viewModel.postId,
+                shippingId: 0,
+                orderItems: []
+            )
+            
+            self.navigationController?.pushViewController(orderVC, animated: true)
+        }
+        
+        self.present(sheetVC, animated: false)
+    }
+    
 }
 
 // MARK: - UICollectionViewDataSource

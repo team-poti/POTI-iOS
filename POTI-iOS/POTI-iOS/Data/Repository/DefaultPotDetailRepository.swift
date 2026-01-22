@@ -17,28 +17,44 @@ final class DefaultPotDetailRepository: PotDetailInterface {
         
         // TODO: - 서버 데이터 연결하기
         
-//        let potDetailDTO = try await networkService.request(
-//            target: PotDetailAPI.fetchPotDetail,
-//            type: PotDetailDTO.self
-//        )
-//        return PotDetailDTO.toEntity()
+        //        let potDetailDTO = try await networkService.request(
+        //            target: PotDetailAPI.fetchPotDetail,
+        //            type: PotDetailDTO.self
+        //        )
+        //        return PotDetailDTO.toEntity()
         
         return PotDetailEntity(
-                postId: 1,
-                isMyPost: false,
-                status: "CLOSED",
-                artist: "아이브",
-                title: "러브다이부",
-                price: 10000,
-                uploadTime: "4시간 전",
-                deadline: "2026-01-25",
-                images: ["https://thumbnews.nateimg.co.kr/view610///news.nateimg.co.kr/orgImg/sd/2025/08/25/132250320.1.jpg", "https://cdn.nc.press/news/photo/202507/570556_728148_2749.jpg", "https://cf.asiaartistawards.com/news/21/2025/09/2025090910370348045_1.jpg","https://thumbnews.nateimg.co.kr/view610///news.nateimg.co.kr/orgImg/sd/2025/08/25/132250320.1.jpg", "https://cdn.nc.press/news/photo/202507/570556_728148_2749.jpg"],
-                content: "내용입니다!!!!!!!!!!",
-                shippingOptions: [ShippingOption(shippingId: 1, name: "반값택배", price: 1500), ShippingOption(shippingId: 2, name: "GS반택", price: 2000)],
-                uploader: Uploader(userId: 1, nickname: "포티에용", profileImage: "https://image.production.fruitsfamily.com/public/product/resized%40width1125/uaM2ycb_ZO-5F0998EF-D128-4C3D-B556-C623905A2BC7.jpg", rating: 5.0, reviewCount: 10),
-                currentCount: 0,
-                totalCount: 5,
-                participants: [/*ParticipantInfo(userId: 1, nickname: "수민이다", profileImage: "https://contents.kyobobook.co.kr/sih/fit-in/375x0/gift/pdt/1130/hot1719368921728.jpg", rating: 4.5, selectedMembers: ["원영", "유진"]),ParticipantInfo(userId: 1, nickname: "나연이다", profileImage: "https://d2gfz7wkiigkmv.cloudfront.net/pickin/2/1/2/v30FzkJ9T1CZxzokK1Q_4Q", rating: 4.9, selectedMembers: ["이서"]), */]
-            )
+            postId: 1,
+            isMyPost: false,
+            status: "RECRUITING",
+            artist: "아이브",
+            title: "아이브 미니 2집 분철합니다!",
+            price: 15000,
+            uploadTime: "2026-01-22 등록",
+            deadline: "2026-01-25",
+            images: [
+                "https://thumbnews.nateimg.co.kr/view610///news.nateimg.co.kr/orgImg/sd/2025/08/25/132250320.1.jpg",
+                "https://talkimg.imbc.com/TVianUpload/tvian/TViews/image/2024/05/23/8984e9ca-7b94-43db-ad29-8e3d9045ec1b.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-PqPTP894d7O40KW5v12bzcJ3Rvhjbo3I2A&s"
+            ],
+            content: "숨 참고 러브다이부~",
+            shippingOptions: [
+                ShippingOption(shippingId: 1, name: "반값택배", price: 1800),
+                ShippingOption(shippingId: 2, name: "일반택배", price: 3500)
+            ],
+            uploader: Uploader(
+                userId: 100,
+                nickname: "포티타임",
+                profileImage: "https://thumbnail.coupangcdn.com/thumbnails/remote/492x492ex/image/vendor_inventory/ae84/747a5be247b49cd2dfd117e88ec623205bb5552ae9ea66545e0b112a171c.jpg",
+                rating: 4.8,
+                reviewCount: 24
+            ),
+            currentCount: 2,
+            totalCount: 6,
+            participants: [
+                ParticipantInfo(userId: 1, nickname: "수민", profileImage: "https://i.pinimg.com/736x/09/fb/34/09fb346daa863cd3389f237009ab2940.jpg", rating: 5.0, selectedMembers: ["이서", "레이"]),
+                ParticipantInfo(userId: 2, nickname: "포숭이", profileImage: "https://i.pinimg.com/564x/9c/78/f8/9c78f8a5ed77c5bb14443360fc3f3521.jpg", rating: 4.5, selectedMembers: ["리즈"])
+            ]
+        )
     }
 }

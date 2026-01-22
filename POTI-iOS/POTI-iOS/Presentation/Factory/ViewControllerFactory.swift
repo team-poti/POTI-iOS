@@ -23,6 +23,7 @@ protocol ViewControllerFactory {
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -85,7 +86,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makePotDetailViewController(postId: Int) -> PotDetailViewController {
         PotDetailViewController(
-            viewModel: diContainer.makePotDetailViewModel(postId: postId)
+            viewModel: diContainer.makePotDetailViewModel(postId: postId), factory: self
         )
     }
     

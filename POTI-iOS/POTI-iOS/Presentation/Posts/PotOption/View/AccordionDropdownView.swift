@@ -193,7 +193,7 @@ extension AccordionDropdownView: UITableViewDataSource, UITableViewDelegate {
         }
         
         let priceLabel = UILabel().then {
-            $0.text = item.price == 0 ? "0원" : "\(item.price.formattedWithSeparator())원"
+            $0.text = item.price == 0 ? "0원" : "\(item.price.formattedWithComma)원"
             $0.font = PotiFontManager.body14sb.font
             $0.textColor = isDisabled ? .gray700 : .potiBlack
         }

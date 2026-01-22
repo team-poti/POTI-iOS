@@ -18,7 +18,7 @@ final class GoodsListView: BaseView {
         frame: .zero,
         collectionViewLayout: GoodsListLayoutFactory.createLayout()
     )
-    private let floatingButton = FloatingButton()
+    let floatingButton = FloatingButton()
     
     // MARK: - Custom Methods
     

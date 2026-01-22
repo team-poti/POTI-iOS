@@ -174,6 +174,12 @@ extension PotListViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollDelegate?.potsListViewDidScroll(yOffset: scrollView.contentOffset.y)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedPot = viewModel.pots[indexPath.item]
+        let detailVC = factory.makePotDetailViewController(postId: selectedPot.potId)
+        self.navigationController?.pushViewController(detailVC, animated: true)
+    }
 }
 
 extension PotListViewController: PotListHeaderCellDelegate {

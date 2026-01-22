@@ -123,7 +123,7 @@ final class PotOptionsViewModel: BaseViewModelType {
         selectedMembers[member.memberName] = member.memberOptionPrice
         selectedMemberNames.insert(member.memberName)
         
-        let priceText = member.memberOptionPrice == 0 ? "0원" : "\(member.memberOptionPrice.formattedWithSeparator())원"
+        let priceText = member.memberOptionPrice == 0 ? "0원" : "\(member.memberOptionPrice.formattedWithComma)원"
         memberAddedSubject.send((member.memberName, priceText, member.memberOptionPrice))
         updateTotalState()
     }
@@ -133,7 +133,7 @@ final class PotOptionsViewModel: BaseViewModelType {
         let shipping = shippings[index]
         selectedDelivery = (shipping.deliveryName, shipping.deliveryOptionPrice)
         
-        let priceText = "\(shipping.deliveryOptionPrice.formattedWithSeparator())원"
+        let priceText = "\(shipping.deliveryOptionPrice.formattedWithComma)원"
         deliveryUpdatedSubject.send((shipping.deliveryName, priceText, shipping.deliveryOptionPrice))
         updateTotalState()
     }
@@ -151,7 +151,7 @@ final class PotOptionsViewModel: BaseViewModelType {
     }
     
     private func updateTotalState() {
-        totalPriceSubject.send("\(currentTotalAmount.formattedWithSeparator())원")
+        totalPriceSubject.send("\(currentTotalAmount.formattedWithComma)원")
         let isValid = !selectedMembers.isEmpty && selectedDelivery != nil
         isBottomButtonEnabledSubject.send(isValid)
     }
@@ -176,13 +176,5 @@ extension PotOptionsViewModel {
             }
         }
         return indices
-    }
-}
-
-extension Int {
-    func formattedWithSeparator() -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
     }
 }

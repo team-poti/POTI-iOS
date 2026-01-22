@@ -25,7 +25,7 @@ final class PotDetailViewModel: BaseViewModelType {
     // MARK: - Properties
     
     private let useCase: PotDetailUseCase
-    private let postId: Int
+    let postId: Int
     private var cancellables = Set<AnyCancellable>()
     
     let output: Output

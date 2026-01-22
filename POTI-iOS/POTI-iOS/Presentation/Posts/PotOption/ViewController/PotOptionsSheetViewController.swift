@@ -19,6 +19,9 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
     private var currentDropdown: AccordionDropdownView?
     private var deliveryInfoView: SelectedInfoView?
     
+    var onComplete: (() -> Void)?
+    var onDismissCompletion: (() -> Void)?
+    
     // MARK: - Life Cycles
     
     override func loadView() {
@@ -27,6 +30,7 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .clear
         
         bind()
         setActions()
@@ -88,10 +92,17 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
         
         content.memberButton.addTarget(self, action: #selector(toggleMember), for: .touchUpInside)
         content.deliveryButton.addTarget(self, action: #selector(toggleDelivery), for: .touchUpInside)
+        content.bottomButton.addTarget(self, action: #selector(didTapComplete), for: .touchUpInside)
         
         rootView.closeButton.addTarget(self, action: #selector(dismissSheet), for: .touchUpInside)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissSheet))
         rootView.backgroundView.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func didTapComplete() {
+        dismissSheet {
+            self.onComplete?()
+        }
     }
 }
 
@@ -183,9 +194,9 @@ private extension PotOptionsSheetViewController {
 
 private extension PotOptionsSheetViewController {
     func showSheet() {
-        rootView.containerView.transform = CGAffineTransform(translationX: 0, y: 800)
+        rootView.containerView.transform = CGAffineTransform(translationX: 0, y: -800)
         rootView.backgroundView.alpha = 0
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: 0.6) {
             self.rootView.containerView.transform = .identity
             self.rootView.backgroundView.alpha = 1
         }
@@ -224,12 +235,19 @@ private extension PotOptionsSheetViewController {
         currentDropdown = dropdown
     }
     
-    @objc func dismissSheet() {
+    @objc private func dismissSheet() {
+        dismissSheet(completion: nil)
+    }
+    
+    @objc func dismissSheet(completion: (() -> Void)? = nil) {
         UIView.animate(withDuration: 0.3, animations: {
             self.rootView.containerView.transform = CGAffineTransform(translationX: 0, y: 800)
             self.rootView.backgroundView.alpha = 0
         }) { _ in
-            self.dismiss(animated: false)
+            self.dismiss(animated: false) {
+                self.onDismissCompletion?()
+                completion?()
+            }
         }
     }
     

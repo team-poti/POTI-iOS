@@ -33,7 +33,7 @@ struct PotDetailDTO: Decodable {
             price: price,
             uploadTime: uploadTime,
             deadline: deadline,
-            images: images.map { $0.imageUrl },
+            images: images.map { $0.url },
             content: content,
             shippingOptions: shippingOptions.map { $0.toEntity() },
             uploader: uploader.toEntity(),
@@ -46,7 +46,7 @@ struct PotDetailDTO: Decodable {
 
 struct PostImageDTO: Decodable {
     let sortOrder: Int
-    let imageUrl: String
+    let url: String
 }
 
 struct ShippingOptionDTO: Decodable {

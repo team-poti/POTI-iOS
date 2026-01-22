@@ -74,11 +74,28 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>, Nav
             .store(in: &cancellables)
     }
     
+    override func addTarget() {
+        rootView.floatingButton.addTarget(
+            self,
+            action: #selector(didTapFloatingButton),
+            for: .touchUpInside
+        )
+    }
+    
     // MARK: - Method
     
     func navigationStyle() -> PotiNavigationStyle {
         let title = viewModel.sectionType.getHeaderTitle(nickName: viewModel.nickname) ?? ""
         return .backDefault(title)
+    }
+    
+    @objc private func didTapFloatingButton() {
+        
+        // TODO: - factory 주입으로 변경하기
+        
+        let viewModel = ProductRegisterViewModel()
+        let vc = ProductRegisterViewController(viewModel: viewModel)
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -151,7 +168,6 @@ extension GoodsListViewController: UICollectionViewDelegate {
             artistId: goods.artistId,
             artistName: goods.artist
         )
-        
         self.navigationController?.pushViewController(potListVC, animated: true)
     }
 }
