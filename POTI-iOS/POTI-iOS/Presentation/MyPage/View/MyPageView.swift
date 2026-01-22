@@ -7,6 +7,7 @@
 
 import UIKit
 
+import Kingfisher
 import SnapKit
 import Then
 
@@ -35,7 +36,6 @@ final class MyPageView: BaseView {
         profileImage.do {
             $0.image = .imgDone
             $0.contentMode = .scaleAspectFill
-            $0.layer.cornerRadius = 49
             $0.clipsToBounds = true
         }
         
@@ -43,14 +43,12 @@ final class MyPageView: BaseView {
             $0.font = PotiFontManager.body16sb.font
             $0.textColor = .potiBlack
             $0.textAlignment = .center
-            $0.text = "앙티티"
         }
         
         emailLabel.do {
             $0.font = PotiFontManager.caption12m.font
             $0.textColor = .gray700
             $0.textAlignment = .center
-            $0.text = "ang@naver.com"
         }
         
         buttonStackView.do {
@@ -74,10 +72,11 @@ final class MyPageView: BaseView {
             $0.font = PotiFontManager.body16sb.font
             $0.textColor = .potiBlack
         }
-        
-        recruitmentView.do {
-            $0.configure(counts: (all: 7, ongoing: 2, completed: 5))
-        }
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        profileImage.layer.cornerRadius = profileImage.bounds.width / 2
     }
     
     override func setUI() {
@@ -144,5 +143,54 @@ final class MyPageView: BaseView {
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(60)
         }
+    }
+}
+
+extension MyPageView {
+    func configure(with model: MyPageModel) {
+        nickNameLabel.text = model.nickname
+        emailLabel.text = model.email
+        if let imageURL = model.profileImage,
+           let url = URL(string: imageURL) {
+            
+            profileImage.kf.setImage(
+                with: url,
+                placeholder: UIImage(named: "img_profile_placeholder"),
+                options: [
+                    .transition(.fade(0.2)),
+                    .cacheOriginalImage
+                ]
+            )
+        } else {
+            profileImage.image = UIImage(named: "img_profile_placeholder")
+        }
+
+        ratingView.update(rating: model.ratingAverage)
+
+        userInformationView.configure(
+            recentActivity: model.activityMessage,
+            signUpDate: model.joinedDate
+        )
+
+        participationView.configure(
+            counts: (
+                all: model.participationSummary.totalCount,
+                ongoing: model.participationSummary.inProgressCount,
+                completed: model.participationSummary.completedCount
+            )
+        )
+
+        recruitmentView.configure(
+            counts: (
+                all: model.recruitSummary.totalCount,
+                ongoing: model.recruitSummary.inProgressCount,
+                completed: model.recruitSummary.completedCount
+            )
+        )
+        
+        idolButton.configure(
+            hasFavoriteArtist: model.hasFavoriteArtist,
+            favoriteArtistName: model.favoriteArtistName
+        )
     }
 }
