@@ -28,7 +28,7 @@ struct PotListDTO: Decodable {
 struct PotListItemDTO: Decodable {
     let potId: Int
     let price: Int
-    let thumbnailUrl: String
+    let postImage: String
     let currentCount: Int
     let totalCount: Int
     let status: String
@@ -36,7 +36,8 @@ struct PotListItemDTO: Decodable {
     let recruiter: RecruiterDTO
 
     enum CodingKeys: String, CodingKey {
-        case potId, price, thumbnailUrl, currentCount, totalCount, status, availableMembers
+        case potId, price, currentCount, totalCount, status, availableMembers
+        case postImage = "thumbnailUrl"
         case recruiter = "uploader"
     }
 
@@ -44,7 +45,7 @@ struct PotListItemDTO: Decodable {
         return .init(
             potId: potId,
             price: price,
-            thumbnailUrl: thumbnailUrl,
+            thumbnailUrl: postImage,
             currentCount: currentCount,
             totalCount: totalCount,
             status: status,

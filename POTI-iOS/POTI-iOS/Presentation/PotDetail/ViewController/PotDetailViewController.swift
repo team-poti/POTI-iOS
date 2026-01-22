@@ -139,7 +139,4 @@ extension PotDetailViewController: UICollectionViewDataSource {
 }
 
 extension PotDetailViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("Selected item at: \(indexPath.row)")
-    }
 }

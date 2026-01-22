@@ -6,71 +6,18 @@
 //
 
 final class DefaultPotListRepository: PotListInterface {
-
     private let networkService: NetworkService
 
-    init(networkService: NetworkService = NetworkService()) {
+    init(networkService: NetworkService) {
         self.networkService = networkService
     }
 
-    func fetchPotListData() async throws -> PotListEntity {
-
-        // TODO: - 서버 데이터 연결 시 아래 주석 해제
-        /*
-        let potListDTO = try await networkService.request(
-            target: PotListAPI.fetchPotList,
+    func fetchPotListData(title: String, artistId: Int, memberIds: [Int]?, sort: String, page: Int) async throws -> PotListEntity {
+        let response: PotListDTO = try await networkService.request(
+            target: PotListAPI.fetchPotList(title: title, artistId: artistId, memberIds: memberIds, sort: sort, page: page),
             type: PotListDTO.self
         )
-        return potListDTO.toEntity()
-        */
-
-        let mockRecruiter = Recruiter(
-            userId: 1,
-            nickname: "티티들",
-            profileImage: "https://ecimg.cafe24img.com/pg1501b97666319045/leaz2023/file_data/b911e1548d898abe5c763017c331efba.jpg",
-            rating: 4.7
-        )
-
-        let mockPots = [
-            Pot(
-                potId: 1,
-                price: 4000,
-                thumbnailUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5Y2aT5CXCSJTzpk-y6DdcXWwnE62Uo0jmxg&s",
-                currentCount: 2,
-                totalCount: 7,
-                status: "RECRUITING",
-                availableMembers: ["레이", "이서"],
-                recruiter: mockRecruiter 
-            ),
-            Pot(
-                potId: 2,
-                price: 4000,
-                thumbnailUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5Y2aT5CXCSJTzpk-y6DdcXWwnE62Uo0jmxg&s",
-                currentCount: 2,
-                totalCount: 7,
-                status: "RECRUITING",
-                availableMembers: ["레이", "이서"],
-                recruiter: mockRecruiter
-            ),
-            Pot(
-                potId: 3,
-                price: 4000,
-                thumbnailUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5Y2aT5CXCSJTzpk-y6DdcXWwnE62Uo0jmxg&s",
-                currentCount: 2,
-                totalCount: 7,
-                status: "CLOSED", // 예시 상태값 변경
-                availableMembers: ["레이", "이서"],
-                recruiter: mockRecruiter
-            )
-        ]
-
-        return PotListEntity(
-            postTitle: "아이브 포카",
-            artistId: 2,
-            artist: "아이브",
-            currentPage: 1,
-            hasNext: true,
-            pots: mockPots
-        )
+        return response.toEntity()
     }
 }
+

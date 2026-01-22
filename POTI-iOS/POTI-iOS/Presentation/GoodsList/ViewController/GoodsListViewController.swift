@@ -20,6 +20,18 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>, Nav
     weak var scrollDelegate: GoodsListViewScrollDelegate?
     private let rootView = GoodsListView()
     private let setGoodsListData = PassthroughSubject<Void, Never>()
+    private let factory: ViewControllerFactory
+    
+    // MARK: - Initializer
+    
+    init(viewModel: GoodsListViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Life Cycles
     
@@ -129,6 +141,17 @@ extension GoodsListViewController: UICollectionViewDelegate {
         if offsetY > contentHeight - height - 100 {
             viewModel.action(.loadNextPage)
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let goods = viewModel.groupItems[indexPath.item]
+        
+        let potListVC = factory.makePotListViewController(
+            title: goods.title,
+            artistId: viewModel.getArtistId(), artistName: goods.artist
+        )
+        
+        self.navigationController?.pushViewController(potListVC, animated: true)
     }
 }
 

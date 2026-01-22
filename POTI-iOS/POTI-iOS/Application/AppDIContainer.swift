@@ -67,11 +67,11 @@ final class AppDIContainer {
     }
     
     private func makePotListRepository() -> PotListInterface {
-        DefaultPotListRepository()
+        DefaultPotListRepository(networkService: makeNetworkService())
     }
     
     private func makeArtistsRepository() -> ArtistsInterface {
-        DefaultArtistsRepository()
+        DefaultArtistsRepository(networkService: makeNetworkService())
     }
     
     // MARK: - UseCase
@@ -176,11 +176,11 @@ final class AppDIContainer {
         MyPageJoinViewModel()
     }
     
-    func makePotListViewModel() -> PotListViewModel {
-        PotListViewModel(useCase: makePotListUseCase())
+    func makePotListViewModel(title: String, artistId: Int, artistName: String) -> PotListViewModel {
+        return PotListViewModel(useCase: makePotListUseCase(),title: title,artistId: artistId, artistName: artistName)
     }
     
-    func makeArtistsViewModel() -> ArtistsViewModel {
-        ArtistsViewModel(useCase: makeArtistsUseCase())
+    func makeArtistsViewModel(artistId: Int) -> ArtistsViewModel {
+        ArtistsViewModel(useCase: makeArtistsUseCase(), artistId: artistId)
     }
 }

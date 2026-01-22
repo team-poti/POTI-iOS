@@ -57,10 +57,6 @@ final class PotListHeaderCell: UICollectionReusableView {
         }
         
         rightFilterButton.do {
-
-            // TODO: - 정렬 바텀시트 추가 후 변경 텍스트로 변경하기
-
-            $0.setTitle("평점순", for: .normal)
             $0.setTitleColor(.potiBlack, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
             $0.setImage(.icnArrowDownSm, for: .normal)
@@ -107,9 +103,16 @@ final class PotListHeaderCell: UICollectionReusableView {
 // MARK: - Extension
 
 extension PotListHeaderCell {
-    func configure() {
+    func configure(leftText: String, rightText: String) {
+        leftFilterButton.setTitle(leftText, for: .normal)
+        rightFilterButton.setTitle(rightText, for: .normal)
+    }
 
-        // TODO: - 필터링 바텀시트랑 연결하기
-
+    func setFilterButtonState(isLeft: Bool, isSelected: Bool) {
+        if isLeft {
+            leftFilterButton.isSelected = isSelected
+        } else {
+            rightFilterButton.isSelected = isSelected
+        }
     }
 }

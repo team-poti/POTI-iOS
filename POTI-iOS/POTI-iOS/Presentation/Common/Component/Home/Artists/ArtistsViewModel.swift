@@ -23,13 +23,15 @@ final class ArtistsViewModel: BaseViewModelType {
     struct Output {
         let artistsList: AnyPublisher<[(name: String, isSelected: Bool)], Never>
         let isCompleteEnabled: AnyPublisher<Bool, Never>
-        let selectedMembers: AnyPublisher<[String], Never>
+        let selectedMemberIds: AnyPublisher<[Int], Never>
     }
     
     let output: Output
     private let useCase: ArtistsUsecase
     private var cancellables = Set<AnyCancellable>()
     
+    let artistId: Int
+    private var originalEntities: [ArtistsEntity] = []
     var currentArtistsList: [(name: String, isSelected: Bool)] {
         return artistsListSubject.value
     }
@@ -38,15 +40,16 @@ final class ArtistsViewModel: BaseViewModelType {
     
     private let artistsListSubject = CurrentValueSubject<[(name: String, isSelected: Bool)], Never>([])
     private let isCompleteEnabledSubject = CurrentValueSubject<Bool, Never>(false)
-    private let selectedArtistsSubject = PassthroughSubject<[String], Never>()
+    private let selectedMemberIdsSubject = PassthroughSubject<[Int], Never>()
     
-    init(useCase: ArtistsUsecase) {
+    init(useCase: ArtistsUsecase, artistId: Int) {
         self.useCase = useCase
+        self.artistId = artistId
         
         self.output = Output(
             artistsList: artistsListSubject.eraseToAnyPublisher(),
             isCompleteEnabled: isCompleteEnabledSubject.eraseToAnyPublisher(),
-            selectedMembers: selectedArtistsSubject.eraseToAnyPublisher()
+            selectedMemberIds: selectedMemberIdsSubject.eraseToAnyPublisher()
         )
     }
     
@@ -69,13 +72,16 @@ private extension ArtistsViewModel {
         Task {
             do {
                 let entities = try await useCase.execute(artistId: artistId)
+                self.originalEntities = entities
+                
                 let uiModels = entities.map { (name: $0.artistName, isSelected: false) }
-                artistsListSubject.send(uiModels)
+                artistsListSubject.send(uiModels) 
             } catch {
                 print("Failed to fetch members: \(error)")
             }
         }
     }
+    
     func handleSelection(index: Int) {
         var current = artistsListSubject.value
         current[index].isSelected.toggle()
@@ -92,9 +98,15 @@ private extension ArtistsViewModel {
     }
     
     func handleComplete() {
-        let selected = artistsListSubject.value
-            .filter { $0.isSelected }
-            .map { $0.name }
-        selectedArtistsSubject.send(selected)
+        let selectedIds = artistsListSubject.value.enumerated()
+            .filter { $0.element.isSelected }
+            .compactMap { index, _ -> Int? in
+                if index < originalEntities.count {
+                    return originalEntities[index].artistId
+                }
+                return nil
+            }
+        
+        selectedMemberIdsSubject.send(selectedIds)
     }
 }

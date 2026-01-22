@@ -196,6 +196,28 @@ extension HomeViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollDelegate?.homeViewDidScroll(yOffset: scrollView.contentOffset.y)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let sectionType = HomeSection(rawValue: indexPath.section) else { return }
+        
+        let selectedGoods: GoodsModel
+        switch sectionType {
+        case .banner:
+            return
+        case .myGroup:
+            selectedGoods = viewModel.myGroupItems[indexPath.item]
+        case .otherGroup:
+            selectedGoods = viewModel.otherGroupItems[indexPath.item]
+        }
+        
+        let potListVC = factory.makePotListViewController(
+            title: selectedGoods.postTitle,
+            artistId: selectedGoods.artistId,
+            artistName: selectedGoods.artist
+        )
+        
+        self.navigationController?.pushViewController(potListVC, animated: true)
+    }
 }
 
 extension HomeViewController: GoodsHeaderCellDelegate {
