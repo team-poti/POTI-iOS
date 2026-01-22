@@ -94,6 +94,10 @@ final class AppDIContainer {
         DefaultPaymentsRepository(networkService: makeNetworkService())
     }
     
+    private func makeParticipationsRepository() -> ParticipationsInterface {
+        DefaultParticipationsRepository(networkService: makeNetworkService())
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -182,6 +186,10 @@ final class AppDIContainer {
         DefaultMyPagePostsHistoryUseCase(repository: makePostsRepository())
     }
     
+    private func makeMyPageParticipationsHistoryUseCase() -> MyPageParticipationsHistoryUseCase {
+        DefaultMyPageParticipationsHistoryUseCase(repository: makeParticipationsRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -254,7 +262,8 @@ final class AppDIContainer {
     ) -> MyPageHistoryViewModel {
         MyPageHistoryViewModel(
             initialType: initialType,
-            myPagePostsHistoryUseCase: makeMyPagePostsHistoryUseCase()
+            myPagePostsHistoryUseCase: makeMyPagePostsHistoryUseCase(),
+            myPageParticipationsHistoryUseCase: makeMyPageParticipationsHistoryUseCase()
         )
     }
 }

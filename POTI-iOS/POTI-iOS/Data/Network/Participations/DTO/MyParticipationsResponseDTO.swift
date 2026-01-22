@@ -1,44 +1,44 @@
 //
-//  MyPostsHistoryResponseDTO.swift
+//  MyParticipationsResponseDTO.swift
 //  POTI-iOS
 //
 //  Created by nayeon on 1/23/26.
 //
 
-struct MyPostsHistoryResponseDTO: Decodable {
+struct MyParticipationsResponseDTO: Decodable {
+    let currentStatus: String
     let inProgressCount: Int
     let completedCount: Int
-    let currentStatus: String
-    let groupBuyPosts: [MyPageGroupBuyPostDTO]
+    let participations: [MyPageParticipationDTO]
     
-    func toEntity() -> MyPagePostsHistoryEntity {
+    func toEntity() -> MyPageParticipationsHistoryEntity {
         return .init(
             inProgressCount: inProgressCount,
             completedCount: completedCount,
             currentStatus: currentStatus,
-            groupBuyPosts: groupBuyPosts.map {
+            participations: participations.map {
                 $0.toEntity()
             }
         )
     }
 }
 
-struct MyPageGroupBuyPostDTO: Decodable {
+struct MyPageParticipationDTO: Decodable {
+    let participationId: Int
     let groupBuyId: Int
     let artistName: String
     let productName: String
-    let thumbnailUrl: String
-    let status: String
-    let createdAt: String
+    let thumbnailUrl: String?
+    let postStatus: String
     
-    func toEntity() -> MyPageGroupBuyPostEntity {
+    func toEntity() -> MyPageParticipationEntity {
         return .init(
+            participationId: participationId,
             groupBuyId: groupBuyId,
             artistName: artistName,
             productName: productName,
             thumbnailUrl: thumbnailUrl,
-            status: status,
-            createdAt: createdAt
+            postStatus: postStatus
         )
     }
 }
