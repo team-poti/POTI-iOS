@@ -10,6 +10,8 @@ import UIKit
 import Combine
 
 final class RecruitDetailViewModel: BaseViewModelType {
+    private let currentUserRole: UserRole = .host //임시 0122
+    private let postId: Int
     
     // MARK: - Input
     
@@ -23,7 +25,7 @@ final class RecruitDetailViewModel: BaseViewModelType {
     
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
-        let joinItems: AnyPublisher<[MyPageJoinModel], Never>
+        let viewState: AnyPublisher<RecruitDetailViewState, Never>
         let naviPotInfo: AnyPublisher<Void, Never>
         let naviManageInfo: AnyPublisher<Void, Never>
     }
@@ -31,20 +33,29 @@ final class RecruitDetailViewModel: BaseViewModelType {
     // MARK: - Properties
     
     let output: Output
+    private let postsSaleUseCase: PostsSaleUseCase
+    private let viewStateMapper = RecruitDetailViewStateMapper()
     
     // MARK: - Subject
     
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
-    private let joinItemsSubject = CurrentValueSubject<[MyPageJoinModel], Never>([]) // TODO: - NETWORK - MYPageJoinModel 아님
     private let naviPotInfoSubject = PassthroughSubject<Void, Never>()
     private let naviManageInfoSubject = PassthroughSubject<Void, Never>()
+    private let viewStateSubject = CurrentValueSubject<RecruitDetailViewState?, Never>(nil)
     
     // MARK: - Initializer
     
-    init() {
+    init(
+        postId: Int,
+        postsSaleUseCase: PostsSaleUseCase
+    ) {
+        self.postId = postId
+        self.postsSaleUseCase = postsSaleUseCase
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher(),
-            joinItems: joinItemsSubject.eraseToAnyPublisher(),
+            viewState: viewStateSubject
+                .compactMap { $0 }
+                .eraseToAnyPublisher(),
             naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher(),
             naviManageInfo: naviManageInfoSubject.eraseToAnyPublisher()
         )
@@ -55,8 +66,9 @@ final class RecruitDetailViewModel: BaseViewModelType {
     func action(_ trigger: Input) {
         switch trigger {
         case .viewDidLoad:
-            fetchRecruitDetail()
-            loadMockJoinItems()
+            Task {
+                await fetchRecruitDetail(postId: postId)
+            }
         case .tapPotInfo:
             naviPotInfoSubject.send()
         case .tapManageInfo:
@@ -65,60 +77,53 @@ final class RecruitDetailViewModel: BaseViewModelType {
     }
     // MARK: - Private Method
     
-    private func fetchRecruitDetail() {
-        //        Task {
-        //            do {
-        //                let data = try await useCase.execute()
-        //                self.groupItems = data.toGroupItemModel()
-        //                reloadDataSubject.send(())
-        //            } catch {
-        //                print("Error: \(error)")
-        //            }
-        //        }
-    }
-    
-    private func loadMockJoinItems() {
-        let items = makeMockParticipants()
-        print("✅ loadMockJoinItems send:", items.count)
-        joinItemsSubject.send(items)
-        reloadDataSubject.send(())
-    }
-    
-    private func makeMockParticipants() -> [MyPageJoinModel] {
-        return [
-            MyPageJoinModel(
-                participationId: 5,
-                imageUrlString: "",
-                artistName: "BLACKPINK",
-                title: "Pink Venom 포토카드",
-                postStatus: .recruitCompleted,
-                orderStatus: .delivered,
-                statusMessage: "모든 진행이 완료되었어요",
-                memberPayments: [
-                    .init(memberName: "제니", price: 9000),
-                    .init(memberName: "로제", price: 9000),
-                    .init(memberName: "지수", price: 9000),
-                    .init(memberName: "리사", price: 9000)
-                ],
-                paymentInfo: .init(
-                    shippingFee: 4000,
-                    totalAmount: 40000,
-                    depositStatus: .completed,
-                    bank: "우리은행",
-                    accountNumber: "1002-345-678901",
-                    depositDeadline: "2025-12-30T02:50"
-                ),
-                shippingInfo: .init(
-                    shippingMethod: "일반택배",
-                    receiver: "김서현",
-                    zipcode: "06000",
-                    address: "서울시 강남구 압구정로 77",
-                    phone: "010-5555-6666",
-                    carrier: "CJ대한통운",
-                    trackingNumber: "987654321098",
-                    shippingStatus: .delivered
-                )
-            )
-        ]
+    private func fetchRecruitDetail(postId: Int) async {
+        // TODO: - 실제 UseCase 연결 예정
+        do {
+            let entity = try await postsSaleUseCase.execute(postId: postId)
+            let state = viewStateMapper.map(entity: entity)
+            
+            viewStateSubject.send(state)
+            reloadDataSubject.send()
+        } catch {
+            print("🚘 fetchRecruitDetail error:", error)
+        }
+        
+//        let participants: [RecruitParticipantEntity] = [
+//            RecruitParticipantEntity(
+//                orderId: 103,
+//                userId: 99,
+//                memberNames: ["리즈"],
+//                status: .shipped,
+//                priceInfo: RecruitPriceInfoEntity(
+//                    shippingName: "준등기",
+//                    totalPrice: 7500
+//                ),
+//                shippingInfo: RecruitShippingInfoEntity(
+//                    receiverName: "이수민",
+//                    address: "(01234) 서울특별시 솜트구...",
+//                    phone: "010-2345-2345"
+//                )
+//            )
+//        ]
+//        
+//        let entity = RecruitDetailEntity(
+//            postId: 100,
+//            totalCount: participants.count,
+//            imageUrl: "https://poti-bucket.s3.amazonaws.com/lovedive.png",
+//            artistName: "NCT WISH",
+//            title: "러브다이브 위드뮤 분철",
+//            postStatus: .delivered,
+//            statusMessage: "거래가 종료되었어요",
+//            participants: participants
+//        )
+//        
+//        let state = viewStateMapper.map(
+//            entity: entity,
+//            role: currentUserRole,
+//            currentUserId: 99 // TODO: 로그인 유저 id로 교체
+//        )
+//        viewStateSubject.send(state)
+//        reloadDataSubject.send(())
     }
 }

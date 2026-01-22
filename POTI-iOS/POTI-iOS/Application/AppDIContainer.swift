@@ -55,7 +55,7 @@ final class AppDIContainer {
     }
     
     private func makePostsRepository() -> PostsInterface {
-        DefaultPostsRepository()
+        DefaultPostsRepository(networkService: makeNetworkService())
     }
     
     private func makePotDetailRepository() -> PotDetailInterface {
@@ -63,7 +63,7 @@ final class AppDIContainer {
     }
     
     private func makeManageRepository() -> PostsInterface {
-        DefaultPostsRepository()
+        DefaultPostsRepository(networkService: makeNetworkService())
     }
     
     private func makePotListRepository() -> PotListInterface {
@@ -76,6 +76,10 @@ final class AppDIContainer {
     
     private func makeUsersRepository() -> UsersInterface {
         DefaultUsersRepository(networkService: makeNetworkService())
+    }
+    
+    private func makePotsSaleRepository() -> PostsInterface {
+        DefaultPostsRepository(networkService: makeNetworkService())
     }
     
     // MARK: - UseCase
@@ -122,7 +126,7 @@ final class AppDIContainer {
         DefaultPotOptionsUseCase(repository: makePostsRepository())
     }
     
-    private func makeManageUseCase() -> PostsUseCase {
+    private func makeManageUseCase() -> PostsParticipantsUseCase {
         DefaultManageUseCase(repository: makeManageRepository())
     }
     
@@ -132,6 +136,10 @@ final class AppDIContainer {
     
     private func makeArtistsUseCase() -> ArtistsUsecase {
         DefaultArtistsUseCase(repository: makeArtistsRepository())
+    }
+    
+    private func makePostsSaleUseCase() -> PostsSaleUseCase {
+        DefaultPostsSaleUseCase(repository: makePostsRepository())
     }
     
     private func makeOnboardingArtistsUsecase() -> OnboardingArtistsUsecase {
@@ -180,8 +188,8 @@ final class AppDIContainer {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
     
-    func makeRecruitDetailViewModel() -> RecruitDetailViewModel {
-        RecruitDetailViewModel()
+    func makeRecruitDetailViewModel(postId: Int) -> RecruitDetailViewModel {
+        RecruitDetailViewModel(postId: postId, postsSaleUseCase: makePostsSaleUseCase())
     }
     
     func makeManageViewModel() -> ParticipantManageViewModel {

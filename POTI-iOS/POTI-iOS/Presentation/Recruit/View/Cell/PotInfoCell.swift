@@ -12,16 +12,7 @@ import SnapKit
 import Then
 
 final class PotInfoCell: UITableViewCell {
-    
-    //0120 여기 configure 리팩하자
-    private let mockPotInfoModel: PotInfoModel = PotInfoModel(
-        potId: 1110,
-        thumbnail: "https://search.pstatic.net/common/?src=http%3A%2F%2Fimgnews.naver.net%2Fimage%2F311%2F2025%2F08%2F18%2F0001905912_001_20250818141307379.jpg&type=a340",
-        artistName: "코르티스",
-        potTitle: "코르티스 포티팟",
-        status: .recruiting
-    )
-    
+
     var onTapPotButton: (() -> Void)?
     
     // MARK: - UI Component
@@ -48,52 +39,37 @@ final class PotInfoCell: UITableViewCell {
     }
     
     private func setStyle() {
-        contentView.layer.borderColor = UIColor.red.cgColor
+        contentView.backgroundColor = .potiWhite
+
         potIdLabel.do {
-            $0.setLabel(
-                "모집 번호 poti-" + String(mockPotInfoModel.potId),
-                font: .body14m
-            )
+            $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray800
         }
-        
+
         thumbnailView.do {
-            let url = URL(string: mockPotInfoModel.thumbnail)
-            $0.kf.setImage(
-                with: url,
-                placeholder: UIImage(named: "placeholder")
-            )
             $0.clipsToBounds = true
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = 8
         }
-        
+
         artistLabel.do {
-            $0.setLabel(
-                mockPotInfoModel.artistName,
-                font: .body14m
-            )
+            $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray800
         }
-        
+
         potTitleLabel.do {
-            $0.setLabel(
-                mockPotInfoModel.potTitle,
-                font: .body16m
-            )
+            $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
+            $0.numberOfLines = 2
         }
-        
+
         potStatusLabel.do {
-            $0.setLabel(
-                mockPotInfoModel.status.potStatusText,
-                font: .body14sb
-            )
+            $0.font = PotiFontManager.body14sb.font
             $0.textColor = .sementicRed
         }
-        
+
         potButton.do {
-            $0.setImage(UIImage(resource: .icnArrowRightLg).withTintColor(.gray700), for: .normal)
+            $0.setImage(.icnArrowRightLg, for: .normal)
         }
     }
     
@@ -150,5 +126,22 @@ final class PotInfoCell: UITableViewCell {
     // MARK: - action
     @objc func potButtonTapped(_ sender: Any) {
         onTapPotButton?()
+    }
+    
+    func configure(model: PotInfoViewState) {
+        potIdLabel.text = "모집 번호 poti-\(model.postId)"
+
+        if let url = URL(string: model.imageUrl) {
+            thumbnailView.kf.setImage(
+                with: url,
+                placeholder: UIImage(named: "placeholder")
+            )
+        } else {
+            thumbnailView.image = UIImage(named: "placeholder")
+        }
+
+        artistLabel.text = model.artistName
+        potTitleLabel.text = model.title
+        potStatusLabel.text = model.statusMessage
     }
 }

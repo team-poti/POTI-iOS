@@ -12,10 +12,11 @@ import Then
 
 final class ProgressStatusViewCell: UITableViewCell {
     
-    private let mockProgressStatusModel: ProgressStatusModel = ProgressStatusModel(
-        role: .host,
-        status: .waitRecruit
-    )
+    struct Model {
+        let postStatus: PostStatus
+        let role: UserRole
+        let participantStatus: ParticipantStatus
+    }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -24,7 +25,6 @@ final class ProgressStatusViewCell: UITableViewCell {
         setUI()
         setStyle()
         setLayout()
-        configure(model: mockProgressStatusModel)
     }
     
     required init?(coder: NSCoder) {
@@ -88,11 +88,41 @@ final class ProgressStatusViewCell: UITableViewCell {
     
     // MARK: - Custom Method
     
-    func configure(model: ProgressStatusModel) {
-        
-        let messageText = model.status.statusText(role: model.role)
+    func configure(model: Model) {
+        let messageText: String
+
+        if model.postStatus == .closed {
+            switch (model.role, model.participantStatus) {
+            case (.host, .waitPay):
+                messageText = "입금을 기다리는 중이에요"
+
+            case (.host, .waitPayCheck):
+                messageText = "입금 확인을 기다리는 참여자가 있어요"
+
+            case (.participant, .waitPay):
+                messageText = "지금 입금해주세요!"
+
+            case (.participant, .waitPayCheck):
+                messageText = "모집자가 입금 내역을 확인하고 있어요"
+
+            default:
+                // closed 상태지만 위 케이스에 해당 안 할 때
+                if model.role == .host {
+                    messageText = model.postStatus.statusText(role: model.role)
+                } else {
+                    messageText = model.participantStatus.statusText(role: model.role)
+                }
+            }
+        } else {
+            // closed가 아닐 때
+            if model.role == .host {
+                messageText = model.postStatus.statusText(role: model.role)
+            } else {
+                messageText = model.participantStatus.statusText(role: model.role)
+            }
+        }
+
         potStatusMessageView.configure(text: messageText)
-        
-        progressStatusBar.image = model.status.progressImage
+        progressStatusBar.image = model.postStatus.progressImage
     }
 }
