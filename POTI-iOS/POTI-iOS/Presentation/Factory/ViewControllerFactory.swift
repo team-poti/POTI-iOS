@@ -23,6 +23,7 @@ protocol ViewControllerFactory {
     func makePotListViewController() -> PotListViewController
     func makeArtistSearchViewController() -> ArtistSearchViewController
     func makeProductRegisterViewController() -> ProductRegisterViewController
+    func makeArtistsViewModel() -> ArtistsViewModel
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -132,5 +133,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             viewModel: diContainer.makeProductRegisterViewModel(),
             factory: self
         )
+    }
+    
+    func makeArtistsViewModel() -> ArtistsViewModel {
+        diContainer.makeArtistsViewModel()
     }
 }

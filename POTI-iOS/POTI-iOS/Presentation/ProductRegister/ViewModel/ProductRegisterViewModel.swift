@@ -35,6 +35,8 @@ final class ProductRegisterViewModel: BaseViewModelType {
         let fieldErrors: AnyPublisher<FieldErrors, Never>
         let titleSuggestions: AnyPublisher<[String], Never>
         let titles: AnyPublisher<[String], Never>
+        let didRegister: AnyPublisher<Void, Never>
+        let registerFailed: AnyPublisher<String, Never>
     }
 
     let output: Output
@@ -54,6 +56,9 @@ final class ProductRegisterViewModel: BaseViewModelType {
     private let selectedArtistSubject = CurrentValueSubject<RegisterArtistEntity?, Never>(nil)
     private var selectedArtist: RegisterArtistEntity?
     private var hasEverHadMembers: Bool = false
+
+    private let didRegisterSubject = PassthroughSubject<Void, Never>()
+    private let registerFailedSubject = PassthroughSubject<String, Never>()
 
     struct FieldErrors {
         var images: String?
@@ -91,7 +96,9 @@ final class ProductRegisterViewModel: BaseViewModelType {
             deadline: deadlineSubject.eraseToAnyPublisher(),
             fieldErrors: fieldErrorsSubject.eraseToAnyPublisher(),
             titleSuggestions: titlesSubject.eraseToAnyPublisher(),
-            titles: titlesSubject.eraseToAnyPublisher()
+            titles: titlesSubject.eraseToAnyPublisher(),
+            didRegister: didRegisterSubject.eraseToAnyPublisher(),
+            registerFailed: registerFailedSubject.eraseToAnyPublisher()
         )
     }
 
@@ -269,9 +276,13 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
                     _ = try await self.registerPostsUseCase.execute(entity)
 
-                    // TODO: 성공 Output(예: 등록 완료 이벤트) 필요하면 publisher 추가
+                    await MainActor.run {
+                        self.didRegisterSubject.send(())
+                    }
                 } catch {
-                    // TODO: 실패 Output(예: 토스트/에러 상태) 필요하면 publisher 추가
+                    await MainActor.run {
+                        self.registerFailedSubject.send("등록에 실패했어요")
+                    }
                 }
             }
         }

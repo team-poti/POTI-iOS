@@ -56,14 +56,8 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     weak var scrollDelegate: HomeViewScrollDelegate?
     private let rootView = HomeView()
     private let setHomeData = PassthroughSubject<Void, Never>()
-    private let factory: ViewControllerFactory
     
     // MARK: - Initializer
-    
-    init(viewModel: HomeViewModel, factory: ViewControllerFactory) {
-        self.factory = factory
-        super.init(viewModel: viewModel)
-    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

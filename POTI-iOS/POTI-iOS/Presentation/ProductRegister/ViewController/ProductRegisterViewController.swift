@@ -133,12 +133,24 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
 
             self.presentDeadlineBottomSheet()
         }
+        
+        registerMemberView.onTapEditButton = { [weak self] in
+            guard let self else { return }
+
+            let sheetVM = factory.makeArtistsViewModel()
+            let bottomSheet = ArtistsBottomSheet(viewModel: sheetVM)
+
+            bottomSheet.onComplete = { [weak self] members in
+                self?.viewModel.action(.setMembers(members))
+            }
+
+            bottomSheet.show(in: self.view)
+        }
 
         registerMemberView.onMembersChanged = { [weak self] members in
             self?.viewModel.action(.setMembers(members))
         }
 
-        // 상품 종류(타이틀) 실시간 검색
         registerInfoView.productTypeField.onQueryChanged = { [weak self] keyword in
             self?.titleQuerySubject.send(keyword)
         }
@@ -234,22 +246,18 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         
     // MARK: - Custom Method
 
-
     override func bindViewModel() {
-        // 상품 종류 검색어 debounce (300ms)
         titleQuerySubject
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] keyword in
                 guard let self else { return }
 
-                // 빈 문자열이면 목록 숨김
                 if keyword.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     self.registerInfoView.productTypeField.clearItems()
                     return
                 }
 
-                // ✅ 선택된 artistId + keyword로 titles API 호출은 ViewModel이 처리
                 self.viewModel.action(.fetchTitles(keyword: keyword))
             }
             .store(in: &cancellables)
@@ -270,7 +278,6 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             }
             .store(in: &cancellables)
         
-        // titles 검색 결과 -> productTypeField 리스트 업데이트
         viewModel.output.titles
             .receive(on: RunLoop.main)
             .sink { [weak self] titles in
@@ -331,6 +338,25 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
                 } else {
                     self.registerMemberView.hideEditedEmptyError()
                 }
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.didRegister
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                print("✅ POST 성공")
+                if let nav = self?.navigationController {
+                    nav.popViewController(animated: true)
+                } else {
+                    self?.dismiss(animated: true)
+                }
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.registerFailed
+            .receive(on: RunLoop.main)
+            .sink { message in
+                print("❌ POST 실패:", message)
             }
             .store(in: &cancellables)
     }
@@ -458,7 +484,6 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         searchVC.onSelectArtist = { [weak self] artist in
             guard let self else { return }
 
-            // 검색 화면에서 돌아올 때 포커스(테두리/키보드) 정리
             self.view.endEditing(true)
             self.registerInfoView.artistField.setFocused(false)
 

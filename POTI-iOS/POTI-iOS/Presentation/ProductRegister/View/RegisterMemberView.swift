@@ -15,6 +15,7 @@ final class RegisterMemberView: BaseView {
     // MARK: - Properties
 
     var onMembersChanged: (([String]) -> Void)?
+    var onTapEditButton: (() -> Void)?
 
     private var currentMembers: [String] = []
     
@@ -347,6 +348,7 @@ final class RegisterMemberView: BaseView {
     
     @objc private func didTapEditButton() {
         hideHint()
+        onTapEditButton?()
     }
     
     @objc private func textFieldDidBeginEditing(_ notification: Notification) {
