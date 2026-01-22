@@ -19,6 +19,8 @@ final class RegisterInfoView: BaseView {
     var onTapArtistField: (() -> Void)?
     var onTapDeadlineField: (() -> Void)?
 
+    private var selectedArtistId: Int?
+
     // MARK: - UI Properties
 
     private(set) var imagePickerView = ImagePickerView()
@@ -153,6 +155,7 @@ final class RegisterInfoView: BaseView {
     // MARK: - Functions
 
     struct Draft {
+        let artistId: Int?
         let artist: String
         let productType: String
         let deadlineText: String
@@ -163,6 +166,7 @@ final class RegisterInfoView: BaseView {
 
     func collectDraft() -> Draft {
         return Draft(
+            artistId: selectedArtistId,
             artist: artistField.getText(),
             productType: productTypeField.getText(),
             deadlineText: deadlineField.getText(),
@@ -170,6 +174,16 @@ final class RegisterInfoView: BaseView {
             accountNumber: accountField.getText(),
             bank: bankField.getText()
         )
+    }
+
+    func setArtist(id: Int, name: String) {
+        selectedArtistId = id
+        artistField.setText(name)
+    }
+
+    func clearArtist() {
+        selectedArtistId = nil
+        artistField.setText("")
     }
 
     func setImages(_ images: [UIImage]) {

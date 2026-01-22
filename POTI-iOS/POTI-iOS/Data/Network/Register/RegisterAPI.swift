@@ -2,7 +2,7 @@ import Alamofire
 
 enum RegisterAPI: BaseTargetType {
     case registerPosts(RegisterRequestDTO)
-    case fetchTitles(artistId: Int64, keyword: String)
+    case fetchTitles(artistId: Int, keyword: String)
     case fetchArtists(keyword: String)
 
     var path: String {

@@ -7,9 +7,9 @@
 
 public struct RegisterResponseEntity {
 
-    public let postId: Int64
+    public let postId: Int
 
-    public init(postId: Int64) {
+    public init(postId: Int) {
         self.postId = postId
     }
 }

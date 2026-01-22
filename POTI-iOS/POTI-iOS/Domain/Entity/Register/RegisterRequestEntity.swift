@@ -9,7 +9,7 @@ import Foundation
 
 public struct RegisterRequestEntity {
 
-    public let artistId: Int64
+    public let artistId: Int
     public let title: String
     public let content: String
 
@@ -29,7 +29,7 @@ public struct RegisterRequestEntity {
     public let shippings: [Shipping]
 
     public init(
-        artistId: Int64,
+        artistId: Int,
         title: String,
         content: String,
         deadline: String,
@@ -54,20 +54,20 @@ public struct RegisterRequestEntity {
 public extension RegisterRequestEntity {
 
     struct Option {
-        public let memberId: Int64
+        public let memberId: Int
         public let price: Int
 
-        public init(memberId: Int64, price: Int) {
+        public init(memberId: Int, price: Int) {
             self.memberId = memberId
             self.price = price
         }
     }
 
     struct Shipping {
-        public let deliveryMethodId: Int64
+        public let deliveryMethodId: Int
         public let price: Int
 
-        public init(deliveryMethodId: Int64, price: Int) {
+        public init(deliveryMethodId: Int, price: Int) {
             self.deliveryMethodId = deliveryMethodId
             self.price = price
         }

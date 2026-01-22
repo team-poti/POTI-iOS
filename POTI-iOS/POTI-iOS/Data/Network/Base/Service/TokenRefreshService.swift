@@ -32,6 +32,7 @@ final class DefaultTokenRefreshService: TokenRefreshService {
             
             return dto
         } catch let error as PotiError {
+            print(error)
             throw error
         } catch {
             throw PotiError.networkFail

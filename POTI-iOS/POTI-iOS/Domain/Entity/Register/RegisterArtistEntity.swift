@@ -6,6 +6,6 @@
 //
 
 struct RegisterArtistEntity {
-    let artistId: Int
-    let name: String
+    let artistId: Int?
+    let name: String?
 }

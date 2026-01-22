@@ -15,8 +15,8 @@ struct RegisterArtistsResponseDTO: Decodable {
     }
 
     struct ArtistDTO: Decodable {
-        let artistId: Int
-        let name: String
+        let artistId: Int?
+        let name: String?
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -31,7 +31,6 @@ struct RegisterArtistsResponseDTO: Decodable {
 
         self.code = try container.decode(Int.self, forKey: .code)
 
-        // msg / message 둘 다 대응
         if let msg = try? container.decode(String.self, forKey: .msg) {
             self.msg = msg
         } else if let message = try? container.decode(String.self, forKey: .message) {
@@ -52,6 +51,9 @@ extension RegisterArtistsResponseDTO {
 
 extension RegisterArtistsResponseDTO.ArtistDTO {
     func toEntity() -> RegisterArtistEntity {
-        RegisterArtistEntity(artistId: artistId, name: name)
+        return RegisterArtistEntity(
+            artistId: artistId,
+            name: name
+        )
     }
 }

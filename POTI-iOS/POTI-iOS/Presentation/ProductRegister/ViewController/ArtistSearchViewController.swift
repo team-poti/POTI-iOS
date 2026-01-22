@@ -15,6 +15,8 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
 
     private let rootView = ArtistSearchView()
 
+    var onSelectArtist: ((RegisterArtistEntity) -> Void)?
+
     // MARK: - Custom Method
 
     func navigationStyle() -> PotiNavigationStyle {
@@ -38,31 +40,69 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
     override func loadView() {
         self.view = rootView
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = true
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = false
+        }
+    }
 
     // MARK: - delegate Method
 
     override func bindViewModel() {
         
+        // 검색어 변경
         rootView.onChangeQuery = { [weak self] query in
-            self?.viewModel.action(.queryChanged(query))
+            guard let self else { return }
+            print("[ArtistSearchVC] query changed:", query)
+            self.viewModel.action(.queryChanged(query))
         }
         
-        viewModel.output.isDoneEnabled
+        // 리스트 아이템 선택
+        rootView.onSelectItem = { [weak self] index, name in
+            print("[ArtistSearchVC] select artist index:", index, "name:", name)
+            self?.viewModel.action(.selectArtist(index: index))
+        }
+        
+        // 검색 결과 수신 → ViewModel + View 동기화
+        viewModel.output.artists
             .receive(on: RunLoop.main)
-            .sink { [weak self] isEnabled in
-                self?.rootView.setDoneEnabled(isEnabled)
+            .sink { [weak self] artists in
+                guard let self else { return }
+                
+                print("[ArtistSearchVC] artists received count:", artists.count)
+                
+                self.viewModel.setArtists(artists)
+                
+                self.rootView.setSearchItems(
+                    artists.compactMap { $0.name }
+                )
             }
             .store(in: &cancellables)
-
-        viewModel.output.didSubmitQuery
+        
+        // 최종 아티스트 선택 완료
+        viewModel.output.didSelectArtist
             .receive(on: RunLoop.main)
-            .sink { [weak self] query in
-                print("ArtistSearch submitted query:", query)
-
-                if self?.navigationController != nil {
-                    self?.navigationController?.popViewController(animated: true)
+            .sink { [weak self] artist in
+                guard let self else { return }
+                
+                print("[ArtistSearchVC] didSelectArtist:", artist.name, "id:", artist.artistId)
+                
+                self.onSelectArtist?(artist)
+                
+                if self.navigationController != nil {
+                    self.navigationController?.popViewController(animated: true)
                 } else {
-                    self?.dismiss(animated: true)
+                    self.dismiss(animated: true)
                 }
             }
             .store(in: &cancellables)

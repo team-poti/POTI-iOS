@@ -11,12 +11,12 @@ struct RegisterTitlesResponseDTO: Decodable {
     let data: DataDTO
 
     struct DataDTO: Decodable {
-        let titles: [String]
+        let titles: [String?]
     }
 }
 
 extension RegisterTitlesResponseDTO {
-    func toEntities() -> [String] {
+    func toEntities() -> [String?] {
         data.titles
     }
 }

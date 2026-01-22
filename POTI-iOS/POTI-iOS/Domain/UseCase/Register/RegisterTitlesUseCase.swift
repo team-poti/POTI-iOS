@@ -7,9 +7,9 @@
 
 protocol RegisterTitlesUseCase {
     func execute(
-        artistId: Int64,
+        artistId: Int,
         keyword: String
-    ) async throws -> [String]
+    ) async throws -> [String?]
 }
 
 final class DefaultRegisterTitlesUseCase: RegisterTitlesUseCase {
@@ -21,11 +21,11 @@ final class DefaultRegisterTitlesUseCase: RegisterTitlesUseCase {
     }
 
     func execute(
-        artistId: Int64,
+        artistId: Int,
         keyword: String
-    ) async throws -> [String] {
+    ) async throws -> [String?] {
         try await repository.fetchTitles(
-            artistId: Int(artistId),
+            artistId: artistId,
             keyword: keyword
         )
     }

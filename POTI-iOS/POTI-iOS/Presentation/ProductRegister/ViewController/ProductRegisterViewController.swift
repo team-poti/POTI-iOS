@@ -26,8 +26,8 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     private var registerInfoView: RegisterInfoView {
         rootView.registerInfoView
     }
-    private var registerMemberView: RegisterMemberView? {
-        findRegisterMemberView(in: rootView)
+    private var registerMemberView: RegisterMemberView {
+        rootView.registerMemberView
     }
     private var noticeView: RegisterNoticeView {
         rootView.registerNoticeView
@@ -73,13 +73,18 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             (name: "준등기", price: 1800)
         ])
         
+        registerInfoView.artistField.onTapField = { [weak self] in
+            guard let self else { return }
+            self.presentArtistSearch()
+        }
+        
         registerInfoView.onTapDeadlineField = { [weak self] in
             guard let self else { return }
             self.registerInfoView.deadlineField.setFocused(true)
             self.presentDeadlineBottomSheet()
         }
         
-        registerMemberView?.onMembersChanged = { [weak self] members in
+        registerMemberView.onMembersChanged = { [weak self] members in
             self?.viewModel.action(.setMembers(members))
         }
     }
@@ -151,9 +156,9 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
                 }
                 
                 if let message = errors.members {
-                    self.registerMemberView?.showEditedEmptyError(message: message)
+                    self.registerMemberView.showEditedEmptyError(message: message)
                 } else {
-                    self.registerMemberView?.hideEditedEmptyError()
+                    self.registerMemberView.hideEditedEmptyError()
                 }
             }
             .store(in: &cancellables)
@@ -176,7 +181,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     @objc private func tapSubmit() {
         view.endEditing(true)
         
-        let memberPrices = registerMemberView?.collectPrices() ?? [:]
+        let memberPrices = registerMemberView.collectPrices()
         let draft = registerInfoView.collectDraft()
         viewModel.action(.submit(info: draft, memberPrices: memberPrices))
     }
@@ -233,6 +238,24 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
+    }
+    
+    private func presentArtistSearch() {
+        let searchVC = ArtistSearchViewController(viewModel: ArtistSearchViewModel())
+
+        searchVC.onSelectArtist = { [weak self] artist in
+            guard let self else { return }
+
+            self.viewModel.action(.setArtist(artist))
+
+            self.registerInfoView.artistField.setText(artist.name)
+        }
+
+        if let nav = navigationController {
+            nav.pushViewController(searchVC, animated: true)
+        } else {
+            present(UINavigationController(rootViewController: searchVC), animated: true)
+        }
     }
 }
 

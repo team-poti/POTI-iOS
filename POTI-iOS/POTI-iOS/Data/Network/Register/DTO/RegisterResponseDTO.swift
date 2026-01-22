@@ -14,7 +14,7 @@ struct RegisterResponseDTO: Decodable {
     let data: DataDTO
 
     struct DataDTO: Decodable {
-        let postId: Int64
+        let postId: Int
     }
 }
 

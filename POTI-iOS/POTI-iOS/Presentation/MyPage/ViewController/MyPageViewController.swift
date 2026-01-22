@@ -25,12 +25,10 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     }
     
     override func addTarget() {
-        /// 참여 내역 버튼
         rootView.participationView.onFilterChanged = { [weak self] type in
             self?.navigateToHistory(historyType: .participation, filterType: type)
         }
                 
-        /// 모집 내역 버튼
         rootView.recruitmentView.onFilterChanged = { [weak self] type in
             self?.navigateToHistory(historyType: .recruitment, filterType: type)
         }

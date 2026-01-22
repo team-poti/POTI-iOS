@@ -7,10 +7,9 @@
 
 import Foundation
 
-
 struct RegisterRequestDTO: Encodable {
 
-    let artistId: Int64
+    let artistId: Int
     let title: String
     let content: String
 
@@ -27,12 +26,12 @@ struct RegisterRequestDTO: Encodable {
     let shippings: [ShippingDTO]
 
     struct OptionDTO: Encodable {
-        let memberId: Int64
+        let memberId: Int
         let price: Int
     }
 
     struct ShippingDTO: Encodable {
-        let deliveryMethodId: Int64
+        let deliveryMethodId: Int
         let price: Int
     }
 }

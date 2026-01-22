@@ -24,7 +24,7 @@ final class DefaultRegisterRepository: RegisterInterface {
         return result.toEntity()
     }
 
-    func fetchTitles(artistId: Int64, keyword: String) async throws -> [String] {
+    func fetchTitles(artistId: Int, keyword: String) async throws -> [String?] {
         let result = try await networkService.request(
             target: RegisterAPI.fetchTitles(artistId: artistId, keyword: keyword),
             type: RegisterTitlesResponseDTO.self

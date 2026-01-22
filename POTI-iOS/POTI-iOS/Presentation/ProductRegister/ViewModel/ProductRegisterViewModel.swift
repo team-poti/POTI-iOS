@@ -18,13 +18,12 @@ final class ProductRegisterViewModel: BaseViewModelType {
         case tapAdd
         case tapDelete(Int)
         case didFinishPicking([PHPickerResult])
+        case productTypeQueryChanged(artistId: Int, keyword: String)
         case deadlineSelected(Date)
         case submit(info: RegisterInfoView.Draft, memberPrices: [Int: Int])
-        case setMembers([String])
-
-        // TODO: - 상품 등록 화면 다른 액션
+        case setMembers([String?])
+        case setArtist(RegisterArtistEntity)
     }
-
 
     // MARK: - Output
 
@@ -33,21 +32,25 @@ final class ProductRegisterViewModel: BaseViewModelType {
         let requestPicker: AnyPublisher<Int, Never>
         let deadline: AnyPublisher<Date?, Never>
         let fieldErrors: AnyPublisher<FieldErrors, Never>
-
-        // TODO: - 상품 등록 화면 다른 Output
+        let titleSuggestions: AnyPublisher<[String], Never>
     }
 
     let output: Output
-
 
     // MARK: - Properties
 
     private let maxCount: Int
 
+    private let registerTitlesUseCase: RegisterTitlesUseCase?
+    private let registerPostsUseCase: RegisterPostsUseCase?
+
+    private let titleSuggestionsSubject = CurrentValueSubject<[String], Never>([])
+
     private let imagesSubject = CurrentValueSubject<[UIImage], Never>([])
     private let requestPickerSubject = PassthroughSubject<Int, Never>()
     private let deadlineSubject = CurrentValueSubject<Date?, Never>(nil)
     private let membersSubject = CurrentValueSubject<[String], Never>([])
+    private let selectedArtistSubject = CurrentValueSubject<RegisterArtistEntity?, Never>(nil)
     private var hasEverHadMembers: Bool = false
 
     struct FieldErrors {
@@ -71,13 +74,21 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
     // MARK: - Initializer
 
-    init(maxCount: Int = 5) {
+    init(
+        maxCount: Int = 5,
+        registerTitlesUseCase: RegisterTitlesUseCase? = nil,
+        registerPostsUseCase: RegisterPostsUseCase? = nil
+    ) {
         self.maxCount = maxCount
+        self.registerTitlesUseCase = registerTitlesUseCase
+        self.registerPostsUseCase = registerPostsUseCase
+
         self.output = Output(
             images: imagesSubject.eraseToAnyPublisher(),
             requestPicker: requestPickerSubject.eraseToAnyPublisher(),
             deadline: deadlineSubject.eraseToAnyPublisher(),
-            fieldErrors: fieldErrorsSubject.eraseToAnyPublisher()
+            fieldErrors: fieldErrorsSubject.eraseToAnyPublisher(),
+            titleSuggestions: titleSuggestionsSubject.eraseToAnyPublisher()
         )
     }
 
@@ -115,14 +126,43 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 }
             }
             
+        case .productTypeQueryChanged(let artistId, let keyword):
+            let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else {
+                titleSuggestionsSubject.send([])
+                return
+            }
+
+            guard let registerTitlesUseCase else { return }
+
+            Task { [weak self] in
+                guard let self else { return }
+                do {
+                    let titles = try await registerTitlesUseCase.execute(
+                        artistId: artistId,
+                        keyword: trimmed
+                    )
+                    await MainActor.run {
+                        self.titleSuggestionsSubject.send(titles as! [String])
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.titleSuggestionsSubject.send([])
+                    }
+                }
+            }
+            
         case .deadlineSelected(let date):
             deadlineSubject.send(date)
             
         case .setMembers(let members):
-            membersSubject.send(members)
+            membersSubject.send(members as! [String])
             if !members.isEmpty {
                 hasEverHadMembers = true
             }
+            
+        case .setArtist(let artist):
+            selectedArtistSubject.send(artist)
             
         case .submit(let info, let memberPrices):
             var errors = FieldErrors.empty
@@ -132,6 +172,11 @@ final class ProductRegisterViewModel: BaseViewModelType {
             }
 
             if info.artist.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                errors.artist = "아티스트를 선택해주세요"
+            }
+
+            let selectedArtistId = info.artistId ?? selectedArtistSubject.value?.artistId
+            if selectedArtistId == nil {
                 errors.artist = "아티스트를 선택해주세요"
             }
 
@@ -171,8 +216,42 @@ final class ProductRegisterViewModel: BaseViewModelType {
             fieldErrorsSubject.send(errors)
 
             guard !errors.hasError else { return }
-            // 에러가 있으면 여기서 종료 (성공 케이스에서 UseCase 호출)
-            // TODO: presignedURL 업로드 + 상품 등록 UseCase 호출
+
+            guard let registerPostsUseCase else {
+                return
+            }
+
+            Task { [weak self] in
+                guard let self else { return }
+                do {
+                    guard let artistId = info.artistId ?? self.selectedArtistSubject.value?.artistId else {
+                        await MainActor.run {
+                            var current = self.fieldErrorsSubject.value
+                            current.artist = "아티스트를 선택해주세요"
+                            self.fieldErrorsSubject.send(current)
+                        }
+                        return
+                    }
+
+                    let entity = RegisterRequestEntity(
+                        artistId: artistId,
+                        title: info.productType,
+                        content: info.description,
+                        deadline: info.deadlineText,
+                        bankName: info.bank,
+                        accountNumber: info.accountNumber,
+                        imageUrls: [],
+                        options: [],
+                        shippings: []
+                    )
+
+                    _ = try await registerPostsUseCase.execute(entity)
+
+                    // TODO: 성공 Output(예: 등록 완료 이벤트) 필요하면 publisher 추가
+                } catch {
+                    // TODO: 실패 Output(예: 토스트/에러 상태) 필요하면 publisher 추가
+                }
+            }
         }
     }
 
