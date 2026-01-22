@@ -45,7 +45,6 @@ struct ManageShippingInfoDTO: Decodable {
     let trackingNumber: String?
 }
 
-//MARK: - DTO -> Entity 변환
 
 extension ManageDTO {
     func toEntity() -> ManageEntity {

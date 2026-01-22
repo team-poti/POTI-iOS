@@ -140,7 +140,6 @@ final class ParticipantManageViewModel: BaseViewModelType {
 
             } catch {
                 self.errorSubject.send("입금 확인에 실패했어요")
-                print("❌ confirmDeposit error:", error)
             }
         }
     }
@@ -169,7 +168,6 @@ final class ParticipantManageViewModel: BaseViewModelType {
 
             } catch {
                 self.errorSubject.send("송장번호 등록에 실패했어요")
-                print("❌ patchTrackingNumber error:", error)
             }
         }
     }

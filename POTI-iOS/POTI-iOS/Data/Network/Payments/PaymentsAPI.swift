@@ -31,10 +31,6 @@ enum PaymentsAPI: BaseTargetType {
         }
     }
     
-    var queryParameters: Parameters? {
-        return nil
-    }
-    
     var bodyParameters: Parameters? {
         switch self {
         case .patchPaymentConfirm:

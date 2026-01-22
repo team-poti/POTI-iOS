@@ -18,7 +18,7 @@ final class DetailBottomSheet: BaseView {
     
     private let viewModel: BottomSheetViewModel
     private var cancellables = Set<AnyCancellable>()
-
+    
     var onSubmit: ((String, String) -> Void)?
     var onPatched: (() -> Void)?
     
@@ -194,8 +194,6 @@ final class DetailBottomSheet: BaseView {
     @objc private func didTapConfirmButton() {
         let depositor = firstTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let depositTime = secondTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        print("🔥 [Cell] confirmShip button touchedadfa")
         viewModel.action(.tapComplete(depositor: depositor, depositTime: depositTime))
-        print("🔥 [Cell] confirmShip button touched")
     }
 }

@@ -21,7 +21,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     
     private let tableView = UITableView()
     private var lastSectionCount: Int = 0
-
+    
     // 송장번호 입력 bottom sheet를 잡아두었다가 PATCH 성공 시 닫기
     private var trackingNumberSheet: DetailBottomSheet?
     
@@ -100,7 +100,6 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
-                print("✅ [VC] trackingNumber patched success, refreshing list")
                 self.trackingNumberSheet?.dismiss()
                 self.trackingNumberSheet = nil
                 self.viewModel.action(.viewDidLoad)
@@ -147,7 +146,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         let currentCount = viewModel.participants.count
         guard currentCount == lastSectionCount, section < currentCount else {
             lastSectionCount = currentCount
-
+            
             CATransaction.begin()
             CATransaction.setAnimationDuration(0.25)
             CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .linear))
@@ -155,24 +154,23 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             CATransaction.commit()
             return
         }
-
+        
         let indexPath = IndexPath(row: 0, section: section)
-
+        
         CATransaction.begin()
         CATransaction.setAnimationDuration(0.25)
         CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .linear))
-
+        
         tableView.performBatchUpdates({
             tableView.reloadRows(at: [indexPath], with: .automatic)
         }, completion: nil)
-
+        
         CATransaction.commit()
     }
     
     // MARK: - BottomSheet
     
     private func presentTrackingNumberBottomSheet(orderId: Int) {
-        print("✅ [VC] presentTrackingNumberBottomSheet, orderId:", orderId)
         let sheet = DetailBottomSheet(
             viewModel: BottomSheetViewModel(),
             firstTitle: "배송업체",
@@ -181,22 +179,18 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             secondPlaceholder: "송장번호를 입력해주세요",
             confirmButtonText: "완료"
         )
-
+        
         // sheet를 잡아두었다가 PATCH 성공 시 닫기
         self.trackingNumberSheet = sheet
-
+        
         // 입력 완료 → PATCH 실행
         sheet.onSubmit = { [weak self] carrier, trackingNumber in
-            print("✅ [Sheet] submit tapped",
-                  "orderId:", orderId,
-                  "carrier:", carrier,
-                  "trackingNumber:", trackingNumber)
-
+            
             self?.viewModel.action(
                 .patchTrackingNumber(orderId: orderId, carrier: carrier, trackingNumber: trackingNumber)
             )
         }
-
+        
         sheet.show(in: self.navigationController?.view ?? view)
     }
 }
@@ -245,7 +239,6 @@ extension ParticipantListTableViewController: UITableViewDataSource, UITableView
         
         // 송장번호 입력
         cell.onTapConfirmShip = { [weak self] orderId in
-            print("✅ [UI] confirmShip tapped, orderId:", orderId)
             self?.viewModel.action(.confirmShip(orderId: orderId))
         }
         
