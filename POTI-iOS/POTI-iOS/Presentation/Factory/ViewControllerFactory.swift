@@ -20,7 +20,6 @@ protocol ViewControllerFactory {
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController
     func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
-    func makePotListViewController() -> PotListViewController
     func makeMyPageHistoryContainerViewController(
         initialType: MyPageHistoryType,
         initialTab: MyPageHistoryViewController.HistoryTab
@@ -32,7 +31,6 @@ protocol ViewControllerFactory {
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
-    
     private let diContainer: AppDIContainer
     
     init(diContainer: AppDIContainer = .shared) {
