@@ -64,7 +64,7 @@ enum PostStatus: String {
         case .closed: // 모집완료
             return role == .host
             ? "입금을 기다리는 중이에요. 입금 확인을 기다리는 참여자가 있어요"
-            : "지금 입금해주세요! 모집자가 입금 내역을 확인하고 있어요"
+            : "지금 입금해주세요!"
 
         case .paymentDone: //입금완료
             return role == .host

@@ -21,7 +21,7 @@ final class ParticipantStatusCaseView: BaseView {
     // MARK: - Custom Method
     
     override func setStyle() {
-        
+        clipsToBounds = true
         containerStackView.do {
             $0.axis = .vertical
             $0.spacing = 0
@@ -91,11 +91,11 @@ extension ParticipantStatusCaseView {
         var buttonTitle: String = ""
         
         switch status {
-        case .waitPay, .waitPayCheck:
+        case .recruiting, .waitPay:
             self.isHidden = true
             return
             
-        case .paid:
+        case .waitPayCheck:
             self.isHidden = false
             items = [
                 (title: "입금 정보",
@@ -106,7 +106,7 @@ extension ParticipantStatusCaseView {
             ]
             buttonTitle = "입금 확인"
             
-        case .ready:
+        case .paid:
             self.isHidden = false
             items = [
                 (title: "이름", infos: [model.paidInfo?.depositorName ?? ""]),

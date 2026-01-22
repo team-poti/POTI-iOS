@@ -8,7 +8,7 @@
 final class DefaultOrderRepository: OrderInterface {
     private let networkService: NetworkService
     
-    init(networkService: NetworkService = NetworkService()) {
+    init(networkService: NetworkService) {
         self.networkService = networkService
     }
     
@@ -29,9 +29,23 @@ final class DefaultOrderRepository: OrderInterface {
 //            target: OrdersAPI.submitOrder(request: requestDTO),
 //            type: OrderParticipationDTO.self
 //        )
-//        
+//
 //        return responseDTO.toEntity()
         
         return OrderResultEntity(participationId: 1)
+    }
+    
+    func patchTrackingNumber(orderId: Int, entity: TrackingNumberRequestEntity) async throws -> TrackingNumberResponseEntity {
+        let requestDTO = TrackingNumberRequestDTO(
+            carrier: entity.carrier,
+            trackingNumber: entity.trackingNumber
+        )
+
+        let responseDTO = try await networkService.request(
+            target: OrdersAPI.patchTrackingNumber(orderId: orderId, request: requestDTO),
+            type: TrackingNumberResponseDTO.self
+        )
+
+        return responseDTO.toEntity()
     }
 }

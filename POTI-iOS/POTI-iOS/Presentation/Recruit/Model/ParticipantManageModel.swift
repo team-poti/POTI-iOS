@@ -70,7 +70,13 @@ extension ParticipantManageModel {
 }
 
 
-extension ParticipantEntity {
+extension ManageEntity {
+    func toParticipantManageModels() -> [ParticipantManageModel] {
+        participants.map { $0.toParticipantManageModel() }
+    }
+}
+
+extension ManageParticipantEntity {
     func toParticipantManageModel() -> ParticipantManageModel {
         let memberRows: [ParticipantManageModel.MemberRow] = priceInfo.memberPerPrices.map {
             .init(name: $0.name, price: $0.price)

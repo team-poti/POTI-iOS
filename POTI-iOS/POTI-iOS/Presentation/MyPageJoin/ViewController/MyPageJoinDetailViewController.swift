@@ -17,6 +17,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private let tableView = UITableView()
+    private let backgroundView = UIView()
     private let completeButton = PotiBottomButton()
     private var tableViewBottomConstraint: Constraint?
     
@@ -26,6 +27,20 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
         updateCompleteButton()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = true
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = false
+        }
     }
     
     override func setUI() {
@@ -58,6 +73,9 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             $0.separatorStyle = .none
             $0.showsVerticalScrollIndicator = false
         }
+        backgroundView.do {
+            $0.backgroundColor = .potiWhite
+        }
     }
     
     private func setCompleteButton() {
@@ -68,7 +86,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private func updateCompleteButton() {
-        guard let status = viewModel.participantStatus else {
+        guard let status = viewModel.participantOrderStatus else {
             completeButton.isHidden = true
             tableViewBottomConstraint?.update(inset: 0)
             UIView.animate(withDuration: 0.25) {
@@ -98,7 +116,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     @objc private func didTapCompleteButton() {
-        if viewModel.participantStatus == .recruiting {
+        if viewModel.participantOrderStatus == .recruiting {
             presentDetailBottomSheet()
         } else {
             completeButtonTapped()
@@ -203,7 +221,7 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         case .myJoinDepositInfo:
             return UITableView.automaticDimension
         case .statusInfo:
-            switch viewModel.participantStatus {
+            switch viewModel.participantOrderStatus {
             default:
                 return UITableView.automaticDimension
             }
@@ -254,7 +272,7 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
             return cell
             
         case .statusInfo:
-            let status = viewModel.participantStatus ?? .recruiting
+            let status = viewModel.participantOrderStatus ?? .recruiting
             updateCompleteButton()
             switch status {
             case .recruiting:

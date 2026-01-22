@@ -7,7 +7,6 @@
 
 protocol PostsParticipantsUseCase {
     func execute(postId: Int) async throws -> ManageEntity
-    //func confirmDeposit(purchaseId: Int) async throws
 }
 
 final class DefaultManageUseCase: PostsParticipantsUseCase {

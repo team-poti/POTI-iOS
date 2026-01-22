@@ -93,13 +93,13 @@ final class ProgressStatusViewCell: UITableViewCell {
 
         if model.postStatus == .closed {
             switch (model.role, model.participantStatus) {
-            case (.host, .waitPay):
+            case (.host, .recruiting):
                 messageText = "입금을 기다리는 중이에요"
 
             case (.host, .waitPayCheck):
                 messageText = "입금 확인을 기다리는 참여자가 있어요"
 
-            case (.participant, .waitPay):
+            case (.participant, .recruiting):
                 messageText = "지금 입금해주세요!"
 
             case (.participant, .waitPayCheck):
