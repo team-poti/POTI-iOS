@@ -185,7 +185,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
                         keyword: trimmed
                     )
                     await MainActor.run {
-                        self.titlesSubject.send(titles as! [String])
+                        self.titlesSubject.send(titles)
                     }
                 } catch {
                     await MainActor.run {

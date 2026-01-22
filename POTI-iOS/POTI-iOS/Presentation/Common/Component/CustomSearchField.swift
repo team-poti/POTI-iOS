@@ -18,6 +18,7 @@ final class CustomSearchField: BaseView {
     private var isListVisible: Bool = false
     private var textFieldTrailingConstraint: Constraint?
     private var searchListHeightConstraint: Constraint?
+    private var isSelectingItem: Bool = false
 
     // MARK: - UI Components
 
@@ -79,9 +80,12 @@ final class CustomSearchField: BaseView {
             $0.transform = CGAffineTransform(translationX: 0, y: -6)
             $0.onSelectItem = { [weak self] index, value in
                 guard let self else { return }
+                self.isSelectingItem = true
                 self.setText(value)
-                self.hideList(animated: true)
                 self.onSelectItem?(index, value)
+                self.hideList(animated: true)
+                self.textField.resignFirstResponder()
+                self.isSelectingItem = false
             }
         }
 
@@ -219,6 +223,16 @@ final class CustomSearchField: BaseView {
 
         if items.isEmpty {
             hideList(animated: true)
+            return
+        }
+
+        let targetHeight = searchListView.requiredHeight
+        searchListHeightConstraint?.update(offset: targetHeight)
+
+        if isListVisible {
+            UIView.performWithoutAnimation {
+                self.superview?.layoutIfNeeded()
+            }
         } else {
             showList(animated: true)
         }
@@ -233,6 +247,7 @@ final class CustomSearchField: BaseView {
         guard !isListVisible else { return }
 
         isListVisible = true
+        searchListView.isUserInteractionEnabled = true
 
         let targetHeight = searchListView.requiredHeight
 
@@ -268,7 +283,7 @@ final class CustomSearchField: BaseView {
 
         if animated {
             UIView.animate(
-                withDuration: 0.18,
+                withDuration: 0.3,
                 delay: 0,
                 options: [.curveEaseIn],
                 animations: {
@@ -328,6 +343,7 @@ extension CustomSearchField: UITextFieldDelegate {
 
     func textFieldDidEndEditing(_ textField: UITextField) {
         apply(state: .normal)
+        guard !isSelectingItem else { return }
         hideList(animated: true)
     }
 }
