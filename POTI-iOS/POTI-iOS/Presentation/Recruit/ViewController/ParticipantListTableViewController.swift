@@ -67,8 +67,8 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         
         viewModel.output.confirmDepositTriggered
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] purchaseId in
-                self?.completeButtonTapped(purchaseId: purchaseId)
+            .sink { [weak self] orderId in
+                self?.completeButtonTapped(orderId: orderId)
             }
             .store(in: &cancellables)
         
@@ -80,7 +80,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             .store(in: &cancellables)
     }
     
-    private func completeButtonTapped(purchaseId: Int) {
+    private func completeButtonTapped(orderId: Int) {
         let alert = CustomAlertView(
             title: "잠깐! 정말 입금이 완료되었나요?",
             message: "확인 후에는 되돌릴 수 없어요",
@@ -89,10 +89,9 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             onLeftButton: { [weak self] in
                 self?.dismiss(animated: true)
             },
+            // CustomAlertView가 orderId를 넘겨주더라도, 이 화면에서는 이미 orderId를 알고 있으니 그대로 사용
             onRightButton: { [weak self] in
-                guard let self else { return }
-                // TODO: 배송 완료 처리 reload 0122
-                // 예) self.viewModel.action(.completeDeposit(purchaseId: purchaseId))
+                self?.viewModel.action(.confirmDeposit(orderId: orderId))
             }
         )
         alert.show(on: navigationController?.view ?? view)
@@ -202,8 +201,8 @@ extension ParticipantListTableViewController: UITableViewDataSource, UITableView
         }
         
         // 입금 확인 버튼
-        cell.onTapConfirmDeposit = { [weak self] purchaseId in
-            self?.viewModel.action(.confirmDeposit(purchaseId: purchaseId))
+        cell.onTapConfirmDeposit = { [weak self] orderId in
+            self?.completeButtonTapped(orderId: orderId)
         }
         
         // 송장번호 입력

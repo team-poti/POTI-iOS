@@ -14,7 +14,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
     enum Input {
         case viewDidLoad
         case toggleButtonTap(section: Int)
-        case confirmDeposit(purchaseId: Int)
+        case confirmDeposit(orderId: Int)
         case confirmShip(purchaseId: Int)
     }
     
@@ -31,13 +31,12 @@ final class ParticipantManageViewModel: BaseViewModelType {
     // MARK: - Properties
     
     private let postId: Int
-    private let useCase: PostsParticipantsUseCase
+    private let postsParticipantsUseCase: PostsParticipantsUseCase
+    private let paymentsUseCase: PaymentsUseCase
     private var cancellables = Set<AnyCancellable>()
     let output: Output
     private(set) var expandedSections: Set<Int> = [] // 섹션 펼침 여부
     private(set) var participants: [ParticipantManageModel] = []
-    private var onTapConfirmDeposit: ((Int) -> Void)?
-    private var onTapConfirmShip: ((Int) -> Void)?
     
     // MARK: - Subject
     
@@ -49,9 +48,14 @@ final class ParticipantManageViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(postId: Int, useCase: PostsParticipantsUseCase) {
+    init(
+        postId: Int,
+        postsParticipantsUseCase: PostsParticipantsUseCase,
+        paymentsUseCase: PaymentsUseCase
+    ) {
         self.postId = postId
-        self.useCase = useCase
+        self.postsParticipantsUseCase = postsParticipantsUseCase
+        self.paymentsUseCase = paymentsUseCase
         self.output = Output(
             fetchData:
                 fetchDataSubject.eraseToAnyPublisher(),
@@ -72,8 +76,8 @@ final class ParticipantManageViewModel: BaseViewModelType {
         case .toggleButtonTap(let section):
             toggleExpandSection(section: section)
             
-        case .confirmDeposit(let purchaseId):
-            confirmDepositSubject.send(purchaseId)
+        case .confirmDeposit(let orderId):
+            confirmDeposit(orderId: orderId)
             
         case .confirmShip(let purchaseId):
             confirmShipSubject.send(purchaseId)
@@ -87,7 +91,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
             do {
                 guard let self else { return }
                 
-                let entity = try await self.useCase.execute(postId: postId)
+                let entity = try await self.postsParticipantsUseCase.execute(postId: postId)
                 self.participants = entity.toParticipantManageModels()
                 self.fetchDataSubject.send()
                 
@@ -108,5 +112,26 @@ final class ParticipantManageViewModel: BaseViewModelType {
     
     func setParticipants(_ participants: [ParticipantManageModel]) {
         self.participants = participants
+    }
+    
+    private func confirmDeposit(orderId: Int) {
+        Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                let result = try await paymentsUseCase.execute(orderId: orderId)
+
+                // PATCH 성공 후 최신 상태 재조회
+                let entity = try await postsParticipantsUseCase.execute(postId: postId)
+                self.participants = entity.toParticipantManageModels()
+
+                // UI 갱신
+                self.fetchDataSubject.send(())
+
+            } catch {
+                self.errorSubject.send("입금 확인에 실패했어요")
+                print("❌ confirmDeposit error:", error)
+            }
+        }
     }
 }
