@@ -182,7 +182,7 @@ final class DetailBottomSheet: BaseView {
         }
     }
     
-    @objc private func dismiss() {
+    @objc func dismiss() {
         UIView.animate(withDuration: 0.3, animations: {
             self.containerView.transform = CGAffineTransform(translationX: 0, y: 500)
             self.backgroundView.alpha = 0
@@ -194,6 +194,8 @@ final class DetailBottomSheet: BaseView {
     @objc private func didTapConfirmButton() {
         let depositor = firstTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let depositTime = secondTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        print("🔥 [Cell] confirmShip button touchedadfa")
         viewModel.action(.tapComplete(depositor: depositor, depositTime: depositTime))
+        print("🔥 [Cell] confirmShip button touched")
     }
 }

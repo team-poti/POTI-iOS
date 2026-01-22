@@ -11,3 +11,13 @@ struct RecruitPaymentsConfirmDTO: Decodable {
     let status: String
     let confirmedAt: String
 }
+
+extension RecruitPaymentsConfirmDTO {
+    func toEntity() -> PaymentsConfirmEntity {
+        PaymentsConfirmEntity(
+            orderId: orderId,
+            status: status,
+            confirmedAt: confirmedAt
+        )
+    }
+}

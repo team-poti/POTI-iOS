@@ -15,7 +15,8 @@ final class ParticipantManageViewModel: BaseViewModelType {
         case viewDidLoad
         case toggleButtonTap(section: Int)
         case confirmDeposit(orderId: Int)
-        case confirmShip(purchaseId: Int)
+        case confirmShip(orderId: Int)
+        case patchTrackingNumber(orderId: Int, carrier: String, trackingNumber: String)
     }
     
     // MARK: - Output
@@ -25,6 +26,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
         let toggleButtonTapped: AnyPublisher<Int, Never>
         let confirmDepositTriggered: AnyPublisher<Int, Never>
         let confirmShipTriggered: AnyPublisher<Int, Never>
+        let trackingNumberPatched: AnyPublisher<Void, Never>
         let showError: AnyPublisher<String, Never>
     }
     
@@ -32,7 +34,8 @@ final class ParticipantManageViewModel: BaseViewModelType {
     
     private let postId: Int
     private let postsParticipantsUseCase: PostsParticipantsUseCase
-    private let paymentsUseCase: PaymentsUseCase
+    private let paymentsUseCase: PaymentsConfirmUseCase
+    private let ordersDeliveriesUseCase: OrdersDeliveriesUseCase
     private var cancellables = Set<AnyCancellable>()
     let output: Output
     private(set) var expandedSections: Set<Int> = [] // 섹션 펼침 여부
@@ -44,6 +47,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
     private let toggleButtonSubject = PassthroughSubject<Int, Never>()
     private let confirmDepositSubject = PassthroughSubject<Int, Never>()
     private let confirmShipSubject = PassthroughSubject<Int, Never>()
+    private let trackingNumberPatchedSubject = PassthroughSubject<Void, Never>()
     private let errorSubject = PassthroughSubject<String, Never>()
     
     // MARK: - Initializer
@@ -51,17 +55,20 @@ final class ParticipantManageViewModel: BaseViewModelType {
     init(
         postId: Int,
         postsParticipantsUseCase: PostsParticipantsUseCase,
-        paymentsUseCase: PaymentsUseCase
+        paymentsUseCase: PaymentsConfirmUseCase,
+        ordersDeliveriesUseCase: OrdersDeliveriesUseCase
     ) {
         self.postId = postId
         self.postsParticipantsUseCase = postsParticipantsUseCase
         self.paymentsUseCase = paymentsUseCase
+        self.ordersDeliveriesUseCase = ordersDeliveriesUseCase
         self.output = Output(
             fetchData:
                 fetchDataSubject.eraseToAnyPublisher(),
             toggleButtonTapped: toggleButtonSubject.eraseToAnyPublisher(),
             confirmDepositTriggered: confirmDepositSubject.eraseToAnyPublisher(),
             confirmShipTriggered: confirmShipSubject.eraseToAnyPublisher(),
+            trackingNumberPatched: trackingNumberPatchedSubject.eraseToAnyPublisher(),
             showError: errorSubject.eraseToAnyPublisher()
         )
     }
@@ -79,8 +86,11 @@ final class ParticipantManageViewModel: BaseViewModelType {
         case .confirmDeposit(let orderId):
             confirmDeposit(orderId: orderId)
             
-        case .confirmShip(let purchaseId):
-            confirmShipSubject.send(purchaseId)
+        case .confirmShip(let orderId):
+            confirmShipSubject.send(orderId)
+            
+        case .patchTrackingNumber(let orderId, let carrier, let trackingNumber):
+            patchTrackingNumber(orderId: orderId, carrier: carrier, trackingNumber: trackingNumber)
         }
     }
     
@@ -131,6 +141,35 @@ final class ParticipantManageViewModel: BaseViewModelType {
             } catch {
                 self.errorSubject.send("입금 확인에 실패했어요")
                 print("❌ confirmDeposit error:", error)
+            }
+        }
+    }
+    
+    private func patchTrackingNumber(
+        orderId: Int,
+        carrier: String,
+        trackingNumber: String
+    ) {
+        Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                let requestEntity = TrackingNumberRequestEntity(
+                    carrier: carrier,
+                    trackingNumber: trackingNumber
+                )
+
+                _ = try await ordersDeliveriesUseCase.execute(orderId: orderId, entity: requestEntity)
+                
+                trackingNumberPatchedSubject.send(())
+
+                let entity = try await postsParticipantsUseCase.execute(postId: postId)
+                self.participants = entity.toParticipantManageModels()
+                fetchDataSubject.send(())
+
+            } catch {
+                self.errorSubject.send("송장번호 등록에 실패했어요")
+                print("❌ patchTrackingNumber error:", error)
             }
         }
     }

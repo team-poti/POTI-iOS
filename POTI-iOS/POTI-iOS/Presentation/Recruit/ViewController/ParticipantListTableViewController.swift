@@ -21,6 +21,9 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     
     private let tableView = UITableView()
     private var lastSectionCount: Int = 0
+
+    // 송장번호 입력 bottom sheet를 잡아두었다가 PATCH 성공 시 닫기
+    private var trackingNumberSheet: DetailBottomSheet?
     
     // MARK: - Lifecycle
     
@@ -28,6 +31,20 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
         lastSectionCount = viewModel.participants.count
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = true
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = false
+        }
     }
     
     override func setUI() {
@@ -74,8 +91,19 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         
         viewModel.output.confirmShipTriggered
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] purchaseId in
-                self?.presentTrackingNumberBottomSheet(purchaseId: purchaseId)
+            .sink { [weak self] orderId in
+                self?.presentTrackingNumberBottomSheet(orderId: orderId)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.trackingNumberPatched
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self else { return }
+                print("✅ [VC] trackingNumber patched success, refreshing list")
+                self.trackingNumberSheet?.dismiss()
+                self.trackingNumberSheet = nil
+                self.viewModel.action(.viewDidLoad)
             }
             .store(in: &cancellables)
     }
@@ -143,7 +171,8 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     
     // MARK: - BottomSheet
     
-    private func presentTrackingNumberBottomSheet(purchaseId: Int) {
+    private func presentTrackingNumberBottomSheet(orderId: Int) {
+        print("✅ [VC] presentTrackingNumberBottomSheet, orderId:", orderId)
         let sheet = DetailBottomSheet(
             viewModel: BottomSheetViewModel(),
             firstTitle: "배송업체",
@@ -152,13 +181,23 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             secondPlaceholder: "송장번호를 입력해주세요",
             confirmButtonText: "완료"
         )
-        
-        // TODO: PATCH 성공 후 서버 재조회가 필요하면 onPatched에서 viewModel.action(.viewDidLoad) 호출
-        sheet.onPatched = { [weak self] in
-            self?.viewModel.action(.viewDidLoad)
+
+        // sheet를 잡아두었다가 PATCH 성공 시 닫기
+        self.trackingNumberSheet = sheet
+
+        // 입력 완료 → PATCH 실행
+        sheet.onSubmit = { [weak self] carrier, trackingNumber in
+            print("✅ [Sheet] submit tapped",
+                  "orderId:", orderId,
+                  "carrier:", carrier,
+                  "trackingNumber:", trackingNumber)
+
+            self?.viewModel.action(
+                .patchTrackingNumber(orderId: orderId, carrier: carrier, trackingNumber: trackingNumber)
+            )
         }
-        
-        sheet.show(in: self.view)
+
+        sheet.show(in: self.navigationController?.view ?? view)
     }
 }
 
@@ -205,8 +244,9 @@ extension ParticipantListTableViewController: UITableViewDataSource, UITableView
         }
         
         // 송장번호 입력
-        cell.onTapConfirmShip = { [weak self] purchaseId in
-            self?.viewModel.action(.confirmShip(purchaseId: purchaseId))
+        cell.onTapConfirmShip = { [weak self] orderId in
+            print("✅ [UI] confirmShip tapped, orderId:", orderId)
+            self?.viewModel.action(.confirmShip(orderId: orderId))
         }
         
         return cell

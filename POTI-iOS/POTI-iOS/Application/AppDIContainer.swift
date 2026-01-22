@@ -158,8 +158,12 @@ final class AppDIContainer {
         DefaultSubmitOnboardingUseCase(repository: makeUsersRepository())
     }
     
-    private func makePaymentsUseCase() -> PaymentsUseCase {
+    private func makePaymentsUseCase() -> PaymentsConfirmUseCase {
         DefaultPaymentsUseCase(repository: makePaymentsRepository())
+    }
+    
+    private func makeOrdersDeliveriesUseCase() -> OrdersDeliveriesUseCase {
+        DefaultOrdersDeliveriesUseCase(repository: makeOrderRepository())
     }
     
     // MARK: - ViewModel
@@ -204,7 +208,8 @@ final class AppDIContainer {
         ParticipantManageViewModel(
             postId: postId,
             postsParticipantsUseCase: makeManageUseCase(),
-            paymentsUseCase: makePaymentsUseCase()
+            paymentsUseCase: makePaymentsUseCase(),
+            ordersDeliveriesUseCase: makeOrdersDeliveriesUseCase()
         )
     }
     

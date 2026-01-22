@@ -109,7 +109,7 @@ final class PotInfoCell: UITableViewCell {
         }
         
         potTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(artistLabel.snp.bottom)
+            $0.top.equalTo(artistLabel.snp.bottom).offset(4)
             $0.horizontalEdges.equalTo(artistLabel)
         }
         

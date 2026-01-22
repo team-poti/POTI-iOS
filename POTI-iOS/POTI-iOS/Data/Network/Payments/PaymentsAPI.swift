@@ -19,7 +19,7 @@ enum PaymentsAPI: BaseTargetType {
         switch self {
         case .patchPaymentConfirm(let orderId):
             return "/api/v1/payments/\(orderId)/confirm"
-        case .patchTrackingNumberConfirm(orderId: let orderId, carrier: let carrier, trackingNumber: let trackingNumber):
+        case .patchTrackingNumberConfirm(let orderId, _, _):
             return "/api/v1/orders/\(orderId)/deliveries"
         }
     }
