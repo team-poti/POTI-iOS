@@ -23,7 +23,7 @@ struct RecruitParticipantEntity {
     let orderId: Int
     let userId: Int
     let memberNames: [String]
-    let status: ParticipantOrderStatus
+    let status: ParticipantStatus
     let priceInfo: RecruitPriceInfoEntity
     let shippingInfo: RecruitShippingInfoEntity
 }

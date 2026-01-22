@@ -30,6 +30,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
     
     // MARK: - Properties
     
+    private let postId: Int
     private let useCase: PostsParticipantsUseCase
     private var cancellables = Set<AnyCancellable>()
     let output: Output
@@ -48,7 +49,8 @@ final class ParticipantManageViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: PostsParticipantsUseCase) {
+    init(postId: Int, useCase: PostsParticipantsUseCase) {
+        self.postId = postId
         self.useCase = useCase
         self.output = Output(
             fetchData:
@@ -85,7 +87,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
             do {
                 guard let self else { return }
                 
-                let entity = try await self.useCase.execute(postId: 1)
+                let entity = try await self.useCase.execute(postId: postId)
                 self.participants = entity.toParticipantManageModels()
                 self.fetchDataSubject.send()
                 
@@ -96,28 +98,12 @@ final class ParticipantManageViewModel: BaseViewModelType {
     }
     
     private func toggleExpandSection(section: Int) {
-        // 1. 로컬 토글 상태 변경
         if expandedSections.contains(section) {
             expandedSections.remove(section)
         } else {
             expandedSections.insert(section)
         }
-        
-        // 2. 서버 요청
-        Task { [weak self] in
-            do {
-                guard let self else { return }
-                
-                let entity = try await self.useCase.execute(postId: 1)
-                self.participants = entity.toParticipantManageModels()
-                
-                // 3. 서버 응답 후 UI 갱신 트리거 (단 한 번)
-                self.toggleButtonSubject.send(section)
-                
-            } catch {
-                print("Error : \(error)")
-            }
-        }
+        self.toggleButtonSubject.send(section)
     }
     
     func setParticipants(_ participants: [ParticipantManageModel]) {
