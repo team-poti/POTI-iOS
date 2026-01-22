@@ -43,4 +43,11 @@ final class DefaultPostsRepository: PostsInterface {
         )
         return responseDTO.toEntity()
     }
+    
+    func fetchMyPostsHistory(status: String) async throws -> MyPagePostsHistoryEntity {
+         let result = try await networkService.request(
+            target: PostsAPI.fetchMyPostsHistory(status: status), type: MyPostsHistoryResponseDTO.self
+        )
+        return result.toEntity()
+    }
 }

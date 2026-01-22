@@ -7,6 +7,7 @@
 
 import UIKit
 
+import Kingfisher
 import SnapKit
 import Then
 
@@ -98,14 +99,19 @@ final class MyPageHistoryCell: UITableViewCell {
         }
     }
     
-    func configure(artist: String, product: String, status: String, thumbnailURL: String?) {
+    func configure(artist: String, product: String, status: MyPageGroupBuyStatus, thumbnailURL: String?) {
         artistLabel.text = artist
         productLabel.text = product
-        statusLabel.text = status
+        statusLabel.text = status.title
+        statusLabel.textColor = status.color
         
-        // TODO: Load image with Kingfisher
-        // if let url = URL(string: thumbnailURL ?? "") {
-        //     thumbnailImageView.kf.setImage(with: url, placeholder: UIImage(named: "placeholder"))
-        // }
+        if let urlString = thumbnailURL,
+           let url = URL(string: urlString) {
+            thumbnailImageView.kf.setImage(
+                with: url,
+                placeholder: UIImage.imgSelected
+            )
+        } else {
+        }
     }
 }

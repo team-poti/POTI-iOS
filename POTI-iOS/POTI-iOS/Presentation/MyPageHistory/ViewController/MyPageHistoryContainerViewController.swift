@@ -21,8 +21,7 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
     private var currentType: MyPageHistoryType = .participation
     private var initialTab: MyPageHistoryViewController.HistoryTab = .ongoing
     
-    init(initialType: MyPageHistoryType, initialTab: MyPageHistoryViewController.HistoryTab = .ongoing) {
-        let viewModel = MyPageHistoryViewModel(initialType: initialType)
+    init(initialType: MyPageHistoryType, initialTab: MyPageHistoryViewController.HistoryTab = .ongoing, viewModel: MyPageHistoryViewModel) {
         self.currentType = initialType
         self.initialTab = initialTab
         super.init(viewModel: viewModel)

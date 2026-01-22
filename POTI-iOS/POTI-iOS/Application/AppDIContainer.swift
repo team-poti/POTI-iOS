@@ -178,6 +178,10 @@ final class AppDIContainer {
         DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
     }
     
+    private func makeMyPagePostsHistoryUseCase() -> MyPagePostsHistoryUseCase {
+        DefaultMyPagePostsHistoryUseCase(repository: makePostsRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -243,5 +247,14 @@ final class AppDIContainer {
     
     func makeMyPageViewModel() -> MyPageViewModel {
         MyPageViewModel(getMyPageInformationUseCase: makeGetMyPageInformationUseCase())
+    }
+    
+    func makeMyPageHistoryViewModel(
+        initialType: MyPageHistoryType
+    ) -> MyPageHistoryViewModel {
+        MyPageHistoryViewModel(
+            initialType: initialType,
+            myPagePostsHistoryUseCase: makeMyPagePostsHistoryUseCase()
+        )
     }
 }

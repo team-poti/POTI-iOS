@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 import Combine
 
 final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewModel> {
@@ -94,7 +95,6 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
             .receive(on: DispatchQueue.main)
             .sink { [weak self] data in
                 self?.updateEmptyView(for: .ongoing, isEmpty: data.isEmpty)
-                self?.updateTabCounts()
                 self?.contentView.ongoingTableView.reloadData()
             }
             .store(in: &cancellables)
@@ -103,8 +103,21 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
             .receive(on: DispatchQueue.main)
             .sink { [weak self] data in
                 self?.updateEmptyView(for: .completed, isEmpty: data.isEmpty)
-                self?.updateTabCounts()
                 self?.contentView.completedTableView.reloadData()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.ongoingCount
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] count in
+                self?.tabView.updateCount(for: .ongoing, count: count)
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.completedCount
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] count in
+                self?.tabView.updateCount(for: .completed, count: count)
             }
             .store(in: &cancellables)
     }
@@ -122,17 +135,6 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
         isScrollingByUser = false
         let offsetX = CGFloat(tab.rawValue) * view.bounds.width
         contentView.scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: animated)
-    }
-    
-    private func updateTabCounts() {
-        viewModel.output.ongoingData
-            .combineLatest(viewModel.output.completedData)
-            .first()
-            .sink { [weak self] ongoingData, completedData in
-                self?.tabView.updateCount(for: .ongoing, count: ongoingData.count)
-                self?.tabView.updateCount(for: .completed, count: completedData.count)
-            }
-            .store(in: &cancellables)
     }
     
     private func updateEmptyView(for tab: HistoryTab, isEmpty: Bool) {

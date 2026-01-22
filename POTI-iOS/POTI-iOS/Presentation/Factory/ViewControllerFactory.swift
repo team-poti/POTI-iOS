@@ -21,6 +21,10 @@ protocol ViewControllerFactory {
     func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
     func makePotListViewController() -> PotListViewController
+    func makeMyPageHistoryContainerViewController(
+        initialType: MyPageHistoryType,
+        initialTab: MyPageHistoryViewController.HistoryTab
+    ) -> MyPageHistoryContainerViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -60,7 +64,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
-            viewModel: diContainer.makeMyPageViewModel()
+            viewModel: diContainer.makeMyPageViewModel(), factory: self
         )
     }
     
@@ -116,6 +120,17 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
                 orderItems: orderItems
             ),
             factory: self
+        )
+    }
+    
+    func makeMyPageHistoryContainerViewController(
+        initialType: MyPageHistoryType,
+        initialTab: MyPageHistoryViewController.HistoryTab = .ongoing
+    ) -> MyPageHistoryContainerViewController {
+        MyPageHistoryContainerViewController(
+            initialType: initialType,
+            initialTab: initialTab,
+            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType)
         )
     }
 }
