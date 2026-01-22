@@ -200,29 +200,14 @@ final class AppDIContainer {
         ArtistsViewModel(useCase: makeArtistsUseCase())
     }
     
-    @MainActor func makeProductRegisterViewModel() -> ProductRegisterViewModel {
+    func makeProductRegisterViewModel() -> ProductRegisterViewModel {
         ProductRegisterViewModel(
             registerTitlesUseCase: makeRegisterTitlesUseCase(),
             registerPostsUseCase: makeRegisterPostsUseCase()
         )
     }
     
-    @MainActor func makeArtistSearchViewModel() -> ArtistSearchViewModel {
+    func makeArtistSearchViewModel() -> ArtistSearchViewModel {
         ArtistSearchViewModel(registerArtistsUseCase: makeRegisterArtistsUseCase())
-    }
-    
-    // MARK: - ViewController
-
-    @MainActor func makeProductRegisterViewController() -> ProductRegisterViewController {
-        ProductRegisterViewController(
-            viewModel: makeProductRegisterViewModel(),
-            diContainer: self
-        )
-    }
-
-    @MainActor func makeArtistSearchViewController() -> ArtistSearchViewController {
-        ArtistSearchViewController(
-            viewModel: makeArtistSearchViewModel()
-        )
     }
 }

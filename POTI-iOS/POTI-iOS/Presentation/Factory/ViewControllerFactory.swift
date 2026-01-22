@@ -21,6 +21,8 @@ protocol ViewControllerFactory {
     func makeParticipantManageViewController() -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
     func makePotListViewController() -> PotListViewController
+    func makeArtistSearchViewController() -> ArtistSearchViewController
+    func makeProductRegisterViewController() -> ProductRegisterViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -50,7 +52,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makeHomeViewController() -> HomeViewController {
         HomeViewController(
             viewModel: diContainer.makeHomeViewModel(),
-            diContainer: diContainer
+            factory: self
         )
     }
     
@@ -116,6 +118,18 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
                 orderItems: orderItems
             ),
             factory: self
+        )
+    }
+    
+    func makeArtistSearchViewController() -> ArtistSearchViewController {
+        ArtistSearchViewController(
+            viewModel: diContainer.makeArtistSearchViewModel()
+        )
+    }
+    
+    func makeProductRegisterViewController() -> ProductRegisterViewController {
+        ProductRegisterViewController(
+            viewModel: diContainer.makeProductRegisterViewModel(), factory: self
         )
     }
 }
