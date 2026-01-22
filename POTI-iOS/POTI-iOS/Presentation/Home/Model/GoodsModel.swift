@@ -7,9 +7,9 @@
 
 struct GoodsModel {
     let artist: String
+    let artistId: Int
     let postImage: String?
     let postTitle: String
     let postCount: Int
     let tag: String
 }
-

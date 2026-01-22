@@ -111,5 +111,8 @@ extension GoodsListCell {
         artistNameLabel.text = goods.artist
         productNameLabel.text = goods.title
         potTagView.setTagText("팟 \(goods.postCount)개")
+        
+        let isPopular = (goods.tag == "인기")
+        popularTagView.isHidden = !isPopular
     }
 }

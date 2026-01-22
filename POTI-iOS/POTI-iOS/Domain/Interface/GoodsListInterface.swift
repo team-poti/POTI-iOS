@@ -6,5 +6,5 @@
 //
 
 protocol GoodsListInterface {
-    func fetchGoodsListData() async throws -> GoodsListEntity
+    func fetchGoodsListData(artistId: Int, sort: String, page: Int) async throws -> GoodsListEntity
 }
