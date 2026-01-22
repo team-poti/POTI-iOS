@@ -47,7 +47,7 @@ final class HomeView: BaseView {
     
     override func setLayout() {
         homeCollectionView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(16)
+            $0.top.equalToSuperview().offset(20)
             $0.bottom.horizontalEdges.equalToSuperview()
         }
         

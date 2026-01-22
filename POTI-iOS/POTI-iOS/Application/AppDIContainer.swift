@@ -55,7 +55,7 @@ final class AppDIContainer {
     }
     
     private func makeOrderRepository() -> OrderInterface {
-        DefaultOrderRepository()
+        DefaultOrderRepository(networkService: makeNetworkService())
     }
     
     private func makePostsRepository() -> PostsInterface {
@@ -63,7 +63,7 @@ final class AppDIContainer {
     }
     
     private func makePotDetailRepository() -> PotDetailInterface {
-        DefaultPotDetailRepository()
+        DefaultPotDetailRepository(networkService: makeNetworkService())
     }
     
     private func makeManageRepository() -> PostsInterface {
@@ -71,7 +71,7 @@ final class AppDIContainer {
     }
     
     private func makePotListRepository() -> PotListInterface {
-        DefaultPotListRepository()
+        DefaultPotListRepository(networkService: makeNetworkService())
     }
     
     private func makeArtistsRepository() -> ArtistsInterface {
@@ -92,6 +92,10 @@ final class AppDIContainer {
     
     private func makeRegisterRepository() -> RegisterInterface {
         DefaultRegisterRepository(networkService: makeNetworkService())
+    }
+    
+    private func makePaymentsRepository() -> PaymentsInterface {
+        DefaultPaymentsRepository(networkService: makeNetworkService())
     }
     
     // MARK: - UseCase
@@ -178,6 +182,18 @@ final class AppDIContainer {
         DefaultSubmitOnboardingUseCase(repository: makeUsersRepository())
     }
     
+    private func makePaymentsUseCase() -> PaymentsConfirmUseCase {
+        DefaultPaymentsUseCase(repository: makePaymentsRepository())
+    }
+    
+    private func makeOrdersDeliveriesUseCase() -> OrdersDeliveriesUseCase {
+        DefaultOrdersDeliveriesUseCase(repository: makeOrderRepository())
+    }
+    
+    private func makeGetMyPageInformationUseCase() -> GetMyPageInformationUseCase {
+        DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -204,7 +220,7 @@ final class AppDIContainer {
         PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems)
     }
     
-    func makePotOptionsSheetViewModel(postId: Int) -> PotOptionsViewModel {
+    func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
     
@@ -216,20 +232,25 @@ final class AppDIContainer {
         RecruitDetailViewModel(postId: postId, postsSaleUseCase: makePostsSaleUseCase())
     }
     
-    func makeManageViewModel() -> ParticipantManageViewModel {
-        ParticipantManageViewModel(useCase: makeManageUseCase())
+    func makeManageViewModel(postId: Int) -> ParticipantManageViewModel {
+        ParticipantManageViewModel(
+            postId: postId,
+            postsParticipantsUseCase: makeManageUseCase(),
+            paymentsUseCase: makePaymentsUseCase(),
+            ordersDeliveriesUseCase: makeOrdersDeliveriesUseCase()
+        )
     }
     
     func makeMyPageJoinViewModel() -> MyPageJoinViewModel {
         MyPageJoinViewModel()
     }
     
-    func makePotListViewModel() -> PotListViewModel {
-        PotListViewModel(useCase: makePotListUseCase())
+    func makePotListViewModel(title: String, artistId: Int, artistName: String) -> PotListViewModel {
+        return PotListViewModel(useCase: makePotListUseCase(),title: title,artistId: artistId, artistName: artistName)
     }
     
-    func makeArtistsViewModel() -> ArtistsViewModel {
-        ArtistsViewModel(useCase: makeArtistsUseCase())
+    func makeArtistsViewModel(artistId: Int, selectedIds: [Int]) -> ArtistsViewModel {
+        return ArtistsViewModel(useCase: makeArtistsUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
     
     func makeProductRegisterViewModel() -> ProductRegisterViewModel {
@@ -250,5 +271,9 @@ final class AppDIContainer {
             validNicknameUseCase: makeValidNicknameUseCase(),
             submitOnboardingUseCase: makeSubmitOnboardingUseCase()
         )
+    }
+    
+    func makeMyPageViewModel() -> MyPageViewModel {
+        MyPageViewModel(getMyPageInformationUseCase: makeGetMyPageInformationUseCase())
     }
 }

@@ -16,7 +16,8 @@ final class ArtistsBottomSheet: BaseView {
     // MARK: - Properties
     
     private let viewModel: ArtistsViewModel
-    var onComplete: (([String]) -> Void)?
+    var onComplete: (((ids: [Int], names: [String])) -> Void)?
+    var onDismissCompletion: (() -> Void)?
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - UI Components
@@ -165,6 +166,11 @@ final class ArtistsBottomSheet: BaseView {
         closeButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
         resetButton.addTarget(self, action: #selector(didTapReset), for: .touchUpInside)
         completeButton.addTarget(self, action: #selector(didTapComplete), for: .touchUpInside)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
+        backgroundView.addGestureRecognizer(tapGesture)
+        
+        backgroundView.isUserInteractionEnabled = true
     }
     
     private func bindViewModel() {
@@ -181,10 +187,10 @@ final class ArtistsBottomSheet: BaseView {
             }
             .store(in: &cancellables)
         
-        viewModel.output.selectedMembers
+        viewModel.output.selectedMemberData
             .receive(on: RunLoop.main)
-            .sink { [weak self] selectedList in
-                self?.onComplete?(selectedList)
+            .sink { [weak self] data in
+                self?.onComplete?(data)
                 self?.dismiss()
             }
             .store(in: &cancellables)
@@ -203,11 +209,13 @@ final class ArtistsBottomSheet: BaseView {
             self.containerView.transform = CGAffineTransform(translationX: 0, y: self.frame.height)
             self.backgroundView.alpha = 0
         }) { _ in
+            self.onDismissCompletion?()
             self.removeFromSuperview()
         }
     }
     
     func show(in view: UIView) {
+        viewModel.action(.viewDidLoad(artistId: viewModel.artistId))
         view.addSubview(self)
         self.snp.makeConstraints { $0.edges.equalToSuperview() }
         containerView.transform = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height)

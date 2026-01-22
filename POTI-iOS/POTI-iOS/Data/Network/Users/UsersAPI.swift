@@ -10,6 +10,7 @@ import Alamofire
 enum UsersAPI {
     case validateNickname(nickname: String)
     case submitOnboarding(nickname: String, favoriteArtistId: Int?)
+    case getMyPageInformation
 }
 
 extension UsersAPI: BaseTargetType {
@@ -20,6 +21,8 @@ extension UsersAPI: BaseTargetType {
             return "/api/v1/users/nickname/duplicate"
         case .submitOnboarding:
             return "/api/v1/users/onboarding"
+        case .getMyPageInformation:
+            return "/api/v1/users/mypage"
         }
     }
     
@@ -29,6 +32,8 @@ extension UsersAPI: BaseTargetType {
             return .post
         case .submitOnboarding:
             return .patch
+        case .getMyPageInformation:
+            return .get
         }
     }
     
@@ -41,6 +46,8 @@ extension UsersAPI: BaseTargetType {
                 "nickname": nickname,
                 "favoriteArtistId": favoriteArtistId
             ]
+        case .getMyPageInformation:
+            return nil
         }
     }
 }

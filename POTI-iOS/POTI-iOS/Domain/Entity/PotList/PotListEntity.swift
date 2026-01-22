@@ -35,7 +35,7 @@ struct Pot {
     let totalCount: Int
     let status: String
     let availableMembers: [String]
-    let recruiter: Recruiter // Uploader -> Recruiter 변경
+    let recruiter: Recruiter
 
     init(potId: Int, price: Int, thumbnailUrl: String, currentCount: Int, totalCount: Int, status: String, availableMembers: [String], recruiter: Recruiter) {
         self.potId = potId
@@ -50,6 +50,7 @@ struct Pot {
 
     func toFeedModel() -> FeedModel {
         FeedModel(
+            potId: potId,
             recruiter: recruiter.toRecruiterModel(),
             profileImage: recruiter.profileImage,
             rating: recruiter.rating,

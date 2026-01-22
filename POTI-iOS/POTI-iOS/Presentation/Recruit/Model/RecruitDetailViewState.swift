@@ -36,7 +36,7 @@ struct ProgressViewState {
             
         case .closed:
             switch participantStatus {
-            case .waitPay:
+            case .recruiting:
                 return "입금을 기다리는 중이에요"
             case .waitPayCheck:
                 return "입금 확인을 기다리는 참여자가 있어요"
@@ -71,8 +71,8 @@ struct RecruitDetailViewStateMapper {
     ) -> ParticipantStatus {
 
         // 모집자 기준: 대표 상태 (우선순위)
-        if participants.contains(where: { $0.status == .waitPay }) {
-            return .waitPay
+        if participants.contains(where: { $0.status == .recruiting }) {
+            return .recruiting
         }
 
         if participants.contains(where: { $0.status == .waitPayCheck }) {

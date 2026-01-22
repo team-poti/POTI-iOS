@@ -18,7 +18,7 @@ final class DetailBottomSheet: BaseView {
     
     private let viewModel: BottomSheetViewModel
     private var cancellables = Set<AnyCancellable>()
-
+    
     var onSubmit: ((String, String) -> Void)?
     var onPatched: (() -> Void)?
     
@@ -182,7 +182,7 @@ final class DetailBottomSheet: BaseView {
         }
     }
     
-    @objc private func dismiss() {
+    @objc func dismiss() {
         UIView.animate(withDuration: 0.3, animations: {
             self.containerView.transform = CGAffineTransform(translationX: 0, y: 500)
             self.backgroundView.alpha = 0

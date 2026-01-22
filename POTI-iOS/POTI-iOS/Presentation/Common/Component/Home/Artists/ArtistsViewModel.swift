@@ -23,30 +23,35 @@ final class ArtistsViewModel: BaseViewModelType {
     struct Output {
         let artistsList: AnyPublisher<[(name: String, isSelected: Bool)], Never>
         let isCompleteEnabled: AnyPublisher<Bool, Never>
-        let selectedMembers: AnyPublisher<[String], Never>
+        let selectedMemberData: AnyPublisher<(ids: [Int], names: [String]), Never>
     }
     
     let output: Output
     private let useCase: ArtistsUsecase
     private var cancellables = Set<AnyCancellable>()
     
+    let artistId: Int
+    private var originalEntities: [ArtistsEntity] = []
     var currentArtistsList: [(name: String, isSelected: Bool)] {
         return artistsListSubject.value
     }
+    private let initialSelectedIds: [Int]
     
     // MARK: - Subjects
     
     private let artistsListSubject = CurrentValueSubject<[(name: String, isSelected: Bool)], Never>([])
     private let isCompleteEnabledSubject = CurrentValueSubject<Bool, Never>(false)
-    private let selectedArtistsSubject = PassthroughSubject<[String], Never>()
+    private let selectedMemberDataSubject = PassthroughSubject<(ids: [Int], names: [String]), Never>()
     
-    init(useCase: ArtistsUsecase) {
+    init(useCase: ArtistsUsecase, artistId: Int, selectedIds: [Int]) {
         self.useCase = useCase
+        self.artistId = artistId
+        self.initialSelectedIds = selectedIds
         
         self.output = Output(
             artistsList: artistsListSubject.eraseToAnyPublisher(),
             isCompleteEnabled: isCompleteEnabledSubject.eraseToAnyPublisher(),
-            selectedMembers: selectedArtistsSubject.eraseToAnyPublisher()
+            selectedMemberData: selectedMemberDataSubject.eraseToAnyPublisher()
         )
     }
     
@@ -69,13 +74,37 @@ private extension ArtistsViewModel {
         Task {
             do {
                 let entities = try await useCase.execute(artistId: artistId)
-                let uiModels = entities.map { (name: $0.artistName, isSelected: false) }
-                artistsListSubject.send(uiModels)
+                
+                if entities.isEmpty {
+                    await MainActor.run {
+                        artistsListSubject.send([])
+                        isCompleteEnabledSubject.send(false)
+                    }
+                    return
+                }
+                
+                self.originalEntities = entities
+                
+                let uiModels = entities.map { entity -> (name: String, isSelected: Bool) in
+                    let isSelected = initialSelectedIds.contains(entity.artistId)
+                    return (name: entity.artistName, isSelected: isSelected)
+                }
+                
+                await MainActor.run {
+                    artistsListSubject.send(uiModels)
+                    let hasSelection = uiModels.contains { $0.isSelected }
+                    isCompleteEnabledSubject.send(hasSelection)
+                }
             } catch {
-                print("Failed to fetch members: \(error)")
+                print("Network Error: \(error)")
+                await MainActor.run {
+                    artistsListSubject.send([])
+                    isCompleteEnabledSubject.send(false)
+                }
             }
         }
     }
+    
     func handleSelection(index: Int) {
         var current = artistsListSubject.value
         current[index].isSelected.toggle()
@@ -92,9 +121,15 @@ private extension ArtistsViewModel {
     }
     
     func handleComplete() {
-        let selected = artistsListSubject.value
-            .filter { $0.isSelected }
-            .map { $0.name }
-        selectedArtistsSubject.send(selected)
+        let selectedData = artistsListSubject.value.enumerated()
+            .filter { $0.element.isSelected }
+        
+        let selectedIds = selectedData.compactMap { index, _ in
+            index < originalEntities.count ? originalEntities[index].artistId : nil
+        }
+        
+        let selectedNames = selectedData.map { $0.element.name }
+        
+        selectedMemberDataSubject.send((ids: selectedIds, names: selectedNames))
     }
 }

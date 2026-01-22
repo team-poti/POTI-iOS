@@ -10,6 +10,8 @@ import Alamofire
 enum PostsAPI: BaseTargetType {
     case fetchManage(postId: Int)
     case fetchSaleDetail(postId: Int)
+    case fetchPotDetail(postId: Int)
+    case fetchPotOptions(postId: Int)
     
     var path: String {
         switch self {
@@ -17,12 +19,16 @@ enum PostsAPI: BaseTargetType {
             return "/api/v1/posts/\(postId)/participants"
         case .fetchSaleDetail(let postId):
             return "/api/v1/posts/sale/\(postId)"
+        case .fetchPotDetail(let postId):
+            return "/api/v1/posts/\(postId)"
+        case .fetchPotOptions(postId: let postId):
+            return "/api/v1/posts/\(postId)/options"
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .fetchManage, .fetchSaleDetail:
+        case .fetchManage, .fetchSaleDetail, .fetchPotDetail, .fetchPotOptions:
             return .get
         }
     }

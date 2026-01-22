@@ -193,65 +193,65 @@ final class ParticipantManageViewCell: UITableViewCell {
 //    }
 }
 
-// MARK: - Mock 아직 이 부분 연결 전입니당
-
-extension ParticipantManageViewCell.Model {
-
-    /// 기본 케이스 (입금 대기)
-    static let mockWaitPay: ParticipantManageViewCell.Model = .init(
-        memberNamesText: ["제니", "로제", "지수", "리사"],
-        depositorNameText: "이명진",
-        addressText: "(06000) 서울시 강남구 압구정로 77",
-        phoneText: "010-5555-6666",
-        shippingText: "일반택배",
-        totalPrice: 40000,
-        depositState: .ready
-    )
-
-    /// 입금 확인중
-    static let mockWaitPayCheck: ParticipantManageViewCell.Model = .init(
-        memberNamesText: ["안유진"],
-        depositorNameText: "이서현",
-        addressText: "(04524) 서울시 중구 세종대로 110",
-        phoneText: "010-1111-2222",
-        shippingText: "준등기",
-        totalPrice: 15000,
-        depositState: .waitPayCheck
-    )
-
-    /// 입금 완료
-    static let mockPaid: ParticipantManageViewCell.Model = .init(
-        memberNamesText: ["장원영", "레이"],
-        depositorNameText: "김민지",
-        addressText: "(06236) 서울시 강남구 테헤란로 152",
-        phoneText: "010-3333-4444",
-        shippingText: "일반택배",
-        totalPrice: 28000,
-        depositState: .paid
-    )
-
-    /// 배송 시작
-    static let mockStartShip: ParticipantManageViewCell.Model = .init(
-        memberNamesText: ["카리나", "윈터", "지젤"],
-        depositorNameText: "박지은",
-        addressText: "(04147) 서울시 마포구 양화로 45",
-        phoneText: "010-7777-8888",
-        shippingText: "CJ대한통운",
-        totalPrice: 36000,
-        depositState: .ready
-    )
-
-    /// 배송 완료
-    static let mockCompleted: ParticipantManageViewCell.Model = .init(
-        memberNamesText: ["민지", "하니", "다니엘", "해린", "혜인"],
-        depositorNameText: "정수진",
-        addressText: "(03027) 서울시 종로구 사직로 161",
-        phoneText: "010-9999-0000",
-        shippingText: "우체국택배",
-        totalPrice: 52000,
-        depositState: .paid
-    )
-
-    /// Preview / 기본 사용용
-    static let mock: ParticipantManageViewCell.Model = mockStartShip
-}
+//// MARK: - Mock 아직 이 부분 연결 전입니당
+//
+//extension ParticipantManageViewCell.Model {
+//
+//    /// 기본 케이스 (입금 대기)
+//    static let mockWaitPay: ParticipantManageViewCell.Model = .init(
+//        memberNamesText: ["제니", "로제", "지수", "리사"],
+//        depositorNameText: "이명진",
+//        addressText: "(06000) 서울시 강남구 압구정로 77",
+//        phoneText: "010-5555-6666",
+//        shippingText: "일반택배",
+//        totalPrice: 40000,
+//        depositState: .shipped
+//    )
+//
+//    /// 입금 확인중
+//    static let mockWaitPayCheck: ParticipantManageViewCell.Model = .init(
+//        memberNamesText: ["안유진"],
+//        depositorNameText: "이서현",
+//        addressText: "(04524) 서울시 중구 세종대로 110",
+//        phoneText: "010-1111-2222",
+//        shippingText: "준등기",
+//        totalPrice: 15000,
+//        depositState: .waitPayCheck
+//    )
+//
+//    /// 입금 완료
+//    static let mockPaid: ParticipantManageViewCell.Model = .init(
+//        memberNamesText: ["장원영", "레이"],
+//        depositorNameText: "김민지",
+//        addressText: "(06236) 서울시 강남구 테헤란로 152",
+//        phoneText: "010-3333-4444",
+//        shippingText: "일반택배",
+//        totalPrice: 28000,
+//        depositState: .paid
+//    )
+//
+//    /// 배송 시작
+//    static let mockStartShip: ParticipantManageViewCell.Model = .init(
+//        memberNamesText: ["카리나", "윈터", "지젤"],
+//        depositorNameText: "박지은",
+//        addressText: "(04147) 서울시 마포구 양화로 45",
+//        phoneText: "010-7777-8888",
+//        shippingText: "CJ대한통운",
+//        totalPrice: 36000,
+//        depositState: .paid
+//    )
+//
+//    /// 배송 완료
+//    static let mockCompleted: ParticipantManageViewCell.Model = .init(
+//        memberNamesText: ["민지", "하니", "다니엘", "해린", "혜인"],
+//        depositorNameText: "정수진",
+//        addressText: "(03027) 서울시 종로구 사직로 161",
+//        phoneText: "010-9999-0000",
+//        shippingText: "우체국택배",
+//        totalPrice: 52000,
+//        depositState: .paid
+//    )
+//
+//    /// Preview / 기본 사용용
+//    static let mock: ParticipantManageViewCell.Model = mockStartShip
+//}

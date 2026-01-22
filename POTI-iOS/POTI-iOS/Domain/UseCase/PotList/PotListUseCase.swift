@@ -6,17 +6,18 @@
 //
 
 protocol PotListUseCase {
-    func execute() async throws -> PotListEntity
+    func execute(title: String, artistId: Int, memberIds: [Int]?, sort: String, page: Int) async throws -> PotListEntity
 }
 
 final class DefaultPotListUseCase: PotListUseCase {
+    
     private let repository: PotListInterface
 
     init(repository: PotListInterface) {
         self.repository = repository
     }
-
-    func execute() async throws -> PotListEntity {
-        return try await repository.fetchPotListData()
+    
+    func execute(title: String, artistId: Int, memberIds: [Int]?, sort: String, page: Int) async throws -> PotListEntity {
+            return try await repository.fetchPotListData(title: title, artistId: artistId, memberIds: memberIds, sort: sort, page: page)
     }
 }

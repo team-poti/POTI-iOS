@@ -28,13 +28,15 @@ struct GoodsListEntity {
 struct GroupItem {
     let title: String
     let artist: String
+    let artistId: Int
     let postImage: String?
     let postCount: Int
     let tag: String
     
-    init(title: String, artist: String, postImage: String?, postCount: Int, tag: String) {
+    init(title: String, artist: String, artistId: Int, postImage: String?, postCount: Int, tag: String) {
         self.title = title
         self.artist = artist
+        self.artistId = artistId
         self.postImage = postImage
         self.postCount = postCount
         self.tag = tag
@@ -44,6 +46,7 @@ struct GroupItem {
         GroupItemModel(
             title: title,
             artist: artist,
+            artistId: artistId,
             postImage: postImage,
             postCount: postCount,
             tag: tag

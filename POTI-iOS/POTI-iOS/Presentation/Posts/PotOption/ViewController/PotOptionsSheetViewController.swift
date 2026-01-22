@@ -2,7 +2,7 @@
 //  PotOptionsSheetViewController.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/19/26.
+//  Created by mandoo on 1/23/26.
 //
 
 import UIKit
@@ -18,6 +18,7 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
     private let rootView = OptionView()
     private var currentDropdown: AccordionDropdownView?
     private var deliveryInfoView: SelectedInfoView?
+    var onContinue: ((_ shippingId: Int,_ orderItems: [OrderOptionItem]) -> Void)?
     
     // MARK: - Life Cycles
     
@@ -88,6 +89,7 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
         
         content.memberButton.addTarget(self, action: #selector(toggleMember), for: .touchUpInside)
         content.deliveryButton.addTarget(self, action: #selector(toggleDelivery), for: .touchUpInside)
+        content.bottomButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         
         rootView.closeButton.addTarget(self, action: #selector(dismissSheet), for: .touchUpInside)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissSheet))
@@ -177,6 +179,18 @@ private extension PotOptionsSheetViewController {
             }
         }
     }
+    
+    @objc private func continueButtonTapped() {
+        guard
+            let shippingId = viewModel.selectedShippingId()
+        else { return }
+        
+        let orderItems = viewModel.makeOrderItems()
+        
+        dismiss(animated: false) { [weak self] in
+            self?.onContinue?(shippingId, orderItems)
+        }
+    }
 }
 
 // MARK: - Sheet & Dropdown
@@ -241,3 +255,4 @@ private extension PotOptionsSheetViewController {
         handleDropdown(anchor: rootView.contentView.deliveryButton, isMember: false)
     }
 }
+

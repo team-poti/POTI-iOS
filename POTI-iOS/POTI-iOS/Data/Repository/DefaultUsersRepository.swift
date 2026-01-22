@@ -30,4 +30,12 @@ final class DefaultUsersRepository: UsersInterface {
         )
         return result.toEntity()
     }
+    
+    func getMyPageInformation() async throws -> MyPageEntity {
+        let result = try await networkService.request(
+            target: UsersAPI.getMyPageInformation,
+            type: MyPageResponseDTO.self
+        )
+        return result.toEntity()
+    }
 }

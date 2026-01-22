@@ -5,6 +5,11 @@
 //  Created by neon on 1/16/26.
 //
 
+import UIKit
+
+import Combine
+import SnapKit
+import Then
 
 final class MyPageViewController: BaseViewController<MyPageViewModel>, NavigationConfigurable {
     
@@ -22,6 +27,22 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         super.viewDidLoad()
         
         viewModel.action(.viewDidLoad)
+    }
+    
+    override func bindViewModel() {
+        viewModel.output.myPage
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] model in
+                self?.rootView.configure(with: model)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.error
+            .receive(on: DispatchQueue.main)
+            .sink { message in
+                print(message)
+            }
+            .store(in: &cancellables)
     }
     
     override func addTarget() {

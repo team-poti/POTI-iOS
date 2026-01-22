@@ -18,12 +18,15 @@ protocol ViewControllerFactory {
     func makeValidNicknameViewController(viewModel: OnboardingViewModel) -> ValidNicknameViewController
     func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController
-    func makeParticipantManageViewController() -> ParticipantListTableViewController
+    func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
-    func makePotListViewController() -> PotListViewController
+    func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistSearchViewController() -> ArtistSearchViewController
     func makeProductRegisterViewController() -> ProductRegisterViewController
     func makeArtistsViewModel() -> ArtistsViewModel
+    func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
+    func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -57,19 +60,18 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController {
-        GoodsListViewController(viewModel: diContainer.makeGoodsListViewModel(sectionType: sectionType, artistId: artistId, nickname: nickname)
-        )
+        GoodsListViewController(viewModel: diContainer.makeGoodsListViewModel(sectionType: sectionType, artistId: artistId, nickname: nickname), factory: self)
     }
     
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
-            viewModel: MyPageViewModel()
+            viewModel: diContainer.makeMyPageViewModel()
         )
     }
     
     func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController {
         PotOptionsSheetViewController(
-            viewModel: diContainer.makePotOptionsSheetViewModel(postId: postId)
+            viewModel: diContainer.makePotOptionsViewModel(postId: postId)
         )
     }
     
@@ -77,8 +79,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel(postId: postId))
     }
     
-    func makeParticipantManageViewController() -> ParticipantListTableViewController {
-        ParticipantListTableViewController(viewModel: diContainer.makeManageViewModel())
+    func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController {
+        ParticipantListTableViewController(viewModel: diContainer.makeManageViewModel(postId: postId))
     }
     
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController {
@@ -87,7 +89,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makePotDetailViewController(postId: Int) -> PotDetailViewController {
         PotDetailViewController(
-            viewModel: diContainer.makePotDetailViewModel(postId: postId)
+            viewModel: diContainer.makePotDetailViewModel(postId: postId), factory: self
         )
     }
     
@@ -105,10 +107,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         SelectFavoriteIdolGroupViewController(viewModel: viewModel, factory: self)
     }
     
-    func makePotListViewController() -> PotListViewController {
-        PotListViewController(
-            viewModel: diContainer.makePotListViewModel()
-        )
+    func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController {
+        let viewModel = diContainer.makePotListViewModel(title: title, artistId: artistId, artistName: artistName)
+        return PotListViewController(viewModel: viewModel, factory: self)
     }
     
     func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewController {
@@ -136,6 +137,16 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeArtistsViewModel() -> ArtistsViewModel {
-        diContainer.makeArtistsViewModel()
+        return diContainer.makeArtistsViewModel(artistId: <#Int#>, selectedIds: <#[Int]#>)
+    }
+    
+    func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet {
+        let viewModel = diContainer.makeArtistsViewModel(artistId: artistId, selectedIds: selectedIds)
+        return ArtistsBottomSheet(viewModel: viewModel)
+    }
+    
+    func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet {
+        let viewModel = SortViewModel(type: type, initialIndex: initialIndex)
+        return SortBottomSheet(viewModel: viewModel)
     }
 }

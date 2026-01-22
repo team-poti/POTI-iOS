@@ -7,12 +7,15 @@
 
 import UIKit
 
+import SnapKit
+import Then
+
 final class DetailSubContentFooterView: UICollectionReusableView {
     
     // MARK: - UI Components
     
     private let grayLineView = UIView()
-    private let subContentLabel = UILabel()
+    private let noticeView = joinNoticeView()
     
     // MARK: - Initializer
     
@@ -34,17 +37,10 @@ final class DetailSubContentFooterView: UICollectionReusableView {
         grayLineView.do {
             $0.backgroundColor = .gray100
         }
-        
-        subContentLabel.do {
-            $0.text = "구매자한테 안내해야 되는 내용...어쩌꾸 저쩌꾸 어ㅓ어아어ㅏㅓㅏㅏㅏㅇ우우우우우"
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
-            $0.numberOfLines = 0
-        }
     }
     
     private func setUI() {
-        addSubviews(grayLineView, subContentLabel)
+        addSubviews(grayLineView, noticeView)
     }
     
     private func setLayout() {
@@ -54,10 +50,10 @@ final class DetailSubContentFooterView: UICollectionReusableView {
             $0.height.equalTo(8)
         }
         
-        subContentLabel.snp.makeConstraints {
+        noticeView.snp.makeConstraints {
             $0.top.equalTo(grayLineView.snp.bottom).offset(16)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalToSuperview().inset(56)
+            $0.bottom.equalToSuperview().inset(60)
         }
     }
 }
