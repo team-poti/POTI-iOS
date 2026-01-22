@@ -20,12 +20,14 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     // MARK: - UI
     
     private let tableView = UITableView()
+    private var lastSectionCount: Int = 0
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
+        lastSectionCount = viewModel.participants.count
     }
     
     override func setUI() {
@@ -50,7 +52,9 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         viewModel.output.fetchData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                self?.tableView.reloadData()
+                guard let self else { return }
+                self.lastSectionCount = self.viewModel.participants.count
+                self.tableView.reloadData()
             }
             .store(in: &cancellables)
         
@@ -114,16 +118,28 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     // MARK: - Action
     
     private func toggleParticipantSection(_ section: Int) {
+        let currentCount = viewModel.participants.count
+        guard currentCount == lastSectionCount, section < currentCount else {
+            lastSectionCount = currentCount
+
+            CATransaction.begin()
+            CATransaction.setAnimationDuration(0.25)
+            CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .linear))
+            tableView.reloadData()
+            CATransaction.commit()
+            return
+        }
+
         let indexPath = IndexPath(row: 0, section: section)
-        
+
         CATransaction.begin()
         CATransaction.setAnimationDuration(0.25)
         CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .linear))
-        
+
         tableView.performBatchUpdates({
             tableView.reloadRows(at: [indexPath], with: .automatic)
         }, completion: nil)
-        
+
         CATransaction.commit()
     }
     
