@@ -6,5 +6,5 @@
 //
 
 protocol PaymentsInterface {
-    func patchPaymentConfirm(orderId: Int) async throws -> PaymentsConfirmDTO
+    func patchPaymentConfirm(orderId: Int) async throws -> RecruitPaymentsConfirmDTO
 }

@@ -6,7 +6,7 @@
 //
 
 protocol PaymentsUseCase {
-    func execute(orderId: Int) async throws -> PaymentsConfirmDTO
+    func execute(orderId: Int) async throws -> RecruitPaymentsConfirmDTO
 }
 
 final class DefaultPaymentsUseCase: PaymentsUseCase {
@@ -17,7 +17,7 @@ final class DefaultPaymentsUseCase: PaymentsUseCase {
         self.repository = repository
     }
     
-    func execute(orderId: Int) async throws -> PaymentsConfirmDTO {
+    func execute(orderId: Int) async throws -> RecruitPaymentsConfirmDTO {
         return try await repository.patchPaymentConfirm(orderId: orderId)
     }
 }

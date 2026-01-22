@@ -12,11 +12,11 @@ final class DefaultPaymentsRepository: PaymentsInterface {
         self.networkService = networkService
     }
     
-    func patchPaymentConfirm(orderId: Int) async throws -> PaymentsConfirmDTO {
+    func patchPaymentConfirm(orderId: Int) async throws -> RecruitPaymentsConfirmDTO {
         let response = try await networkService.request(
             target: PaymentsAPI.patchPaymentConfirm(
                 orderId: orderId),
-            type: PaymentsConfirmDTO.self
+            type: RecruitPaymentsConfirmDTO.self
         )
         return response
     }
