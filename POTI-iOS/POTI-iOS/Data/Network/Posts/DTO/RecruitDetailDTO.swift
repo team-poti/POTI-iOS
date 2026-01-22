@@ -59,7 +59,7 @@ extension RecruitParticipantDTO {
             orderId: orderId,
             userId: userId,
             memberNames: memberNames,
-            status: ParticipantOrderStatus(rawValue: status) ?? .waitPay,
+            status: ParticipantStatus(rawValue: status) ?? .recruiting,
             priceInfo: priceInfo.toEntity(),
             shippingInfo: shippingInfo.toEntity()
         )

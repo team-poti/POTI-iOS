@@ -7,5 +7,5 @@
 
 struct ProgressStatusModel {
     let role: UserRole
-    let status: ParticipantOrderStatus
+    let status: ParticipantStatus
 }

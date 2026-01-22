@@ -10,7 +10,7 @@ struct ParticipantManageModel: Hashable {
     let profileImage: String // 프로필 이미지
     let nickname: String // 닉네임
     let memberTitle: [String]
-    let participantstatus: ParticipantOrderStatus // 상태 (입금 확인 중 , 배송 완료..)
+    let participantstatus: ParticipantStatus // 상태 (입금 확인 중 , 배송 완료..)
     let memberRows: [MemberRow]
     let shippingText: String // 준등기
     let shippingPrice: Int // 1500
@@ -70,7 +70,13 @@ extension ParticipantManageModel {
 }
 
 
-extension ParticipantEntity {
+extension ManageEntity {
+    func toParticipantManageModels() -> [ParticipantManageModel] {
+        participants.map { $0.toParticipantManageModel() }
+    }
+}
+
+extension ManageParticipantEntity {
     func toParticipantManageModel() -> ParticipantManageModel {
         let memberRows: [ParticipantManageModel.MemberRow] = priceInfo.memberPerPrices.map {
             .init(name: $0.name, price: $0.price)

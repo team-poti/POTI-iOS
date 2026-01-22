@@ -108,12 +108,12 @@ extension PotStatus {
     }
 }
 
-extension ParticipantOrderStatus {
-    static func from(participantStatus: MyPageJoinModel.PostStatus) -> ParticipantOrderStatus {
+extension ParticipantStatus {
+    static func from(participantStatus: MyPageJoinModel.PostStatus) -> ParticipantStatus {
         switch participantStatus {
             
         case .recruiting:
-            return .waitPay
+            return .recruiting
         case .recruitCompleted:
             return .waitPayCheck
         case .depositCompleted:

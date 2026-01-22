@@ -150,17 +150,17 @@ extension MyPageJoinModel {
         }
     }
 }
-
-extension MyPageJoinModel {
-    var participantManageCellModel: ParticipantManageViewCell.Model {
-        .init(
-            memberNamesText: memberPayments.map { $0.memberName },
-            depositorNameText: shippingInfo.receiver,
-            addressText: shippingInfo.address,
-            phoneText: shippingInfo.phone,
-            shippingText: shippingInfo.shippingMethod,
-            totalPrice: paymentInfo.totalAmount,
-            depositState: ParticipantOrderStatus.from(postStatus: postStatus)
-        )
-    }
-}
+//
+//extension MyPageJoinModel {
+//    var participantManageCellModel: ParticipantManageViewCell.Model {
+//        .init(
+//            memberNamesText: memberPayments.map { $0.memberName },
+//            depositorNameText: shippingInfo.receiver,
+//            addressText: shippingInfo.address,
+//            phoneText: shippingInfo.phone,
+//            shippingText: shippingInfo.shippingMethod,
+//            totalPrice: paymentInfo.totalAmount,
+//            depositState: ParticipantOrderStatus.from(postStatus: postStatus)
+//        )
+//    }
+//}
