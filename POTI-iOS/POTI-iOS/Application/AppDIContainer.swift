@@ -36,6 +36,10 @@ final class AppDIContainer {
         )
     }
     
+    private func makeImageUploadService() -> ImageUploadService {
+        DefaultImageUploadService(networkService: makeNetworkService())
+    }
+    
     // MARK: - Repository
     
     @MainActor private func makeAuthRepository() -> AuthInterface {
@@ -76,6 +80,10 @@ final class AppDIContainer {
     
     private func makeUsersRepository() -> UsersInterface {
         DefaultUsersRepository(networkService: makeNetworkService())
+    }
+    
+    private func makeImagesRepository() -> ImagesInterface {
+        DefaultImagesRepository(imageUploadService: makeImageUploadService())
     }
     
     private func makePotsSaleRepository() -> PostsInterface {

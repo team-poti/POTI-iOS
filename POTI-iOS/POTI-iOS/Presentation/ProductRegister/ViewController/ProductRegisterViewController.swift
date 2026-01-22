@@ -12,6 +12,11 @@ import PhotosUI
 
 final class ProductRegisterViewController: BaseViewController<ProductRegisterViewModel>, NavigationConfigurable {
     
+    // MARK: - Keyboard
+    
+    private weak var currentFocusedInputView: UIView?
+    private var isKeyboardShown = false
+    private var lastKeyboardHeight: CGFloat = 0
     func navigationStyle() -> PotiNavigationStyle {
         .xButton
     }
@@ -44,6 +49,8 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         super.viewWillAppear(animated)
+        view.endEditing(true)
+        registerInfoView.clearAllFocus()
         if let tabBarController = self.tabBarController as? PotiTabBar {
             tabBarController.tabBar.isHidden = true
         }
@@ -59,6 +66,19 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     // MARK: - UI Setting
     
     override func setUI() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+        
         noticeView.configure(
             title: "모집자 안내 사항",
             bodyTexts: [
@@ -75,17 +95,118 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         
         registerInfoView.onTapDeadlineField = { [weak self] in
             guard let self else { return }
+
+            self.registerInfoView.clearAllFocus()
             self.registerInfoView.deadlineField.setFocused(true)
+
+            let estimatedSheetHeight: CGFloat = 465
+            self.scrollIfNeeded(
+                for: self.registerInfoView.deadlineField,
+                coveredHeight: estimatedSheetHeight
+            )
+
             self.presentDeadlineBottomSheet()
         }
         
         registerMemberView?.onMembersChanged = { [weak self] members in
             self?.viewModel.action(.setMembers(members))
         }
+
+        registerInfoView.onTapArtistField = { [weak self] in
+            self?.pushArtistSearch()
+        }
+        
+        registerInfoView.onInputViewDidBeginEditing = { [weak self] inputView in
+            guard let self else { return }
+            self.currentFocusedInputView = inputView
+            print(type(of: inputView))
+
+            guard self.lastKeyboardHeight > 0 else { return }
+
+            self.scrollIfNeeded(
+                for: inputView,
+                coveredHeight: self.lastKeyboardHeight
+            )
+        }
     }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Keyboard Avoidance
+    
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard !isKeyboardShown else { return }
+        guard
+            let keyboardHeight = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height,
+            let inputView = currentFocusedInputView
+        else { return }
+
+        lastKeyboardHeight = keyboardHeight
+
+        scrollIfNeeded(
+            for: inputView,
+            coveredHeight: keyboardHeight
+        )
+
+        isKeyboardShown = true
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard isKeyboardShown else { return }
+        isKeyboardShown = false
+    }
+    
+    private func scrollIfNeeded(for inputView: UIView, coveredHeight: CGFloat) {
+        let inputFrame = inputView.convert(inputView.bounds, to: view)
+        let inputBottomY = inputFrame.maxY
+
+        let isSearchField = inputView is CustomSearchField
+
+        let dropdownHeight: CGFloat = isSearchField ? 168 : 0
+        rootView.contentScrollView.contentInset.bottom = dropdownHeight
+
+        let visibleHeight = view.frame.height - coveredHeight
+
+        let baseOffset: CGFloat
+        if inputBottomY > visibleHeight {
+            baseOffset = inputBottomY - visibleHeight + 30
+        } else {
+            baseOffset = 0
+        }
+
+        let totalOffset = baseOffset + dropdownHeight
+        guard totalOffset > 0 else { return }
+
+        let maxOffsetY = max(
+            0,
+            rootView.contentScrollView.contentSize.height
+            - rootView.contentScrollView.bounds.height
+            + rootView.contentScrollView.contentInset.bottom
+        )
+
+        let targetOffsetY = min(
+            rootView.contentScrollView.contentOffset.y + totalOffset,
+            maxOffsetY
+        )
+
+        rootView.contentScrollView.setContentOffset(
+            CGPoint(x: 0, y: targetOffsetY),
+            animated: true
+        )
+    }
+
         
     // MARK: - Custom Method
-    
+
+    private func pushArtistSearch() {
+        let vm = ArtistSearchViewModel()
+        let vc = ArtistSearchViewController(viewModel: vm)
+
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
     override func bindViewModel() {
         viewModel.output.images
             .receive(on: RunLoop.main)
@@ -158,7 +279,41 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             }
             .store(in: &cancellables)
     }
-    
+
+    // MARK: - Navigation Action
+
+    override func navigationButtonTapped(_ sender: UIButton) {
+        guard let action = PotiNavigationAction(rawValue: sender.tag) else { return }
+
+        switch action {
+        case .xButton, .back:
+            showExitAlert(for: action)
+        default:
+            super.navigationButtonTapped(sender)
+        }
+    }
+
+    private func showExitAlert(for action: PotiNavigationAction) {
+        let alert = CustomAlertView(
+            title: "지금 나가면 내용이 저장되지 않아요",
+            message: "계속 작성할까요?",
+            cancelTitle: "나가기",
+            confirmTitle: "계속 작성하기",
+            onLeftButton: { [weak self] in
+                guard let self else { return }
+
+                if self.navigationController == nil {
+                    self.dismiss(animated: true)
+                } else {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            },
+            onRightButton: {
+            }
+        )
+        alert.show(on: view)
+    }
+
     // MARK: - Action Method
     
     override func addTarget() {
@@ -178,7 +333,15 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         
         let memberPrices = registerMemberView?.collectPrices() ?? [:]
         let draft = registerInfoView.collectDraft()
-        viewModel.action(.submit(info: draft, memberPrices: memberPrices))
+        let shippings = rootView.registerShippingView.collectSelectedShippings()
+
+        viewModel.action(
+            .submit(
+                info: draft,
+                memberPrices: memberPrices,
+                shippings: shippings
+            )
+        )
     }
     
     // MARK: - Custom Method
