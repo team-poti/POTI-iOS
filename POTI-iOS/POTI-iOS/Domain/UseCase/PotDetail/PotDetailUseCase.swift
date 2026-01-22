@@ -6,7 +6,7 @@
 //
 
 protocol PotDetailUseCase {
-    func execute() async throws -> PotDetailEntity
+    func execute(postId: Int) async throws -> PotDetailEntity
 }
 
 final class DefaultPotDetailUseCase: PotDetailUseCase {
@@ -17,8 +17,8 @@ final class DefaultPotDetailUseCase: PotDetailUseCase {
         self.repository = repository
     }
     
-    func execute() async throws -> PotDetailEntity {
-        return try await repository.fetchPotDetail()
+    func execute(postId: Int) async throws -> PotDetailEntity {
+        return try await repository.fetchPotDetail(postId: postId)
     }
 }
 

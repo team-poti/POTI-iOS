@@ -84,8 +84,20 @@ extension GoodsListHeaderCell {
     func configure(text: String, isFilterVisible: Bool) {
         filterButton.setTitle(text, for: .normal)
         filterButton.isHidden = !isFilterVisible
+        
+        filterButton.snp.remakeConstraints {
+            if isFilterVisible {
+                $0.top.equalToSuperview()
+                $0.trailing.equalToSuperview()
+                $0.height.equalTo(32)
+            } else {
+                $0.top.equalToSuperview().inset(-30)
+                $0.height.equalTo(0)
+                $0.trailing.equalToSuperview()
+            }
+        }
     }
-
+    
     func setFilterButtonState(isSelected: Bool) {
         filterButton.isSelected = isSelected
     }

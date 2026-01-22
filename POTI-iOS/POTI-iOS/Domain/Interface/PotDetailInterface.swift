@@ -6,5 +6,5 @@
 //
 
 protocol PotDetailInterface {
-    func fetchPotDetail() async throws -> PotDetailEntity
+    func fetchPotDetail(postId: Int) async throws -> PotDetailEntity
 }

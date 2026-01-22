@@ -63,7 +63,7 @@ final class AppDIContainer {
     }
     
     private func makePotDetailRepository() -> PotDetailInterface {
-        DefaultPotDetailRepository()
+        DefaultPotDetailRepository(networkService: makeNetworkService())
     }
     
     private func makeManageRepository() -> PostsInterface {
@@ -71,7 +71,7 @@ final class AppDIContainer {
     }
     
     private func makePotListRepository() -> PotListInterface {
-        DefaultPotListRepository()
+        DefaultPotListRepository(networkService: makeNetworkService())
     }
     
     private func makeArtistsRepository() -> ArtistsInterface {
@@ -208,7 +208,7 @@ final class AppDIContainer {
         PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems)
     }
     
-    func makePotOptionsSheetViewModel(postId: Int) -> PotOptionsViewModel {
+    func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
     
@@ -233,12 +233,12 @@ final class AppDIContainer {
         MyPageJoinViewModel()
     }
     
-    func makePotListViewModel() -> PotListViewModel {
-        PotListViewModel(useCase: makePotListUseCase())
+    func makePotListViewModel(title: String, artistId: Int, artistName: String) -> PotListViewModel {
+        return PotListViewModel(useCase: makePotListUseCase(),title: title,artistId: artistId, artistName: artistName)
     }
     
-    func makeArtistsViewModel() -> ArtistsViewModel {
-        ArtistsViewModel(useCase: makeArtistsUseCase())
+    func makeArtistsViewModel(artistId: Int, selectedIds: [Int]) -> ArtistsViewModel {
+        return ArtistsViewModel(useCase: makeArtistsUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
     
     func makeOnboardingViewModel() -> OnboardingViewModel {

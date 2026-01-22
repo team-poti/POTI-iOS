@@ -145,7 +145,7 @@ final class AccordionDropdownView: BaseView {
         let finalHeight = min(totalContentHeight, maxHeight)
         tableView.isScrollEnabled = totalContentHeight > maxHeight
         
-        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseOut, .allowUserInteraction]) { 
+        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseOut, .allowUserInteraction]) {
             self.alpha = 1
             self.whiteLayerView.alpha = 1
             self.heightConstraint?.update(offset: finalHeight)
@@ -193,7 +193,7 @@ extension AccordionDropdownView: UITableViewDataSource, UITableViewDelegate {
         }
         
         let priceLabel = UILabel().then {
-            $0.text = item.price == 0 ? "0원" : "\(item.price.formattedWithSeparator())원"
+            $0.text = item.price == 0 ? "0원" : "\(item.price.formattedWithComma)원"
             $0.font = PotiFontManager.body14sb.font
             $0.textColor = isDisabled ? .gray700 : .potiBlack
         }

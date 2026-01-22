@@ -96,20 +96,39 @@ final class PotOptionsViewModel: BaseViewModelType {
         }
     }
     
+    func makeOrderItems() -> [OrderOptionItem] {
+        return members.compactMap { member -> OrderOptionItem? in
+            guard let price = selectedMembers[member.memberName] else { return nil }
+
+            return OrderOptionItem(
+                optionId: member.memberOptionId,
+                count: price
+            )
+        }
+    }
+    
+    func selectedShippingId() -> Int? {
+        guard let selected = selectedDelivery else { return nil }
+        return shippings.first { $0.deliveryName == selected.name }?.deliveryOptionId
+    }
+    
     // MARK: - Private Methods
     
     private func fetchPotOptionsData() {
         Task {
             do {
                 let options = try await useCase.execute(postId: self.postId)
+                
                 self.members = options.members.map {
                     MemberModel(memberOptionId: $0.id, memberName: $0.name, memberOptionPrice: $0.price)
                 }
                 self.shippings = options.shippings.map {
                     ShippingModel(deliveryOptionId: $0.id, deliveryName: $0.name, deliveryOptionPrice: $0.price)
                 }
+                print("Successfully loaded \(members.count) members and \(shippings.count) shipping options.")
+                
             } catch {
-                print("Error: \(error)")
+                print("PotOptions 로드 실패: \(error)")
             }
         }
     }
@@ -123,7 +142,7 @@ final class PotOptionsViewModel: BaseViewModelType {
         selectedMembers[member.memberName] = member.memberOptionPrice
         selectedMemberNames.insert(member.memberName)
         
-        let priceText = member.memberOptionPrice == 0 ? "0원" : "\(member.memberOptionPrice.formattedWithSeparator())원"
+        let priceText = member.memberOptionPrice == 0 ? "0원" : "\(member.memberOptionPrice.formattedWithComma)원"
         memberAddedSubject.send((member.memberName, priceText, member.memberOptionPrice))
         updateTotalState()
     }
@@ -133,7 +152,7 @@ final class PotOptionsViewModel: BaseViewModelType {
         let shipping = shippings[index]
         selectedDelivery = (shipping.deliveryName, shipping.deliveryOptionPrice)
         
-        let priceText = "\(shipping.deliveryOptionPrice.formattedWithSeparator())원"
+        let priceText = "\(shipping.deliveryOptionPrice.formattedWithComma)원"
         deliveryUpdatedSubject.send((shipping.deliveryName, priceText, shipping.deliveryOptionPrice))
         updateTotalState()
     }
@@ -151,7 +170,7 @@ final class PotOptionsViewModel: BaseViewModelType {
     }
     
     private func updateTotalState() {
-        totalPriceSubject.send("\(currentTotalAmount.formattedWithSeparator())원")
+        totalPriceSubject.send("\(currentTotalAmount.formattedWithComma)원")
         let isValid = !selectedMembers.isEmpty && selectedDelivery != nil
         isBottomButtonEnabledSubject.send(isValid)
     }
@@ -176,13 +195,5 @@ extension PotOptionsViewModel {
             }
         }
         return indices
-    }
-}
-
-extension Int {
-    func formattedWithSeparator() -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
     }
 }
