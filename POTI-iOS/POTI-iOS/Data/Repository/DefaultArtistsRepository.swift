@@ -20,4 +20,12 @@ final class DefaultArtistsRepository: ArtistsInterface {
         )
         return response.members.map { $0.toEntity() }
     }
+    
+    func fetchOnboardingArtists() async throws -> OnboardingArtistsEntity {
+        let result = try await networkService.request(
+            target: ArtistsAPI.fetchOnboardingArtistsList,
+            type: OnboardingArtistsResponseDTO.self
+        )
+        return result.toEntity()
+    }
 }

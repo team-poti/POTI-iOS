@@ -14,7 +14,7 @@ final class ValidNicknameView: BaseView {
     
     private let progressBar = UIImageView()
     private let descriptionLabel = UILabel()
-    private let validTextField = CustomTextField.count(placeholder: "닉네임을 입력해주세요", max: 10)
+    let validTextField = CustomTextField.count(placeholder: "닉네임을 입력해주세요", max: 10)
     let nextButton = PotiBottomButton()
     
     override func setStyle() {

@@ -113,15 +113,15 @@ extension ParticipantStatus {
         switch participantStatus {
             
         case .recruiting:
-            return .waitRecruit
+            return .waitPay
         case .recruitCompleted:
             return .waitPayCheck
         case .depositCompleted:
             return .paid
         case .shipping:
-            return .startShip
+            return .shipped
         case .completed:
-            return .completed
+            return .delivered
         }
     }
 }

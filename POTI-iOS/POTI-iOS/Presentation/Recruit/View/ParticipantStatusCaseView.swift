@@ -91,11 +91,11 @@ extension ParticipantStatusCaseView {
         var buttonTitle: String = ""
         
         switch status {
-        case .waitPay, .waitRecruit:
+        case .waitPay, .waitPayCheck:
             self.isHidden = true
             return
             
-        case .waitPayCheck:
+        case .paid:
             self.isHidden = false
             items = [
                 (title: "입금 정보",
@@ -106,7 +106,7 @@ extension ParticipantStatusCaseView {
             ]
             buttonTitle = "입금 확인"
             
-        case .paid:
+        case .ready:
             self.isHidden = false
             items = [
                 (title: "이름", infos: [model.paidInfo?.depositorName ?? ""]),
@@ -115,7 +115,7 @@ extension ParticipantStatusCaseView {
             ]
             buttonTitle = "송장 번호 입력"
             
-        case .startShip:
+        case .shipped:
             self.isHidden = false
             items = [
                 (title: "이름", infos: [model.shipInfo?.receiverName ?? ""]),
@@ -124,7 +124,7 @@ extension ParticipantStatusCaseView {
                 (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
             ]
             
-        case .completed:
+        case .delivered:
             self.isHidden = false
             items = [
                 (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])

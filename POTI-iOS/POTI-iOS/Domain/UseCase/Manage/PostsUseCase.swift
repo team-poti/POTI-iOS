@@ -5,12 +5,12 @@
 //  Created by 이서현 on 1/18/26.
 //
 
-protocol PostsUseCase {
+protocol PostsParticipantsUseCase {
     func execute(postId: Int) async throws -> ManageEntity
     //func confirmDeposit(purchaseId: Int) async throws
 }
 
-final class DefaultManageUseCase: PostsUseCase {
+final class DefaultManageUseCase: PostsParticipantsUseCase {
     
     private let repository: PostsInterface
     
