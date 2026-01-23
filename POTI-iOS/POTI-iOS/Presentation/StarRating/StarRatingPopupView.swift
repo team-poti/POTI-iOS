@@ -370,9 +370,9 @@ final class StarRatingPopupView: BaseView {
         }
     }
     
-    func configure(nickname: String, avgRating: Int) {
+    func configure(nickname: String, avgRating: Double) {
         nicknameLabel.text = nickname
-        avgRatingLabel.text = String(avgRating)
+        avgRatingLabel.text = String(format: "%.1f", avgRating)
     }
     
     private func dismiss() {

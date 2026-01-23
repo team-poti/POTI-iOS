@@ -35,6 +35,17 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     
     // MARK: - Lifecycle
     
+    private let factory: ViewControllerFactory
+    
+    init(viewModel: MyPageJoinViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+        
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
@@ -173,7 +184,8 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private func completeButtonTapped() {
-        let orderId = 1100
+        guard let participantId = viewModel.joinModel?.participationId else { return }
+        
         let alert = CustomAlertView(
             title: "잠깐! 정말 상품을 수령했나요?",
             message: "거래가 종료되면 되돌릴 수 없어요",
@@ -188,16 +200,26 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
                 guard let yourPageModel = self.viewModel.yourPageModel else { return }
                 let nickname = yourPageModel.nickname
                 let avgRating = yourPageModel.ratingAverage
+                
+                let reviewUseCase = self.factory.makeReviewUseCase()
+                
                 let starRating = StarRatingPopupView(
+                    reviewUseCase: reviewUseCase,
+                    transactionId: participantId,
                     onCompleteButton: { [weak self] rating in
                         guard let self else { return }
-                        self.viewModel.action(.completeReview(transactionId: orderId, rating: Int(rating)))
+                        // 리뷰 완료 후 배송 완료 처리
+                        self.viewModel.action(.completeDelivery(participantId: participantId))
                     },
                     onSkipButton: { [weak self] in
                         guard let self else { return }
-                        self.viewModel.action(.completeDelivery(participantId: orderId))
+                        // 리뷰 건너뛰고 배송 완료 처리
+                        self.viewModel.action(.completeDelivery(participantId: participantId))
                     }
                 )
+                
+                // ⭐️ 상대방 정보 설정
+                starRating.configure(nickname: nickname, avgRating: avgRating)
                 starRating.show(on: self.navigationController?.view ?? self.view)
             }
         )
