@@ -1,12 +1,33 @@
 # <img width="65"  alt="image" src="https://github.com/user-attachments/assets/93b363a1-509e-4930-80c8-5a436bac6269" /> 포티
 > 복잡한 분철 과정을 한눈에 정리하고, 믿을 수 있는 거래로 자연스럽게 이어주는 플랫폼
 
+<img width="196" height="196" alt="image" src="https://github.com/user-attachments/assets/49ada386-4136-423e-92b8-fe785d0f6b45" />
+
+
+### `분철 과정을 한눈에 정리하고,믿을 수 있는 거래로 이어주는 앱`
+
+</br>
+
+### 팀원 구성원 및 역할 분배
+
+| 김나연(Lead) | 로그인, 마이페이지, 모집/참여 내역 |
+| --- | --- |
+| 김수민 | 홈, 굿즈별 페이지, 분철팟 상세,  참여자 정보 |
+| 박정환 | 등록페이지, 아티스트 검색 페이지, 멤버 편집 바텀시트 |
+| 이서현 | 모집/참여 상세 내역, 참여자 관리 페이지 |
+
+</br>
+
 
 ## 🍎 iOS Developer
+
 | **[김나연](https://github.com/Yeonnies)** | **[김수민](https://github.com/gleamminn)** | **[박정환](https://github.com/Jhw9n)** | **[이서현](https://github.com/doitexactly)** |
 | :---: | :---: | :---: | :---: |
-| <img src="https://github.com/Yeonnies.png" width="170" alt=""> | <img src="https://github.com/gleamminn.png" width="170" alt=""> | <img src="https://github.com/Jhw9n.png" width="170" alt=""> | <img src="https://github.com/doitexactly.png" width="170" alt=""> |
+| <img src="https://github.com/user-attachments/assets/81064d16-25b1-463f-9396-386f9f5adfe2" width="170" /> | <img src="https://github.com/user-attachments/assets/dba178d6-7b95-4e29-bda5-75659e147c50" width="170" /> | <img src="https://github.com/user-attachments/assets/372852a3-395e-4046-92da-da3fe5e82646" width="170" /> |  <img src="https://github.com/user-attachments/assets/2b9b7e50-0850-44f9-a6b0-4540c4c40f97" width="170" />|
 | `iOS Lead Developer` | `iOS Developer` | `iOS Developer` | `iOS Developer` |
+
+
+</br>
 
 
 ## 🛠️ Tech Stack & Library
@@ -70,6 +91,18 @@
   </tbody>
 </table>
 
+</br>
+
+## 주요 기능 소개
+
+`원하는 굿즈 분철팟 탐색하기` </br>
+`불필요한 소통없이 간편하게 분철 참여하기` </br>
+`분철팟 모집글 등록하기` </br>
+`분철 진행 상황 한눈에 관리하기` </br>
+
+</br>
+
+
 ## 📁 Foldering
 ```
 📁 Poti-iOS
@@ -114,6 +147,16 @@
 │   │   └── 📁 Fonts
 
 ```
+
+## 아키텍쳐 설계
+<img width="8610" height="2486" alt="image" src="https://github.com/user-attachments/assets/11c5dc93-795c-4379-99de-a28ee7928914" />
+
+</br>
+
+## 프로젝트 설계
+<img width="8610" height="2486" alt="IMG_9004 PNG" src="https://github.com/user-attachments/assets/d3d0dd94-df1a-4bf5-87dd-fedac841da21" />
+
+
 
 ## 📣 Convention
 ### Code Style
