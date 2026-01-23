@@ -10,7 +10,10 @@ import UIKit
 import Combine
 import PhotosUI
 
-final class ProductRegisterViewController: BaseViewController<ProductRegisterViewModel>, NavigationConfigurable {
+final class ProductRegisterViewController:
+    BaseViewController<ProductRegisterViewModel>,
+    NavigationConfigurable,
+    UIGestureRecognizerDelegate {
     
     // MARK: - Keyboard
     
@@ -24,6 +27,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     // MARK: - Properties
     
     private let rootView = ProductRegisterView()
+    private let rootBackgroundView = UIView()
     private let factory: ViewControllerFactory
     private let titleQuerySubject = PassthroughSubject<String, Never>()
     
@@ -60,7 +64,19 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     // MARK: - Life Cycle
     
     override func loadView() {
-        self.view = rootView
+        rootBackgroundView.backgroundColor = .systemBackground
+
+        rootBackgroundView.addSubview(rootView)
+        rootView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            rootView.topAnchor.constraint(equalTo: rootBackgroundView.topAnchor),
+            rootView.leadingAnchor.constraint(equalTo: rootBackgroundView.leadingAnchor),
+            rootView.trailingAnchor.constraint(equalTo: rootBackgroundView.trailingAnchor),
+            rootView.bottomAnchor.constraint(equalTo: rootBackgroundView.bottomAnchor)
+        ])
+
+        self.view = rootBackgroundView
     }
     
     private var isInputReady = false
@@ -199,7 +215,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
 
     // MARK: - UIGestureRecognizerDelegate
 
-    override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         var v: UIView? = touch.view
         while let view = v {
             if view is UIControl { return false }
