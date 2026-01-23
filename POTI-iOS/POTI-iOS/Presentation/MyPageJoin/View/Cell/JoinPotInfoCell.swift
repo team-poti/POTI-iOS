@@ -107,7 +107,7 @@ final class JoinPotInfoCell: UITableViewCell {
         }
         
         artistLabel.snp.makeConstraints {
-            $0.top.equalTo(thumbnailView).inset(4)
+            $0.top.equalTo(thumbnailView).inset(8)
             $0.leading.equalTo(thumbnailView.snp.trailing).offset(12)
         }
         
