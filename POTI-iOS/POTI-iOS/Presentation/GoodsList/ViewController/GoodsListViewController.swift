@@ -41,6 +41,8 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>, Nav
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        rootView.updateLayout(sectionType: viewModel.sectionType)
         viewModel.action(.viewDidLoad)
     }
     

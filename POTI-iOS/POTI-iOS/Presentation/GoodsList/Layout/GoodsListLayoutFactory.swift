@@ -8,9 +8,9 @@
 import UIKit
 
 struct GoodsListLayoutFactory {
-    static func createLayout() -> UICollectionViewCompositionalLayout {
+    static func createLayout(sectionType: HomeSection) -> UICollectionViewCompositionalLayout {
         return UICollectionViewCompositionalLayout { (_, _) -> NSCollectionLayoutSection? in
-                        let itemSize = NSCollectionLayoutSize(
+            let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
                 heightDimension: .fractionalHeight(1.0)
             )
@@ -25,19 +25,25 @@ struct GoodsListLayoutFactory {
             
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = 12
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: .dynamicH(88), trailing: 16)
             
-            let headerSize = NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(40) 
-            )
-            let header = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerSize,
-                elementKind: UICollectionView.elementKindSectionHeader,
-                alignment: .top
-            )
+            let topInset: CGFloat = (sectionType == .otherGroup) ? 12 : 0
             
-            section.boundarySupplementaryItems = [header]
+            section.contentInsets = NSDirectionalEdgeInsets(top: topInset, leading: 16, bottom: .dynamicH(88), trailing: 16)
+            
+            if sectionType != .otherGroup {
+                let headerSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .absolute(40)
+                )
+                let header = NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: headerSize,
+                    elementKind: UICollectionView.elementKindSectionHeader,
+                    alignment: .top
+                )
+                section.boundarySupplementaryItems = [header]
+            } else {
+                section.boundarySupplementaryItems = []
+            }
             return section
         }
     }
