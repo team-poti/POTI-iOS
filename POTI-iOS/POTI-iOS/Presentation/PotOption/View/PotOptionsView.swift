@@ -107,28 +107,31 @@ final class PotOptionsView: BaseView {
                 self?.removeMemberInfoView(name: name)
             }
             .store(in: &cancellables)
-            
+        
         viewModel.output.deliveryUpdated
             .receive(on: RunLoop.main)
             .sink { [weak self] data in
                 self?.updateDeliveryInfoView(name: data.name, priceText: data.priceText)
             }
             .store(in: &cancellables)
-            
+        
         viewModel.output.totalPrice
             .receive(on: RunLoop.main)
             .sink { [weak self] price in
                 self?.contentView.totalPriceNumberLabel.text = price
             }
             .store(in: &cancellables)
-            
+        
         viewModel.output.isBottomButtonEnabled
             .receive(on: RunLoop.main)
             .sink { [weak self] isEnabled in
-                self?.contentView.bottomButton.isDisabled = !isEnabled
+                guard let self = self else { return }
+                
+                self.contentView.bottomButton.isDisabled = !isEnabled
+                self.contentView.bottomButton.color = isEnabled ? .secondaryMain : .deactiveMain
             }
             .store(in: &cancellables)
-            
+        
         setActions()
     }
     
@@ -144,6 +147,8 @@ final class PotOptionsView: BaseView {
         UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
             self.alpha = 1
             self.containerView.transform = .identity
+        } completion: { _ in
+            self.toggleMember()
         }
     }
     
@@ -168,7 +173,7 @@ final class PotOptionsView: BaseView {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hide))
         backgroundView.addGestureRecognizer(tapGesture)
     }
-
+    
     @objc private func continueButtonTapped() {
         guard let shippingId = viewModel.selectedShippingId() else { return }
         
@@ -179,11 +184,11 @@ final class PotOptionsView: BaseView {
         onContinue?(shippingId, orderItems, selectedShippingInfo, selectedMemberInfos)
         hide()
     }
-
+    
     @objc private func toggleMember() {
         handleDropdown(anchor: contentView.memberButton, isMember: true)
     }
-
+    
     @objc private func toggleDelivery() {
         handleDropdown(anchor: contentView.deliveryButton, isMember: false)
     }
@@ -206,7 +211,7 @@ private extension PotOptionsView {
             }
         }
     }
-
+    
     func addMemberInfoView(name: String, priceText: String) {
         let infoView = SelectedInfoView(title: name, price: priceText, type: .Member)
         
@@ -218,7 +223,7 @@ private extension PotOptionsView {
         insertViewRespectingOrder(infoView)
         scrollToBottom()
     }
-
+    
     func removeMemberInfoView(name: String) {
         let stackView = contentView.selectedStackView
         stackView.arrangedSubviews.forEach { view in
@@ -227,7 +232,7 @@ private extension PotOptionsView {
             }
         }
     }
-
+    
     func updateDeliveryInfoView(name: String, priceText: String) {
         updateDeliveryButtonTitle(name)
         let stackView = contentView.selectedStackView
@@ -242,7 +247,7 @@ private extension PotOptionsView {
         
         scrollToBottom()
     }
-
+    
     func updateDeliveryButtonTitle(_ title: String?) {
         let isSelected = title != nil
         let displayTitle = title ?? "배송 방법을 선택하세요"
@@ -255,7 +260,7 @@ private extension PotOptionsView {
         ]))
         contentView.deliveryButton.configuration = config
     }
-
+    
     func scrollToBottom() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             guard let self = self else { return }
@@ -271,7 +276,7 @@ private extension PotOptionsView {
             }
         }
     }
-
+    
     func handleDropdown(anchor: UIButton, isMember: Bool) {
         if let current = currentDropdown {
             let isSame = current.anchorView == anchor
