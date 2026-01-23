@@ -35,8 +35,6 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
         updateCompleteButton()
-
-        // 🔄 최초 진입 시에도 navigationStyle 적용 강제 (기본값/초기 상태 반영)
         navigationController?.setNavigationBarHidden(true, animated: false)
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
