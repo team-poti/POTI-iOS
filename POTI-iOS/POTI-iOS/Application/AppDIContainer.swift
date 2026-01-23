@@ -222,6 +222,10 @@ final class AppDIContainer {
         DefaultReviewUseCase(repository: makeCreateReviewsRepository())
     }
     
+    @MainActor private func makeWithdrawUseCase() -> WithdrawUseCase {
+        DefaultWithdrawUseCase(repository: makeAuthRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -232,8 +236,8 @@ final class AppDIContainer {
         LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())
     }
     
-    func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(useCase: makeHomeUseCase())
+    @MainActor func makeHomeViewModel() -> HomeViewModel {
+        HomeViewModel(useCase: makeHomeUseCase(), withDrawUseCase: makeWithdrawUseCase())
     }
     
     func makeGoodsListViewModel(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewModel {
