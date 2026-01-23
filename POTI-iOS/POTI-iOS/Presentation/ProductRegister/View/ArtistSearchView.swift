@@ -15,7 +15,15 @@ final class ArtistSearchView: BaseView {
     // MARK: - Property
     
     var onChangeQuery: ((String) -> Void)?
-    var onSelectSuggestion: ((Int, String) -> Void)?
+
+    var onSelectItem: ((Int, String) -> Void)?
+
+    var onSelectSuggestion: ((Int, String) -> Void)? {
+        didSet {
+            onSelectItem = onSelectSuggestion
+        }
+    }
+
     var onTapDone: (() -> Void)?
 
     // MARK: - UI
@@ -45,6 +53,7 @@ final class ArtistSearchView: BaseView {
         }
 
         searchField.onSelectItem = { [weak self] index, value in
+            self?.onSelectItem?(index, value)
             self?.onSelectSuggestion?(index, value)
         }
     }
@@ -71,6 +80,10 @@ final class ArtistSearchView: BaseView {
     
     func setSearchItems(_ items: [String]) {
         searchField.setItems(items)
+    }
+    
+    func setQueryText(_ text: String) {
+        searchField.setText(text)
     }
 
     func setDoneEnabled(_ isEnabled: Bool) {

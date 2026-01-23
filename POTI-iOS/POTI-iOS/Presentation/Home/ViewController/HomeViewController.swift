@@ -41,19 +41,23 @@ protocol HomeViewScrollDelegate: AnyObject {
 
 final class HomeViewController: BaseViewController<HomeViewModel>, NavigationConfigurable {
     
+    private let factory: ViewControllerFactory
+
+    init(
+        viewModel: HomeViewModel,
+        factory: ViewControllerFactory
+    ) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+    
     // MARK: - Properties
     
     weak var scrollDelegate: HomeViewScrollDelegate?
     private let rootView = HomeView()
     private let setHomeData = PassthroughSubject<Void, Never>()
-    private let factory: ViewControllerFactory
     
     // MARK: - Initializer
-    
-    init(viewModel: HomeViewModel, factory: ViewControllerFactory) {
-        self.factory = factory
-        super.init(viewModel: viewModel)
-    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -278,8 +282,8 @@ extension HomeViewController: GoodsHeaderCellDelegate {
     }
     
     @objc private func didTapFloatingButton() {
-        let viewModel = ProductRegisterViewModel()
-        let vc = ProductRegisterViewController(viewModel: viewModel)
+        
+        let vc = factory.makeProductRegisterViewController()
         self.navigationController?.pushViewController(vc, animated: true)
 //                KeychainManager.deleteAllTokens()
     }

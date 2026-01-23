@@ -78,6 +78,9 @@ final class SearchListView: BaseView {
             $0.backgroundColor = .clear
             $0.rowHeight = 52
             $0.tableFooterView = UIView()
+            $0.delaysContentTouches = false
+            $0.canCancelContentTouches = true
+            $0.keyboardDismissMode = .none
         }
         return tableView
     }()
@@ -92,6 +95,9 @@ final class SearchListView: BaseView {
             $0.dataSource = self
             $0.delegate = self
         }
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTableTap))
+        tapGesture.cancelsTouchesInView = false
+        tableView.addGestureRecognizer(tapGesture)
     }
 
     override func setUI() {
@@ -125,6 +131,13 @@ final class SearchListView: BaseView {
         invalidateIntrinsicContentSize()
         setNeedsLayout()
         layoutIfNeeded()
+    }
+    
+    @objc private func handleTableTap(_ gesture: UITapGestureRecognizer) {
+        let location = gesture.location(in: tableView)
+        guard let indexPath = tableView.indexPathForRow(at: location) else { return }
+        tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+        tableView.delegate?.tableView?(tableView, didSelectRowAt: indexPath)
     }
 }
 

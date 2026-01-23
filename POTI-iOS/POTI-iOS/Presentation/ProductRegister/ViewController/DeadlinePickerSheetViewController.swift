@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class DeadlinePickerSheetViewController: BaseViewController<ProductRegisterViewModel>, UIAdaptivePresentationControllerDelegate {
+final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
 
     // MARK: - Properties
 
@@ -37,7 +37,7 @@ final class DeadlinePickerSheetViewController: BaseViewController<ProductRegiste
     ) {
         self.onConfirm = onConfirm
         self.onCancel = onCancel
-        super.init(viewModel: ProductRegisterViewModel())
+        super.init(nibName: nil, bundle: nil)
         
         datePicker.date = initialDate
     }
@@ -60,7 +60,7 @@ final class DeadlinePickerSheetViewController: BaseViewController<ProductRegiste
 
     // MARK: - UI
 
-    override func setUI() {
+    private func setUI() {
         view.addSubviews(toolbar, datePicker)
 
         let flex = UIBarButtonItem(systemItem: .flexibleSpace)
@@ -80,7 +80,7 @@ final class DeadlinePickerSheetViewController: BaseViewController<ProductRegiste
         toolbar.items = [cancel, flex, done]
     }
 
-    override func setLayout() {
+    private func setLayout() {
         toolbar.snp.makeConstraints {
             $0.top.leading.trailing.equalToSuperview()
             $0.height.equalTo(44)

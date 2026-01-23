@@ -24,6 +24,8 @@ protocol ViewControllerFactory {
         initialTab: MyPageHistoryViewController.HistoryTab
     ) -> MyPageHistoryContainerViewController
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
+    func makeArtistSearchViewController() -> ArtistSearchViewController
+    func makeProductRegisterViewController() -> ProductRegisterViewController
     func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
     func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
@@ -125,6 +127,19 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             initialType: initialType,
             initialTab: initialTab,
             viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType), factory: self
+        )
+    }
+    
+    func makeArtistSearchViewController() -> ArtistSearchViewController {
+        ArtistSearchViewController(
+            viewModel: diContainer.makeArtistSearchViewModel()
+        )
+    }
+    
+    func makeProductRegisterViewController() -> ProductRegisterViewController {
+        ProductRegisterViewController(
+            viewModel: diContainer.makeProductRegisterViewModel(),
+            factory: self
         )
     }
     

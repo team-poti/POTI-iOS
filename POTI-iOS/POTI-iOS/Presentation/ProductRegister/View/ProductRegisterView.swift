@@ -49,8 +49,13 @@ final class ProductRegisterView: BaseView {
         scrollView.do {
             $0.alwaysBounceVertical = true
             $0.showsVerticalScrollIndicator = false
-            $0.keyboardDismissMode = .onDrag
+            $0.keyboardDismissMode = .none
+
+            $0.delaysContentTouches = false
+            $0.canCancelContentTouches = true
         }
+        scrollView.panGestureRecognizer.cancelsTouchesInView = false
+        contentView.isUserInteractionEnabled = true
 
         submitButton.do {
             $0.text = "등록하기"
@@ -92,9 +97,9 @@ final class ProductRegisterView: BaseView {
         }
 
         submitButton.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)
-            $0.height.equalTo(56)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(60)
         }
     }
 }

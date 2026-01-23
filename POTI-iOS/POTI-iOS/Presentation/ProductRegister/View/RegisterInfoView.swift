@@ -20,12 +20,13 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
     var onTapDeadlineField: (() -> Void)?
     var onInputViewDidBeginEditing: ((UIView) -> Void)?
 
+    private var selectedArtistId: Int?
+
     // MARK: - UI Properties
 
     private(set) var imagePickerView = ImagePickerView()
     
     private let titleLabel = UILabel()
-    private let fieldsStackView = UIStackView()
     private let artistTitleLabel = UILabel()
     private let productTypeTitleLabel = UILabel()
     private let deadlineTitleLabel = UILabel()
@@ -60,13 +61,6 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
             self?.onTapDeleteImage?(index)
         }
 
-        fieldsStackView.do {
-            $0.axis = .vertical
-            $0.spacing = 28
-            $0.alignment = .fill
-            $0.distribution = .fill
-        }
-        
         bottomBoxView.do {
             $0.backgroundColor = .gray100
         }
@@ -121,22 +115,22 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
     }
 
     override func setUI() {
-        addSubviews(titleLabel, imagePickerView, fieldsStackView, bottomBoxView)
-
-        func makeFieldStack(title: UILabel, field: UIView) -> UIStackView {
-            let stack = UIStackView(arrangedSubviews: [title, field])
-            stack.axis = .vertical
-            stack.spacing = 8
-            return stack
-        }
-
-        fieldsStackView.addArrangedSubviews(
-            makeFieldStack(title: artistTitleLabel, field: artistField),
-            makeFieldStack(title: productTypeTitleLabel, field: productTypeField),
-            makeFieldStack(title: deadlineTitleLabel, field: deadlineField),
-            makeFieldStack(title: descriptionTitleLabel, field: descriptionField),
-            makeFieldStack(title: accountTitleLabel, field: accountField),
-            makeFieldStack(title: bankTitleLabel, field: bankField)
+        addSubviews(
+            titleLabel,
+            imagePickerView,
+            artistTitleLabel,
+            artistField,
+            productTypeTitleLabel,
+            productTypeField,
+            deadlineTitleLabel,
+            deadlineField,
+            descriptionTitleLabel,
+            descriptionField,
+            accountTitleLabel,
+            accountField,
+            bankTitleLabel,
+            bankField,
+            bottomBoxView
         )
     }
 
@@ -151,14 +145,63 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.greaterThanOrEqualTo(90)
         }
-
-        fieldsStackView.snp.makeConstraints {
+        
+        artistTitleLabel.snp.makeConstraints {
             $0.top.equalTo(imagePickerView.snp.bottom).offset(28)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        artistField.snp.makeConstraints {
+            $0.top.equalTo(artistTitleLabel.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        
+        productTypeTitleLabel.snp.makeConstraints {
+            $0.top.equalTo(artistField.snp.bottom).offset(28)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        productTypeField.snp.makeConstraints {
+            $0.top.equalTo(productTypeTitleLabel.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        
+        deadlineTitleLabel.snp.makeConstraints {
+            $0.top.equalTo(productTypeField.snp.bottom).offset(28)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        deadlineField.snp.makeConstraints {
+            $0.top.equalTo(deadlineTitleLabel.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        
+        descriptionTitleLabel.snp.makeConstraints {
+            $0.top.equalTo(deadlineField.snp.bottom).offset(28)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        descriptionField.snp.makeConstraints {
+            $0.top.equalTo(descriptionTitleLabel.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        
+        accountTitleLabel.snp.makeConstraints {
+            $0.top.equalTo(descriptionField.snp.bottom).offset(28)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        accountField.snp.makeConstraints {
+            $0.top.equalTo(accountTitleLabel.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        
+        bankTitleLabel.snp.makeConstraints {
+            $0.top.equalTo(accountField.snp.bottom).offset(28)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        bankField.snp.makeConstraints {
+            $0.top.equalTo(bankTitleLabel.snp.bottom).offset(8)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
 
         bottomBoxView.snp.makeConstraints {
-            $0.top.equalTo(fieldsStackView.snp.bottom).offset(24)
+            $0.top.equalTo(bankField.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(9)
             $0.bottom.equalToSuperview()
@@ -173,6 +216,7 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
     }
     
     struct Draft {
+        let artistId: Int?
         let artist: String
         let productType: String
         let deadlineText: String
@@ -183,6 +227,7 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
 
     func collectDraft() -> Draft {
         return Draft(
+            artistId: selectedArtistId,
             artist: artistField.getText(),
             productType: productTypeField.getText(),
             deadlineText: deadlineField.getText(),
@@ -190,6 +235,16 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
             accountNumber: accountField.getText(),
             bank: bankField.getText()
         )
+    }
+
+    func setArtist(id: Int, name: String) {
+        selectedArtistId = id
+        artistField.setText(name)
+    }
+
+    func clearArtist() {
+        selectedArtistId = nil
+        artistField.setText("")
     }
 
     func setImages(_ images: [UIImage]) {

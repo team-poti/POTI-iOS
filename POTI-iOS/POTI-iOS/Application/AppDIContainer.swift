@@ -90,6 +90,10 @@ final class AppDIContainer {
         DefaultPostsRepository(networkService: makeNetworkService())
     }
     
+    private func makeRegisterRepository() -> RegisterInterface {
+        DefaultRegisterRepository(networkService: makeNetworkService())
+    }
+    
     private func makePaymentsRepository() -> PaymentsInterface {
         DefaultPaymentsRepository(networkService: makeNetworkService())
     }
@@ -164,6 +168,18 @@ final class AppDIContainer {
     
     private func makeArtistsUseCase() -> ArtistsUsecase {
         DefaultArtistsUseCase(repository: makeArtistsRepository())
+    }
+    
+    private func makeRegisterArtistsUseCase() -> RegisterArtistsUseCase {
+        DefaultRegisterArtistsUseCase(repository: makeRegisterRepository())
+    }
+    
+    private func makeRegisterTitlesUseCase() -> RegisterTitlesUseCase {
+        DefaultRegisterTitlesUseCase(repository: makeRegisterRepository())
+    }
+    
+    private func makeRegisterPostsUseCase() -> RegisterPostsUseCase {
+        DefaultRegisterPostsUseCase(repository: makeRegisterRepository())
     }
     
     private func makePostsSaleUseCase() -> PostsSaleUseCase {
@@ -287,8 +303,25 @@ final class AppDIContainer {
         return ArtistsViewModel(useCase: makeArtistsUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
     
+    func makeProductRegisterViewModel() -> ProductRegisterViewModel {
+        ProductRegisterViewModel(
+            registerTitlesUseCase: makeRegisterTitlesUseCase(),
+            registerPostsUseCase: makeRegisterPostsUseCase(),
+            imagesRepository: makeImagesRepository(),
+            artistsUseCase: makeArtistsUseCase()
+        )
+    }
+    
+    func makeArtistSearchViewModel() -> ArtistSearchViewModel {
+        ArtistSearchViewModel(registerArtistsUseCase: makeRegisterArtistsUseCase())
+    }
+    
     func makeOnboardingViewModel() -> OnboardingViewModel {
-        OnboardingViewModel(onboardingArtistsUsecase: makeOnboardingArtistsUsecase(), validNicknameUseCase: makeValidNicknameUseCase(), submitOnboardingUseCase: makeSubmitOnboardingUseCase())
+        OnboardingViewModel(
+            onboardingArtistsUsecase: makeOnboardingArtistsUsecase(),
+            validNicknameUseCase: makeValidNicknameUseCase(),
+            submitOnboardingUseCase: makeSubmitOnboardingUseCase()
+        )
     }
     
     func makeMyPageViewModel() -> MyPageViewModel {

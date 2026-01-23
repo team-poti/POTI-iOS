@@ -141,8 +141,7 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
     }
     
     @objc private func didTapFloatingButton() {
-        let viewModel = ProductRegisterViewModel()
-        let vc = ProductRegisterViewController(viewModel: viewModel)
+        let vc = factory.makeProductRegisterViewController()
         self.navigationController?.pushViewController(vc, animated: true)
     }
 }

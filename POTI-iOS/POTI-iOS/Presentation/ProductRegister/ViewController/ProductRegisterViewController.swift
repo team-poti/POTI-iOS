@@ -10,7 +10,10 @@ import UIKit
 import Combine
 import PhotosUI
 
-final class ProductRegisterViewController: BaseViewController<ProductRegisterViewModel>, NavigationConfigurable {
+final class ProductRegisterViewController:
+    BaseViewController<ProductRegisterViewModel>,
+    NavigationConfigurable,
+    UIGestureRecognizerDelegate {
     
     // MARK: - Keyboard
     
@@ -24,6 +27,24 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     // MARK: - Properties
     
     private let rootView = ProductRegisterView()
+    private let rootBackgroundView = UIView()
+    private let factory: ViewControllerFactory
+    private let titleQuerySubject = PassthroughSubject<String, Never>()
+    
+    // MARK: - Initializer
+
+    init(
+        viewModel: ProductRegisterViewModel,
+        factory: ViewControllerFactory
+    ) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private var imagePickerView: ImagePickerView {
         rootView.imagePickerView
@@ -31,29 +52,57 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     private var registerInfoView: RegisterInfoView {
         rootView.registerInfoView
     }
-    private var registerMemberView: RegisterMemberView? {
-        findRegisterMemberView(in: rootView)
+    private var registerMemberView: RegisterMemberView {
+        rootView.registerMemberView
     }
     private var noticeView: RegisterNoticeView {
         rootView.registerNoticeView
     }
     private var currentImages: [UIImage] = []
+
+    // 멤버 가격은 VC가 들고 간다 (입력 안정성 때문에)
+    private var memberPrices: [Int: Int] = [:]
     
     
     // MARK: - Life Cycle
     
     override func loadView() {
-        self.view = rootView
+        rootBackgroundView.backgroundColor = .systemBackground
+
+        rootBackgroundView.addSubview(rootView)
+        rootView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            rootView.topAnchor.constraint(equalTo: rootBackgroundView.topAnchor),
+            rootView.leadingAnchor.constraint(equalTo: rootBackgroundView.leadingAnchor),
+            rootView.trailingAnchor.constraint(equalTo: rootBackgroundView.trailingAnchor),
+            rootView.bottomAnchor.constraint(equalTo: rootBackgroundView.bottomAnchor)
+        ])
+
+        self.view = rootBackgroundView
+    }
+    
+    private var isInputReady = false
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        isInputReady = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         super.viewWillAppear(animated)
-        view.endEditing(true)
-        registerInfoView.clearAllFocus()
+        print("🧠 willAppear presented=", String(describing: self.presentedViewController))
+        print("🧠 nav.presented=", String(describing: self.navigationController?.presentedViewController))
+        print("🧠 view.window=", String(describing: self.view.window))
+        
+
         if let tabBarController = self.tabBarController as? PotiTabBar {
             tabBarController.tabBar.isHidden = true
         }
+
+        registerInfoView.artistField.setFocused(false)
+        registerInfoView.deadlineField.setFocused(false)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -92,11 +141,25 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             (name: "일반택배", price: 4000),
             (name: "준등기", price: 1800)
         ])
+
+        // 멤버 가격 입력값을 VC에서 수집
+        registerMemberView.onPriceChanged = { [weak self] index, price in
+            guard let self else { return }
+            if let price {
+                self.memberPrices[index] = price
+            } else {
+                self.memberPrices.removeValue(forKey: index)
+            }
+        }
         
+        registerInfoView.artistField.onTapField = { [weak self] in
+            guard let self else { return }
+            self.presentArtistSearch()
+        }
+
         registerInfoView.onTapDeadlineField = { [weak self] in
             guard let self else { return }
 
-            self.registerInfoView.clearAllFocus()
             self.registerInfoView.deadlineField.setFocused(true)
 
             let estimatedSheetHeight: CGFloat = 465
@@ -108,18 +171,33 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             self.presentDeadlineBottomSheet()
         }
         
-        registerMemberView?.onMembersChanged = { [weak self] members in
-            self?.viewModel.action(.setMembers(members))
+        //TODO: - ArtistEdit으로 교체
+//        registerMemberView.onTapEditButton = { [weak self] in
+//            guard let self else { return }
+//
+//            let sheetVM = factory.makeArtistsViewModel()
+//            let bottomSheet = ArtistsBottomSheet(viewModel: sheetVM)
+//
+//            bottomSheet.onComplete = { [weak self] members in
+//                self?.viewModel.action(.setMembers(members))
+//            }
+//
+//            bottomSheet.show(in: self.view)
+//        }
+
+        registerInfoView.productTypeField.onQueryChanged = { [weak self] keyword in
+            self?.titleQuerySubject.send(keyword)
         }
 
-        registerInfoView.onTapArtistField = { [weak self] in
-            self?.pushArtistSearch()
+        registerInfoView.productTypeField.onSelectItem = { [weak self] _, value in
+            guard let self else { return }
+            self.registerInfoView.productTypeField.setText(value)
+            self.registerInfoView.productTypeField.clearItems()
         }
-        
+
         registerInfoView.onInputViewDidBeginEditing = { [weak self] inputView in
             guard let self else { return }
             self.currentFocusedInputView = inputView
-            print(type(of: inputView))
 
             guard self.lastKeyboardHeight > 0 else { return }
 
@@ -128,10 +206,31 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
                 coveredHeight: self.lastKeyboardHeight
             )
         }
+        rootView.contentScrollView.delaysContentTouches = false
+        rootView.contentScrollView.canCancelContentTouches = true
+
+        let _: (UIGestureRecognizer) -> Void = { [weak self] gesture in
+            guard let self else { return }
+            if let tap = gesture as? UITapGestureRecognizer {
+                tap.cancelsTouchesInView = false
+                tap.delegate = self
+            }
+        }
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+
+    // MARK: - UIGestureRecognizerDelegate
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        var v: UIView? = touch.view
+        while let view = v {
+            if view is UIControl { return false }
+            v = view.superview
+        }
+        return true
     }
     
     // MARK: - Keyboard Avoidance
@@ -196,18 +295,25 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             animated: true
         )
     }
-
         
     // MARK: - Custom Method
 
-    private func pushArtistSearch() {
-        let vm = ArtistSearchViewModel()
-        let vc = ArtistSearchViewController(viewModel: vm)
-
-        navigationController?.pushViewController(vc, animated: true)
-    }
-
     override func bindViewModel() {
+        titleQuerySubject
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] keyword in
+                guard let self else { return }
+
+                if keyword.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    self.registerInfoView.productTypeField.clearItems()
+                    return
+                }
+
+                self.viewModel.action(.fetchTitles(keyword: keyword))
+            }
+            .store(in: &cancellables)
+        
         viewModel.output.images
             .receive(on: RunLoop.main)
             .sink { [weak self] images in
@@ -221,6 +327,14 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             .receive(on: RunLoop.main)
             .sink { [weak self] remainingLimit in
                 self?.presentPicker(selectionLimit: remainingLimit)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.titles
+            .receive(on: RunLoop.main)
+            .sink { [weak self] titles in
+                guard let self else { return }
+                self.registerInfoView.productTypeField.setItems(titles)
             }
             .store(in: &cancellables)
         
@@ -272,10 +386,48 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
                 }
                 
                 if let message = errors.members {
-                    self.registerMemberView?.showEditedEmptyError(message: message)
+                    self.registerMemberView.showEditedEmptyError(message: message)
                 } else {
-                    self.registerMemberView?.hideEditedEmptyError()
+                    self.registerMemberView.hideEditedEmptyError()
                 }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.members
+            .receive(on: RunLoop.main)
+            .sink { [weak self] memberNames in
+                guard let self else { return }
+
+                // 멤버 리스트가 갱신되면 기존 가격 입력은 초기화
+                self.memberPrices = [:]
+
+                if memberNames.isEmpty {
+                    self.registerMemberView.showEmpty(message: "선택한 멤버가 없어요")
+                } else {
+                    self.registerMemberView.showMembers(names: memberNames)
+                }
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.didRegister
+            .receive(on: RunLoop.main)
+            .sink { [weak self] postId in
+                guard let self else { return }
+
+                let potDetailVC = self.factory.makePotDetailViewController(postId: postId)
+
+                if let nav = self.navigationController {
+                    nav.setViewControllers([potDetailVC], animated: true)
+                } else {
+                    self.present(potDetailVC, animated: true)
+                }
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.registerFailed
+            .receive(on: RunLoop.main)
+            .sink { message in
+                print("POST 실패:", message)
             }
             .store(in: &cancellables)
     }
@@ -311,7 +463,7 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             onRightButton: {
             }
         )
-        alert.show(on: view)
+        alert.show(on: navigationController?.view ?? view)
     }
 
     // MARK: - Action Method
@@ -330,9 +482,10 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     
     @objc private func tapSubmit() {
         view.endEditing(true)
-        
-        let memberPrices = registerMemberView?.collectPrices() ?? [:]
+
+        let memberPrices = self.memberPrices
         let draft = registerInfoView.collectDraft()
+
         let shippings = rootView.registerShippingView.collectSelectedShippings()
 
         viewModel.action(
@@ -394,8 +547,33 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
     private static func format(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "yyyy.MM.dd"
+        formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
+    }
+    
+    private func presentArtistSearch() {
+        
+        let searchVC = factory.makeArtistSearchViewController()
+
+        searchVC.onSelectArtist = { [weak self] artist in
+            guard let self else { return }
+            self.view.endEditing(true)
+            self.registerInfoView.artistField.setFocused(false)
+
+            self.viewModel.action(.setArtist(artist))
+            self.registerInfoView.artistField.setText(artist.name)
+
+            if let artistId = artist.artistId {
+                print("Artist selected, fetch members:", artistId)
+                self.viewModel.action(.fetchArtistsList(artistId: artistId))
+            }
+        }
+
+        if let nav = navigationController {
+            nav.pushViewController(searchVC, animated: true)
+        } else {
+            present(UINavigationController(rootViewController: searchVC), animated: true)
+        }
     }
 }
 

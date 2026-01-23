@@ -18,18 +18,18 @@ final class ProductRegisterViewModel: BaseViewModelType {
         case tapAdd
         case tapDelete(Int)
         case didFinishPicking([PHPickerResult])
+        case productTypeQueryChanged(artistId: Int, keyword: String)
         case deadlineSelected(Date)
         case submit(
             info: RegisterInfoView.Draft,
             memberPrices: [Int: Int],
             shippings: [RegisterShippingView.ShippingRequest]
         )
-        case setMembers([String])
-        case setArtist(String)
-
-        // TODO: - 상품 등록 화면 다른 액션
+        case setMembers(ids: [Int], names: [String?])
+        case setArtist(RegisterArtistEntity)
+        case fetchTitles(keyword: String)
+        case fetchArtistsList(artistId: Int)
     }
-
 
     // MARK: - Output
 
@@ -38,23 +38,36 @@ final class ProductRegisterViewModel: BaseViewModelType {
         let requestPicker: AnyPublisher<Int, Never>
         let deadline: AnyPublisher<Date?, Never>
         let fieldErrors: AnyPublisher<FieldErrors, Never>
-
-        // TODO: - 상품 등록 화면 다른 Output
+        let titleSuggestions: AnyPublisher<[String], Never>
+        let titles: AnyPublisher<[String], Never>
+        let members: AnyPublisher<[String], Never>
+        let didRegister: AnyPublisher<Int, Never>
+        let registerFailed: AnyPublisher<String, Never>
     }
 
     let output: Output
-
 
     // MARK: - Properties
 
     private let maxCount: Int
 
+    private let registerTitlesUseCase: RegisterTitlesUseCase
+    private let registerPostsUseCase: RegisterPostsUseCase
+    private let imagesRepository: ImagesInterface
+    private let artistsUseCase: ArtistsUsecase
+
+    private let titlesSubject = CurrentValueSubject<[String], Never>([])
     private let imagesSubject = CurrentValueSubject<[UIImage], Never>([])
     private let requestPickerSubject = PassthroughSubject<Int, Never>()
     private let deadlineSubject = CurrentValueSubject<Date?, Never>(nil)
     private let membersSubject = CurrentValueSubject<[String], Never>([])
-    private let artistSubject = CurrentValueSubject<String, Never>("")
+    private let selectedArtistSubject = CurrentValueSubject<RegisterArtistEntity?, Never>(nil)
+    private var selectedArtist: RegisterArtistEntity?
     private var hasEverHadMembers: Bool = false
+    private var originalMemberEntities: [MemberEntity] = []
+
+    private let didRegisterSubject = PassthroughSubject<Int, Never>()
+    private let registerFailedSubject = PassthroughSubject<String, Never>()
 
     struct FieldErrors {
         var images: String?
@@ -77,13 +90,29 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
     // MARK: - Initializer
 
-    init(maxCount: Int = 5) {
+    init(
+        maxCount: Int = 5,
+        registerTitlesUseCase: RegisterTitlesUseCase,
+        registerPostsUseCase: RegisterPostsUseCase,
+        imagesRepository: ImagesInterface,
+        artistsUseCase: ArtistsUsecase
+    ) {
         self.maxCount = maxCount
+        self.registerTitlesUseCase = registerTitlesUseCase
+        self.registerPostsUseCase = registerPostsUseCase
+        self.imagesRepository = imagesRepository
+        self.artistsUseCase = artistsUseCase
+
         self.output = Output(
             images: imagesSubject.eraseToAnyPublisher(),
             requestPicker: requestPickerSubject.eraseToAnyPublisher(),
             deadline: deadlineSubject.eraseToAnyPublisher(),
-            fieldErrors: fieldErrorsSubject.eraseToAnyPublisher()
+            fieldErrors: fieldErrorsSubject.eraseToAnyPublisher(),
+            titleSuggestions: titlesSubject.eraseToAnyPublisher(),
+            titles: titlesSubject.eraseToAnyPublisher(),
+            members: membersSubject.eraseToAnyPublisher(),
+            didRegister: didRegisterSubject.eraseToAnyPublisher(),
+            registerFailed: registerFailedSubject.eraseToAnyPublisher()
         )
     }
 
@@ -121,27 +150,83 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 }
             }
             
+        case .productTypeQueryChanged(_, let keyword):
+            action(.fetchTitles(keyword: keyword))
+            
         case .deadlineSelected(let date):
             deadlineSubject.send(date)
             
-        case .setMembers(let members):
-            membersSubject.send(members)
-            if !members.isEmpty {
-                hasEverHadMembers = true
+        case let .setMembers(ids, names):
+            let mappedMembers = zip(ids, names)
+                .compactMap { id, name -> MemberEntity? in
+                    guard let name else { return nil }
+                    return MemberEntity(
+                        id: id,
+                        name: name,
+                        price: 0
+                    )
+                }
+
+            originalMemberEntities = mappedMembers
+            membersSubject.send(mappedMembers.map { $0.name })
+            hasEverHadMembers = !mappedMembers.isEmpty
+            
+        case .setArtist(let artist):
+            selectedArtist = artist
+            selectedArtistSubject.send(artist)
+
+            var errors = fieldErrorsSubject.value
+            errors.artist = nil
+            fieldErrorsSubject.send(errors)
+
+            titlesSubject.send([])
+            
+        case .fetchTitles(let keyword):
+            let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            guard !trimmed.isEmpty else {
+                titlesSubject.send([])
+                return
+            }
+
+            guard let artistId = selectedArtist?.artistId ?? selectedArtistSubject.value?.artistId else {
+                var errors = fieldErrorsSubject.value
+                errors.artist = "아티스트를 먼저 선택해주세요"
+                fieldErrorsSubject.send(errors)
+                titlesSubject.send([])
+                return
+            }
+
+            var errors = fieldErrorsSubject.value
+            errors.artist = nil
+            fieldErrorsSubject.send(errors)
+
+            Task { [weak self] in
+                guard let self else { return }
+                do {
+                    let titles = try await self.registerTitlesUseCase.execute(
+                        artistId: artistId,
+                        keyword: trimmed
+                    )
+                    await MainActor.run {
+                        self.titlesSubject.send(titles)
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.titlesSubject.send([])
+                    }
+                }
             }
             
-        case .setArtist(let artistName):
-            artistSubject.send(artistName)
-            
-        case .submit(let info, let memberPrices, _):
+        case .submit(let info, let memberPrices, let shippings):
             var errors = FieldErrors.empty
 
             if imagesSubject.value.isEmpty {
                 errors.images = "사진을 1장 이상 등록해주세요"
             }
 
-            //안되면 artistSubject 대신 artist
-            if artistSubject.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let selectedArtistId = info.artistId ?? selectedArtist?.artistId ?? selectedArtistSubject.value?.artistId
+            if selectedArtistId == nil {
                 errors.artist = "아티스트를 선택해주세요"
             }
 
@@ -181,8 +266,66 @@ final class ProductRegisterViewModel: BaseViewModelType {
             fieldErrorsSubject.send(errors)
 
             guard !errors.hasError else { return }
-            // 에러가 있으면 여기서 종료 (성공 케이스에서 UseCase 호출)
-            // TODO: presignedURL 업로드 + 상품 등록 UseCase 호출
+
+            Task { [weak self] in
+                guard let self else { return }
+                do {
+                    guard let artistId = info.artistId ?? self.selectedArtist?.artistId ?? self.selectedArtistSubject.value?.artistId else {
+                        await MainActor.run {
+                            var current = self.fieldErrorsSubject.value
+                            current.artist = "아티스트를 선택해주세요"
+                            self.fieldErrorsSubject.send(current)
+                        }
+                        return
+                    }
+
+                    let imageDatas = self.imagesSubject.value.compactMap {
+                        $0.jpegData(compressionQuality: 0.8)
+                    }
+
+                    let presigned = try await self.imagesRepository.fetchPresignedUrls(count: imageDatas.count)
+
+                    // S3 업로드
+                    var imageFileNames: [String] = []
+                    for (data, item) in zip(imageDatas, presigned) {
+                        try await self.imagesRepository.uploadImage(data: data, to: item.uploadUrl)
+                        imageFileNames.append(item.fileName)
+                    }
+
+                    // 옵션(멤버 가격) 구성
+                    let options: [RegisterRequestEntity.Option] = self.makeOptions(from: memberPrices)
+
+                    // 배송 구성
+                    let shippingEntities: [RegisterRequestEntity.Shipping] = shippings.map {
+                        .init(deliveryMethodId: $0.deliveryMethodId, price: $0.price)
+                    }
+
+                    let entity = RegisterRequestEntity(
+                        artistId: artistId,
+                        title: info.productType,
+                        content: info.description,
+                        deadline: info.deadlineText,
+                        bankName: info.bank,
+                        accountNumber: info.accountNumber,
+                        imageUrls: imageFileNames,
+                        options: options,
+                        shippings: shippingEntities
+                    )
+
+                    let response = try await self.registerPostsUseCase.execute(entity)
+
+                    await MainActor.run {
+                        self.didRegisterSubject.send(response.postId)
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.registerFailedSubject.send("등록에 실패했어요")
+                    }
+                }
+            }
+            
+        case .fetchArtistsList(let artistId):
+            fetchMembers(artistId: artistId)
         }
     }
 
@@ -210,5 +353,54 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 continuation.resume(returning: object as? UIImage)
             }
         }
+    }
+    // MARK: - Members Fetching
+
+    private func fetchMembers(artistId: Int) {
+        membersSubject.send([])
+        hasEverHadMembers = false
+        originalMemberEntities = []
+
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                let entities = try await self.artistsUseCase.execute(artistId: artistId)
+
+                let mappedMembers = entities.map { entity in
+                    MemberEntity(
+                        id: entity.artistId,
+                        name: entity.artistName,
+                        price: 0
+                    )
+                }
+
+                let names = mappedMembers.map { $0.name }
+
+                await MainActor.run {
+                    self.originalMemberEntities = mappedMembers
+                    self.hasEverHadMembers = !mappedMembers.isEmpty
+                    self.membersSubject.send(names)
+                }
+            } catch {
+                print("❌ fetchMembers error:", error)
+            }
+        }
+    }
+
+    // MARK: - Options Mapping
+
+    private func makeOptions(from memberPrices: [Int: Int]) -> [RegisterRequestEntity.Option] {
+        guard !memberPrices.isEmpty else { return [] }
+
+        var options: [RegisterRequestEntity.Option] = []
+
+        for (rowIndex, price) in memberPrices {
+            guard originalMemberEntities.indices.contains(rowIndex) else { continue }
+            let member = originalMemberEntities[rowIndex]
+            options.append(.init(memberId: member.id, price: price))
+        }
+
+        options.sort { $0.memberId < $1.memberId }
+        return options
     }
 }

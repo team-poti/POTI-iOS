@@ -5,13 +5,13 @@
 //  Created by neon on 1/22/26.
 //
 
+import Foundation
 
-import UIKit
 import Alamofire
 
 protocol ImageUploadService {
     func getPresignedUrls(type: String, extensions: [String]) async throws -> PresignedUrlResponseDTO
-    func uploadImage(image: UIImage, to presignedUrl: String) async throws
+    func uploadImage(data: Data, to url: URL) async throws
 }
 
 final class DefaultImageUploadService: ImageUploadService {
@@ -32,15 +32,14 @@ final class DefaultImageUploadService: ImageUploadService {
     }
     
     // 2. 이미지를 S3에 업로드
-    func uploadImage(image: UIImage, to presignedUrl: String) async throws {
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            throw PotiError.badRequest
-        }
-        
-        return try await withCheckedThrowingContinuation { continuation in
-            AF.upload(imageData, to: presignedUrl, method: .put, headers: [
-                "Content-Type": "image/jpeg"
-            ])
+    func uploadImage(data: Data, to url: URL) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            AF.upload(
+                data,
+                to: url,
+                method: .put,
+                headers: ["Content-Type": "image/jpeg"]
+            )
             .validate(statusCode: 200..<300)
             .response { response in
                 switch response.result {
