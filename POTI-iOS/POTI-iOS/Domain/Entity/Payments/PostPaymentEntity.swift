@@ -6,5 +6,11 @@
 //
 
 struct PostPaymentEntity {
+    let participationId: Int
+    let depositorName: String
+    let depositedAt: String
+}
+
+struct PostPaymentResponseEntity {
     let paymentId: Int
 }

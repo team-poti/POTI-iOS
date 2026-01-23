@@ -24,6 +24,20 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
         self.definesPresentationContext = true
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = true
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let tabBarController = self.tabBarController as? PotiTabBar {
+            tabBarController.tabBar.isHidden = true
+        }
+    }
+    
     // MARK: - Initializer
     
     init(viewModel: PotDetailViewModel, factory: ViewControllerFactory) {

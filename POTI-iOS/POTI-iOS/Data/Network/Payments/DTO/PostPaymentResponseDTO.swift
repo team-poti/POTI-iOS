@@ -7,10 +7,8 @@
 
 struct PostPaymentResponseDTO: Decodable {
     let paymentId: Int
-}
-
-extension PostPaymentResponseDTO {
-    func toEntity() -> PostPaymentEntity {
-        PostPaymentEntity(paymentId: paymentId)
+    
+    func toPostPaymentResponseEntity() -> PostPaymentResponseEntity {
+        return PostPaymentResponseEntity(paymentId: paymentId)
     }
 }

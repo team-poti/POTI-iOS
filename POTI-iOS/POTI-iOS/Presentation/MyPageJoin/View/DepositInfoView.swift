@@ -125,8 +125,10 @@ final class DepositInfoView: BaseView {
     func configure(model: MyPageJoinModel) {
         accountLabel.text = model.depositAccountText
         deadlineLabel.text = model.depositDeadlineText
-        statusLabel.text = model.depositStatusDisplay.text
-        statusLabel.textColor = model.depositStatusDisplay.color
+        
+        let display = model.depositStatusDisplay
+        statusLabel.text = display.text
+        statusLabel.textColor = display.color
     }
     
     @objc private func didTapCopy() {
