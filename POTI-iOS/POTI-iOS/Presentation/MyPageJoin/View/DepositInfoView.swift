@@ -148,9 +148,9 @@ extension MyPageJoinModel {
     }
     
     var depositDeadlineText: String {
-        guard let deadline = paymentInfo.depositDeadline?.formattedDateString()
+        guard let deadline = paymentInfo.depositDeadline
         else { return "" }
-        return "\(deadline) 까지"
+        return "\(deadline)"
     }
     
     var depositStatusDisplay: (text: String, color: UIColor) {

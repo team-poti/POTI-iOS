@@ -24,10 +24,11 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         }
     }
     
-    private let tableView = UITableView()
+    private let tableView = UITableView(frame: .zero, style: .grouped) // 0123 스티키헤더 확인하기
     private let completeButton = PotiBottomButton()
     private var tableViewBottomConstraint: Constraint?
     private var viewState: JoinDetailViewState?
+    private var didSubmitDeposit: Bool = false
     
     // MARK: - Lifecycle
     
@@ -103,13 +104,22 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             return
         }
         
+        
         switch status {
         case .recruitCompleted:
-            completeButton.isHidden = false
-            completeButton.text = "입금 완료했어요"
-            tableViewBottomConstraint?.update(inset: 94)
+            // 입금 제출 이후에는 서버 status가 아직 recruitCompleted여도 버튼을 숨김 유지
+            if didSubmitDeposit {
+                completeButton.isHidden = true
+                tableViewBottomConstraint?.update(inset: 0)
+            } else {
+                completeButton.isHidden = false
+                completeButton.text = "입금 완료했어요"
+                tableViewBottomConstraint?.update(inset: 94)
+            }
             
         case .shipping:
+            // 배송 단계로 넘어오면 다시 버튼 노출
+            didSubmitDeposit = false
             completeButton.isHidden = false
             completeButton.text = "배송을 받았어요"
             tableViewBottomConstraint?.update(inset: 94)
@@ -124,10 +134,13 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     @objc private func didTapCompleteButton() {
-        if viewModel.participantOrderStatus == .recruiting {
+        switch viewModel.participantOrderStatus {
+        case .recruitCompleted:
             presentDetailBottomSheet()
-        } else {
+        case .shipping:
             completeButtonTapped()
+        default:
+            break
         }
     }
     
@@ -140,16 +153,21 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             secondPlaceholder: "YY-MM-DD TT:MM",
             confirmButtonText: "완료"
         )
-        //        sheet.onSubmit = { [weak self] carrier, trackingNumber in
-        //
-        //            self?.viewModel.action(
-        //                .patchTrackingNumber(orderId: orderId, carrier: carrier, trackingNumber: trackingNumber)
-        //            )
-        //        }
+        sheet.onSubmit = { [weak self] depositorName, depositedAt in
+            guard let self else { return }
+            ///////orderId 어디있어!!!!!!!!
+            let orderId = 1101
+            self.didSubmitDeposit = true
+            self.viewModel.action(
+                .submitDeposit(orderId: orderId, depositorName: depositorName, depositedAt: depositedAt)
+            )
+        }
+        
         sheet.show(in: self.navigationController?.view ?? view)
     }
     
     private func completeButtonTapped() {
+        let orderId = 1101
         let alert = CustomAlertView(
             title: "잠깐! 정말 상품을 수령했나요?",
             message: "거래가 종료되면 되돌릴 수 없어요",
@@ -163,10 +181,16 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
                 
                 let starRating = StarRatingPopupView(
                     onCompleteButton: {
-                        // TODO: 완료(별점 전송 등)
+                        // TODO: 별점 전송 + 완료 처리 (나중에)
+                        self.viewModel.action(.completeDelivery(participantId: orderId))
                     },
-                    onSkipButton: {
-                        // TODO: 건너뛰기 처리
+                    onSkipButton: { [weak self] in
+                        guard let self else { return }
+                        self.viewModel.action(.completeDelivery(participantId: orderId))
+                        // 1) 팝업 닫기
+                        //starRating.removeFromSuperview()
+                        
+                        // 2) 배송 완료 API 호출
                     }
                 )
                 
@@ -217,6 +241,35 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.updateCompleteButton()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.submitDepositResult
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.updateCompleteButton()
+                self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.completeDeliveryResult
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.updateCompleteButton()
+                self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.completeReviewResult
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.updateCompleteButton()
+                self.tableView.reloadData()
+                //이쪽에 로직 넣기
+                
             }
             .store(in: &cancellables)
     }
@@ -312,7 +365,6 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
             
         case .statusInfo:
             let status = viewModel.participantOrderStatus ?? .recruiting
-            updateCompleteButton()
             switch status {
             case .recruiting:
                 guard let cell = tableView.dequeueReusableCell(
