@@ -1,38 +1,41 @@
 //
-//  MyPageJoinDTO.swift
+//  JoinDetailEntity.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by 이서현 on 1/23/26.
 //
 
-struct MyPageJoinDTO: Decodable {
+import UIKit
+
+struct JoinDetailEntity {
     let participationId: Int
+    let postId: Int
+    let orderNumber: String
     let imageUrl: String
     let artistName: String
     let title: String
-    let postStatus: String
-    let orderStatus: String
+    let postStatus: PostStatus
     let statusMessage: String
-    let memberPayments: [MemberPaymentDTO]
-    let paymentInfo: PaymentInfoDTO
-    let shippingInfo: MyShippingInfoDTO
+    let memberPayments: [JoinMemberPaymentEntity]
+    let paymentInfo: JoinPaymentEntity
+    let shippingInfo: JoinShippingEntity
 }
 
-struct MemberPaymentDTO: Decodable {
+struct JoinMemberPaymentEntity: Decodable {
     let memberName: String
     let price: Int
 }
 
-struct PaymentInfoDTO: Decodable {
+struct JoinPaymentEntity {
     let shippingFee: Int
     let totalAmount: Int
-    let depositStatus: String
+    let depositStatus: ParticipantOrderStatus
     let bank: String?
     let accountNumber: String?
     let depositDeadline: String?
 }
 
-struct MyShippingInfoDTO: Decodable {
+struct JoinShippingEntity {
     let shippingMethod: String
     let receiver: String
     let zipcode: String
@@ -40,5 +43,5 @@ struct MyShippingInfoDTO: Decodable {
     let phone: String
     let carrier: String
     let trackingNumber: String
-    let shippingStatus: String
+    let shippingStatus: ParticipantOrderStatus
 }

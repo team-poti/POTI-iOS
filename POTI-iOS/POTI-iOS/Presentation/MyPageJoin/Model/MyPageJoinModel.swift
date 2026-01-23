@@ -14,7 +14,7 @@ struct MyPageJoinModel: Hashable {
     let title: String
 
     let postStatus: PostStatus
-    let orderStatus: OrderStatus
+    let orderStatus: ParticipantOrderStatus
     let statusMessage: String
 
     let memberPayments: [MemberPaymentRow]
@@ -43,8 +43,8 @@ struct MyPageJoinModel: Hashable {
         let zipcode: String
         let address: String
         let phone: String
-        let carrier: String
-        let trackingNumber: String
+        let carrier: String?
+        let trackingNumber: String?
         let shippingStatus: ShippingStatus
     }
 }
@@ -150,17 +150,93 @@ extension MyPageJoinModel {
         }
     }
 }
-//
-//extension MyPageJoinModel {
-//    var participantManageCellModel: ParticipantManageViewCell.Model {
-//        .init(
-//            memberNamesText: memberPayments.map { $0.memberName },
-//            depositorNameText: shippingInfo.receiver,
-//            addressText: shippingInfo.address,
-//            phoneText: shippingInfo.phone,
-//            shippingText: shippingInfo.shippingMethod,
-//            totalPrice: paymentInfo.totalAmount,
-//            depositState: ParticipantOrderStatus.from(postStatus: postStatus)
-//        )
-//    }
-//}
+
+// MARK: - JoinDetailEntity → MyPageJoinModel Mapping
+
+extension MyPageJoinModel {
+
+    /// 서버 상세(Entity) → 화면용 Model 변환
+    static func map(entity: JoinDetailEntity) -> MyPageJoinModel {
+        MyPageJoinModel(
+            participationId: entity.participationId,
+            imageUrlString: entity.imageUrl,
+            artistName: entity.artistName,
+            title: entity.title,
+            postStatus: MyPageJoinModel.PostStatus.from(entity.postStatus),
+            // 상세 응답에는 별도 orderStatus 필드가 없어서, 배송 상태를 대표값으로 사용
+            orderStatus: entity.shippingInfo.shippingStatus,
+            statusMessage: entity.statusMessage,
+            memberPayments: entity.memberPayments.map { .init(memberName: $0.memberName, price: $0.price) },
+            paymentInfo: PaymentInfo(
+                shippingFee: entity.paymentInfo.shippingFee,
+                totalAmount: entity.paymentInfo.totalAmount,
+                depositStatus: DepositStatus.from(entity.paymentInfo.depositStatus),
+                bank: entity.paymentInfo.bank,
+                accountNumber: entity.paymentInfo.accountNumber,
+                depositDeadline: entity.paymentInfo.depositDeadline
+            ),
+            shippingInfo: ShippingInfo(
+                shippingMethod: entity.shippingInfo.shippingMethod,
+                receiver: entity.shippingInfo.receiver,
+                zipcode: entity.shippingInfo.zipcode,
+                address: entity.shippingInfo.address,
+                phone: entity.shippingInfo.phone,
+                carrier: entity.shippingInfo.carrier,
+                trackingNumber: entity.shippingInfo.trackingNumber,
+                shippingStatus: ShippingStatus.from(entity.shippingInfo.shippingStatus)
+            )
+        )
+    }
+}
+
+// MARK: - Status Mapping Helpers
+
+extension MyPageJoinModel.DepositStatus {
+    static func from(_ status: ParticipantOrderStatus) -> MyPageJoinModel.DepositStatus {
+        // 서버 상태 → 입금 상태
+        // WAIT_PAY(입금대기), WAIT_PAY_CHECK(입금확인중), PAID/READY/SHIPPED/DELIVERED(입금완료로 간주)
+        switch status {
+        case .waitPay:
+            return .waiting
+        case .waitPayCheck:
+            return .shipped
+        case .paid, .ready, .shipped, .delivered:
+            return .completed
+        }
+    }
+}
+
+extension MyPageJoinModel.ShippingStatus {
+    static func from(_ status: ParticipantOrderStatus) -> MyPageJoinModel.ShippingStatus {
+        // 서버 상태 → 배송 상태
+        // READY(배송대기), SHIPPED(배송시작), DELIVERED(배송완료)
+        switch status {
+        case .ready:
+            return .preparing
+        case .shipped:
+            return .shipped
+        case .delivered:
+            return .delivered
+        case .waitPay, .waitPayCheck, .paid:
+            // 배송 단계 이전 상태들은 '배송 대기'로 표시
+            return .preparing
+        }
+    }
+}
+
+extension MyPageJoinModel.PostStatus {
+    static func from(_ status: PostStatus) -> MyPageJoinModel.PostStatus {
+        switch status {
+        case .recruiting:
+            return .recruiting
+        case .closed:
+            return .recruitCompleted
+        case .paymentDone:
+            return .depositCompleted
+        case .shipping:
+            return .shipping
+        case .delivered:
+            return .completed
+        }
+    }
+}

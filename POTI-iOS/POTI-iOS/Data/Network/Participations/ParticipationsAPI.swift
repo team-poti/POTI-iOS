@@ -2,16 +2,22 @@
 //  ParticipationsAPI.swift
 //  POTI-iOS
 //
-//  Created by nayeon on 1/23/26.
+//  Created by 이서현 on 1/23/26.
 //
 
 import Alamofire
 
 enum ParticipationsAPI: BaseTargetType {
+    case fetchParticipation(participationId: Int)
+    case patchParticipationDelivered(participationId: Int)
     case fetchMyParticipationsHistory(status: String)
     
     var path: String {
         switch self {
+        case .fetchParticipation(let participationId):
+            return "/api/v1/participations/\(participationId)"
+        case .patchParticipationDelivered(let participationId):
+            return "/api/v1/participations/\(participationId)/delivered"
         case .fetchMyParticipationsHistory:
             return "/api/v1/participations"
         }
@@ -19,6 +25,10 @@ enum ParticipationsAPI: BaseTargetType {
     
     var method: HTTPMethod {
         switch self {
+        case .fetchParticipation:
+            return .get
+        case .patchParticipationDelivered:
+            return .patch
         case .fetchMyParticipationsHistory:
             return .get
         }
@@ -28,6 +38,8 @@ enum ParticipationsAPI: BaseTargetType {
         switch self {
         case .fetchMyParticipationsHistory(let status):
             return ["status": status]
+        case .fetchParticipation, .patchParticipationDelivered:
+            return nil
         }
     }
 }

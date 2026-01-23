@@ -264,16 +264,16 @@ extension MyPageHistoryViewController: UITableViewDelegate {
 
 extension MyPageHistoryViewController {
     private func navigateToDetail(item: MyPageHistoryModel) {
-//        switch currentType {
-//        case .recruitment:
-//             모집글 상세
-//            let vc = factory.makeRecruitDetailViewController(postId: item.id)
-//            navigationController?.pushViewController(vc, animated: true)
-//
-//        case .participation:
-//             참여 상세 (이름은 예시)
-//            let vc = factory.makeMyPageJoinDetailViewController()
-//            navigationController?.pushViewController(vc, animated: true)
-//        }
+        switch currentType {
+        case .recruitment:
+             //모집글 상세
+            let vc = factory.makeRecruitDetailViewController(postId: item.id)
+            navigationController?.pushViewController(vc, animated: true)
+
+        case .participation:
+             //참여 상세 (이름은 예시)
+            let vc = factory.makeMyPageJoinDetailViewController(participantId: item.id, orderId: item.needId ?? -1)
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }

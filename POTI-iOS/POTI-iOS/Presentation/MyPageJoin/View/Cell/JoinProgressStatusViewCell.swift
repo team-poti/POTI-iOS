@@ -12,6 +12,12 @@ import Then
 
 final class JoinProgressStatusViewCell: UITableViewCell {
     
+    struct Model {
+        let postStatus: PostStatus
+        let role: UserRole
+        let participantStatus: ParticipantOrderStatus
+    }
+    
     // MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -91,11 +97,41 @@ final class JoinProgressStatusViewCell: UITableViewCell {
         }
     }
     
-    func configure(model: ProgressStatusModel) {
-        
-        let messageText = model.status.statusText(role: model.role)
+    func configure(model: Model) {
+        let messageText: String
+
+        if model.postStatus == .closed {
+            switch (model.role, model.participantStatus) {
+            case (.host, .waitPay):
+                messageText = "입금을 기다리는 중이에요"
+
+            case (.host, .waitPayCheck):
+                messageText = "입금 확인을 기다리는 참여자가 있어요"
+
+            case (.participant, .waitPay):
+                messageText = "지금 입금해주세요!"
+
+            case (.participant, .waitPayCheck):
+                messageText = "모집자가 입금 내역을 확인하고 있어요"
+
+            default:
+                // closed 상태지만 위 케이스에 해당 안 할 때
+                if model.role == .host {
+                    messageText = model.postStatus.statusText(role: model.role)
+                } else {
+                    messageText = model.postStatus.statusText(role: .participant)
+                }
+            }
+        } else {
+            // closed가 아닐 때
+            if model.role == .host {
+                messageText = model.postStatus.statusText(role: model.role)
+            } else {
+                messageText = model.postStatus.statusText(role: .participant)
+            }
+        }
+
         potStatusMessageView.configure(text: messageText)
-        
-        progressStatusBar.image = model.status.progressImage
+        progressStatusBar.image = model.postStatus.progressImage
     }
 }

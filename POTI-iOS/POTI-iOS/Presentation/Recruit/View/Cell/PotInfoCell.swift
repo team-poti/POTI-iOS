@@ -142,6 +142,7 @@ final class PotInfoCell: UITableViewCell {
 
         artistLabel.text = model.artistName
         potTitleLabel.text = model.title
-        potStatusLabel.text = model.statusMessage
+        potStatusLabel.text = model.status.badgeText
+        potStatusLabel.textColor = model.status.badgeColor
     }
 }

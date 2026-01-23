@@ -54,7 +54,7 @@ enum PostStatus: String {
     case shipping = "SHIPPING"
     case delivered = "DELIVERED"
 
-    func statusText(role: UserRole) -> String {
+    func statusText(role: UserRole) -> String { //0123 지워도될까
         switch self {
         case .recruiting: //모집중
             return role == .host
