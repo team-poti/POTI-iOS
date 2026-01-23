@@ -269,9 +269,9 @@ final class AppDIContainer {
         )
     }
     
-    func makeMyPageJoinViewModel(participationId: Int, orderId: Int) -> MyPageJoinViewModel {
+    func makeMyPageJoinViewModel(participationId: Int,) -> MyPageJoinViewModel {
         MyPageJoinViewModel(
-            participationId: participationId, orderId: orderId,
+            participationId: participationId,
             participationsDetailUsecase: makeParticipationsDetailUseCase(),
             postPaymentsUseCase: makePostPaymentsUseCase(),
             participationsDeliveredUseCase: makeParticipationsDeliveredUseCase(),

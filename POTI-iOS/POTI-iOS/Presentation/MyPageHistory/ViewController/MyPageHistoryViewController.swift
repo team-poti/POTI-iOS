@@ -41,7 +41,7 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
         self.currentTab = initialTab
         super.init(viewModel: viewModel)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -123,7 +123,7 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
                 self?.tabView.updateCount(for: .ongoing, count: count)
             }
             .store(in: &cancellables)
-
+        
         viewModel.output.completedCount
             .receive(on: DispatchQueue.main)
             .sink { [weak self] count in
@@ -134,7 +134,7 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
     
     private func updateTabSelection(to tab: HistoryTab, animated: Bool) {
         guard currentTab != tab || !animated else { return }
-
+        
         currentTab = tab
         
         tabView.updateTabSelection(tab: tab)
@@ -204,7 +204,7 @@ extension MyPageHistoryViewController: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         isScrollingByUser = false
     }
-        
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
             isScrollingByUser = false
@@ -251,11 +251,11 @@ extension MyPageHistoryViewController: UITableViewDataSource {
 extension MyPageHistoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
+        
         let item = tableView == contentView.ongoingTableView
-            ? ongoingItems[indexPath.row]
-            : completedItems[indexPath.row]
-
+        ? ongoingItems[indexPath.row]
+        : completedItems[indexPath.row]
+        
         navigateToDetail(item: item)
     }
 }
@@ -266,13 +266,17 @@ extension MyPageHistoryViewController {
     private func navigateToDetail(item: MyPageHistoryModel) {
         switch currentType {
         case .recruitment:
-             //모집글 상세
             let vc = factory.makeRecruitDetailViewController(postId: item.id)
             navigationController?.pushViewController(vc, animated: true)
-
+            
+            // 악귀 뷰 이동
         case .participation:
-             //참여 상세 (이름은 예시)
-            let vc = factory.makeMyPageJoinDetailViewController(participantId: item.id, orderId: item.needId ?? -1)
+            let vc = factory.makeMyPageJoinDetailViewController(
+                participationId: item.id
+            )
+            
+            vc.hidesBottomBarWhenPushed = true
+            
             navigationController?.pushViewController(vc, animated: true)
         }
     }

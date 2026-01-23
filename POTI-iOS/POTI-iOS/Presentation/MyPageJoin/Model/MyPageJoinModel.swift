@@ -9,6 +9,7 @@ import UIKit
 
 struct MyPageJoinModel: Hashable {
     let participationId: Int
+    let postId: Int
     let imageUrlString: String
     let artistName: String
     let title: String
@@ -158,7 +159,7 @@ extension MyPageJoinModel {
     /// 서버 상세(Entity) → 화면용 Model 변환
     static func map(entity: JoinDetailEntity) -> MyPageJoinModel {
         MyPageJoinModel(
-            participationId: entity.participationId,
+            participationId: entity.participationId, postId: entity.postId,
             imageUrlString: entity.imageUrl,
             artistName: entity.artistName,
             title: entity.title,

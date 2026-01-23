@@ -9,15 +9,13 @@ import Combine
 
 final class MyPageJoinViewModel: BaseViewModelType {
     private let participationId: Int
-    private(set) var orderId: Int
     
     // MARK: - Input
     
     enum Input {
         case viewDidLoad
-        case setParticipants([MyPageJoinModel])
         case tapPotInfo
-        case submitDeposit(orderId: Int, depositorName: String, depositedAt: String)
+        case submitDeposit(participationId: Int, depositorName: String, depositedAt: String)
         case completeDelivery(participantId: Int)
         case completeReview(transactionId: Int, rating: Int)
     }
@@ -27,7 +25,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
         let fetchData: AnyPublisher<Void, Never>
-        let naviPotInfo: AnyPublisher<Void, Never>
+        let naviPotInfo: AnyPublisher<Int, Never>
         let viewState: AnyPublisher<JoinDetailViewState, Never>
         let submitDepositResult: AnyPublisher<Void, Never>
         let completeDeliveryResult: AnyPublisher<Void, Never>
@@ -51,7 +49,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
     
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
     private let fetchDataSubject = PassthroughSubject<Void, Never>()
-    private let naviPotInfoSubject = PassthroughSubject<Void, Never>()
+    private let naviPotInfoSubject = PassthroughSubject<Int, Never>()
     private let viewStateSubject = CurrentValueSubject<JoinDetailViewState?, Never>(nil)
     private let submitDepositResultSubject = PassthroughSubject<Void, Never>()
     private let completeDeliveryResultSubject = PassthroughSubject<Void, Never>()
@@ -63,14 +61,12 @@ final class MyPageJoinViewModel: BaseViewModelType {
     
     init(
         participationId: Int,
-        orderId: Int,
         participationsDetailUsecase: ParticipationsDetailUseCase,
         postPaymentsUseCase: PostPaymentsUseCase,
         participationsDeliveredUseCase: ParticipationsDeliveredUseCase,
         createReviewUseCase: ReviewUseCase
     ) {
         self.participationId = participationId
-        self.orderId = orderId
         self.participationsDeliveredUseCase = participationsDeliveredUseCase
         self.participationsDetailUseCase = participationsDetailUsecase
         self.postPaymentsUseCase = postPaymentsUseCase
@@ -99,34 +95,41 @@ final class MyPageJoinViewModel: BaseViewModelType {
                 }
                 await self.fetchParticipationsDetail(participationId: self.participationId)
             }
-        case .setParticipants(let participants):
-            self.participants = participants
-            self.joinModel = participants.first
-            /// VC에서 viewModel.participantStatus로 바로 꺼내 쓸 수 있게 디폴트 값 설정
-            self.participantOrderStatus = joinModel?.postStatus
-            if let joinModel {
-                self.progressStatusModel = ProgressStatusModel(
-                    role: .participant,
-                    status: ParticipantStatus.from(participantStatus: joinModel.postStatus)
-                )
-            } else {
-                self.progressStatusModel = nil
-            }
-            fetchDataSubject.send()
+            //        case .setParticipants(let participants):
+            //            self.participants = participants
+            //            self.joinModel = participants.first
+            //            self.participantOrderStatus = joinModel?.postStatus
+            //            if let joinModel {
+            //                self.progressStatusModel = ProgressStatusModel(
+            //                    role: .participant,
+            //                    status: ParticipantStatus.from(participantStatus: joinModel.postStatus)
+            //                )
+            //            } else {
+            //                self.progressStatusModel = nil
+            //            }
+            //            fetchDataSubject.send()
             
         case .tapPotInfo:
-            naviPotInfoSubject.send()
+            if let postId = self.joinModel?.postId {
+                naviPotInfoSubject.send(postId)
+            }
+        case .submitDeposit(let participationId, let depositorName, let depositedAt):
+            guard joinModel?.paymentInfo.depositStatus == .waiting else {
+                print("⚠️ 현재 상태에서는 입금 정보를 제출할 수 없습니다. (현재 상태: \(joinModel?.paymentInfo.depositStatus.text ?? "알 수 없음"))")
+                return
+            }
             
-        case .submitDeposit(let orderId, let depositorName, let depositedAt):
             Task { [weak self] in
                 guard let self else { return }
                 do {
-                    let _ = try await postPaymentsUseCase.execute(
-                        orderId: orderId,
+                    let entity = PostPaymentEntity(
+                        participationId: participationId,
                         depositorName: depositorName,
                         depositedAt: depositedAt
                     )
-                    // 서버 상태를 다시 받아와 화면을 정확히 갱신
+                    
+                    _ = try await postPaymentsUseCase.execute(entity: entity)
+                    
                     await self.fetchParticipationsDetail(participationId: self.participationId)
                     self.submitDepositResultSubject.send()
                 } catch {
@@ -152,7 +155,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
                         transactionId: transactionId,
                         rating: rating
                     )
-
+                    
                     // 서버 상태를 다시 받아와 화면을 정확히 갱신
                     await self.fetchParticipationsDetail(participationId: self.participationId)
                     self.completeReviewResultSubject.send()
@@ -168,17 +171,19 @@ final class MyPageJoinViewModel: BaseViewModelType {
     private func fetchParticipationsDetail(participationId: Int) async {
         do {
             let entity = try await participationsDetailUseCase.execute(participationId: participationId)
-            
             let model = MyPageJoinModel.map(entity: entity)
+            
             self.joinModel = model
             self.participantOrderStatus = model.postStatus
-            self.participants = [model]
+            
             self.progressStatusModel = ProgressStatusModel(
                 role: .participant,
                 status: ParticipantStatus.from(participantStatus: model.postStatus)
             )
+            
             let state = viewStateMapper.map(entity: entity)
             viewStateSubject.send(state)
+            
             fetchDataSubject.send()
             reloadDataSubject.send()
         } catch {

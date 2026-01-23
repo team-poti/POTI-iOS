@@ -15,7 +15,6 @@ import SnapKit
 import Then
 
 class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, NavigationConfigurable {
-    
     func navigationStyle() -> PotiNavigationStyle {
         return .backDefault("진행 중인 분철")
     }
@@ -25,9 +24,9 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
         case progress
         case participantInfo
     }
-
-    private var viewState: RecruitDetailViewState?
     
+    private var viewState: RecruitDetailViewState?
+    let factory = DefaultViewControllerFactory()
     private let tableView = UITableView()
     private let backgroundView = UIView()
     
@@ -92,18 +91,20 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
         
         viewModel.output.naviPotInfo
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
+            .sink { [weak self] id in
                 let factory = DefaultViewControllerFactory()
-                let containerVC = factory.makePotDetailViewController(postId: 1) // 수정하기(마지막 0122)
+                let containerVC = factory.makePotDetailViewController(postId: id)
+                containerVC.hidesBottomBarWhenPushed = true
                 self?.navigationController?.pushViewController(containerVC, animated: true)
             }
             .store(in: &cancellables)
         
         viewModel.output.naviManageInfo
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
+            .sink { [weak self] id in
                 let factory = DefaultViewControllerFactory()
-                let containerVC = factory.makeParticipantManageViewController(postId: 101)
+                let containerVC = factory.makeParticipantManageViewController(postId: id)
+                containerVC.hidesBottomBarWhenPushed = true
                 self?.navigationController?.pushViewController(containerVC, animated: true)
             }
             .store(in: &cancellables)
@@ -170,8 +171,8 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             ) as? PotInfoCell else { return UITableViewCell() }
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             if let potInfo = viewState?.potInfo {
-                    cell.configure(model: potInfo)
-                }
+                cell.configure(model: potInfo)
+            }
             cell.onTapPotButton = { [weak self] in
                 self?.viewModel.action(.tapPotInfo)
             }
@@ -184,13 +185,13 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
             ) as? ProgressStatusViewCell else { return UITableViewCell() }
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             if let progressModel = viewState?.progress {
-                    cell.configure(model: progressModel)
-                }
+                cell.configure(model: progressModel)
+            }
             return cell
             
         case .participantInfo:
             let count = viewState?.participants.count ?? 0
-
+            
             if count == 0 {
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: EmptyManageViewCell.identifier,
@@ -199,21 +200,21 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
                 cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
                 return cell
             }
-
+            
             guard let cell = tableView.dequeueReusableCell(
                 withIdentifier: ParticipantManageViewCell.identifier,
                 for: indexPath
             ) as? ParticipantManageViewCell else { return UITableViewCell() }
-
+            
             guard let participant = viewState?.participants[indexPath.row] else {
                 return cell
             }
-
+            
             let isLastRow = indexPath.row == count - 1
             cell.separatorInset = isLastRow
             ? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             : UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-
+            
             cell.configure(model: participant)
             return cell
         }
