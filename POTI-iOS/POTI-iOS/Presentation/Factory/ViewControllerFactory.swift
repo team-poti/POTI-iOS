@@ -29,6 +29,7 @@ protocol ViewControllerFactory {
     func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
     func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
     func makeYourPageViewController(userId: Int) -> YourPageViewController
+    func makeReviewUseCase() -> ReviewUseCase
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -83,7 +84,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeMyPageJoinDetailViewController(participationId : Int) -> MyPageJoinDetailViewController {
-        MyPageJoinDetailViewController(viewModel: diContainer.makeMyPageJoinViewModel(participationId: participationId))
+        MyPageJoinDetailViewController(viewModel: diContainer.makeMyPageJoinViewModel(participationId: participationId), factory: self)
     }
     
     func makePotDetailViewController(postId: Int) -> PotDetailViewController {
@@ -139,5 +140,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeYourPageViewController(userId: Int) -> YourPageViewController {
         YourPageViewController(viewModel: diContainer.makeYourPageViewModel(userId: userId))
+    }
+    
+    func makeReviewUseCase() -> ReviewUseCase {
+        diContainer.makeCreateReviewUseCase()
     }
 }

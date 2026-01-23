@@ -218,7 +218,7 @@ final class AppDIContainer {
         DefaultParticipationsDeliveredUseCase(repository: makeParticipationsDeliveredRepository())
     }
     
-    private func makeCreateReviewUseCase() -> ReviewUseCase {
+    func makeCreateReviewUseCase() -> ReviewUseCase {
         DefaultReviewUseCase(repository: makeCreateReviewsRepository())
     }
     
