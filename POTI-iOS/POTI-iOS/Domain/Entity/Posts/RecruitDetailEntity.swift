@@ -54,14 +54,14 @@ enum PostStatus: String {
     case shipping = "SHIPPING"
     case delivered = "DELIVERED"
 
-    func statusText(role: UserRole) -> String { //0123 지워도될까
+    func statusText(role: UserRole) -> String {
         switch self {
-        case .recruiting: //모집중
+        case .recruiting:
             return role == .host
             ? "참여자들을 기다리고 있어요"
             : "다른 참여자들을 기다리고 있어요"
 
-        case .closed: // 모집완료
+        case .closed:
             return role == .host
             ? "입금을 기다리는 중이에요. 입금 확인을 기다리는 참여자가 있어요"
             : "지금 입금해주세요!"
@@ -84,7 +84,7 @@ enum PostStatus: String {
     var badgeText: String {
         switch self {
         case .recruiting: return "모집 중"
-        case .closed: return "입금 대기"
+        case .closed: return "모집 완료"
         case .paymentDone: return "입금 완료"
         case .shipping: return "배송 중"
         case .delivered: return "배송 완료"
@@ -93,9 +93,9 @@ enum PostStatus: String {
 
     var badgeColor: UIColor {
         switch self {
-        case .recruiting, .closed:
+        case .recruiting:
             return .sementicRed
-        case .paymentDone, .shipping:
+        case .paymentDone, .shipping, .closed:
             return .poti600
         case .delivered:
             return .gray700

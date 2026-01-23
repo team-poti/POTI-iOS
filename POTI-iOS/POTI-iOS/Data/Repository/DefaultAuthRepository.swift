@@ -62,4 +62,11 @@ final class DefaultAuthRepository: AuthInterface {
             
         PotiLogger.debug("Keychain 저장 및 검증 완료")
     }
+    
+    func withDraw() async throws {
+        try await networkService.request(target: AuthAPI.withdrawalUser, type: EmptyResponse.self
+        )
+    }
 }
+
+struct EmptyResponse: Decodable {}

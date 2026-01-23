@@ -234,8 +234,12 @@ final class AppDIContainer {
         DefaultParticipationsDeliveredUseCase(repository: makeParticipationsDeliveredRepository())
     }
     
-    private func makeCreateReviewUseCase() -> ReviewUseCase {
+    func makeCreateReviewUseCase() -> ReviewUseCase {
         DefaultReviewUseCase(repository: makeCreateReviewsRepository())
+    }
+    
+    @MainActor private func makeWithdrawUseCase() -> WithdrawUseCase {
+        DefaultWithdrawUseCase(repository: makeAuthRepository())
     }
     
     // MARK: - ViewModel
@@ -248,8 +252,8 @@ final class AppDIContainer {
         LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())
     }
     
-    func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(useCase: makeHomeUseCase())
+    @MainActor func makeHomeViewModel() -> HomeViewModel {
+        HomeViewModel(useCase: makeHomeUseCase(), withDrawUseCase: makeWithdrawUseCase())
     }
     
     func makeGoodsListViewModel(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewModel {
@@ -281,9 +285,9 @@ final class AppDIContainer {
         )
     }
     
-    func makeMyPageJoinViewModel(participationId: Int, orderId: Int) -> MyPageJoinViewModel {
+    func makeMyPageJoinViewModel(participationId: Int,) -> MyPageJoinViewModel {
         MyPageJoinViewModel(
-            participationId: participationId, orderId: orderId,
+            participationId: participationId,
             participationsDetailUsecase: makeParticipationsDetailUseCase(),
             postPaymentsUseCase: makePostPaymentsUseCase(),
             participationsDeliveredUseCase: makeParticipationsDeliveredUseCase(),

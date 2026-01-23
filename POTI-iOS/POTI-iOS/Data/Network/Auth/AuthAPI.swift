@@ -11,6 +11,7 @@ enum AuthAPI: BaseTargetType {
     case login(socialType: String, token: String)
     case reissue(refreshToken: String)
     case devLogin
+    case withdrawalUser
 
     var path: String {
         switch self {
@@ -20,6 +21,8 @@ enum AuthAPI: BaseTargetType {
             return "/api/v1/auth/reissue"
         case .devLogin:
             return "/dev/login"
+        case .withdrawalUser:
+            return "/api/v1/auth/withdrawal"
         }
     }
 
@@ -29,6 +32,8 @@ enum AuthAPI: BaseTargetType {
             return .post
         case .devLogin:
             return .get
+        case .withdrawalUser:
+            return .delete
         }
     }
 
@@ -43,7 +48,7 @@ enum AuthAPI: BaseTargetType {
             return [
                 "refreshToken": refreshToken
             ]
-        case .devLogin:
+        case .devLogin, .withdrawalUser:
             return nil
         }
     }

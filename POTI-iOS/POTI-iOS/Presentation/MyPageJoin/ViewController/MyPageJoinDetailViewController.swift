@@ -27,13 +27,24 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         }
     }
     
-    private let tableView = UITableView(frame: .zero, style: .grouped) // 0123 스티키헤더 확인하기
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private let completeButton = PotiBottomButton()
     private var tableViewBottomConstraint: Constraint?
     private var viewState: JoinDetailViewState?
     private var didSubmitDeposit: Bool = false
     
     // MARK: - Lifecycle
+    
+    private let factory: ViewControllerFactory
+    
+    init(viewModel: MyPageJoinViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+        
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,30 +109,25 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private func updateCompleteButton() {
-        guard let status = viewModel.participantOrderStatus else {
-            completeButton.isHidden = true
-            tableViewBottomConstraint?.update(inset: 0)
-            UIView.animate(withDuration: 0.25) {
-                self.view.layoutIfNeeded()
-            }
-            return
-        }
+        guard let model = viewModel.joinModel else { return }
+        let status = model.postStatus
+        let depositStatus = model.paymentInfo.depositStatus
         
         
         switch status {
         case .recruitCompleted:
-            // 입금 제출 이후에는 서버 status가 아직 recruitCompleted여도 버튼을 숨김 유지
-            if didSubmitDeposit {
-                completeButton.isHidden = true
-                tableViewBottomConstraint?.update(inset: 0)
-            } else {
-                completeButton.isHidden = false
-                completeButton.text = "입금 완료했어요"
-                tableViewBottomConstraint?.update(inset: 94)
-            }
+                // 로컬 변수인 didSubmitDeposit은 무시하고, 서버 상태가 waiting일 때만 버튼 노출
+                if depositStatus == .waiting {
+                    completeButton.isHidden = false
+                    completeButton.text = "입금 완료했어요"
+                    tableViewBottomConstraint?.update(inset: 94)
+                } else {
+                    // '입금 확인중'이나 '입금 완료' 상태면 버튼을 완전히 제거
+                    completeButton.isHidden = true
+                    tableViewBottomConstraint?.update(inset: 0)
+                }
             
         case .shipping:
-            // 배송 단계로 넘어오면 다시 버튼 노출
             didSubmitDeposit = false
             completeButton.isHidden = false
             completeButton.text = "배송을 받았어요"
@@ -131,9 +137,10 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             completeButton.isHidden = true
             tableViewBottomConstraint?.update(inset: 0)
         }
+        
         UIView.animate(withDuration: 0.25) {
-            self.view.layoutIfNeeded()
-        }
+                self.view.layoutIfNeeded()
+            }
     }
     
     @objc private func didTapCompleteButton() {
@@ -156,12 +163,20 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             secondPlaceholder: "YY-MM-DD TT:MM",
             confirmButtonText: "완료"
         )
+        
         sheet.onSubmit = { [weak self] depositorName, depositedAt in
             guard let self else { return }
-            let orderId = viewModel.orderId
-            self.didSubmitDeposit = true
+            
+            guard let currentId = self.viewModel.joinModel?.participationId else { return }
+            
+            self.didSubmitDeposit = true // 버튼 UI 제어용
+            
             self.viewModel.action(
-                .submitDeposit(orderId: orderId, depositorName: depositorName, depositedAt: depositedAt)
+                .submitDeposit(
+                    participationId: currentId,
+                    depositorName: depositorName,
+                    depositedAt: depositedAt
+                )
             )
         }
         
@@ -169,7 +184,8 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private func completeButtonTapped() {
-        let orderId = viewModel.orderId
+        guard let participantId = viewModel.joinModel?.participationId else { return }
+        
         let alert = CustomAlertView(
             title: "잠깐! 정말 상품을 수령했나요?",
             message: "거래가 종료되면 되돌릴 수 없어요",
@@ -184,16 +200,26 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
                 guard let yourPageModel = self.viewModel.yourPageModel else { return }
                 let nickname = yourPageModel.nickname
                 let avgRating = yourPageModel.ratingAverage
+                
+                let reviewUseCase = self.factory.makeReviewUseCase()
+                
                 let starRating = StarRatingPopupView(
+                    reviewUseCase: reviewUseCase,
+                    transactionId: participantId,
                     onCompleteButton: { [weak self] rating in
                         guard let self else { return }
-                        self.viewModel.action(.completeReview(transactionId: orderId, rating: Int(rating)))
+                        // 리뷰 완료 후 배송 완료 처리
+                        self.viewModel.action(.completeDelivery(participantId: participantId))
                     },
                     onSkipButton: { [weak self] in
                         guard let self else { return }
-                        self.viewModel.action(.completeDelivery(participantId: orderId))
+                        // 리뷰 건너뛰고 배송 완료 처리
+                        self.viewModel.action(.completeDelivery(participantId: participantId))
                     }
                 )
+                
+                // ⭐️ 상대방 정보 설정
+                starRating.configure(nickname: nickname, avgRating: avgRating)
                 starRating.show(on: self.navigationController?.view ?? self.view)
             }
         )
@@ -212,7 +238,6 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
                 self?.viewState = state
                 self?.updateCompleteButton()
                 
-                // navigationStyle 재적용 (postStatus 기반 타이틀 갱신)
                 self?.navigationController?.setNavigationBarHidden(true, animated: false)
                 self?.navigationController?.setNavigationBarHidden(false, animated: false)
                 
@@ -230,17 +255,11 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         
         viewModel.output.naviPotInfo
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
+            .sink { [weak self] id in
                 let factory = DefaultViewControllerFactory()
-                let containerVC = factory.makePotDetailViewController(postId: 1)
+                let containerVC = factory.makePotDetailViewController(postId: id)
+                containerVC.hidesBottomBarWhenPushed = true
                 self?.navigationController?.pushViewController(containerVC, animated: true)
-            }
-            .store(in: &cancellables)
-        
-        viewModel.output.naviPotInfo
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.updateCompleteButton()
             }
             .store(in: &cancellables)
         
@@ -268,8 +287,6 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
                 guard let self else { return }
                 self.updateCompleteButton()
                 self.tableView.reloadData()
-                //이쪽에 로직 넣기
-                
             }
             .store(in: &cancellables)
     }

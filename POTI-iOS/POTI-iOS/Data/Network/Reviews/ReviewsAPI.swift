@@ -24,11 +24,13 @@ enum ReviewsAPI: BaseTargetType {
         }
     }
     
-    var queryParameters: Parameters? {
-        return nil
-    }
-    
     var bodyParameters: Parameters? {
-        return nil
+        switch self {
+        case .createReview(let transactionId, let rating):
+            return [
+                "transactionId": transactionId,
+                "rating": rating
+            ]
+        }
     }
 }

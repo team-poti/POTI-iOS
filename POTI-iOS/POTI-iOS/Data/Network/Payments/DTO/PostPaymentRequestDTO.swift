@@ -8,17 +8,19 @@
 import Alamofire
 
 struct PostPaymentRequestDTO: Encodable {
-    let orderId: Int
+    let participationId: Int
     let depositorName: String
     let depositedAt: String
-}
-
-extension PostPaymentRequestDTO {
-    func toParameters() -> Parameters {
-        [
-            "orderId": orderId,
-            "depositorName": depositorName,
-            "depositedAt": depositedAt
-        ]
+    
+    // 수상하다 요놈 비어있음!!!!!!
+    enum CodingKeys: String, CodingKey {
+        case participationId = "orderId"
+        case depositorName
+        case depositedAt
+    }
+    
+    func toEntity() -> PostPaymentEntity {
+        return PostPaymentEntity(participationId: participationId, depositorName: depositorName, depositedAt: depositedAt
+        )
     }
 }

@@ -28,9 +28,10 @@ protocol ViewControllerFactory {
     func makeProductRegisterViewController() -> ProductRegisterViewController
     func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
-    func makeMyPageJoinDetailViewController(participantId: Int, orderId: Int) -> MyPageJoinDetailViewController
+    func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
     func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
     func makeYourPageViewController(userId: Int) -> YourPageViewController
+    func makeReviewUseCase() -> ReviewUseCase
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -56,7 +57,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         PotiTabBar(factory: self)
     }
     
-    func makeHomeViewController() -> HomeViewController {
+    @MainActor func makeHomeViewController() -> HomeViewController {
         HomeViewController(
             viewModel: diContainer.makeHomeViewModel(),factory: self
         )
@@ -84,8 +85,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         ParticipantListTableViewController(viewModel: diContainer.makeManageViewModel(postId: postId))
     }
     
-    func makeMyPageJoinDetailViewController(participantId participationId: Int, orderId: Int) -> MyPageJoinDetailViewController {
-        MyPageJoinDetailViewController(viewModel: diContainer.makeMyPageJoinViewModel(participationId: participationId, orderId: orderId))
+    func makeMyPageJoinDetailViewController(participationId : Int) -> MyPageJoinDetailViewController {
+        MyPageJoinDetailViewController(viewModel: diContainer.makeMyPageJoinViewModel(participationId: participationId), factory: self)
     }
     
     func makePotDetailViewController(postId: Int) -> PotDetailViewController {
@@ -154,5 +155,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeYourPageViewController(userId: Int) -> YourPageViewController {
         YourPageViewController(viewModel: diContainer.makeYourPageViewModel(userId: userId))
+    }
+    
+    func makeReviewUseCase() -> ReviewUseCase {
+        diContainer.makeCreateReviewUseCase()
     }
 }

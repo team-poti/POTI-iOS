@@ -8,9 +8,5 @@
 protocol PaymentsInterface {
     func patchPaymentConfirm(orderId: Int) async throws -> RecruitPaymentsConfirmDTO
     
-    func postPaymentConfirm(
-        orderId: Int,
-        depositorName: String,
-        depositedAt: String
-    ) async throws -> PostPaymentEntity
+    func postPaymentConfirm(entity: PostPaymentEntity) async throws -> PostPaymentResponseEntity
 }

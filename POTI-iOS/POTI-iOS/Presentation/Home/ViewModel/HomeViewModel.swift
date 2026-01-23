@@ -14,6 +14,7 @@ final class HomeViewModel: BaseViewModelType {
     enum Input {
         case viewDidLoad
         case bannerScrolled(index: Int)
+        case searchButtonTapped
     }
     
     // MARK: - Output
@@ -21,16 +22,19 @@ final class HomeViewModel: BaseViewModelType {
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
         let updateBannerPage: AnyPublisher<Int, Never>
+        let withdrawCompleted: AnyPublisher<Void, Never>
     }
     
     // MARK: - Subjects
     
+    private let withdrawCompletedSubject = PassthroughSubject<Void, Never>()
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
     private let bannerPageSubject = PassthroughSubject<Int, Never>()
     
     // MARK: - Properties
     
     private let useCase: HomeUseCase
+    private let withDrawUseCase: WithdrawUseCase
     private var cancellables = Set<AnyCancellable>()
     private(set) var isMyGroupMixed: Bool = false
     
@@ -44,12 +48,17 @@ final class HomeViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: HomeUseCase) {
+    init(
+        useCase: HomeUseCase,
+        withDrawUseCase: WithdrawUseCase
+    ) {
         self.useCase = useCase
+        self.withDrawUseCase = withDrawUseCase
         
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher(),
-            updateBannerPage: bannerPageSubject.eraseToAnyPublisher()
+            updateBannerPage: bannerPageSubject.eraseToAnyPublisher(),
+            withdrawCompleted: withdrawCompletedSubject.eraseToAnyPublisher()
         )
     }
     
@@ -61,6 +70,8 @@ final class HomeViewModel: BaseViewModelType {
             fetchHomeData()
         case .bannerScrolled(let index):
             bannerPageSubject.send(index)
+        case .searchButtonTapped:
+            withdraw()
         }
     }
     
@@ -84,6 +95,21 @@ final class HomeViewModel: BaseViewModelType {
                 reloadDataSubject.send(())
             } catch {
                 print("Error: \(error)")
+            }
+        }
+    }
+    
+    private func withdraw() {
+        Task {
+            do {
+                try await withDrawUseCase.execute()
+                
+                await MainActor.run {
+                    KeychainManager.deleteAllTokens()
+                    withdrawCompletedSubject.send(())
+                }
+            } catch {
+                print("탈퇴 실패: \(error)")
             }
         }
     }
