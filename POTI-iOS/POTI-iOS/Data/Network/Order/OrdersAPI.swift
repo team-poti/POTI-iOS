@@ -9,7 +9,9 @@ import Alamofire
 
 enum OrdersAPI: BaseTargetType {
     case submitOrder(request: OrderRequestDTO)
-    case patchTrackingNumber(orderId: Int, request: TrackingNumberRequestDTO)
+    case patchTrackingNumber(
+        orderId: Int,
+        request: TrackingNumberRequestDTO)
     
     var path: String {
         switch self {

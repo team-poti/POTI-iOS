@@ -16,6 +16,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
         case viewDidLoad
         case setParticipants([MyPageJoinModel])
         case tapPotInfo
+        case submitDeposit(orderId: Int, depositorName: String, depositedAt: String)
     }
     
     // MARK: - Output
@@ -28,7 +29,8 @@ final class MyPageJoinViewModel: BaseViewModelType {
     }
     
     private(set) var joinModel: MyPageJoinModel?
-    private let usecase: ParticipationsDetailUseCase
+    private let participationsDetailUsecase: ParticipationsDetailUseCase
+    private let postPaymentsUseCase: PostPaymentsUseCase
     private let viewStateMapper = JoinDetailViewStateMapper()
     
     /// MyPageJoinDetailViewController -> .statusInfo  섹션에서 분기용으로 사용할 현재 상태
@@ -49,10 +51,12 @@ final class MyPageJoinViewModel: BaseViewModelType {
     
     init(
         participationId: Int,
-        usecase: ParticipationsDetailUseCase
+        participationsDetailUsecase: ParticipationsDetailUseCase,
+        postPaymentsUseCase: PostPaymentsUseCase
     ) {
         self.participationId = participationId
-        self.usecase = usecase
+        self.participationsDetailUsecase = participationsDetailUsecase
+        self.postPaymentsUseCase = postPaymentsUseCase
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher(),
             fetchData: fetchDataSubject.eraseToAnyPublisher(),
@@ -61,13 +65,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
                 .compactMap { $0 }
                 .eraseToAnyPublisher()
         )
-        print("✅ MyPageJoinViewModel init - participationId:", participationId)
     }
-    
-    deinit {
-        print("🧨 MyPageJoinViewModel deinit - participationId:", participationId)
-    }
-    
     // MARK: - Action
     
     func action(_ trigger: Input) {
@@ -96,6 +94,24 @@ final class MyPageJoinViewModel: BaseViewModelType {
             
         case .tapPotInfo:
             naviPotInfoSubject.send()
+            
+        case .submitDeposit(let orderId, let depositorName, let depositedAt):
+            Task { [weak self] in
+                guard let self else { return }
+                do {
+                    let entity = try await postPaymentsUseCase.execute(
+                        orderId: orderId,
+                        depositorName: depositorName,
+                        depositedAt: depositedAt
+                    )
+                    self.participantOrderStatus = .depositCompleted
+                    self.reloadDataSubject.send()
+                    
+                } catch {
+                    print("❌ payment error:", error)
+                    // self.errorSubject.send(...)
+                }
+            }
         }
     }
     
@@ -103,9 +119,8 @@ final class MyPageJoinViewModel: BaseViewModelType {
     
     private func fetchParticipationsDetail(participationId: Int) async {
         do {
-            let entity = try await usecase.execute(participationId: participationId)
-
-            // ✅ statusInfo에서 쓰는 모델도 반드시 갱신
+            let entity = try await participationsDetailUsecase.execute(participationId: participationId)
+            
             let model = MyPageJoinModel.map(entity: entity)
             self.joinModel = model
             self.participantOrderStatus = model.postStatus
@@ -116,8 +131,6 @@ final class MyPageJoinViewModel: BaseViewModelType {
             )
             let state = viewStateMapper.map(entity: entity)
             viewStateSubject.send(state)
-
-            // ✅ VC 업데이트 트리거
             fetchDataSubject.send()
             reloadDataSubject.send()
         } catch {

@@ -15,7 +15,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     func navigationStyle() -> PotiNavigationStyle {
         let status = viewModel.participantOrderStatus ?? .recruiting
         print("네비 바 작동 확인 \(status)")
-
+        
         switch status {
         case .completed:
             return .backDefault("종료된 분철")
@@ -133,13 +133,20 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     
     private func presentDetailBottomSheet() {
         let sheet = DetailBottomSheet(
-            viewModel: BottomSheetViewModel(), firstTitle: "입금자명",
+            viewModel: BottomSheetViewModel(),
+            firstTitle: "입금자명",
             firstPlaceholder: "입금자명을 입력해주세요",
             secondTitle: "입금 시간",
             secondPlaceholder: "YY-MM-DD TT:MM",
             confirmButtonText: "완료"
         )
-        sheet.show(in: self.view)
+        //        sheet.onSubmit = { [weak self] carrier, trackingNumber in
+        //
+        //            self?.viewModel.action(
+        //                .patchTrackingNumber(orderId: orderId, carrier: carrier, trackingNumber: trackingNumber)
+        //            )
+        //        }
+        sheet.show(in: self.navigationController?.view ?? view)
     }
     
     private func completeButtonTapped() {
@@ -180,11 +187,11 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             .sink { [weak self] state in
                 self?.viewState = state
                 self?.updateCompleteButton()
-
-                // 🔄 navigationStyle 재적용 (postStatus 기반 타이틀 갱신)
+                
+                // navigationStyle 재적용 (postStatus 기반 타이틀 갱신)
                 self?.navigationController?.setNavigationBarHidden(true, animated: false)
                 self?.navigationController?.setNavigationBarHidden(false, animated: false)
-
+                
                 self?.tableView.reloadData()
             }
             .store(in: &cancellables)
@@ -275,8 +282,8 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                 for: indexPath
             ) as? JoinPotInfoCell else { return UITableViewCell() }
             if let potInfo = viewState?.potInfo {
-                    cell.configure(model: potInfo)
-                }
+                cell.configure(model: potInfo)
+            }
             cell.onTapPotButton = { [weak self] in
                 self?.viewModel.action(.tapPotInfo)
             }
@@ -306,7 +313,6 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         case .statusInfo:
             let status = viewModel.participantOrderStatus ?? .recruiting
             updateCompleteButton()
-            print("🧩 [statusInfo] joinModel:", viewModel.joinModel as Any, "status:", status)
             switch status {
             case .recruiting:
                 guard let cell = tableView.dequeueReusableCell(
