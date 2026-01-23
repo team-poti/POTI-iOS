@@ -18,7 +18,7 @@ struct PotInfoViewState {
     let imageUrl: String
     let artistName: String
     let title: String
-    let statusMessage: String
+    let status: PostStatus
 }
 
 struct ProgressViewState {
@@ -88,7 +88,7 @@ struct RecruitDetailViewStateMapper {
             imageUrl: entity.imageUrl,
             artistName: entity.artistName,
             title: entity.title,
-            statusMessage: entity.statusMessage
+            status: entity.postStatus
         )
         
         let participantStatus = resolveParticipantStatus(

@@ -29,7 +29,7 @@ struct JoinMemberPaymentEntity: Decodable {
 struct JoinPaymentEntity {
     let shippingFee: Int
     let totalAmount: Int
-    let depositStatus: ParticipantStatus
+    let depositStatus: ParticipantOrderStatus
     let bank: String?
     let accountNumber: String?
     let depositDeadline: String?
@@ -43,5 +43,5 @@ struct JoinShippingEntity {
     let phone: String
     let carrier: String
     let trackingNumber: String
-    let shippingStatus: ParticipantStatus
+    let shippingStatus: ParticipantOrderStatus
 }

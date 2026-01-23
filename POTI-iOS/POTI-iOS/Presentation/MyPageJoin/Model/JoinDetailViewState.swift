@@ -30,11 +30,11 @@ struct MyJoinDepositState {
 struct JoinDetailViewStateMapper {
     private func resolveParticipantStatus(
         participants: [JoinDetailEntity]
-    ) -> ParticipantStatus {
+    ) -> ParticipantOrderStatus {
         
         // 참여자 기준: 대표 상태 (우선순위)
         if participants.contains(where: { $0.postStatus == .recruiting }) {
-            return .recruiting
+            return .waitPay
         }
         
         if participants.contains(where: { $0.paymentInfo.depositStatus == .waitPayCheck }) {
@@ -46,11 +46,11 @@ struct JoinDetailViewStateMapper {
     
     func map(entity: JoinDetailEntity) -> JoinDetailViewState {
         let potInfo = PotInfoViewState(
-            postId: entity.postId,
+            postId: entity.participationId,
             imageUrl: entity.imageUrl,
             artistName: entity.artistName,
             title: entity.title,
-            statusMessage: entity.statusMessage
+            status: entity.postStatus
         )
         
         let participantStatus = entity.paymentInfo.depositStatus

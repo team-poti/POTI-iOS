@@ -102,7 +102,7 @@ extension JoinPaymentDTO {
         JoinPaymentEntity(
             shippingFee: shippingFee,
             totalAmount: totalAmount,
-            depositStatus: ParticipantStatus(rawValue: depositStatus) ?? .recruiting,
+            depositStatus: ParticipantOrderStatus(rawValue: depositStatus) ?? .waitPay,
             bank: bank,
             accountNumber: accountNumber,
             depositDeadline: depositDeadline
@@ -120,7 +120,7 @@ extension JoinShippingDTO {
             phone: phone,
             carrier: carrier ?? "",
             trackingNumber: trackingNumber ?? "",
-            shippingStatus: ParticipantStatus(rawValue: shippingStatus) ?? .recruiting
+            shippingStatus: ParticipantOrderStatus(rawValue: shippingStatus) ?? .waitPay
             )
     }
 }

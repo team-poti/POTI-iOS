@@ -138,10 +138,10 @@ final class JoinPotInfoCell: UITableViewCell {
     }
     
     /// 0121 어떻게 재사용할 수 있을지 고민.. (PotInfoCell 이랑 JoinInfoCell)
-    func configure(model: MyPageJoinModel) {
-        potIdLabel.text = "참여 번호 poti-" + String(model.participationId)
+    func configure(model: PotInfoViewState) {
+        potIdLabel.text = "참여 번호 poti-" + String(model.postId)
         
-        if let url = URL(string: model.imageUrlString) {
+        if let url = URL(string: model.imageUrl) {
             thumbnailView.kf.setImage(
                 with: url,
                 placeholder: UIImage(named: "placeholder")
@@ -152,7 +152,7 @@ final class JoinPotInfoCell: UITableViewCell {
         
         artistLabel.text = model.artistName
         potTitleLabel.text = model.title
-        potStatusLabel.text = model.postStatus.potStatusText
-        potStatusLabel.textColor = model.postStatus.potStatusColor
+        potStatusLabel.text = model.status.badgeText
+        potStatusLabel.textColor = model.status.badgeColor
     }
 }

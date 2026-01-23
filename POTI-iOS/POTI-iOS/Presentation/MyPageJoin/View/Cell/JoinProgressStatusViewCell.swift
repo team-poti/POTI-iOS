@@ -15,7 +15,7 @@ final class JoinProgressStatusViewCell: UITableViewCell {
     struct Model {
         let postStatus: PostStatus
         let role: UserRole
-        let participantStatus: ParticipantStatus
+        let participantStatus: ParticipantOrderStatus
     }
     
     // MARK: - Lifecycle
@@ -102,13 +102,13 @@ final class JoinProgressStatusViewCell: UITableViewCell {
 
         if model.postStatus == .closed {
             switch (model.role, model.participantStatus) {
-            case (.host, .recruiting):
+            case (.host, .waitPay):
                 messageText = "입금을 기다리는 중이에요"
 
             case (.host, .waitPayCheck):
                 messageText = "입금 확인을 기다리는 참여자가 있어요"
 
-            case (.participant, .recruiting):
+            case (.participant, .waitPay):
                 messageText = "지금 입금해주세요!"
 
             case (.participant, .waitPayCheck):
@@ -119,7 +119,7 @@ final class JoinProgressStatusViewCell: UITableViewCell {
                 if model.role == .host {
                     messageText = model.postStatus.statusText(role: model.role)
                 } else {
-                    messageText = model.participantStatus.statusText(role: model.role)
+                    messageText = model.postStatus.statusText(role: .participant)
                 }
             }
         } else {
@@ -127,7 +127,7 @@ final class JoinProgressStatusViewCell: UITableViewCell {
             if model.role == .host {
                 messageText = model.postStatus.statusText(role: model.role)
             } else {
-                messageText = model.participantStatus.statusText(role: model.role)
+                messageText = model.postStatus.statusText(role: .participant)
             }
         }
 
