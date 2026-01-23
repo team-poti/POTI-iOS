@@ -190,6 +190,10 @@ final class AppDIContainer {
         DefaultMyPageParticipationsHistoryUseCase(repository: makeParticipationsRepository())
     }
     
+    private func makeGetYourPageInformationUseCase() -> GetYourPageInformationUseCase {
+        DefaultGetYourPageInformationUseCase(repository: makeUsersRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -264,6 +268,12 @@ final class AppDIContainer {
             initialType: initialType,
             myPagePostsHistoryUseCase: makeMyPagePostsHistoryUseCase(),
             myPageParticipationsHistoryUseCase: makeMyPageParticipationsHistoryUseCase()
+        )
+    }
+    
+    func makeYourPageViewModel(userId: Int) -> YourPageViewModel {
+        YourPageViewModel(
+            userId: userId, getYourPageInformationUseCase: makeGetYourPageInformationUseCase()
         )
     }
 }

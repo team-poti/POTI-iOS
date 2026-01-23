@@ -28,6 +28,7 @@ protocol ViewControllerFactory {
     func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
     func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewController
+    func makeYourPageViewController(userId: Int) -> YourPageViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
@@ -142,5 +143,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet {
         let viewModel = SortViewModel(type: type, initialIndex: initialIndex)
         return SortBottomSheet(viewModel: viewModel)
+    }
+    
+    func makeYourPageViewController(userId: Int) -> YourPageViewController {
+        YourPageViewController(viewModel: diContainer.makeYourPageViewModel(userId: userId))
     }
 }
