@@ -110,13 +110,13 @@ final class StarRatingPopupView: BaseView {
         }
         
         nicknameLabel.do {
-            $0.text = "닉네임"
+            $0.text = ""
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .potiBlack
         }
         
         avgRatingLabel.do {
-            $0.text = "4.8"
+            $0.text = ""
             $0.font = .systemFont(ofSize: 12, weight: .regular)
             $0.textColor = .gray700
         }
@@ -348,6 +348,11 @@ final class StarRatingPopupView: BaseView {
         UIView.animate(withDuration: 0.3) {
             self.alpha = 1
         }
+    }
+    
+    func configure(nickname: String, avgRating: Double) {
+        nicknameLabel.text = nickname
+        avgRatingLabel.text = String(format: "%.1f", avgRating)
     }
     
     private func dismiss() {
