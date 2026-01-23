@@ -73,7 +73,7 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
         contentView.snp.makeConstraints {
             $0.top.equalTo(tabView.snp.bottom)
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
         }
     }
     

@@ -33,14 +33,18 @@ extension UIViewController {
             return
         }
         
+        viewController.view.frame = window.bounds
+        viewController.view.layoutIfNeeded()
+        
         if animated {
             UIView.transition(
                 with: window,
                 duration: 0.3,
-                options: .transitionCrossDissolve,
+                options: [.transitionCrossDissolve],
                 animations: {
                     window.rootViewController = viewController
-                }
+                },
+                completion: nil
             )
         } else {
             window.rootViewController = viewController
