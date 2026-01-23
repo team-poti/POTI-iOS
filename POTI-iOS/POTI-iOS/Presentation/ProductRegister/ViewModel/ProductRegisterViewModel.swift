@@ -25,7 +25,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
             memberPrices: [Int: Int],
             shippings: [RegisterShippingView.ShippingRequest]
         )
-        case setMembers([String?])
+        case setMembers(ids: [Int], names: [String?])
         case setArtist(RegisterArtistEntity)
         case fetchTitles(keyword: String)
         case fetchArtistsList(artistId: Int)
@@ -41,7 +41,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
         let titleSuggestions: AnyPublisher<[String], Never>
         let titles: AnyPublisher<[String], Never>
         let members: AnyPublisher<[String], Never>
-        let didRegister: AnyPublisher<Void, Never>
+        let didRegister: AnyPublisher<Int, Never>
         let registerFailed: AnyPublisher<String, Never>
     }
 
@@ -66,7 +66,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
     private var hasEverHadMembers: Bool = false
     private var originalMemberEntities: [MemberEntity] = []
 
-    private let didRegisterSubject = PassthroughSubject<Void, Never>()
+    private let didRegisterSubject = PassthroughSubject<Int, Never>()
     private let registerFailedSubject = PassthroughSubject<String, Never>()
 
     struct FieldErrors {
@@ -156,12 +156,20 @@ final class ProductRegisterViewModel: BaseViewModelType {
         case .deadlineSelected(let date):
             deadlineSubject.send(date)
             
-        case .setMembers(let members):
-            let normalized = members.compactMap { $0 }
-            membersSubject.send(normalized)
-            if !normalized.isEmpty {
-                hasEverHadMembers = true
-            }
+        case let .setMembers(ids, names):
+            let mappedMembers = zip(ids, names)
+                .compactMap { id, name -> MemberEntity? in
+                    guard let name else { return nil }
+                    return MemberEntity(
+                        id: id,
+                        name: name,
+                        price: 0
+                    )
+                }
+
+            originalMemberEntities = mappedMembers
+            membersSubject.send(mappedMembers.map { $0.name })
+            hasEverHadMembers = !mappedMembers.isEmpty
             
         case .setArtist(let artist):
             selectedArtist = artist
@@ -304,10 +312,10 @@ final class ProductRegisterViewModel: BaseViewModelType {
                         shippings: shippingEntities
                     )
 
-                    _ = try await self.registerPostsUseCase.execute(entity)
+                    let response = try await self.registerPostsUseCase.execute(entity)
 
                     await MainActor.run {
-                        self.didRegisterSubject.send(())
+                        self.didRegisterSubject.send(response.postId)
                     }
                 } catch {
                     await MainActor.run {
@@ -349,7 +357,6 @@ final class ProductRegisterViewModel: BaseViewModelType {
     // MARK: - Members Fetching
 
     private func fetchMembers(artistId: Int) {
-        // Reset previous member state when artist changes
         membersSubject.send([])
         hasEverHadMembers = false
         originalMemberEntities = []
@@ -382,8 +389,6 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
     // MARK: - Options Mapping
 
-    /// memberPrices: [rowIndex: price]
-    /// originalMemberEntities의 index와 row index가 1:1로 매칭된다는 가정
     private func makeOptions(from memberPrices: [Int: Int]) -> [RegisterRequestEntity.Option] {
         guard !memberPrices.isEmpty else { return [] }
 
@@ -395,7 +400,6 @@ final class ProductRegisterViewModel: BaseViewModelType {
             options.append(.init(memberId: member.id, price: price))
         }
 
-        // 안정적 결과를 위해 정렬
         options.sort { $0.memberId < $1.memberId }
         return options
     }

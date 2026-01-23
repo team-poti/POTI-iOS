@@ -14,7 +14,6 @@ final class RegisterMemberView: BaseView {
 
     // MARK: - Callbacks
 
-    /// (rowIndex, currentPrice)
     var onPriceChanged: ((Int, Int?) -> Void)?
 
     // MARK: - UI

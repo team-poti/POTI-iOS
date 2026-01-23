@@ -411,12 +411,15 @@ final class ProductRegisterViewController:
 
         viewModel.output.didRegister
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                print("✅ POST 성공")
-                if let nav = self?.navigationController {
-                    nav.popViewController(animated: true)
+            .sink { [weak self] postId in
+                guard let self else { return }
+
+                let potDetailVC = self.factory.makePotDetailViewController(postId: postId)
+
+                if let nav = self.navigationController {
+                    nav.setViewControllers([potDetailVC], animated: true)
                 } else {
-                    self?.dismiss(animated: true)
+                    self.present(potDetailVC, animated: true)
                 }
             }
             .store(in: &cancellables)
@@ -424,7 +427,7 @@ final class ProductRegisterViewController:
         viewModel.output.registerFailed
             .receive(on: RunLoop.main)
             .sink { message in
-                print("❌ POST 실패:", message)
+                print("POST 실패:", message)
             }
             .store(in: &cancellables)
     }
@@ -480,11 +483,9 @@ final class ProductRegisterViewController:
     @objc private func tapSubmit() {
         view.endEditing(true)
 
-        // VC에서 추적한 가격
         let memberPrices = self.memberPrices
         let draft = registerInfoView.collectDraft()
 
-        // 배송 선택
         let shippings = rootView.registerShippingView.collectSelectedShippings()
 
         viewModel.action(
