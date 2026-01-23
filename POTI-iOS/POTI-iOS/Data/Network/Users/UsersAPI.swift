@@ -11,6 +11,7 @@ enum UsersAPI {
     case validateNickname(nickname: String)
     case submitOnboarding(nickname: String, favoriteArtistId: Int?)
     case getMyPageInformation
+    case fetchYourPageInformation(userId: Int)
 }
 
 extension UsersAPI: BaseTargetType {
@@ -23,6 +24,8 @@ extension UsersAPI: BaseTargetType {
             return "/api/v1/users/onboarding"
         case .getMyPageInformation:
             return "/api/v1/users/mypage"
+        case .fetchYourPageInformation(let userId):
+            return "/api/v1/users/\(userId)/profile"
         }
     }
     
@@ -32,7 +35,7 @@ extension UsersAPI: BaseTargetType {
             return .post
         case .submitOnboarding:
             return .patch
-        case .getMyPageInformation:
+        case .getMyPageInformation, .fetchYourPageInformation:
             return .get
         }
     }
@@ -46,7 +49,7 @@ extension UsersAPI: BaseTargetType {
                 "nickname": nickname,
                 "favoriteArtistId": favoriteArtistId
             ]
-        case .getMyPageInformation:
+        case .getMyPageInformation, .fetchYourPageInformation:
             return nil
         }
     }

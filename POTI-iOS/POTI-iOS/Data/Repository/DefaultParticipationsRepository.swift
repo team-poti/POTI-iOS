@@ -1,10 +1,3 @@
-//
-//  DefaultParticipationsRepository.swift
-//  POTI-iOS
-//
-//  Created by 이서현 on 1/23/26.
-//
-
 final class DefaultParticipationsRepository: ParticipationsInterface {
     
     private let networkService: NetworkService
@@ -27,11 +20,8 @@ final class DefaultParticipationsRepository: ParticipationsInterface {
         )
     }
 
+    func fetchMyParticipationsHistory(status: String) async throws -> MyPageParticipationsHistoryEntity {
+        let result = try await networkService.request(target: ParticipationsAPI.fetchMyParticipationsHistory(status: status), type: MyParticipationsResponseDTO.self)
+        return result.toEntity()
+    }
 }
-
-//func postParticipationDelivered(participationId: Int) async throws -> ParticipationDeliveredEntity {
-//    let response = try await networkService.request(
-//        target: ParticipationsAPI.patchParticipationDelivered(participationId: participationId), type: ParticipationDeliverResponseDTO.self
-//    )
-//    return response.toEntity()
-//}

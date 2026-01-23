@@ -173,6 +173,14 @@ extension PotListViewController: UICollectionViewDataSource {
 extension PotListViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollDelegate?.potsListViewDidScroll(yOffset: scrollView.contentOffset.y)
+        
+        let contentHeight = scrollView.contentSize.height
+        let yOffset = scrollView.contentOffset.y
+        let frameHeight = scrollView.frame.size.height
+        
+        if yOffset > (contentHeight - frameHeight) * 0.8 {
+            viewModel.action(.viewDidLoad) 
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

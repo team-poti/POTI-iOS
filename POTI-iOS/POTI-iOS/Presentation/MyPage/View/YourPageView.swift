@@ -1,8 +1,8 @@
 //
-//  MyPageView.swift
+//  YourPageView.swift
 //  POTI-iOS
 //
-//  Created by neon on 1/16/26.
+//  Created by nayeon on 1/23/26.
 //
 
 import UIKit
@@ -11,28 +11,17 @@ import Kingfisher
 import SnapKit
 import Then
 
-final class MyPageView: BaseView {
-    
-    private let scrollView = UIScrollView()
-    private let contentView = UIView()
+final class YourPageView: BaseView {
     
     private let profileImage = UIImageView()
     private let nickNameLabel = UILabel()
     private let emailLabel = UILabel()
-    private let buttonStackView = UIStackView()
     private let ratingView = RatingView(rating: 0)
-    private let idolButton = ChooseFavoriteIdolButton()
     private let userInformationView = UserInformationView(recentActivity: "", signUpDate: "")
-    private let participationLabel = UILabel()
-    let participationView = MyPageNavigationView()
     private let recruitmentLabel = UILabel()
     let recruitmentView = MyPageNavigationView()
     
     override func setStyle() {
-        scrollView.do {
-            $0.showsVerticalScrollIndicator = false
-        }
-        
         profileImage.do {
             $0.image = .imgDone
             $0.contentMode = .scaleAspectFill
@@ -51,18 +40,6 @@ final class MyPageView: BaseView {
             $0.textAlignment = .center
         }
         
-        buttonStackView.do {
-            $0.axis = .horizontal
-            $0.spacing = 8
-            $0.alignment = .center
-        }
-        
-        participationLabel.do {
-            $0.text = "참여 내역"
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
-        }
-        
         recruitmentLabel.do {
             $0.text = "모집 내역"
             $0.font = PotiFontManager.body16sb.font
@@ -76,23 +53,10 @@ final class MyPageView: BaseView {
     }
     
     override func setUI() {
-        addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        buttonStackView.addArrangedSubviews(ratingView, idolButton)
-        
-        contentView.addSubviews(profileImage, nickNameLabel, emailLabel, buttonStackView, userInformationView, participationLabel, participationView, recruitmentLabel, recruitmentView)
+        addSubviews(profileImage, nickNameLabel, emailLabel, ratingView, userInformationView, recruitmentLabel, recruitmentView)
     }
     
     override func setLayout() {
-        scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        contentView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.width.equalTo(scrollView)
-        }
-        
         profileImage.snp.makeConstraints {
             $0.top.equalToSuperview().inset(20)
             $0.centerX.equalToSuperview()
@@ -109,41 +73,30 @@ final class MyPageView: BaseView {
             $0.centerX.equalToSuperview()
         }
         
-        buttonStackView.snp.makeConstraints {
+        ratingView.snp.makeConstraints {
             $0.top.equalTo(emailLabel.snp.bottom).offset(24)
             $0.centerX.equalToSuperview()
         }
         
         userInformationView.snp.makeConstraints {
-            $0.top.equalTo(buttonStackView.snp.bottom).offset(24)
-            $0.leading.trailing.equalToSuperview().inset(16)
-        }
-        
-        participationLabel.snp.makeConstraints {
-            $0.top.equalTo(userInformationView.snp.bottom).offset(24)
-            $0.leading.equalToSuperview().offset(16)
-        }
-        
-        participationView.snp.makeConstraints {
-            $0.top.equalTo(participationLabel.snp.bottom).offset(12)
+            $0.top.equalTo(ratingView.snp.bottom).offset(24)
             $0.leading.trailing.equalToSuperview().inset(16)
         }
         
         recruitmentLabel.snp.makeConstraints {
-            $0.top.equalTo(participationView.snp.bottom).offset(24)
+            $0.top.equalTo(userInformationView.snp.bottom).offset(24)
             $0.leading.equalToSuperview().offset(16)
         }
         
         recruitmentView.snp.makeConstraints {
             $0.top.equalTo(recruitmentLabel.snp.bottom).offset(12)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(60)
         }
     }
 }
 
-extension MyPageView {
-    func configure(with model: MyPageModel) {
+extension YourPageView {
+    func configure(with model: YourPageModel) {
         nickNameLabel.text = model.nickname
         emailLabel.text = model.email
         if let imageURL = model.profileImage,
@@ -167,25 +120,12 @@ extension MyPageView {
             signUpDate: model.joinedDate
         )
 
-        participationView.configure(
-            counts: (
-                all: model.participationSummary.totalCount,
-                ongoing: model.participationSummary.inProgressCount,
-                completed: model.participationSummary.completedCount
-            )
-        )
-
         recruitmentView.configure(
             counts: (
                 all: model.recruitSummary.totalCount,
                 ongoing: model.recruitSummary.inProgressCount,
                 completed: model.recruitSummary.completedCount
             )
-        )
-        
-        idolButton.configure(
-            hasFavoriteArtist: model.hasFavoriteArtist,
-            favoriteArtistName: model.favoriteArtistName
         )
     }
 }

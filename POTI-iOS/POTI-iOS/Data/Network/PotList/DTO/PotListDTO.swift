@@ -6,21 +6,21 @@
 //
 
 struct PotListDTO: Decodable {
-    let postTitle: String
-    let artistId: Int
-    let artist: String
+    let postTitle: String?
+    let artistId: Int?
+    let artist: String?
     let currentPage: Int
     let hasNext: Bool
-    let pots: [PotListItemDTO]
-
+    let pots: [PotListItemDTO]?
+    
     func toEntity() -> PotListEntity {
         return .init(
-            postTitle: postTitle,
-            artistId: artistId,
-            artist: artist,
+            postTitle: postTitle ?? "",
+            artistId: artistId ?? 0,
+            artist: artist ?? "",
             currentPage: currentPage,
             hasNext: hasNext,
-            pots: pots.map { $0.toEntity() }
+            pots: pots?.map { $0.toEntity() } ?? []
         )
     }
 }
@@ -34,12 +34,12 @@ struct PotListItemDTO: Decodable {
     let status: String
     let availableMembers: [String]
     let recruiter: RecruiterDTO
-
+    
     enum CodingKeys: String, CodingKey {
         case potId, price, thumbnailUrl, currentCount, totalCount, status, availableMembers
         case recruiter = "uploader"
     }
-
+    
     func toEntity() -> Pot {
         return .init(
             potId: potId,
@@ -54,12 +54,12 @@ struct PotListItemDTO: Decodable {
     }
 }
 
-struct RecruiterDTO: Decodable { 
+struct RecruiterDTO: Decodable {
     let userId: Int
     let nickname: String
     let profileImage: String?
     let rating: Double
-
+    
     func toEntity() -> Recruiter {
         return .init(
             userId: userId,

@@ -85,7 +85,7 @@ final class PotListViewModel: BaseViewModelType {
     func action(_ trigger: Input) {
         switch trigger {
         case .viewDidLoad:
-            fetchPotListData(isFirstPage: true)
+            fetchPotListData(isFirstPage: pots.isEmpty)
         case .didTapSortOption(let index):
             updateSort(index: index)
         case .filterByMembers(let ids, let names):

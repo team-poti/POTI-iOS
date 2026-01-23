@@ -190,6 +190,18 @@ final class AppDIContainer {
         DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
     }
     
+    private func makeMyPagePostsHistoryUseCase() -> MyPagePostsHistoryUseCase {
+        DefaultMyPagePostsHistoryUseCase(repository: makePostsRepository())
+    }
+    
+    private func makeMyPageParticipationsHistoryUseCase() -> MyPageParticipationsHistoryUseCase {
+        DefaultMyPageParticipationsHistoryUseCase(repository: makeParticipationsRepository())
+    }
+    
+    private func makeGetYourPageInformationUseCase() -> GetYourPageInformationUseCase {
+        DefaultGetYourPageInformationUseCase(repository: makeUsersRepository())
+    }
+    
     private func makeParticipationsDetailUseCase() -> ParticipationsDetailUseCase {
         DefaultParticipationsDetailUseCase(repository: makeParticipationsRepository())
     }
@@ -224,8 +236,8 @@ final class AppDIContainer {
         PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
     }
     
-    func makePotOrderViewModel(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewModel {
-        PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems)
+    func makePotOrderViewModel(postId: Int, shippingId: Int,orderItems: [OrderItem], shippingInfo: (name: String, price: Int), memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewModel {
+        return PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems, shippingInfo: shippingInfo, memberInfos: memberInfos, uploaderNickname: uploaderNickname)
     }
     
     func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel {
@@ -272,5 +284,21 @@ final class AppDIContainer {
     
     func makeMyPageViewModel() -> MyPageViewModel {
         MyPageViewModel(getMyPageInformationUseCase: makeGetMyPageInformationUseCase())
+    }
+    
+    func makeMyPageHistoryViewModel(
+        initialType: MyPageHistoryType
+    ) -> MyPageHistoryViewModel {
+        MyPageHistoryViewModel(
+            initialType: initialType,
+            myPagePostsHistoryUseCase: makeMyPagePostsHistoryUseCase(),
+            myPageParticipationsHistoryUseCase: makeMyPageParticipationsHistoryUseCase()
+        )
+    }
+    
+    func makeYourPageViewModel(userId: Int) -> YourPageViewModel {
+        YourPageViewModel(
+            userId: userId, getYourPageInformationUseCase: makeGetYourPageInformationUseCase()
+        )
     }
 }

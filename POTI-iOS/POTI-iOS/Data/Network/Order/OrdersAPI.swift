@@ -8,7 +8,7 @@
 import Alamofire
 
 enum OrdersAPI: BaseTargetType {
-    case submitOrder(request: OrderRequestDTO)
+    case submitOrder(request: OrdersDTO)
     case patchTrackingNumber(
         orderId: Int,
         request: TrackingNumberRequestDTO)

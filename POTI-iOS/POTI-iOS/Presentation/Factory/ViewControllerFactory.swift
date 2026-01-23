@@ -19,15 +19,19 @@ protocol ViewControllerFactory {
     func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController
     func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController
+    func makeMyPageHistoryContainerViewController(
+        initialType: MyPageHistoryType,
+        initialTab: MyPageHistoryViewController.HistoryTab
+    ) -> MyPageHistoryContainerViewController
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
-    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewController
     func makeMyPageJoinDetailViewController(participantId: Int) -> MyPageJoinDetailViewController
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
+    func makeYourPageViewController(userId: Int) -> YourPageViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
-    
     private let diContainer: AppDIContainer
     
     init(diContainer: AppDIContainer = .shared) {
@@ -52,7 +56,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeHomeViewController() -> HomeViewController {
         HomeViewController(
-            viewModel: diContainer.makeHomeViewModel(),factory: self  
+            viewModel: diContainer.makeHomeViewModel(),factory: self
         )
     }
     
@@ -62,7 +66,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
-            viewModel: diContainer.makeMyPageViewModel()
+            viewModel: diContainer.makeMyPageViewModel(), factory: self
         )
     }
     
@@ -109,14 +113,19 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         return PotListViewController(viewModel: viewModel, factory: self)
     }
     
-    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewController {
-        return PotOrderViewController(
-            viewModel: diContainer.makePotOrderViewModel(
-                postId: postId,
-                shippingId: shippingId,
-                orderItems: orderItems
-            ),
-            factory: self
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController {
+        return PotOrderViewController(viewModel: diContainer.makePotOrderViewModel(postId: postId, shippingId: shippingId,orderItems: orderItems, shippingInfo: shippingInfo,memberInfos: memberInfos, uploaderNickname: uploaderNickname), factory: self
+        )
+    }
+    
+    func makeMyPageHistoryContainerViewController(
+        initialType: MyPageHistoryType,
+        initialTab: MyPageHistoryViewController.HistoryTab = .ongoing
+    ) -> MyPageHistoryContainerViewController {
+        MyPageHistoryContainerViewController(
+            initialType: initialType,
+            initialTab: initialTab,
+            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType), factory: self
         )
     }
     
@@ -128,5 +137,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet {
         let viewModel = SortViewModel(type: type, initialIndex: initialIndex)
         return SortBottomSheet(viewModel: viewModel)
+    }
+    
+    func makeYourPageViewController(userId: Int) -> YourPageViewController {
+        YourPageViewController(viewModel: diContainer.makeYourPageViewModel(userId: userId))
     }
 }

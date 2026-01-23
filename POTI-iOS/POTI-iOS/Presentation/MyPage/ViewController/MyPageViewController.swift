@@ -18,6 +18,12 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     }
     
     private let rootView = MyPageView()
+    private let factory: ViewControllerFactory
+    
+    init(viewModel: MyPageViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
     
     override func loadView() {
         self.view = rootView
@@ -67,7 +73,7 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
             initialTab = .completed
         }
         
-        let containerVC = MyPageHistoryContainerViewController(initialType: historyType, initialTab: initialTab)
+        let containerVC = factory.makeMyPageHistoryContainerViewController(initialType: historyType, initialTab: initialTab)
         navigationController?.pushViewController(containerVC, animated: true)
     }
 }
