@@ -18,11 +18,6 @@ final class DefaultReviewsRepository: ReviewsInterface {
         rating: Int
     ) async throws -> ReviewsEntity {
 
-        let requestDTO = ReviewRequestDTO(
-            transactionId: transactionId,
-            rating: rating
-        )
-
         let responseDTO = try await networkService.request(
             target: ReviewsAPI.createReview(transactionId: transactionId, rating: rating),
             type: ReviewResponseDTO.self

@@ -40,20 +40,25 @@ final class StarRatingPopupView: BaseView {
     
     // MARK: - Properties
     
-    private var onCompleteButton: ((Double) -> Void)?
+    private let reviewUseCase: ReviewUseCase
+    private let transactionId: Int
+    private var onCompleteButton: ((Int) -> Void)?
     private var onSkipButton: (() -> Void)?
-    private var currentRating: Double = 0.0
+    private var currentRating: Int = 0
     
     // MARK: - Custom Methods
     
     init(
-        onCompleteButton: @escaping (Double) -> Void,
+        reviewUseCase: ReviewUseCase,
+        transactionId: Int,
+        onCompleteButton: @escaping (Int) -> Void,
         onSkipButton: @escaping () -> Void
     ) {
-        super.init(frame: .zero)
-        
+        self.reviewUseCase = reviewUseCase
+        self.transactionId = transactionId
         self.onCompleteButton = onCompleteButton
         self.onSkipButton = onSkipButton
+        super.init(frame: .zero)
         setAddTarget()
     }
     
@@ -144,7 +149,7 @@ final class StarRatingPopupView: BaseView {
         }
         
         starView.do {
-            $0.settings.fillMode = .half
+            $0.settings.fillMode = .full
             $0.settings.totalStars = 5
             $0.settings.updateOnTouch = true
             $0.settings.starMargin = -6
@@ -155,7 +160,7 @@ final class StarRatingPopupView: BaseView {
             $0.settings.emptyImage = UIImage(resource: .icnStarEmpty)
             
             $0.didFinishTouchingCosmos = { [weak self] rating in
-                self?.currentRating = rating
+                self?.currentRating = Int(rating)
             }
         }
         
@@ -323,11 +328,29 @@ final class StarRatingPopupView: BaseView {
     // MARK: - Methods
     
     @objc private func didTapConfirmButton() {
-        let rating = starView.rating
+        let rating = Int(starView.rating)
         currentRating = rating
-        print("saved rating = \(String(format: "%.1f", currentRating))")
-        dismiss()
-        onCompleteButton?(rating)
+        confirmButton.isEnabled = false
+        
+        Task {
+            do {
+                let result = try await reviewUseCase.execute(
+                    transactionId: transactionId,
+                    rating: rating
+                )
+                
+                await MainActor.run {
+                    dismiss()
+                    onCompleteButton?(rating)
+                }
+            } catch {
+                print("리뷰 생성 실패: \(error)")
+                
+                await MainActor.run {
+                    confirmButton.isEnabled = true
+                }
+            }
+        }
     }
     
     @objc private func didTapSkipButton() {
@@ -347,9 +370,9 @@ final class StarRatingPopupView: BaseView {
         }
     }
     
-    func configure(nickname: String, avgRating: Double) {
+    func configure(nickname: String, avgRating: Int) {
         nicknameLabel.text = nickname
-        avgRatingLabel.text = String(format: "%.1f", avgRating)
+        avgRatingLabel.text = String(avgRating)
     }
     
     private func dismiss() {
