@@ -227,7 +227,11 @@ extension HomeViewController: GoodsHeaderCellDelegate {
         let targetArtistId: Int
         
         if sectionType == .myGroup {
-            targetArtistId = (viewModel.mainArtistId != -1) ? viewModel.mainArtistId : 0
+            if viewModel.isMyGroupMixed {
+                targetArtistId = 0
+            } else {
+                targetArtistId = (viewModel.mainArtistId != -1) ? viewModel.mainArtistId : 0
+            }
         } else {
             targetArtistId = 0
         }
@@ -245,6 +249,6 @@ extension HomeViewController: GoodsHeaderCellDelegate {
         let viewModel = ProductRegisterViewModel()
         let vc = ProductRegisterViewController(viewModel: viewModel)
         self.navigationController?.pushViewController(vc, animated: true)
-//        KeychainManager.deleteAllTokens()
+        //        KeychainManager.deleteAllTokens()
     }
 }

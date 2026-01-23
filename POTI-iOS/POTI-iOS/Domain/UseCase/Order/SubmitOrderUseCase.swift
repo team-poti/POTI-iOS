@@ -6,7 +6,7 @@
 //
 
 protocol SubmitOrderUseCase {
-    func execute(orderInfo: OrderRequestEntity) async throws -> OrderResultEntity
+    func execute(orderInfo: OrdersEntity) async throws -> OrderResponseEntity
 }
 
 final class DefaultSubmitOrderUseCase: SubmitOrderUseCase {
@@ -16,7 +16,7 @@ final class DefaultSubmitOrderUseCase: SubmitOrderUseCase {
         self.repository = repository
     }
     
-    func execute(orderInfo: OrderRequestEntity) async throws -> OrderResultEntity {
+    func execute(orderInfo: OrdersEntity) async throws -> OrderResponseEntity {
         return try await repository.submitOrder(entity: orderInfo)
     }
 }
