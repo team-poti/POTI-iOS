@@ -25,12 +25,6 @@ final class NetworkService: Sendable {
         
         let parameters: Parameters?
         let parameterType: String
-        print("🌍 [NetworkService] baseURL:", baseURL)           // 너희가 쓰는 방식으로
-        print("🌍 [NetworkService] path:", target.path)
-        print("🌍 [NetworkService] method:", target.method)
-        print("🌍 [NetworkService] headers:", target.headers)
-        print("🌍 [NetworkService] query:", target.queryParameters ?? [:])
-        print("🌍 [NetworkService] body:", target.bodyParameters ?? [:])
         if let query = target.queryParameters {
             parameters = query
             parameterType = "QUERY"
@@ -86,12 +80,17 @@ final class NetworkService: Sendable {
             }
             
             if (200...299).contains(baseResponse.code) {
-                guard let data = baseResponse.data else {
-                    let error = PotiError.decodingError
-                    PotiLogger.error(error)
-                    throw error
+                if let data = baseResponse.data {
+                    return data
+                } else {
+                    if T.self == EmptyResponse.self {
+                        return EmptyResponse() as! T
+                    } else {
+                        let error = PotiError.decodingError
+                        PotiLogger.error(error)
+                        throw error
+                    }
                 }
-                return data
             } else {
                 let error = mapErrorCode(baseResponse.code, message: baseResponse.message)
                 PotiLogger.error(error)

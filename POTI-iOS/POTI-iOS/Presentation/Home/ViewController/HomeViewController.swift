@@ -103,6 +103,13 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
                 self?.viewModel.action(.bannerScrolled(index: page))
             }
             .store(in: &cancellables)
+        
+        viewModel.output.withdrawCompleted
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.switchToLoginRoot()
+            }
+            .store(in: &cancellables)
     }
     
     override func addTarget() {
@@ -141,6 +148,15 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
                 }
             }
         }
+    }
+    
+    override func searchButtonTapped() {
+        viewModel.action(.searchButtonTapped)
+    }
+    
+    private func switchToLoginRoot() {
+        let loginVC = factory.makeLoginViewController()
+        switchRootViewController(to: loginVC)
     }
 }
 

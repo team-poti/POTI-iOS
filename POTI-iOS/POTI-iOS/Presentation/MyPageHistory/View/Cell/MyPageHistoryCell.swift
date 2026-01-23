@@ -79,17 +79,17 @@ final class MyPageHistoryCell: UITableViewCell {
         }
         
         artistLabel.snp.makeConstraints {
-            $0.top.equalTo(thumbnailImageView.snp.top).offset(2)
+            $0.top.equalTo(thumbnailImageView.snp.top).offset(4)
             $0.leading.equalTo(thumbnailImageView.snp.trailing).offset(12)
         }
         
         productLabel.snp.makeConstraints {
-            $0.top.equalTo(artistLabel.snp.bottom).offset(2)
+            $0.top.equalTo(artistLabel.snp.bottom).offset(5)
             $0.leading.equalTo(thumbnailImageView.snp.trailing).offset(12)
         }
         
         statusLabel.snp.makeConstraints {
-            $0.bottom.equalTo(thumbnailImageView.snp.bottom).offset(-3.5)
+            $0.bottom.equalTo(thumbnailImageView.snp.bottom).offset(-6)
             $0.leading.equalTo(thumbnailImageView.snp.trailing).offset(12)
         }
         
