@@ -40,4 +40,13 @@ enum RegisterAPI: BaseTargetType {
             return nil
         }
     }
+    
+    var body: Encodable? {
+        switch self {
+        case .registerPosts(let dto):
+            return dto
+        default:
+            return nil
+        }
+    }
 }

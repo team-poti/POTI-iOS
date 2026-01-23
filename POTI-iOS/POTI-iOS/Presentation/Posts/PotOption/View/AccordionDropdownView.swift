@@ -97,21 +97,6 @@ final class AccordionDropdownView: BaseView {
         }
     }
     
-    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        let containerPoint = convert(point, to: containerView)
-            if containerView.bounds.contains(containerPoint) {
-                return super.hitTest(point, with: event)
-            }
-            
-            if let anchor = anchorView {
-                let anchorPoint = convert(point, to: anchor)
-                if anchor.bounds.contains(anchorPoint) {
-                    return nil
-                }
-            }
-            return super.hitTest(point, with: event)
-    }
-    
     // MARK: - Method
     
     func open(below anchorView: UIView, in parent: UIView, bottomAnchorView: UIView) {

@@ -52,20 +52,3 @@ extension RegisterRequestDTO {
         self.shippings = entity.shippings.map { .init(deliveryMethodId: $0.deliveryMethodId, price: $0.price) }
     }
 }
-
-extension RegisterRequestDTO {
-
-    func toParameters() -> [String: Any] {
-        return [
-            "artistId": artistId,
-            "title": title,
-            "content": content,
-            "deadline": deadline,
-            "bankName": bankName,
-            "accountNumber": accountNumber,
-            "imageUrls": imageUrls,
-            "options": options.map { ["memberId": $0.memberId, "price": $0.price] },
-            "shippings": shippings.map { ["deliveryMethodId": $0.deliveryMethodId, "price": $0.price] }
-        ]
-    }
-}

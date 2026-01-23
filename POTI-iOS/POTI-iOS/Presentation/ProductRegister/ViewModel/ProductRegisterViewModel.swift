@@ -20,7 +20,11 @@ final class ProductRegisterViewModel: BaseViewModelType {
         case didFinishPicking([PHPickerResult])
         case productTypeQueryChanged(artistId: Int, keyword: String)
         case deadlineSelected(Date)
-        case submit(info: RegisterInfoView.Draft, memberPrices: [Int: Int])
+        case submit(
+            info: RegisterInfoView.Draft,
+            memberPrices: [Int: Int],
+            shippings: [RegisterShippingView.ShippingRequest]
+        )
         case setMembers([String?])
         case setArtist(RegisterArtistEntity)
         case fetchTitles(keyword: String)
@@ -206,7 +210,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 }
             }
             
-        case .submit(let info, let memberPrices):
+        case .submit(let info, let memberPrices, let shippings):
             var errors = FieldErrors.empty
 
             if imagesSubject.value.isEmpty {
@@ -280,6 +284,14 @@ final class ProductRegisterViewModel: BaseViewModelType {
                         imageFileNames.append(item.fileName)
                     }
 
+                    // 옵션(멤버 가격) 구성
+                    let options: [RegisterRequestEntity.Option] = self.makeOptions(from: memberPrices)
+
+                    // 배송 구성
+                    let shippingEntities: [RegisterRequestEntity.Shipping] = shippings.map {
+                        .init(deliveryMethodId: $0.deliveryMethodId, price: $0.price)
+                    }
+
                     let entity = RegisterRequestEntity(
                         artistId: artistId,
                         title: info.productType,
@@ -288,8 +300,8 @@ final class ProductRegisterViewModel: BaseViewModelType {
                         bankName: info.bank,
                         accountNumber: info.accountNumber,
                         imageUrls: imageFileNames,
-                        options: [],
-                        shippings: []
+                        options: options,
+                        shippings: shippingEntities
                     )
 
                     _ = try await self.registerPostsUseCase.execute(entity)
@@ -366,5 +378,25 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 print("❌ fetchMembers error:", error)
             }
         }
+    }
+
+    // MARK: - Options Mapping
+
+    /// memberPrices: [rowIndex: price]
+    /// originalMemberEntities의 index와 row index가 1:1로 매칭된다는 가정
+    private func makeOptions(from memberPrices: [Int: Int]) -> [RegisterRequestEntity.Option] {
+        guard !memberPrices.isEmpty else { return [] }
+
+        var options: [RegisterRequestEntity.Option] = []
+
+        for (rowIndex, price) in memberPrices {
+            guard originalMemberEntities.indices.contains(rowIndex) else { continue }
+            let member = originalMemberEntities[rowIndex]
+            options.append(.init(memberId: member.id, price: price))
+        }
+
+        // 안정적 결과를 위해 정렬
+        options.sort { $0.memberId < $1.memberId }
+        return options
     }
 }

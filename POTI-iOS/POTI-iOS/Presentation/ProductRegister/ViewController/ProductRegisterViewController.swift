@@ -59,6 +59,9 @@ final class ProductRegisterViewController:
         rootView.registerNoticeView
     }
     private var currentImages: [UIImage] = []
+
+    // 멤버 가격은 VC가 들고 간다 (입력 안정성 때문에)
+    private var memberPrices: [Int: Int] = [:]
     
     
     // MARK: - Life Cycle
@@ -138,6 +141,16 @@ final class ProductRegisterViewController:
             (name: "일반택배", price: 4000),
             (name: "준등기", price: 1800)
         ])
+
+        // 멤버 가격 입력값을 VC에서 수집
+        registerMemberView.onPriceChanged = { [weak self] index, price in
+            guard let self else { return }
+            if let price {
+                self.memberPrices[index] = price
+            } else {
+                self.memberPrices.removeValue(forKey: index)
+            }
+        }
         
         registerInfoView.artistField.onTapField = { [weak self] in
             guard let self else { return }
@@ -171,10 +184,6 @@ final class ProductRegisterViewController:
 //
 //            bottomSheet.show(in: self.view)
 //        }
-
-        registerMemberView.onMembersChanged = { [weak self] members in
-            self?.viewModel.action(.setMembers(members))
-        }
 
         registerInfoView.productTypeField.onQueryChanged = { [weak self] keyword in
             self?.titleQuerySubject.send(keyword)
@@ -389,7 +398,14 @@ final class ProductRegisterViewController:
             .sink { [weak self] memberNames in
                 guard let self else { return }
 
-                self.registerMemberView.configure(members: memberNames)
+                // 멤버 리스트가 갱신되면 기존 가격 입력은 초기화
+                self.memberPrices = [:]
+
+                if memberNames.isEmpty {
+                    self.registerMemberView.showEmpty(message: "선택한 멤버가 없어요")
+                } else {
+                    self.registerMemberView.showMembers(names: memberNames)
+                }
             }
             .store(in: &cancellables)
 
@@ -464,13 +480,18 @@ final class ProductRegisterViewController:
     @objc private func tapSubmit() {
         view.endEditing(true)
 
-        let memberPrices = registerMemberView.collectPrices()
+        // VC에서 추적한 가격
+        let memberPrices = self.memberPrices
         let draft = registerInfoView.collectDraft()
+
+        // 배송 선택
+        let shippings = rootView.registerShippingView.collectSelectedShippings()
 
         viewModel.action(
             .submit(
                 info: draft,
-                memberPrices: memberPrices
+                memberPrices: memberPrices,
+                shippings: shippings
             )
         )
     }
