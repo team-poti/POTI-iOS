@@ -71,7 +71,7 @@ private extension PotDetailLayoutFactory {
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 16, bottom: 48, trailing: 16)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 16, bottom: 54, trailing: 16)
         
         return section
     }

@@ -99,6 +99,7 @@ final class GoodsCell: UICollectionViewCell {
             $0.top.equalTo(productNameLabel.snp.bottom).offset(8)
             $0.leading.equalTo(backgroundGrayView).inset(12)
             $0.bottom.equalToSuperview().inset(12)
+            $0.trailing.lessThanOrEqualToSuperview().inset(12)
         }
     }
 }
