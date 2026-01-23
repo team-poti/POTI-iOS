@@ -5,6 +5,9 @@
 //  Created by 이서현 on 1/13/26.
 //
 
+
+// 참여
+
 import UIKit
 
 import SnapKit
@@ -155,7 +158,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         )
         sheet.onSubmit = { [weak self] depositorName, depositedAt in
             guard let self else { return }
-            let orderId = 1100
+            let orderId = viewModel.orderId
             self.didSubmitDeposit = true
             self.viewModel.action(
                 .submitDeposit(orderId: orderId, depositorName: depositorName, depositedAt: depositedAt)
@@ -166,7 +169,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private func completeButtonTapped() {
-        let orderId = 1100
+        let orderId = viewModel.orderId
         let alert = CustomAlertView(
             title: "잠깐! 정말 상품을 수령했나요?",
             message: "거래가 종료되면 되돌릴 수 없어요",

@@ -7,6 +7,7 @@
 
 struct MyPageHistoryModel {
     let id: Int
+    let needId: Int?
     let artistName: String
     let productName: String
     let status: MyPageGroupBuyStatus

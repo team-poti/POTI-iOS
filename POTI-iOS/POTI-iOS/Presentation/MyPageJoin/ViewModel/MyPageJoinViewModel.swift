@@ -9,6 +9,7 @@ import Combine
 
 final class MyPageJoinViewModel: BaseViewModelType {
     private let participationId: Int
+    private(set) var orderId: Int
     
     // MARK: - Input
     
@@ -62,12 +63,14 @@ final class MyPageJoinViewModel: BaseViewModelType {
     
     init(
         participationId: Int,
+        orderId: Int,
         participationsDetailUsecase: ParticipationsDetailUseCase,
         postPaymentsUseCase: PostPaymentsUseCase,
         participationsDeliveredUseCase: ParticipationsDeliveredUseCase,
         createReviewUseCase: ReviewUseCase
     ) {
         self.participationId = participationId
+        self.orderId = orderId
         self.participationsDeliveredUseCase = participationsDeliveredUseCase
         self.participationsDetailUseCase = participationsDetailUsecase
         self.postPaymentsUseCase = postPaymentsUseCase

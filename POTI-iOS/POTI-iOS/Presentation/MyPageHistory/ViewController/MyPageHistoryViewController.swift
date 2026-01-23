@@ -272,7 +272,7 @@ extension MyPageHistoryViewController {
 
         case .participation:
              //참여 상세 (이름은 예시)
-            let vc = factory.makeMyPageJoinDetailViewController(participantId: item.id)
+            let vc = factory.makeMyPageJoinDetailViewController(participantId: item.id, orderId: item.needId ?? -1)
             navigationController?.pushViewController(vc, animated: true)
         }
     }

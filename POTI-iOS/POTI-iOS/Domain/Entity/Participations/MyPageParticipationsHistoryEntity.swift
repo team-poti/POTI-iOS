@@ -22,7 +22,7 @@ struct MyPageParticipationEntity {
     
     func toModel() -> MyPageHistoryModel {
         return .init(
-            id: participationId,
+            id: participationId, needId: groupBuyId,
             artistName: artistName,
             productName: productName,
             status: MyPageGroupBuyStatus(rawValue: postStatus) ?? .recruiting,
