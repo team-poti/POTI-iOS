@@ -55,7 +55,7 @@ final class HomeView: BaseView {
         floatingButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(20)
             $0.bottom.equalToSuperview().inset(.dynamicH(114) + 16)
-            $0.size.equalTo(56)
+            $0.size.equalTo(60)
         }
     }
 }
