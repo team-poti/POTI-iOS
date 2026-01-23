@@ -246,9 +246,9 @@ extension HomeViewController: GoodsHeaderCellDelegate {
     }
     
     @objc private func didTapFloatingButton() {
-        let viewModel = ProductRegisterViewModel()
-        let vc = ProductRegisterViewController(viewModel: viewModel)
-        self.navigationController?.pushViewController(vc, animated: true)
-        //        KeychainManager.deleteAllTokens()
+//        let viewModel = ProductRegisterViewModel()
+//        let vc = ProductRegisterViewController(viewModel: viewModel)
+//        self.navigationController?.pushViewController(vc, animated: true)
+                KeychainManager.deleteAllTokens()
     }
 }
