@@ -32,6 +32,7 @@ final class HomeView: BaseView {
             $0.backgroundColor = .clear
             $0.isScrollEnabled = true
             $0.showsVerticalScrollIndicator = false
+            $0.contentInset = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
             
             $0.register(BannerCell.self)
             $0.register(GoodsCell.self)
@@ -47,13 +48,14 @@ final class HomeView: BaseView {
     
     override func setLayout() {
         homeCollectionView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
+            $0.top.equalToSuperview()
             $0.bottom.horizontalEdges.equalToSuperview()
         }
         
         floatingButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(20)
             $0.bottom.equalToSuperview().inset(.dynamicH(114) + 16)
+            $0.size.equalTo(60)
         }
     }
 }

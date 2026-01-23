@@ -89,6 +89,14 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
             .store(in: &cancellables)
     }
     
+    override func addTarget() {
+        rootView.floatingButton.addTarget(
+            self,
+            action: #selector(didTapFloatingButton),
+            for: .touchUpInside
+        )
+    }
+    
     // MARK: - Methods
     
     func navigationStyle() -> PotiNavigationStyle {
@@ -130,6 +138,12 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
         ) as? PotListHeaderCell {
             header.setLeftFilterButtonTitle(title)
         }
+    }
+    
+    @objc private func didTapFloatingButton() {
+        let viewModel = ProductRegisterViewModel()
+        let vc = ProductRegisterViewController(viewModel: viewModel)
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -179,7 +193,7 @@ extension PotListViewController: UICollectionViewDelegate {
         let frameHeight = scrollView.frame.size.height
         
         if yOffset > (contentHeight - frameHeight) * 0.8 {
-            viewModel.action(.viewDidLoad) 
+            viewModel.action(.viewDidLoad)
         }
     }
     

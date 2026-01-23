@@ -170,7 +170,7 @@ final class OptionContentView: BaseView {
         
         grayLineView.snp.makeConstraints {
             $0.height.equalTo(1)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(20)
             $0.bottom.equalTo(totalPriceTextLabel.snp.top).offset(-18)
         }
         
