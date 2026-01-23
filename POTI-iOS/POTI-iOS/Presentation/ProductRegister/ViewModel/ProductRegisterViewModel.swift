@@ -24,6 +24,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
         case setMembers([String?])
         case setArtist(RegisterArtistEntity)
         case fetchTitles(keyword: String)
+        case fetchArtistsList(artistId: Int)
     }
 
     // MARK: - Output
@@ -35,6 +36,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
         let fieldErrors: AnyPublisher<FieldErrors, Never>
         let titleSuggestions: AnyPublisher<[String], Never>
         let titles: AnyPublisher<[String], Never>
+        let members: AnyPublisher<[String], Never>
         let didRegister: AnyPublisher<Void, Never>
         let registerFailed: AnyPublisher<String, Never>
     }
@@ -48,6 +50,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
     private let registerTitlesUseCase: RegisterTitlesUseCase
     private let registerPostsUseCase: RegisterPostsUseCase
     private let imagesRepository: ImagesInterface
+    private let artistsUseCase: ArtistsUsecase
 
     private let titlesSubject = CurrentValueSubject<[String], Never>([])
     private let imagesSubject = CurrentValueSubject<[UIImage], Never>([])
@@ -57,6 +60,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
     private let selectedArtistSubject = CurrentValueSubject<RegisterArtistEntity?, Never>(nil)
     private var selectedArtist: RegisterArtistEntity?
     private var hasEverHadMembers: Bool = false
+    private var originalMemberEntities: [MemberEntity] = []
 
     private let didRegisterSubject = PassthroughSubject<Void, Never>()
     private let registerFailedSubject = PassthroughSubject<String, Never>()
@@ -86,12 +90,14 @@ final class ProductRegisterViewModel: BaseViewModelType {
         maxCount: Int = 5,
         registerTitlesUseCase: RegisterTitlesUseCase,
         registerPostsUseCase: RegisterPostsUseCase,
-        imagesRepository: ImagesInterface
+        imagesRepository: ImagesInterface,
+        artistsUseCase: ArtistsUsecase
     ) {
         self.maxCount = maxCount
         self.registerTitlesUseCase = registerTitlesUseCase
         self.registerPostsUseCase = registerPostsUseCase
         self.imagesRepository = imagesRepository
+        self.artistsUseCase = artistsUseCase
 
         self.output = Output(
             images: imagesSubject.eraseToAnyPublisher(),
@@ -100,6 +106,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
             fieldErrors: fieldErrorsSubject.eraseToAnyPublisher(),
             titleSuggestions: titlesSubject.eraseToAnyPublisher(),
             titles: titlesSubject.eraseToAnyPublisher(),
+            members: membersSubject.eraseToAnyPublisher(),
             didRegister: didRegisterSubject.eraseToAnyPublisher(),
             registerFailed: registerFailedSubject.eraseToAnyPublisher()
         )
@@ -156,24 +163,20 @@ final class ProductRegisterViewModel: BaseViewModelType {
             selectedArtist = artist
             selectedArtistSubject.send(artist)
 
-            // 아티스트 선택되면 artist error 해제
             var errors = fieldErrorsSubject.value
             errors.artist = nil
             fieldErrorsSubject.send(errors)
 
-            // 이전 검색 결과 초기화
             titlesSubject.send([])
             
         case .fetchTitles(let keyword):
             let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            // 입력이 비면 리스트 비움
             guard !trimmed.isEmpty else {
                 titlesSubject.send([])
                 return
             }
 
-            // 아티스트 선택 안 된 상태에서 상품 종류 입력 -> artist 에러
             guard let artistId = selectedArtist?.artistId ?? selectedArtistSubject.value?.artistId else {
                 var errors = fieldErrorsSubject.value
                 errors.artist = "아티스트를 먼저 선택해주세요"
@@ -182,7 +185,6 @@ final class ProductRegisterViewModel: BaseViewModelType {
                 return
             }
 
-            // 아티스트가 선택되어 있으면 artist error는 해제
             var errors = fieldErrorsSubject.value
             errors.artist = nil
             fieldErrorsSubject.send(errors)
@@ -301,6 +303,9 @@ final class ProductRegisterViewModel: BaseViewModelType {
                     }
                 }
             }
+            
+        case .fetchArtistsList(let artistId):
+            fetchMembers(artistId: artistId)
         }
     }
 
@@ -326,6 +331,39 @@ final class ProductRegisterViewModel: BaseViewModelType {
         await withCheckedContinuation { continuation in
             result.itemProvider.loadObject(ofClass: UIImage.self) { object, _ in
                 continuation.resume(returning: object as? UIImage)
+            }
+        }
+    }
+    // MARK: - Members Fetching
+
+    private func fetchMembers(artistId: Int) {
+        // Reset previous member state when artist changes
+        membersSubject.send([])
+        hasEverHadMembers = false
+        originalMemberEntities = []
+
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                let entities = try await self.artistsUseCase.execute(artistId: artistId)
+
+                let mappedMembers = entities.map { entity in
+                    MemberEntity(
+                        id: entity.artistId,
+                        name: entity.artistName,
+                        price: 0
+                    )
+                }
+
+                let names = mappedMembers.map { $0.name }
+
+                await MainActor.run {
+                    self.originalMemberEntities = mappedMembers
+                    self.hasEverHadMembers = !mappedMembers.isEmpty
+                    self.membersSubject.send(names)
+                }
+            } catch {
+                print("❌ fetchMembers error:", error)
             }
         }
     }

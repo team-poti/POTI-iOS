@@ -63,16 +63,25 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         self.view = rootView
     }
     
+    private var isInputReady = false
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        isInputReady = true
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         super.viewWillAppear(animated)
-        view.endEditing(true)
-        registerInfoView.clearAllFocus()
+        print("🧠 willAppear presented=", String(describing: self.presentedViewController))
+        print("🧠 nav.presented=", String(describing: self.navigationController?.presentedViewController))
+        print("🧠 view.window=", String(describing: self.view.window))
+        
+
         if let tabBarController = self.tabBarController as? PotiTabBar {
             tabBarController.tabBar.isHidden = true
         }
-        
-        view.endEditing(true)
+
         registerInfoView.artistField.setFocused(false)
         registerInfoView.deadlineField.setFocused(false)
     }
@@ -122,7 +131,6 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         registerInfoView.onTapDeadlineField = { [weak self] in
             guard let self else { return }
 
-            self.registerInfoView.clearAllFocus()
             self.registerInfoView.deadlineField.setFocused(true)
 
             let estimatedSheetHeight: CGFloat = 465
@@ -135,18 +143,18 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         }
         
         //TODO: - ArtistEdit으로 교체
-        registerMemberView.onTapEditButton = { [weak self] in
-            guard let self else { return }
-
-            let sheetVM = factory.makeArtistsViewModel()
-            let bottomSheet = ArtistsBottomSheet(viewModel: sheetVM)
-
-            bottomSheet.onComplete = { [weak self] members in
-                self?.viewModel.action(.setMembers(members))
-            }
-
-            bottomSheet.show(in: self.view)
-        }
+//        registerMemberView.onTapEditButton = { [weak self] in
+//            guard let self else { return }
+//
+//            let sheetVM = factory.makeArtistsViewModel()
+//            let bottomSheet = ArtistsBottomSheet(viewModel: sheetVM)
+//
+//            bottomSheet.onComplete = { [weak self] members in
+//                self?.viewModel.action(.setMembers(members))
+//            }
+//
+//            bottomSheet.show(in: self.view)
+//        }
 
         registerMemberView.onMembersChanged = { [weak self] members in
             self?.viewModel.action(.setMembers(members))
@@ -160,10 +168,8 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             guard let self else { return }
             self.registerInfoView.productTypeField.setText(value)
             self.registerInfoView.productTypeField.clearItems()
-            self.view.endEditing(true)
         }
 
-        // 키보드 대응: 현재 포커스된 입력 뷰 추적
         registerInfoView.onInputViewDidBeginEditing = { [weak self] inputView in
             guard let self else { return }
             self.currentFocusedInputView = inputView
@@ -175,10 +181,31 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
                 coveredHeight: self.lastKeyboardHeight
             )
         }
+        rootView.contentScrollView.delaysContentTouches = false
+        rootView.contentScrollView.canCancelContentTouches = true
+
+        let _: (UIGestureRecognizer) -> Void = { [weak self] gesture in
+            guard let self else { return }
+            if let tap = gesture as? UITapGestureRecognizer {
+                tap.cancelsTouchesInView = false
+                tap.delegate = self
+            }
+        }
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+
+    // MARK: - UIGestureRecognizerDelegate
+
+    override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        var v: UIView? = touch.view
+        while let view = v {
+            if view is UIControl { return false }
+            v = view.superview
+        }
+        return true
     }
     
     // MARK: - Keyboard Avoidance
@@ -243,7 +270,6 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
             animated: true
         )
     }
-
         
     // MARK: - Custom Method
 
@@ -341,6 +367,15 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
                 }
             }
             .store(in: &cancellables)
+        
+        viewModel.output.members
+            .receive(on: RunLoop.main)
+            .sink { [weak self] memberNames in
+                guard let self else { return }
+
+                self.registerMemberView.configure(members: memberNames)
+            }
+            .store(in: &cancellables)
 
         viewModel.output.didRegister
             .receive(on: RunLoop.main)
@@ -395,8 +430,6 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
         )
         alert.show(on: navigationController?.view ?? view)
     }
-    
-    
 
     // MARK: - Action Method
     
@@ -486,12 +519,16 @@ final class ProductRegisterViewController: BaseViewController<ProductRegisterVie
 
         searchVC.onSelectArtist = { [weak self] artist in
             guard let self else { return }
-
             self.view.endEditing(true)
             self.registerInfoView.artistField.setFocused(false)
 
             self.viewModel.action(.setArtist(artist))
             self.registerInfoView.artistField.setText(artist.name)
+
+            if let artistId = artist.artistId {
+                print("Artist selected, fetch members:", artistId)
+                self.viewModel.action(.fetchArtistsList(artistId: artistId))
+            }
         }
 
         if let nav = navigationController {

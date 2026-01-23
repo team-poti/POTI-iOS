@@ -86,12 +86,7 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
                 guard let self else { return }
                                 
                 self.onSelectArtist?(artist)
-                
-                if self.navigationController != nil {
-                    self.navigationController?.popViewController(animated: true)
-                } else {
-                    self.dismiss(animated: true)
-                }
+                self.navigationController?.popViewController(animated: true)
             }
             .store(in: &cancellables)
     }

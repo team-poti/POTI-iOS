@@ -90,11 +90,7 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>, Nav
     }
     
     @objc private func didTapFloatingButton() {
-        
-        // TODO: - factory 주입으로 변경하기
-        
-        let viewModel = ProductRegisterViewModel()
-        let vc = ProductRegisterViewController(viewModel: viewModel)
+        let vc = factory.makeProductRegisterViewController()
         self.navigationController?.pushViewController(vc, animated: true)
     }
 }

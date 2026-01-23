@@ -13,10 +13,10 @@ import Then
 final class RegisterMemberView: BaseView {
     
     // MARK: - Properties
-
+    
     var onMembersChanged: (([String]) -> Void)?
     var onTapEditButton: (() -> Void)?
-
+    
     private var currentMembers: [String] = []
     
     private var rowViews: [MemberPriceRowView] = []
@@ -43,22 +43,27 @@ final class RegisterMemberView: BaseView {
     private let bottomBoxView = UIView()
     private let emptyStateLabel = UILabel()
     
-    private let hintView = UIView()
-    private let hintBackgroundImageView = UIImageView()
-    private let hintLabel = UILabel()
+//    private let hintView = UIView()
+//    private let hintBackgroundImageView = UIImageView()
+//    private let hintLabel = UILabel()
     
     private let errorLabel = UILabel()
     private let errorStackView = UIStackView()
     private let errorIconView = UIImageView()
     
-    
-    // MARK: - Life Cycle
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
     // MARK: - Custom Method
+//    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+//        let view = super.hitTest(point, with: event)
+//        print("🧪 RegisterMemberView hitTest:", view)
+//
+//        if let view {
+//            print("🧪  - isDescendant(of: rowsStackView)=\(view.isDescendant(of: rowsStackView))")
+//            if let tf = view as? UITextField {
+//                print("🧪  - UITextField enabled=\(tf.isEnabled) userInteraction=\(tf.isUserInteractionEnabled) firstResponder=\(tf.isFirstResponder)")
+//            }
+//        }
+//        return view
+//    }
     
     override func setStyle() {
         backgroundColor = .clear
@@ -113,6 +118,7 @@ final class RegisterMemberView: BaseView {
         
         bottomBoxView.do {
             $0.backgroundColor = .gray100
+            $0.isUserInteractionEnabled = false
         }
         
         emptyStateLabel.do {
@@ -124,22 +130,25 @@ final class RegisterMemberView: BaseView {
             $0.isHidden = true
         }
         
-        hintView.do {
-            $0.isHidden = true
-            $0.backgroundColor = .clear
-        }
+//        hintView.do {
+//            $0.isHidden = true
+//            $0.backgroundColor = .clear
+//            $0.isUserInteractionEnabled = false
+//        }
         
-        hintBackgroundImageView.do {
-            $0.image = UIImage.imgHint
-        }
+//        hintBackgroundImageView.do {
+//            $0.image = UIImage.imgHint
+//            $0.isUserInteractionEnabled = false
+//        }
         
-        hintLabel.do {
-            $0.text = "모집자 본인이 보유할 멤버는 꼭 제외해주세요!"
-            $0.font = PotiFontManager.body14sb.font
-            $0.textColor = .poti600
-            $0.textAlignment = .center
-            $0.numberOfLines = 1
-        }
+//        hintLabel.do {
+//            $0.text = "모집자 본인이 보유할 멤버는 꼭 제외해주세요!"
+//            $0.font = PotiFontManager.body14sb.font
+//            $0.textColor = .poti600
+//            $0.textAlignment = .center
+//            $0.numberOfLines = 1
+//            $0.isUserInteractionEnabled = false
+//        }
         
         errorStackView.do {
             $0.axis = .horizontal
@@ -147,34 +156,31 @@ final class RegisterMemberView: BaseView {
             $0.alignment = .center
             $0.distribution = .fill
             $0.isHidden = true
+            $0.isUserInteractionEnabled = false
         }
         
         errorIconView.do {
             $0.contentMode = .scaleAspectFit
             $0.image = UIImage.icnNotice
             $0.tintColor = .sementicRed
+            $0.isUserInteractionEnabled = false
         }
         
         errorLabel.do {
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .sementicRed
             $0.numberOfLines = 0
+            $0.isUserInteractionEnabled = false
         }
     }
     
     override func setUI() {
-        addSubviews(titleLabel, errorStackView, rowsStackView, hintView, editButton, bottomBoxView, emptyStateLabel)
-        hintView.addSubviews(hintBackgroundImageView, hintLabel)
+        addSubviews(bottomBoxView, titleLabel, errorStackView, rowsStackView, editButton, emptyStateLabel)
+//        hintView.addSubviews(hintBackgroundImageView, hintLabel)
         errorStackView.addArrangedSubviews(errorIconView, errorLabel)
         
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(textFieldDidBeginEditing(_:)),
-            name: UITextField.textDidBeginEditingNotification,
-            object: nil
-        )
+        bottomBoxView.isUserInteractionEnabled = false
         
-        //TODO: - 한번에 뷰컨으로 옮기기
         editButton.addTarget(self, action: #selector(didTapEditButton), for: .touchUpInside)
     }
     
@@ -198,20 +204,20 @@ final class RegisterMemberView: BaseView {
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
         
-        hintView.snp.makeConstraints {
-            $0.bottom.equalTo(editButton.snp.top).offset(-9)
-            $0.horizontalEdges.equalToSuperview().inset(28)
-            hintHeightConstraint = $0.height.equalTo(58).constraint
-        }
-        
-        hintBackgroundImageView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        hintLabel.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalTo(hintBackgroundImageView.snp.top).offset(13)
-        }
+//        hintView.snp.makeConstraints {
+//            $0.bottom.equalTo(editButton.snp.top).offset(-9)
+//            $0.horizontalEdges.equalToSuperview().inset(28)
+//            hintHeightConstraint = $0.height.equalTo(58).constraint
+//        }
+//
+//        hintBackgroundImageView.snp.makeConstraints {
+//            $0.edges.equalToSuperview()
+//        }
+//
+//        hintLabel.snp.makeConstraints {
+//            $0.centerX.equalToSuperview()
+//            $0.top.equalTo(hintBackgroundImageView.snp.top).offset(13)
+//        }
         
         editButton.snp.makeConstraints {
             editTopOffsetConstraint = $0.top.equalTo(rowsStackView.snp.bottom).offset(24).constraint
@@ -235,7 +241,7 @@ final class RegisterMemberView: BaseView {
             $0.top.equalTo(titleLabel.snp.bottom).offset(76)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
-
+        
         applyEmptyStateLayout()
     }
     
@@ -247,7 +253,7 @@ final class RegisterMemberView: BaseView {
         rowsStackView.isHidden = true
         editButton.isHidden = true
         bottomBoxView.isHidden = false
-        hintView.isHidden = true
+//        hintView.isHidden = true
         
         rowsTopOffsetConstraint?.update(offset: 0)
         editTopOffsetConstraint?.update(offset: 0)
@@ -263,7 +269,6 @@ final class RegisterMemberView: BaseView {
         bottomBoxHeightConstraint?.update(offset: 9)
         
         setNeedsLayout()
-        layoutIfNeeded()
     }
     
     private func applyEditedEmptyStateLayout() {
@@ -275,7 +280,7 @@ final class RegisterMemberView: BaseView {
         rowsStackView.isHidden = true
         editButton.isHidden = false
         bottomBoxView.isHidden = false
-        hintView.isHidden = true
+//        hintView.isHidden = true
         
         errorStackView.isHidden = true
         errorLabel.text = ""
@@ -296,7 +301,6 @@ final class RegisterMemberView: BaseView {
         bottomBoxHeightConstraint?.update(offset: 9)
         
         setNeedsLayout()
-        layoutIfNeeded()
     }
     
     private func applyFilledStateLayout() {
@@ -306,7 +310,7 @@ final class RegisterMemberView: BaseView {
         rowsStackView.isHidden = false
         editButton.isHidden = false
         bottomBoxView.isHidden = false
-        hintView.isHidden = !isHintVisible
+//        hintView.isHidden = !isHintVisible
         errorStackView.isHidden = true
         
         rowsTopOffsetConstraint?.update(offset: 24)
@@ -323,27 +327,24 @@ final class RegisterMemberView: BaseView {
         bottomTopToEditConstraint?.update(offset: 24)
         
         setNeedsLayout()
-        layoutIfNeeded()
     }
     
     private func showHintIfNeeded() {
         guard !isEmptyState else { return }
         guard isHintVisible else { return }
         
-        hintView.isHidden = false
+//        hintView.isHidden = false
         hintHeightConstraint?.update(offset: 56)
         
         setNeedsLayout()
-        layoutIfNeeded()
     }
     
     private func hideHint() {
         isHintVisible = false
-        hintView.isHidden = true
+//        hintView.isHidden = true
         hintHeightConstraint?.update(offset: 0)
         
         setNeedsLayout()
-        layoutIfNeeded()
     }
     
     @objc private func didTapEditButton() {
@@ -351,16 +352,10 @@ final class RegisterMemberView: BaseView {
         onTapEditButton?()
     }
     
-    @objc private func textFieldDidBeginEditing(_ notification: Notification) {
-        guard let textField = notification.object as? UITextField else { return }
-        guard textField.isDescendant(of: rowsStackView) else { return }
-        hideHint()
-    }
-    
     func configure(members: [String]) {
         currentMembers = members
         onMembersChanged?(members)
-
+        
         rowViews.forEach { $0.removeFromSuperview() }
         rowViews.removeAll()
         rowsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
@@ -369,6 +364,10 @@ final class RegisterMemberView: BaseView {
             let row = MemberPriceRowView(index: idx)
             row.configure(name: name, price: nil)
 
+            row.onBeginEditing = { [weak self] in
+                self?.hideHint()
+            }
+            
             rowsStackView.addArrangedSubview(row)
             rowViews.append(row)
         }
@@ -382,14 +381,21 @@ final class RegisterMemberView: BaseView {
             }
         } else {
             hasEverHadMembers = true
-            isHintVisible = true
+            
+            if rowViews.isEmpty {
+                isHintVisible = true
+            }
+            
             applyFilledStateLayout()
+        }
+        DispatchQueue.main.async { [weak self] in
+            self?.layoutIfNeeded()
         }
     }
     
     func setPrice(_ text: String, at index: Int) {
         guard rowViews.indices.contains(index) else { return }
-
+        
         let name = currentMembers.indices.contains(index) ? currentMembers[index] : ""
         let digits = text.replacingOccurrences(of: ",", with: "")
         let price = Int(digits)
@@ -399,26 +405,26 @@ final class RegisterMemberView: BaseView {
     func setEditButtonTarget(_ target: Any?, action: Selector) {
         editButton.addTarget(target, action: action, for: .touchUpInside)
     }
-
+    
     func showEditedEmptyError(message: String = "멤버를 1명 이상 추가해주세요") {
         errorLabel.text = message
         errorStackView.isHidden = false
         setNeedsLayout()
-        layoutIfNeeded()
     }
-
+    
     func hideEditedEmptyError() {
         errorStackView.isHidden = true
         setNeedsLayout()
-        layoutIfNeeded()
     }
     
     func getMembers() -> [String] {
         return currentMembers
     }
     
-    func collectPrices() -> [Int: Int] {
-        endEditing(true)
+    func collectPrices(endEditing: Bool = false) -> [Int: Int] {
+        if endEditing {
+            self.endEditing(true)
+        }
         
         var result: [Int: Int] = [:]
         

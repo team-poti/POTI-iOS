@@ -257,7 +257,8 @@ final class AppDIContainer {
         ProductRegisterViewModel(
             registerTitlesUseCase: makeRegisterTitlesUseCase(),
             registerPostsUseCase: makeRegisterPostsUseCase(),
-            imagesRepository: makeImagesRepository()
+            imagesRepository: makeImagesRepository(),
+            artistsUseCase: makeArtistsUseCase()
         )
     }
     

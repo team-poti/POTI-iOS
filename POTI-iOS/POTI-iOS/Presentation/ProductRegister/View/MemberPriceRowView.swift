@@ -11,14 +11,21 @@ import SnapKit
 import Then
 
 
-final class MemberPriceRowView: BaseView {
+final class MemberPriceRowView: BaseView, UITextFieldDelegate {
     
     // MARK: - Initializer
 
     let index: Int
+    
+    // MARK: - Callback
+    var onBeginEditing: (() -> Void)?
+    
     init(index: Int = 0) {
         self.index = index
         super.init(frame: .zero)
+        priceTextField.delegate = self
+        priceTextField.isEnabled = true
+        priceTextField.isUserInteractionEnabled = true
         addTarget()
     }
 
@@ -55,9 +62,13 @@ final class MemberPriceRowView: BaseView {
             $0.font = PotiFontManager.body16sb.font
             $0.textColor = .potiBlack
             $0.textAlignment = .right
+            $0.semanticContentAttribute = .forceRightToLeft
             $0.keyboardType = .numberPad
             $0.borderStyle = .none
             $0.clearButtonMode = .never
+            $0.delegate = self
+            $0.isEnabled = true
+            $0.isUserInteractionEnabled = true
         }
 
         underlineView.do {
@@ -91,7 +102,7 @@ final class MemberPriceRowView: BaseView {
         priceTextField.snp.makeConstraints {
             $0.trailing.equalTo(wonLabel.snp.leading).offset(-4)
             $0.centerY.equalToSuperview()
-            $0.height.equalTo(24)
+            $0.height.equalTo(28)
             $0.width.greaterThanOrEqualTo(45)
         }
 
@@ -110,9 +121,28 @@ final class MemberPriceRowView: BaseView {
         nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
 
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        // priceTextField 기준으로 최소 가로 42pt, 세로 ±14pt 터치 영역 확장
+        let fieldFrame = priceTextField.frame
+        let minWidth: CGFloat = 42
+        let horizontalInset = max(0, (minWidth - fieldFrame.width) / 2)
+
+        let extendedFieldFrame = fieldFrame.insetBy(
+            dx: -horizontalInset,
+            dy: -14
+        )
+
+        if extendedFieldFrame.contains(point) {
+            return priceTextField
+        }
+
+        return super.hitTest(point, with: event)
+    }
+
     //TODO: - 한번에 뷰컨으로 옮기기
     private func addTarget() {
         priceTextField.addTarget(self, action: #selector(didChangeText), for: .editingChanged)
+        priceTextField.addTarget(self, action: #selector(didBegin), for: .editingDidBegin)
     }
 
 
@@ -129,6 +159,26 @@ final class MemberPriceRowView: BaseView {
 
         let formatted = formatNumberWithCommas(NSNumber(value: number)) ?? ""
         priceTextField.text = formatted
+    }
+    
+    @objc private func didBegin() {
+        print("🔥 textField did begin editing")
+    }
+
+    // MARK: - UITextFieldDelegate
+
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        print("🟢 shouldBeginEditing")
+        return true
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        print("🟢 didBeginEditing delegate")
+        onBeginEditing?()
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        print("🟠 didEndEditing delegate")
     }
 
     // MARK: - Public
@@ -161,4 +211,8 @@ final class MemberPriceRowView: BaseView {
     func setPrice(_ text: String) {
         priceTextField.text = text
     }
+}
+
+#Preview() {
+    MemberPriceRowView()
 }
