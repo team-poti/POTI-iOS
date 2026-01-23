@@ -236,6 +236,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             .sink { [weak self] id in
                 let factory = DefaultViewControllerFactory()
                 let containerVC = factory.makePotDetailViewController(postId: id)
+                containerVC.hidesBottomBarWhenPushed = true
                 self?.navigationController?.pushViewController(containerVC, animated: true)
             }
             .store(in: &cancellables)

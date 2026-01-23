@@ -110,7 +110,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
             //            fetchDataSubject.send()
             
         case .tapPotInfo:
-            if let postId = self.joinModel?.participationId { 
+            if let postId = self.joinModel?.postId {
                 naviPotInfoSubject.send(postId)
             }
         case .submitDeposit(let participationId, let depositorName, let depositedAt):
