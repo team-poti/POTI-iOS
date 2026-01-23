@@ -7,4 +7,5 @@
 
 protocol ParticipationsInterface {
     func fetchParticipationsDetail(participationId: Int) async throws -> JoinDetailEntity
+    func patchParticipationDelivered(participationId: Int) async throws
 }

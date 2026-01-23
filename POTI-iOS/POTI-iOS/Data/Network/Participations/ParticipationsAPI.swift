@@ -9,11 +9,14 @@ import Alamofire
 
 enum ParticipationsAPI: BaseTargetType {
     case fetchParticipation(participationId: Int)
+    case patchParticipationDelivered(participationId: Int)
     
     var path: String {
         switch self {
         case .fetchParticipation(let participationId):
             return "/api/v1/participations/\(participationId)"
+        case .patchParticipationDelivered(let participationId):
+            return "/api/v1/participations/\(participationId)/delivered"
         }
     }
     
@@ -21,14 +24,16 @@ enum ParticipationsAPI: BaseTargetType {
         switch self {
         case .fetchParticipation:
             return .get
+        case .patchParticipationDelivered:
+            return .patch
         }
     }
-//    
-//    var queryParameters: Parameters? {
-//        return nil
-//    }
-//    
-//    var bodyParameters: Parameters? {
-//        return nil
-//    }
+    
+    var queryParameters: Parameters? {
+        return nil
+    }
+    
+    var bodyParameters: Parameters? {
+        return nil
+    }
 }

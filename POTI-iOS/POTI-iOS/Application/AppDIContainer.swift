@@ -98,6 +98,14 @@ final class AppDIContainer {
         DefaultParticipationsRepository(networkService: makeNetworkService())
     }
     
+    private func makePostPaymentsRepository() -> PaymentsInterface {
+        DefaultPaymentsRepository(networkService: makeNetworkService())
+    }
+    
+    private func makeParticipationsDeliveredRepository() -> ParticipationsInterface {
+        DefaultParticipationsRepository(networkService: makeNetworkService())
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -182,8 +190,16 @@ final class AppDIContainer {
         DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
     }
     
-    private func makeParticipationssDetailUseCase() -> ParticipationsDetailUseCase {
+    private func makeParticipationsDetailUseCase() -> ParticipationsDetailUseCase {
         DefaultParticipationsDetailUseCase(repository: makeParticipationsRepository())
+    }
+    
+    private func makePostPaymentsUseCase() -> PostPaymentsUseCase {
+        DefaultPostPaymentsUseCase(repository: makePaymentsRepository())
+    }
+    
+    private func makeParticipationsDeliveredUseCase() -> ParticipationsDeliveredUseCase {
+        DefaultParticipationsDeliveredUseCase(repository: makeParticipationsDeliveredRepository())
     }
     
     // MARK: - ViewModel
@@ -236,7 +252,10 @@ final class AppDIContainer {
     func makeMyPageJoinViewModel(participationId: Int) -> MyPageJoinViewModel {
         MyPageJoinViewModel(
             participationId: participationId,
-            usecase: makeParticipationssDetailUseCase())
+            participationsDetailUsecase: makeParticipationsDetailUseCase(),
+            postPaymentsUseCase: makePostPaymentsUseCase(),
+            participationsDeliveredUseCase: makeParticipationsDeliveredUseCase()
+        )
     }
     
     func makePotListViewModel(title: String, artistId: Int, artistName: String) -> PotListViewModel {
