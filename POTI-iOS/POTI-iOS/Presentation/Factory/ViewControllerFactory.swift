@@ -20,14 +20,18 @@ protocol ViewControllerFactory {
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController
     func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController
     func makeMyPageJoinDetailViewController() -> MyPageJoinDetailViewController
+    func makeMyPageHistoryContainerViewController(
+        initialType: MyPageHistoryType,
+        initialTab: MyPageHistoryViewController.HistoryTab
+    ) -> MyPageHistoryContainerViewController
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
     func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewController
+    func makeYourPageViewController(userId: Int) -> YourPageViewController
 }
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
-    
     private let diContainer: AppDIContainer
     
     init(diContainer: AppDIContainer = .shared) {
@@ -62,7 +66,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
-            viewModel: diContainer.makeMyPageViewModel()
+            viewModel: diContainer.makeMyPageViewModel(), factory: self
         )
     }
     
@@ -120,6 +124,17 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    func makeMyPageHistoryContainerViewController(
+        initialType: MyPageHistoryType,
+        initialTab: MyPageHistoryViewController.HistoryTab = .ongoing
+    ) -> MyPageHistoryContainerViewController {
+        MyPageHistoryContainerViewController(
+            initialType: initialType,
+            initialTab: initialTab,
+            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType), factory: self
+        )
+    }
+    
     func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet {
         let viewModel = diContainer.makeArtistsViewModel(artistId: artistId, selectedIds: selectedIds)
         return ArtistsBottomSheet(viewModel: viewModel)
@@ -128,5 +143,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet {
         let viewModel = SortViewModel(type: type, initialIndex: initialIndex)
         return SortBottomSheet(viewModel: viewModel)
+    }
+    
+    func makeYourPageViewController(userId: Int) -> YourPageViewController {
+        YourPageViewController(viewModel: diContainer.makeYourPageViewModel(userId: userId))
     }
 }

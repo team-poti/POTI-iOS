@@ -57,6 +57,8 @@ final class MyPageHistoryViewModel: BaseViewModelType {
         let ongoingData: AnyPublisher<[MyPageHistoryModel], Never>
         let completedData: AnyPublisher<[MyPageHistoryModel], Never>
         let isLoading: AnyPublisher<Bool, Never>
+        let ongoingCount: AnyPublisher<Int, Never>
+        let completedCount: AnyPublisher<Int, Never>
     }
     
     // MARK: - Properties
@@ -67,19 +69,32 @@ final class MyPageHistoryViewModel: BaseViewModelType {
     private let ongoingDataSubject = CurrentValueSubject<[MyPageHistoryModel], Never>([])
     private let completedDataSubject = CurrentValueSubject<[MyPageHistoryModel], Never>([])
     private let isLoadingSubject = CurrentValueSubject<Bool, Never>(false)
+    private let ongoingCountSubject = CurrentValueSubject<Int, Never>(0)
+    private let completedCountSubject = CurrentValueSubject<Int, Never>(0)
     
     private var cancellables = Set<AnyCancellable>()
     
+    private let myPagePostsHistoryUseCase: MyPagePostsHistoryUseCase
+    private let myPageParticipationsHistoryUseCase: MyPageParticipationsHistoryUseCase
+    
     // MARK: - Initializer
     
-    init(initialType: MyPageHistoryType) {
+    init(
+        initialType: MyPageHistoryType,
+        myPagePostsHistoryUseCase: MyPagePostsHistoryUseCase,
+        myPageParticipationsHistoryUseCase: MyPageParticipationsHistoryUseCase
+    ) {
+        self.myPagePostsHistoryUseCase = myPagePostsHistoryUseCase
+        self.myPageParticipationsHistoryUseCase = myPageParticipationsHistoryUseCase
         self.currentTypeSubject = CurrentValueSubject<MyPageHistoryType, Never>(initialType)
         
         self.output = Output(
             currentType: currentTypeSubject.eraseToAnyPublisher(),
             ongoingData: ongoingDataSubject.eraseToAnyPublisher(),
             completedData: completedDataSubject.eraseToAnyPublisher(),
-            isLoading: isLoadingSubject.eraseToAnyPublisher()
+            isLoading: isLoadingSubject.eraseToAnyPublisher(),
+            ongoingCount: ongoingCountSubject.eraseToAnyPublisher(),
+            completedCount: completedCountSubject.eraseToAnyPublisher()
         )
     }
     
@@ -104,35 +119,50 @@ final class MyPageHistoryViewModel: BaseViewModelType {
     
     private func fetchData() {
         isLoadingSubject.send(true)
-        
-        // TODO: API 호출
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
-            
-            // Mock data
-            let mockOngoing = (0..<5).map { _ in
-                MyPageHistoryModel(
-                    id: UUID().uuidString,
-                    artistName: "아이브",
-                    productName: "러브다이브 위뮤",
-                    status: "모집 완료",
-                    thumbnailURL: nil
-                )
+        Task {
+            do {
+                switch currentTypeSubject.value {
+                case .recruitment:
+                    async let ongoing = myPagePostsHistoryUseCase.execute(status: "IN_PROGRESS")
+                    async let completed = myPagePostsHistoryUseCase.execute(status: "COMPLETED")
+                    
+                    let ongoingResult = try await ongoing
+                    let completedResult = try await completed
+                    
+                    ongoingDataSubject.send(
+                        ongoingResult.groupBuyPosts.map { $0.toModel() }
+                    )
+                    
+                    completedDataSubject.send(
+                        completedResult.groupBuyPosts.map { $0.toModel() }
+                    )
+                    
+                    ongoingCountSubject.send(ongoingResult.inProgressCount)
+                    completedCountSubject.send(ongoingResult.completedCount)
+                    
+                case .participation:
+                    async let ongoing = myPageParticipationsHistoryUseCase.execute(status: "IN_PROGRESS")
+                    async let completed = myPageParticipationsHistoryUseCase.execute(status: "COMPLETED")
+                    
+                    let ongoingResult = try await ongoing
+                    let completedResult = try await completed
+                    
+                    ongoingDataSubject.send(
+                        ongoingResult.participations.map { $0.toModel() }
+                    )
+                    
+                    completedDataSubject.send(
+                        completedResult.participations.map { $0.toModel() }
+                    )
+                    
+                    ongoingCountSubject.send(ongoingResult.inProgressCount)
+                    completedCountSubject.send(ongoingResult.completedCount)
+                }
+                
+                isLoadingSubject.send(false)
+            } catch {
+                isLoadingSubject.send(false)
             }
-            
-            let mockCompleted = (0..<3).map { _ in
-                MyPageHistoryModel(
-                    id: UUID().uuidString,
-                    artistName: "아이브",
-                    productName: "러브다이브 위뮤",
-                    status: "모집 완료",
-                    thumbnailURL: nil
-                )
-            }
-            
-            self.ongoingDataSubject.send(mockOngoing)
-            self.completedDataSubject.send(mockCompleted)
-            self.isLoadingSubject.send(false)
         }
     }
 }

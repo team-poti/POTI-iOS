@@ -94,6 +94,10 @@ final class AppDIContainer {
         DefaultPaymentsRepository(networkService: makeNetworkService())
     }
     
+    private func makeParticipationsRepository() -> ParticipationsInterface {
+        DefaultParticipationsRepository(networkService: makeNetworkService())
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -178,6 +182,18 @@ final class AppDIContainer {
         DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
     }
     
+    private func makeMyPagePostsHistoryUseCase() -> MyPagePostsHistoryUseCase {
+        DefaultMyPagePostsHistoryUseCase(repository: makePostsRepository())
+    }
+    
+    private func makeMyPageParticipationsHistoryUseCase() -> MyPageParticipationsHistoryUseCase {
+        DefaultMyPageParticipationsHistoryUseCase(repository: makeParticipationsRepository())
+    }
+    
+    private func makeGetYourPageInformationUseCase() -> GetYourPageInformationUseCase {
+        DefaultGetYourPageInformationUseCase(repository: makeUsersRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -243,5 +259,21 @@ final class AppDIContainer {
     
     func makeMyPageViewModel() -> MyPageViewModel {
         MyPageViewModel(getMyPageInformationUseCase: makeGetMyPageInformationUseCase())
+    }
+    
+    func makeMyPageHistoryViewModel(
+        initialType: MyPageHistoryType
+    ) -> MyPageHistoryViewModel {
+        MyPageHistoryViewModel(
+            initialType: initialType,
+            myPagePostsHistoryUseCase: makeMyPagePostsHistoryUseCase(),
+            myPageParticipationsHistoryUseCase: makeMyPageParticipationsHistoryUseCase()
+        )
+    }
+    
+    func makeYourPageViewModel(userId: Int) -> YourPageViewModel {
+        YourPageViewModel(
+            userId: userId, getYourPageInformationUseCase: makeGetYourPageInformationUseCase()
+        )
     }
 }
