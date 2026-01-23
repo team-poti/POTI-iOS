@@ -252,10 +252,6 @@ final class AppDIContainer {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
     
-    func makeOrderViewModel(postId: Int) -> PotOptionsViewModel {
-        PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
-    }
-    
     func makeRecruitDetailViewModel(postId: Int) -> RecruitDetailViewModel {
         RecruitDetailViewModel(postId: postId, postsSaleUseCase: makePostsSaleUseCase())
     }

@@ -85,29 +85,32 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     // MARK: - Action
     
     @objc private func joinButtonDidTap() {
-        let optionsSheetVC = factory.makePotOptionsSheetViewController(postId: viewModel.postId)
-        optionsSheetVC.modalPresentationStyle = .overFullScreen
+        let optionsViewModel = factory.makePotOptionsViewModel(postId: viewModel.postId)
+        let optionsView = PotOptionsView(viewModel: optionsViewModel)
         
-        optionsSheetVC.onContinue = { [weak self] shippingId, orderItems, shippingInfo, memberInfos in
+        optionsView.onContinue = { [weak self] (shippingId: Int, orderItems: [OrderItem], shippingInfo: (String, Int)?, memberInfos: [(String, Int)]) in
             guard let self = self else { return }
             
             guard let shippingInfo = shippingInfo else { return }
-            let nickname = self.viewModel.potDetailModel?.uploader.nickname ?? "포티"
+            let nickname = self.viewModel.potDetailModel?.uploader.nickname ?? ""
             
             let orderVC = self.factory.makePotOrderViewController(
                 postId: self.viewModel.postId,
                 shippingId: shippingId,
                 orderItems: orderItems,
                 shippingInfo: shippingInfo,
-                memberInfos: memberInfos, uploaderNickname: nickname
+                memberInfos: memberInfos,
+                uploaderNickname: nickname
             )
+            
             orderVC.onSuccess = { [weak self] in
                 self?.viewModel.action(.viewDidLoad)
             }
             
             self.navigationController?.pushViewController(orderVC, animated: true)
         }
-        self.present(optionsSheetVC, animated: false)
+        
+        optionsView.show(in: self.navigationController?.view ?? self.view)
     }
     
     @objc private func yourProfileButtondidTap() {

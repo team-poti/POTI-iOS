@@ -87,6 +87,7 @@ final class TagView: BaseView {
     
     override func setLayout() {
         tagTextLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(8)
             $0.verticalEdges.equalToSuperview().inset(4)
         }

@@ -11,7 +11,7 @@ protocol ViewControllerFactory {
     func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
     func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController
-    func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController
+    func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
     func makeOnboardingViewController() -> OnboardingViewController
@@ -70,10 +70,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makePotOptionsSheetViewController(postId: Int) -> PotOptionsSheetViewController {
-        PotOptionsSheetViewController(
-            viewModel: diContainer.makePotOptionsViewModel(postId: postId)
-        )
+    func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel {
+        diContainer.makePotOptionsViewModel(postId: postId)
     }
     
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController {

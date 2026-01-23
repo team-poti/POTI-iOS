@@ -89,9 +89,9 @@ final class DetailParticipantsCell: UICollectionViewCell {
         
         memberTagView.snp.makeConstraints {
             $0.trailing.equalToSuperview()
-            $0.width.equalTo(41)
             $0.height.equalTo(29)
             $0.centerY.equalTo(nickNameLabel)
+            $0.leading.greaterThanOrEqualTo(starRatingLabel.snp.trailing).offset(8)
         }
     }
     

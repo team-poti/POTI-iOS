@@ -41,7 +41,7 @@ final class OrderCompleteView: BaseView {
         }
         
         submitSuccessView.do {
-            $0.loopMode = .playOnce
+            $0.loopMode = .loop
             $0.backgroundBehavior = .pauseAndRestore
             $0.play { finished in
             }
@@ -93,8 +93,8 @@ final class OrderCompleteView: BaseView {
         
         submitSuccessView.snp.makeConstraints {
             $0.center.equalToSuperview()
-            $0.width.equalTo(285)
-            $0.height.equalTo(228)
+            $0.width.equalTo(208.35)
+            $0.height.equalTo(151.92)
             $0.top.equalTo(subTitleLabel.snp.bottom).offset(36)
         }
         

@@ -112,6 +112,8 @@ extension OnboardingViewModel {
                     nicknameValidationSubject.send(.invalidFormat)
                 case .apiError(let message) where message.contains("비속어"):
                     nicknameValidationSubject.send(.containsProfanity)
+                case .apiError(let message) where message.contains("닉네임"):
+                    nicknameValidationSubject.send(.containsProfanity)
                 default:
                     onboardingFailureSubject.send(error)
                 }

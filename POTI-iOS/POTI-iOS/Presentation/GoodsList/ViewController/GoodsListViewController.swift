@@ -41,6 +41,8 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>, Nav
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        rootView.updateLayout(sectionType: viewModel.sectionType)
         viewModel.action(.viewDidLoad)
     }
     
@@ -90,9 +92,6 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>, Nav
     }
     
     @objc private func didTapFloatingButton() {
-        
-        // TODO: - factory 주입으로 변경하기
-        
         let viewModel = ProductRegisterViewModel()
         let vc = ProductRegisterViewController(viewModel: viewModel)
         self.navigationController?.pushViewController(vc, animated: true)

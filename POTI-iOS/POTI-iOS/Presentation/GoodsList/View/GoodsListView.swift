@@ -16,7 +16,7 @@ final class GoodsListView: BaseView {
     
     lazy var goodsListCollectionView = UICollectionView(
         frame: .zero,
-        collectionViewLayout: GoodsListLayoutFactory.createLayout()
+        collectionViewLayout: UICollectionViewFlowLayout()
     )
     let floatingButton = FloatingButton()
     
@@ -46,7 +46,15 @@ final class GoodsListView: BaseView {
         floatingButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(20)
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(16)
+            $0.size.equalTo(60)
         }
+    }
+    
+    // MARK: - Method
+    
+    func updateLayout(sectionType: HomeSection) {
+        let layout = GoodsListLayoutFactory.createLayout(sectionType: sectionType)
+        goodsListCollectionView.setCollectionViewLayout(layout, animated: false)
     }
 }
 

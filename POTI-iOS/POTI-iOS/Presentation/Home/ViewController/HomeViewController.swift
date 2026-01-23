@@ -94,6 +94,7 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
             .receive(on: DispatchQueue.main)
             .sink { [weak self] page in
                 self?.updateBannerFooter(page)
+                self?.updateSectionBackground(page: page)
             }
             .store(in: &cancellables)
         
@@ -124,6 +125,21 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
             at: IndexPath(item: 0, section: 0)
         ) as? BannerFooterCell {
             footer.updatePageControl(currentPage: page)
+        }
+    }
+    
+    private func updateSectionBackground(page: Int) {
+        guard page < viewModel.banners.count else { return }
+        let bannerUrl = viewModel.banners[page].imageUrl
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            self.rootView.homeCollectionView.subviews.forEach { view in
+                if let bgView = view as? BannerBackgroundView {
+                    bgView.updateImage(url: bannerUrl)
+                }
+            }
         }
     }
 }
@@ -249,6 +265,6 @@ extension HomeViewController: GoodsHeaderCellDelegate {
         let viewModel = ProductRegisterViewModel()
         let vc = ProductRegisterViewController(viewModel: viewModel)
         self.navigationController?.pushViewController(vc, animated: true)
-        //        KeychainManager.deleteAllTokens()
+//                KeychainManager.deleteAllTokens()
     }
 }

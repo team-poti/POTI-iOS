@@ -9,20 +9,42 @@ import UIKit
 
 import Combine
 
+//struct HomeLayoutFactory {
+//    static func createLayout(currentPageNumber: PassthroughSubject<Int, Never>) -> UICollectionViewCompositionalLayout {
+//        return UICollectionViewCompositionalLayout { (sectionNumber, env) -> NSCollectionLayoutSection? in
+//            guard let sectionType = HomeSection(rawValue: sectionNumber) else { return nil }
+//            
+//            switch sectionType {
+//            case .banner:
+//                return createBannerSection(currentPageNumber: currentPageNumber)
+//            case .myGroup:
+//                return createGoodsSection(bottomValue: 40)
+//            case .otherGroup:
+//                return createGoodsSection(bottomValue: .dynamicH(114) + 40)
+//            }
+//        }
+//    }
+//}
+
 struct HomeLayoutFactory {
     static func createLayout(currentPageNumber: PassthroughSubject<Int, Never>) -> UICollectionViewCompositionalLayout {
-        return UICollectionViewCompositionalLayout { (sectionNumber, env) -> NSCollectionLayoutSection? in
+        let layout = UICollectionViewCompositionalLayout { (sectionNumber, env) -> NSCollectionLayoutSection? in
             guard let sectionType = HomeSection(rawValue: sectionNumber) else { return nil }
             
             switch sectionType {
             case .banner:
-                return createBannerSection(currentPageNumber: currentPageNumber)
+                let section = createBannerSection(currentPageNumber: currentPageNumber)
+                let backgroundItem = NSCollectionLayoutDecorationItem.background(elementKind: BannerBackgroundView.identifier)
+                section.decorationItems = [backgroundItem]
+                return section
             case .myGroup:
                 return createGoodsSection(bottomValue: 40)
             case .otherGroup:
                 return createGoodsSection(bottomValue: .dynamicH(114) + 40)
             }
         }
+        layout.register(BannerBackgroundView.self, forDecorationViewOfKind: BannerBackgroundView.identifier)
+        return layout
     }
 }
 

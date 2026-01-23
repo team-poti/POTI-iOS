@@ -15,8 +15,6 @@ final class BannerCell: UICollectionViewCell {
     // MARK: - UI Components
     
     private var bannerImageView = UIImageView()
-    private var shadowImageView = UIImageView()
-    private var shadowLayerView = UIView()
     
     // MARK: - Initializer
     
@@ -35,44 +33,24 @@ final class BannerCell: UICollectionViewCell {
     // MARK: - Custom Methods
     
     private func setStyle() {
+        self.backgroundColor = .clear
+        
         bannerImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.layer.cornerRadius = 12
             $0.clipsToBounds = true
         }
-        
-        shadowImageView.do {
-            $0.contentMode = .scaleAspectFill
-            $0.layer.cornerRadius = 12
-            $0.clipsToBounds = true
-            
-            let angle = CGFloat(-4.26 * Double.pi / 180)
-            $0.transform = CGAffineTransform(rotationAngle: angle)
-        }
-        
-        shadowLayerView.do {
-            $0.backgroundColor = .black.withAlphaComponent(0.2)
-        }
     }
     
     private func setUI() {
-        contentView.addSubviews(shadowImageView, bannerImageView)
-        shadowImageView.addSubview(shadowLayerView)
+        addSubviews(bannerImageView)
     }
     
     private func setLayout() {
-        shadowImageView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(22)
-            $0.height.equalTo(196)
-        }
-        
         bannerImageView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(22)
             $0.height.equalTo(196)
-        }
-        
-        shadowLayerView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.equalToSuperview()
         }
     }
 }
@@ -82,6 +60,5 @@ final class BannerCell: UICollectionViewCell {
 extension BannerCell {
     func configure(banner: BannerModel) {
         bannerImageView.kf.setImage(with: URL(string: banner.imageUrl))
-        shadowImageView.kf.setImage(with: URL(string: banner.imageUrl))
     }
 }
