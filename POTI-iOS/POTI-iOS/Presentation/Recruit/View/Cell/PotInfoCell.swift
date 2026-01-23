@@ -86,7 +86,7 @@ final class PotInfoCell: UITableViewCell {
     
     func setLayout() {
         potIdLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(12)
+            $0.top.equalToSuperview()
             $0.leading.equalToSuperview().inset(16)
             $0.trailing.equalToSuperview()
         }
@@ -129,7 +129,7 @@ final class PotInfoCell: UITableViewCell {
     }
     
     func configure(model: PotInfoViewState) {
-        potIdLabel.text = "모집 번호 poti-\(model.postId)"
+        potIdLabel.text = "모집번호 poti-\(model.postId)"
 
         if let url = URL(string: model.imageUrl) {
             thumbnailView.kf.setImage(
@@ -146,3 +146,4 @@ final class PotInfoCell: UITableViewCell {
         potStatusLabel.textColor = model.status.badgeColor
     }
 }
+a
