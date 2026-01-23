@@ -18,7 +18,7 @@ final class PotOptionsSheetViewController: BaseViewController<PotOptionsViewMode
     private let rootView = OptionView()
     private var currentDropdown: AccordionDropdownView?
     private var deliveryInfoView: SelectedInfoView?
-    var onContinue: ((_ shippingId: Int,_ orderItems: [OrderItem]) -> Void)?
+    var onContinue: ((Int, [OrderItem], (String, Int)?, [(String, Int)]) -> Void)?
     
     // MARK: - Life Cycles
     
@@ -181,14 +181,14 @@ private extension PotOptionsSheetViewController {
     }
     
     @objc private func continueButtonTapped() {
-        guard
-            let shippingId = viewModel.selectedShippingId()
-        else { return }
+        guard let shippingId = viewModel.selectedShippingId() else { return }
         
         let orderItems = viewModel.makeOrderItems()
+        let selectedMemberInfos = viewModel.selectedMembers.map { (name: $0.key, price: $0.value) }
+        let selectedShippingInfo = viewModel.selectedDelivery
         
         dismiss(animated: false) { [weak self] in
-            self?.onContinue?(shippingId, orderItems)
+            self?.onContinue?(shippingId, orderItems, selectedShippingInfo, selectedMemberInfos)
         }
     }
 }

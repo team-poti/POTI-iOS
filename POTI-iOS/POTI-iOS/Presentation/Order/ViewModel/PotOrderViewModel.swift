@@ -43,7 +43,10 @@ final class PotOrderViewModel: BaseViewModelType {
     
     let postId: Int
     private let shippingId: Int
+    private let uploaderNickname: String
     private let orderItems: [OrderItem]
+    private let memberInfos: [(name: String, price: Int)]
+    private let shippingInfo: (name: String, price: Int)
     
     // MARK: - Subjects
     
@@ -54,11 +57,20 @@ final class PotOrderViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: SubmitOrderUseCase, postId: Int, shippingId: Int,orderItems: [OrderItem]) {
+    init(useCase: SubmitOrderUseCase,
+         postId: Int,
+         shippingId: Int,
+         orderItems: [OrderItem],
+         shippingInfo: (name: String, price: Int),
+         memberInfos: [(name: String, price: Int)], uploaderNickname: String) {
+        
         self.useCase = useCase
         self.postId = postId
         self.shippingId = shippingId
         self.orderItems = orderItems
+        self.memberInfos = memberInfos
+        self.shippingInfo = shippingInfo
+        self.uploaderNickname = uploaderNickname
         
         bindInputs()
     }
@@ -68,7 +80,7 @@ final class PotOrderViewModel: BaseViewModelType {
     func action(_ input: Input) {
         switch input {
         case .viewDidLoad:
-            fetchMockData()
+            fetchOrderData()
         case .nameDidChange(let text):
             name = text
             output.nameError.send(nil)
@@ -121,14 +133,21 @@ final class PotOrderViewModel: BaseViewModelType {
             .store(in: &cancellables)
     }
     
-    private func fetchMockData() {
-        output.nickname.send("수민이다")
-        let dummyItems: [(Kind, String, String)] = [
-            (.Member, "포숭이", "10,000원"),
-            (.Member, "마마륜", "12,000원"),
-            (.Delievery, "포티택배", "3,000원")
-        ]
-        output.orderHeaderData.send((items: dummyItems, total: "25,000원"))
+    private func fetchOrderData() {
+        var displayItems: [(Kind, String, String)] = []
+        var totalAmount = 0
+        
+        memberInfos.forEach { member in
+            displayItems.append((.Member, member.name, "\(member.price.formattedWithComma)원"))
+            totalAmount += member.price
+        }
+        
+        displayItems.append((.Delievery, shippingInfo.name, "\(shippingInfo.price.formattedWithComma)원"))
+        totalAmount += shippingInfo.price
+        
+        output.orderHeaderData.send((items: displayItems, total: "\(totalAmount.formattedWithComma)원"))
+        
+        output.nickname.send(uploaderNickname)
     }
     
     private func requestSubmitOrder() {
