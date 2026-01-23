@@ -13,11 +13,18 @@ import Then
 class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, NavigationConfigurable {
     
     func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("진행 중인 분철")
+        let status = viewModel.participantOrderStatus ?? .recruiting
+        print("네비 바 작동 확인 \(status)")
+
+        switch status {
+        case .completed:
+            return .backDefault("종료된 분철")
+        default:
+            return .backDefault("진행 중인 분철")
+        }
     }
     
     private let tableView = UITableView()
-    private let backgroundView = UIView()
     private let completeButton = PotiBottomButton()
     private var tableViewBottomConstraint: Constraint?
     private var viewState: JoinDetailViewState?
@@ -28,6 +35,10 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
         updateCompleteButton()
+
+        // 🔄 최초 진입 시에도 navigationStyle 적용 강제 (기본값/초기 상태 반영)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -73,8 +84,6 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             $0.allowsSelection = false
             $0.separatorStyle = .none
             $0.showsVerticalScrollIndicator = false
-        }
-        backgroundView.do {
             $0.backgroundColor = .potiWhite
         }
     }
@@ -168,16 +177,20 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     override func bindViewModel() {
-        // 1) 화면 상태 내려받기 (progress, myJoinDepositInfo 포함)
         viewModel.output.viewState
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 self?.viewState = state
+                self?.updateCompleteButton()
+
+                // 🔄 navigationStyle 재적용 (postStatus 기반 타이틀 갱신)
+                self?.navigationController?.setNavigationBarHidden(true, animated: false)
+                self?.navigationController?.setNavigationBarHidden(false, animated: false)
+
                 self?.tableView.reloadData()
             }
             .store(in: &cancellables)
         
-        // 2) VM이 "리로드 해" 신호 주는 경우(에러처리/부분 업데이트 용)
         viewModel.output.reloadData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -186,7 +199,6 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             }
             .store(in: &cancellables)
         
-        // (기존 naviPotInfo 바인딩은 그대로)
         viewModel.output.naviPotInfo
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -195,6 +207,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
                 self?.navigationController?.pushViewController(containerVC, animated: true)
             }
             .store(in: &cancellables)
+        
         viewModel.output.naviPotInfo
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -263,11 +276,11 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
                 withIdentifier: JoinPotInfoCell.identifier,
                 for: indexPath
             ) as? JoinPotInfoCell else { return UITableViewCell() }
-            if let model = viewModel.joinModel {
-                cell.configure(model: model)
-                cell.onTapPotButton = { [weak self] in
-                    self?.viewModel.action(.tapPotInfo)
+            if let potInfo = viewState?.potInfo {
+                    cell.configure(model: potInfo)
                 }
+            cell.onTapPotButton = { [weak self] in
+                self?.viewModel.action(.tapPotInfo)
             }
             return cell
             
@@ -295,6 +308,7 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         case .statusInfo:
             let status = viewModel.participantOrderStatus ?? .recruiting
             updateCompleteButton()
+            print("🧩 [statusInfo] joinModel:", viewModel.joinModel as Any, "status:", status)
             switch status {
             case .recruiting:
                 guard let cell = tableView.dequeueReusableCell(

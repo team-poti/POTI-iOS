@@ -24,10 +24,12 @@ final class MyPageJoinViewModel: BaseViewModelType {
         let reloadData: AnyPublisher<Void, Never>
         let fetchData: AnyPublisher<Void, Never>
         let naviPotInfo: AnyPublisher<Void, Never>
-        let viewState: AnyPublisher<JoinDetailViewState?, Never>
+        let viewState: AnyPublisher<JoinDetailViewState, Never>
     }
     
     private(set) var joinModel: MyPageJoinModel?
+    private let usecase: ParticipationsDetailUseCase
+    private let viewStateMapper = JoinDetailViewStateMapper()
     
     /// MyPageJoinDetailViewController -> .statusInfo  섹션에서 분기용으로 사용할 현재 상태
     private(set) var participantOrderStatus: MyPageJoinModel.PostStatus?
@@ -42,8 +44,6 @@ final class MyPageJoinViewModel: BaseViewModelType {
     private let viewStateSubject = CurrentValueSubject<JoinDetailViewState?, Never>(nil)
     
     let output: Output
-    private let usecase: ParticipationsDetailUseCase
-    private let viewStateMapper = JoinDetailViewStateMapper()
     
     // MARK: - Lifecycle
     
@@ -57,7 +57,9 @@ final class MyPageJoinViewModel: BaseViewModelType {
             reloadData: reloadDataSubject.eraseToAnyPublisher(),
             fetchData: fetchDataSubject.eraseToAnyPublisher(),
             naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher(),
-            viewState: viewStateSubject.eraseToAnyPublisher()
+            viewState: viewStateSubject
+                .compactMap { $0 }
+                .eraseToAnyPublisher()
         )
         print("✅ MyPageJoinViewModel init - participationId:", participationId)
     }
@@ -69,13 +71,10 @@ final class MyPageJoinViewModel: BaseViewModelType {
     // MARK: - Action
     
     func action(_ trigger: Input) {
-        print("➡️ MyPageJoinViewModel action:", trigger)
         switch trigger {
         case .viewDidLoad:
-            print("🟦 viewDidLoad received - will fetch, participationId:", participationId)
             Task { [weak self] in
                 guard let self else {
-                    print("⚠️ viewDidLoad Task: self nil (ViewModel released before fetch)")
                     return
                 }
                 await self.fetchParticipationsDetail(participationId: self.participationId)
@@ -103,18 +102,26 @@ final class MyPageJoinViewModel: BaseViewModelType {
     // MARK: - Private Method
     
     private func fetchParticipationsDetail(participationId: Int) async {
-        print("🌐 fetchParticipationsDetail start - participationId:", participationId)
         do {
             let entity = try await usecase.execute(participationId: participationId)
-            print("✅ fetchParticipationsDetail success - entity:", entity)
+
+            // ✅ statusInfo에서 쓰는 모델도 반드시 갱신
+            let model = MyPageJoinModel.map(entity: entity)
+            self.joinModel = model
+            self.participantOrderStatus = model.postStatus
+            self.participants = [model]
+            self.progressStatusModel = ProgressStatusModel(
+                role: .participant,
+                status: ParticipantStatus.from(participantStatus: model.postStatus)
+            )
             let state = viewStateMapper.map(entity: entity)
-            
             viewStateSubject.send(state)
+
+            // ✅ VC 업데이트 트리거
+            fetchDataSubject.send()
             reloadDataSubject.send()
         } catch {
-            print("❌ fetchParticipationsDetail error type:", String(reflecting: type(of: error)))
-            print("❌ fetchParticipationsDetail error:", error)
-            print("❌ fetchParticipationsDetail localizedDescription:", error.localizedDescription)
+            print("🥎 fetchParticipationsDetail error:", error)
         }
     }
 }
