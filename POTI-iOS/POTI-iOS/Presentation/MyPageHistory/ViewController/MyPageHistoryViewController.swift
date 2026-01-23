@@ -31,7 +31,13 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
     private var currentType: MyPageHistoryType = .participation
     private var isScrollingByUser = false
     
-    init(viewModel: MyPageHistoryViewModel, initialTab: HistoryTab = .ongoing) {
+    private var ongoingItems: [MyPageHistoryModel] = []
+    private var completedItems: [MyPageHistoryModel] = []
+    
+    private let factory: ViewControllerFactory
+    
+    init(viewModel: MyPageHistoryViewModel, initialTab: HistoryTab = .ongoing, factory: ViewControllerFactory) {
+        self.factory = factory
         self.currentTab = initialTab
         super.init(viewModel: viewModel)
     }
@@ -94,16 +100,20 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
         viewModel.output.ongoingData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] data in
-                self?.updateEmptyView(for: .ongoing, isEmpty: data.isEmpty)
-                self?.contentView.ongoingTableView.reloadData()
+                guard let self = self else { return }
+                self.ongoingItems = data
+                self.updateEmptyView(for: .ongoing, isEmpty: data.isEmpty)
+                self.contentView.ongoingTableView.reloadData()
             }
             .store(in: &cancellables)
         
         viewModel.output.completedData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] data in
-                self?.updateEmptyView(for: .completed, isEmpty: data.isEmpty)
-                self?.contentView.completedTableView.reloadData()
+                guard let self = self else { return }
+                self.completedItems = data
+                self.updateEmptyView(for: .completed, isEmpty: data.isEmpty)
+                self.contentView.completedTableView.reloadData()
             }
             .store(in: &cancellables)
         
@@ -206,21 +216,11 @@ extension MyPageHistoryViewController: UIScrollViewDelegate {
 
 extension MyPageHistoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        var count = 0
-        
-        viewModel.output.ongoingData
-            .combineLatest(viewModel.output.completedData)
-            .first()
-            .sink { ongoingData, completedData in
-                if tableView == self.contentView.ongoingTableView {
-                    count = ongoingData.count
-                } else {
-                    count = completedData.count
-                }
-            }
-            .store(in: &cancellables)
-        
-        return count
+        if tableView == contentView.ongoingTableView {
+            return ongoingItems.count
+        } else {
+            return completedItems.count
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -231,28 +231,16 @@ extension MyPageHistoryViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        viewModel.output.ongoingData
-            .combineLatest(viewModel.output.completedData)
-            .first()
-            .sink { [weak self] ongoingData, completedData in
-                guard let self = self else { return }
-                
-                let item: MyPageHistoryModel
-                
-                if tableView == self.contentView.ongoingTableView {
-                    item = ongoingData[indexPath.row]
-                } else {
-                    item = completedData[indexPath.row]
-                }
-                
-                cell.configure(
-                    artist: item.artistName,
-                    product: item.productName,
-                    status: item.status,
-                    thumbnailURL: item.thumbnailURL
-                )
-            }
-            .store(in: &cancellables)
+        let item = tableView == contentView.ongoingTableView
+        ? ongoingItems[indexPath.row]
+        : completedItems[indexPath.row]
+        
+        cell.configure(
+            artist: item.artistName,
+            product: item.productName,
+            status: item.status,
+            thumbnailURL: item.thumbnailURL
+        )
         
         return cell
     }
@@ -263,6 +251,29 @@ extension MyPageHistoryViewController: UITableViewDataSource {
 extension MyPageHistoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        // TODO: Handle cell tap
+
+        let item = tableView == contentView.ongoingTableView
+            ? ongoingItems[indexPath.row]
+            : completedItems[indexPath.row]
+
+        navigateToDetail(item: item)
+    }
+}
+
+// MARK: - Navigation
+
+extension MyPageHistoryViewController {
+    private func navigateToDetail(item: MyPageHistoryModel) {
+//        switch currentType {
+//        case .recruitment:
+//             모집글 상세
+//            let vc = factory.makeRecruitDetailViewController(postId: item.id)
+//            navigationController?.pushViewController(vc, animated: true)
+//
+//        case .participation:
+//             참여 상세 (이름은 예시)
+//            let vc = factory.makeMyPageJoinDetailViewController()
+//            navigationController?.pushViewController(vc, animated: true)
+//        }
     }
 }

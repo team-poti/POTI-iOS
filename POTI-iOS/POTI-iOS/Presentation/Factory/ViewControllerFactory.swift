@@ -130,7 +130,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         MyPageHistoryContainerViewController(
             initialType: initialType,
             initialTab: initialTab,
-            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType)
+            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType), factory: self
         )
     }
     

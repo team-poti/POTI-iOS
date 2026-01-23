@@ -21,9 +21,12 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
     private var currentType: MyPageHistoryType = .participation
     private var initialTab: MyPageHistoryViewController.HistoryTab = .ongoing
     
-    init(initialType: MyPageHistoryType, initialTab: MyPageHistoryViewController.HistoryTab = .ongoing, viewModel: MyPageHistoryViewModel) {
+    private let factory: ViewControllerFactory
+    
+    init(initialType: MyPageHistoryType, initialTab: MyPageHistoryViewController.HistoryTab = .ongoing, viewModel: MyPageHistoryViewModel, factory: ViewControllerFactory) {
         self.currentType = initialType
         self.initialTab = initialTab
+        self.factory = factory
         super.init(viewModel: viewModel)
     }
         
@@ -79,7 +82,7 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
             currentChildVC.removeFromParent()
         }
         
-        let childVC = MyPageHistoryViewController(viewModel: viewModel, initialTab: initialTab)
+        let childVC = MyPageHistoryViewController(viewModel: viewModel, initialTab: initialTab, factory: factory)
         addChild(childVC)
         view.addSubview(childVC.view)
         childVC.view.frame = view.bounds
