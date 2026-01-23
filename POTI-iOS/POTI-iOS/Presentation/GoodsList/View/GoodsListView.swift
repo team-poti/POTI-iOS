@@ -46,6 +46,7 @@ final class GoodsListView: BaseView {
         floatingButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(20)
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(16)
+            $0.size.equalTo(56)
         }
     }
     
