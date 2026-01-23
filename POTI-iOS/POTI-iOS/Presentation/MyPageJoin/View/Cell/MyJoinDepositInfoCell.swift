@@ -109,15 +109,19 @@ final class MyJoinDepositInfoCell: UITableViewCell {
 }
 
 extension MyJoinDepositInfoCell {
-    func configure(model: MyPageJoinModel)
-    {
+    func configure(state: MyJoinDepositState) {
         memberRowStackView.configure(
-            rows: model.memberPayments.map { (name: $0.memberName, price: $0.price) }
+            rows: state.memberRows.map { (name: $0.name, price: $0.price) }
         )
+        
         shippingStackView.configure(
-            title: model.shippingInfo.shippingMethod,
-            price: model.paymentInfo.shippingFee
+            title: state.shippingMethod,
+            price: state.shippingFee
         )
-        totalStackView.configure(title: "총 입금 금액", price: model.paymentInfo.totalAmount)
+        
+        totalStackView.configure(
+            title: "총 입금 금액",
+            price: state.totalAmount
+        )
     }
 }

@@ -49,7 +49,7 @@ final class PotInfoView: BaseView {
         
         priceLabel.do {
             $0.textColor = .potiBlack
-            $0.font = PotiFontManager.display18b.font
+            $0.font = PotiFontManager.display20b.font
         }
         
         timeLabel.do {
@@ -158,9 +158,11 @@ final class PotInfoView: BaseView {
     func configure(with model: PotDetailModel) {
         artistNameLabel.text = model.artist
         productNameLabel.text = model.title
-        timeLabel.text = model.uploadTime
-        contentLabel.text = model.content
         
+        let datePart = String(model.uploadTime.prefix(10))
+        timeLabel.text = "\(datePart) 등록"
+        
+        contentLabel.text = model.content
         setPriceLabel(price: model.price)
         
         let formatter = NumberFormatter()

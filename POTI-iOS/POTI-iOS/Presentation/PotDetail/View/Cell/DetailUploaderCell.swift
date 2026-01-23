@@ -10,8 +10,8 @@ import UIKit
 final class DetailUploaderCell: UICollectionViewCell {
     
     // MARK: - UI Components
-
-    private let uploaderView = UploaderInfoView()
+    
+    let uploaderView = UploaderInfoView()
     
     // MARK: - Initializer
     
@@ -25,8 +25,12 @@ final class DetailUploaderCell: UICollectionViewCell {
     
     // MARK: - Method
     
-    func configure(with model: UploaderModel) {
+    func configure(with model: UploaderModel, target: Any?, action: Selector) {
         uploaderView.configure(with: model)
+        
+        uploaderView.profileDetailButton.removeTarget(nil, action: nil, for: .allEvents)
+        
+        uploaderView.profileDetailButton.addTarget(target, action: action, for: .touchUpInside)
     }
 }
 

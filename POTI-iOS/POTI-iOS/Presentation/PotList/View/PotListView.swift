@@ -19,7 +19,7 @@ final class PotListView: BaseView {
         frame: .zero,
         collectionViewLayout: PotListLayoutFactory.createLayout()
     )
-    private let floatingButton = FloatingButton()
+    let floatingButton = FloatingButton()
 
     // MARK: - Custom Methods
 
@@ -46,6 +46,7 @@ final class PotListView: BaseView {
         floatingButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(20)
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(16)
+            $0.size.equalTo(60)
         }
     }
 }

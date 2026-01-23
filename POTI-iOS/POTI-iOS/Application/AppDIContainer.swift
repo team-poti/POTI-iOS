@@ -98,6 +98,22 @@ final class AppDIContainer {
         DefaultPaymentsRepository(networkService: makeNetworkService())
     }
     
+    private func makeParticipationsRepository() -> ParticipationsInterface {
+        DefaultParticipationsRepository(networkService: makeNetworkService())
+    }
+    
+    private func makePostPaymentsRepository() -> PaymentsInterface {
+        DefaultPaymentsRepository(networkService: makeNetworkService())
+    }
+    
+    private func makeParticipationsDeliveredRepository() -> ParticipationsInterface {
+        DefaultParticipationsRepository(networkService: makeNetworkService())
+    }
+    
+    private func makeCreateReviewsRepository() -> ReviewsInterface {
+        DefaultReviewsRepository(networkService: makeNetworkService())
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -194,6 +210,34 @@ final class AppDIContainer {
         DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
     }
     
+    private func makeMyPagePostsHistoryUseCase() -> MyPagePostsHistoryUseCase {
+        DefaultMyPagePostsHistoryUseCase(repository: makePostsRepository())
+    }
+    
+    private func makeMyPageParticipationsHistoryUseCase() -> MyPageParticipationsHistoryUseCase {
+        DefaultMyPageParticipationsHistoryUseCase(repository: makeParticipationsRepository())
+    }
+    
+    private func makeGetYourPageInformationUseCase() -> GetYourPageInformationUseCase {
+        DefaultGetYourPageInformationUseCase(repository: makeUsersRepository())
+    }
+    
+    private func makeParticipationsDetailUseCase() -> ParticipationsDetailUseCase {
+        DefaultParticipationsDetailUseCase(repository: makeParticipationsRepository())
+    }
+    
+    private func makePostPaymentsUseCase() -> PostPaymentsUseCase {
+        DefaultPostPaymentsUseCase(repository: makePaymentsRepository())
+    }
+    
+    private func makeParticipationsDeliveredUseCase() -> ParticipationsDeliveredUseCase {
+        DefaultParticipationsDeliveredUseCase(repository: makeParticipationsDeliveredRepository())
+    }
+    
+    private func makeCreateReviewUseCase() -> ReviewUseCase {
+        DefaultReviewUseCase(repository: makeCreateReviewsRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -216,15 +260,11 @@ final class AppDIContainer {
         PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
     }
     
-    func makePotOrderViewModel(postId: Int, shippingId: Int, orderItems: [OrderOptionItem]) -> PotOrderViewModel {
-        PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems)
+    func makePotOrderViewModel(postId: Int, shippingId: Int,orderItems: [OrderItem], shippingInfo: (name: String, price: Int), memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewModel {
+        return PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems, shippingInfo: shippingInfo, memberInfos: memberInfos, uploaderNickname: uploaderNickname)
     }
     
     func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel {
-        PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
-    }
-    
-    func makeOrderViewModel(postId: Int) -> PotOptionsViewModel {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
     
@@ -241,8 +281,14 @@ final class AppDIContainer {
         )
     }
     
-    func makeMyPageJoinViewModel() -> MyPageJoinViewModel {
-        MyPageJoinViewModel()
+    func makeMyPageJoinViewModel(participationId: Int, orderId: Int) -> MyPageJoinViewModel {
+        MyPageJoinViewModel(
+            participationId: participationId, orderId: orderId,
+            participationsDetailUsecase: makeParticipationsDetailUseCase(),
+            postPaymentsUseCase: makePostPaymentsUseCase(),
+            participationsDeliveredUseCase: makeParticipationsDeliveredUseCase(),
+            createReviewUseCase: makeCreateReviewUseCase()
+        )
     }
     
     func makePotListViewModel(title: String, artistId: Int, artistName: String) -> PotListViewModel {
@@ -276,5 +322,21 @@ final class AppDIContainer {
     
     func makeMyPageViewModel() -> MyPageViewModel {
         MyPageViewModel(getMyPageInformationUseCase: makeGetMyPageInformationUseCase())
+    }
+    
+    func makeMyPageHistoryViewModel(
+        initialType: MyPageHistoryType
+    ) -> MyPageHistoryViewModel {
+        MyPageHistoryViewModel(
+            initialType: initialType,
+            myPagePostsHistoryUseCase: makeMyPagePostsHistoryUseCase(),
+            myPageParticipationsHistoryUseCase: makeMyPageParticipationsHistoryUseCase()
+        )
+    }
+    
+    func makeYourPageViewModel(userId: Int) -> YourPageViewModel {
+        YourPageViewModel(
+            userId: userId, getYourPageInformationUseCase: makeGetYourPageInformationUseCase()
+        )
     }
 }

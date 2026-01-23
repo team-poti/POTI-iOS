@@ -58,7 +58,7 @@ final class JoinTrackingNumberView: BaseView {
         }
         
         statusLabel.do {
-            $0.font = PotiFontManager.body16m.font
+            $0.font = PotiFontManager.body16sb.font
         }
     }
     

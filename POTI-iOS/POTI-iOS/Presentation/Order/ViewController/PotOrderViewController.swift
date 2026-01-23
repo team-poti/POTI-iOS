@@ -17,6 +17,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     
     private let rootView = PotOrderView()
     private let factory: ViewControllerFactory
+    var onSuccess: (() -> Void)?
     
     // MARK: - Initializer
     
@@ -67,6 +68,15 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .receive(on: RunLoop.main)
             .sink { [weak self] nickname in
                 guard let self = self else { return }
+                
+                let navigationStyle = PotiNavigationStyle.backDefault("\(nickname)의 팟")
+                PotiNavigationBar.configure(
+                    navigationItem: self.navigationItem,
+                    navigationController: self.navigationController,
+                    style: navigationStyle,
+                    target: self
+                )
+                
                 self.title = "\(nickname)의 팟"
             }
             .store(in: &cancellables)
@@ -142,6 +152,8 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
                     completeView.completionHandler = { [weak self] in
                         guard let self = self else { return }
                         
+                        self.onSuccess?()
+                        
                         if let nav = self.navigationController {
                             if let detailVC = nav.viewControllers.first(where: { $0 is PotDetailViewController }) {
                                 nav.popToViewController(detailVC, animated: true)
@@ -166,7 +178,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     // MARK: - Method
     
     func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("포티타임의 팟")
+        return .backDefault("팟")
     }
     
     // MARK: - Action

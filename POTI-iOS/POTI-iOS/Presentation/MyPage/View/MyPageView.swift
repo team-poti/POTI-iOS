@@ -63,10 +63,6 @@ final class MyPageView: BaseView {
             $0.textColor = .potiBlack
         }
         
-        participationView.do {
-            $0.configure(counts: (all: 3, ongoing: 2, completed: 1))
-        }
-        
         recruitmentLabel.do {
             $0.text = "모집 내역"
             $0.font = PotiFontManager.body16sb.font
@@ -114,7 +110,7 @@ final class MyPageView: BaseView {
         }
         
         buttonStackView.snp.makeConstraints {
-            $0.top.equalTo(emailLabel.snp.bottom).offset(12)
+            $0.top.equalTo(emailLabel.snp.bottom).offset(24)
             $0.centerX.equalToSuperview()
         }
         
@@ -162,7 +158,6 @@ extension MyPageView {
                 ]
             )
         } else {
-            profileImage.image = UIImage(named: "img_profile_placeholder")
         }
 
         ratingView.update(rating: model.ratingAverage)

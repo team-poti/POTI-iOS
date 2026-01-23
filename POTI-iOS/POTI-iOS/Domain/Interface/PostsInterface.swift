@@ -11,4 +11,6 @@ protocol PostsInterface {
     func fetchManagerData(postId: Int) async throws -> ManageEntity
     
     func fetchSaleDetail(postId: Int) async throws -> RecruitDetailEntity
+    
+    func fetchMyPostsHistory(status: String) async throws -> MyPagePostsHistoryEntity
 }

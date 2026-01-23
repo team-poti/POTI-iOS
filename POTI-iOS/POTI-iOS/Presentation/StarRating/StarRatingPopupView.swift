@@ -13,10 +13,6 @@ import Then
 
 final class StarRatingPopupView: BaseView {
     
-    // MARK: - Properties
-    
-    var onSelectCompletion: ((Int) -> Void)?
-    
     // MARK: - UI Components
     
     private let backgroundView = UIView()
@@ -44,14 +40,14 @@ final class StarRatingPopupView: BaseView {
     
     // MARK: - Properties
     
-    private var onCompleteButton: (() -> Void)?
+    private var onCompleteButton: ((Double) -> Void)?
     private var onSkipButton: (() -> Void)?
     private var currentRating: Double = 0.0
     
     // MARK: - Custom Methods
     
     init(
-        onCompleteButton: @escaping () -> Void,
+        onCompleteButton: @escaping (Double) -> Void,
         onSkipButton: @escaping () -> Void
     ) {
         super.init(frame: .zero)
@@ -110,13 +106,13 @@ final class StarRatingPopupView: BaseView {
         }
         
         nicknameLabel.do {
-            $0.text = "닉네임"
+            $0.text = ""
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .potiBlack
         }
         
         avgRatingLabel.do {
-            $0.text = "4.8"
+            $0.text = ""
             $0.font = .systemFont(ofSize: 12, weight: .regular)
             $0.textColor = .gray700
         }
@@ -327,10 +323,11 @@ final class StarRatingPopupView: BaseView {
     // MARK: - Methods
     
     @objc private func didTapConfirmButton() {
-        let latest = starView.rating
-        currentRating = latest
+        let rating = starView.rating
+        currentRating = rating
         print("saved rating = \(String(format: "%.1f", currentRating))")
-        onCompleteButton?()
+        dismiss()
+        onCompleteButton?(rating)
     }
     
     @objc private func didTapSkipButton() {
@@ -348,6 +345,11 @@ final class StarRatingPopupView: BaseView {
         UIView.animate(withDuration: 0.3) {
             self.alpha = 1
         }
+    }
+    
+    func configure(nickname: String, avgRating: Double) {
+        nicknameLabel.text = nickname
+        avgRatingLabel.text = String(format: "%.1f", avgRating)
     }
     
     private func dismiss() {

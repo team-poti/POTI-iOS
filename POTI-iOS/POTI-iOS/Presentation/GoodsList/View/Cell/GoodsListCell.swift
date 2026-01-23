@@ -83,6 +83,7 @@ final class GoodsListCell: UICollectionViewCell {
         popularTagView.snp.makeConstraints {
             $0.top.leading.equalTo(backgroundGrayView).inset(12)
             $0.bottom.equalTo(imageView.snp.bottom).inset(90)
+            $0.leading.greaterThanOrEqualTo(artistNameLabel.snp.trailing).offset(12)
         }
         
         artistNameLabel.snp.makeConstraints {

@@ -6,12 +6,13 @@
 import UIKit
 
 final class PotDetailViewController: BaseViewController<PotDetailViewModel>, NavigationConfigurable {
-    func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("포티타임의 팟")
-    }
+    
+    // MARK: - Properties
     
     private let rootView = PotDetailView()
     private let factory: ViewControllerFactory
+    
+    // MARK: - Life Cycle
     
     override func loadView() {
         self.view = rootView
@@ -23,6 +24,8 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
         self.definesPresentationContext = true
     }
     
+    // MARK: - Initializer
+    
     init(viewModel: PotDetailViewModel, factory: ViewControllerFactory) {
         self.factory = factory
         super.init(viewModel: viewModel)
@@ -32,10 +35,13 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Custom Methods
+    
     override func setDelegate() {
         rootView.potDetailCollectionView.delegate = self
         rootView.potDetailCollectionView.dataSource = self
         rootView.joinButton.addTarget(self, action: #selector(joinButtonDidTap), for: .touchUpInside)
+        
     }
     
     override func bindViewModel() {
@@ -45,8 +51,15 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
                 guard let self = self else { return }
                 
                 if let nickname = self.viewModel.potDetailModel?.uploader.nickname {
-                    self.title = "\(nickname)의 팟"
+                    let navigationStyle = PotiNavigationStyle.backDefault("\(nickname)의 팟")
+                    PotiNavigationBar.configure(
+                        navigationItem: self.navigationItem,
+                        navigationController: self.navigationController,
+                        style: navigationStyle,
+                        target: self
+                    )
                 }
+                
                 self.rootView.potDetailCollectionView.reloadData()
             }
             .store(in: &cancellables)
@@ -63,28 +76,53 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
             .store(in: &cancellables)
     }
     
+    // MARK: - Method
+    
+    func navigationStyle() -> PotiNavigationStyle {
+        return .backDefault("")
+    }
+    
+    // MARK: - Action
+    
     @objc private func joinButtonDidTap() {
-        let optionsSheetVC = factory.makePotOptionsSheetViewController(postId: viewModel.postId)
-        optionsSheetVC.modalPresentationStyle = .overFullScreen
-
-        optionsSheetVC.onContinue = { [weak self] shippingId, orderItems in
+        let optionsViewModel = factory.makePotOptionsViewModel(postId: viewModel.postId)
+        let optionsView = PotOptionsView(viewModel: optionsViewModel)
+        
+        optionsView.onContinue = { [weak self] (shippingId: Int, orderItems: [OrderItem], shippingInfo: (String, Int)?, memberInfos: [(String, Int)]) in
             guard let self = self else { return }
-
+            
+            guard let shippingInfo = shippingInfo else { return }
+            let nickname = self.viewModel.potDetailModel?.uploader.nickname ?? ""
+            
             let orderVC = self.factory.makePotOrderViewController(
                 postId: self.viewModel.postId,
                 shippingId: shippingId,
-                orderItems: orderItems
+                orderItems: orderItems,
+                shippingInfo: shippingInfo,
+                memberInfos: memberInfos,
+                uploaderNickname: nickname
             )
+            
+            orderVC.onSuccess = { [weak self] in
+                self?.viewModel.action(.viewDidLoad)
+            }
+            
             self.navigationController?.pushViewController(orderVC, animated: true)
         }
-        self.present(optionsSheetVC, animated: false)
+        
+        optionsView.show(in: self.navigationController?.view ?? self.view)
     }
-
+    
+    @objc private func yourProfileButtondidTap() {
+        let yourProfileVC = factory.makeYourPageViewController(userId: viewModel.potDetailModel?.uploader.userId ?? -1)
+        
+        self.navigationController?.pushViewController(yourProfileVC, animated: true)
+    }
 }
 
-// MARK: - UICollectionViewDataSource
+// MARK: - Extension
 
-extension PotDetailViewController: UICollectionViewDataSource {
+extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return PotDetailSection.allCases.count
     }
@@ -111,8 +149,18 @@ extension PotDetailViewController: UICollectionViewDataSource {
             if let model = viewModel.potDetailModel { cell.configure(with: model) }
             return cell
         case .uploader:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailUploaderCell.identifier, for: indexPath) as! DetailUploaderCell
-            if let model = viewModel.potDetailModel?.uploader { cell.configure(with: model) }
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: DetailUploaderCell.identifier,
+                for: indexPath
+            ) as! DetailUploaderCell
+            
+            if let model = viewModel.potDetailModel?.uploader {
+                cell.configure(
+                    with: model,
+                    target: self,
+                    action: #selector(yourProfileButtondidTap)
+                )
+            }
             return cell
         case .participants:
             if viewModel.displayParticipants.isEmpty {
@@ -162,7 +210,3 @@ extension PotDetailViewController: UICollectionViewDataSource {
         return UICollectionReusableView()
     }
 }
-
-extension PotDetailViewController: UICollectionViewDelegate {
-}
-

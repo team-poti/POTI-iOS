@@ -6,9 +6,10 @@
 //
 
 struct MyPageHistoryModel {
-    let id: String
+    let id: Int
+    let needId: Int?
     let artistName: String
     let productName: String
-    let status: String
+    let status: MyPageGroupBuyStatus
     let thumbnailURL: String?
 }

@@ -31,6 +31,7 @@ final class ArtistsViewModel: BaseViewModelType {
     private var cancellables = Set<AnyCancellable>()
     
     let artistId: Int
+    private var isChangedInThisSession: Bool = false
     private var originalEntities: [ArtistsEntity] = []
     var currentArtistsList: [(name: String, isSelected: Bool)] {
         return artistsListSubject.value
@@ -64,7 +65,16 @@ final class ArtistsViewModel: BaseViewModelType {
         case .tapReset:
             handleReset()
         case .tapComplete:
-            handleComplete()
+            let selectedData = artistsListSubject.value.enumerated()
+                .filter { $0.element.isSelected }
+            
+            let selectedIds = selectedData.compactMap { index, _ in
+                index < originalEntities.count ? originalEntities[index].artistId : nil
+            }
+            
+            let selectedNames = selectedData.map { $0.element.name }
+            
+            selectedMemberDataSubject.send((ids: selectedIds, names: selectedNames))
         }
     }
 }
@@ -92,8 +102,8 @@ private extension ArtistsViewModel {
                 
                 await MainActor.run {
                     artistsListSubject.send(uiModels)
-                    let hasSelection = uiModels.contains { $0.isSelected }
-                    isCompleteEnabledSubject.send(hasSelection)
+                    self.isChangedInThisSession = false
+                    isCompleteEnabledSubject.send(false)
                 }
             } catch {
                 print("Network Error: \(error)")
@@ -110,26 +120,20 @@ private extension ArtistsViewModel {
         current[index].isSelected.toggle()
         artistsListSubject.send(current)
         
-        let hasSelection = current.contains { $0.isSelected }
-        isCompleteEnabledSubject.send(hasSelection)
+        notifyChange()
     }
     
     func handleReset() {
         let resetData = artistsListSubject.value.map { (name: $0.name, isSelected: false) }
         artistsListSubject.send(resetData)
-        isCompleteEnabledSubject.send(false)
+        
+        notifyChange()
     }
     
-    func handleComplete() {
-        let selectedData = artistsListSubject.value.enumerated()
-            .filter { $0.element.isSelected }
-        
-        let selectedIds = selectedData.compactMap { index, _ in
-            index < originalEntities.count ? originalEntities[index].artistId : nil
+    private func notifyChange() {
+        if !isChangedInThisSession {
+            isChangedInThisSession = true
+            isCompleteEnabledSubject.send(true)
         }
-        
-        let selectedNames = selectedData.map { $0.element.name }
-        
-        selectedMemberDataSubject.send((ids: selectedIds, names: selectedNames))
     }
 }

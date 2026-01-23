@@ -124,6 +124,12 @@ final class CustomTextField: BaseView {
         rightAccessoryContainer.addSubviews(rightIconView, countLabel)
         
         errorStackView.addArrangedSubviews(errorIconView, errorLabel)
+        
+        textField.addTarget(
+            self,
+            action: #selector(handleEditingChanged),
+            for: .editingChanged
+        )
     }
     
     override func setLayout() {
@@ -283,7 +289,7 @@ final class CustomTextField: BaseView {
     
     private func updateCountIfNeeded() {
         guard case .count(let max) = variant else { return }
-        let count = getText().count
+        let count = visibleTextCount(textField)
         countLabel.text = "\(count)/\(max)"
     }
     
@@ -327,16 +333,19 @@ extension CustomTextField: UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        if case .count(let max) = variant {
-            let current = textField.text ?? ""
-            guard let r = Range(range, in: current) else { return true }
-            let next = current.replacingCharacters(in: r, with: string)
-            if next.count > max { return false }
-            
-            updateCount(current: next.count, max: max)
+
+        guard case .count(let max) = variant else { return true }
+
+        if let markedTextRange = textField.markedTextRange,
+           textField.position(from: markedTextRange.start, offset: 0) != nil {
             return true
         }
-        return true
+
+        let current = textField.text ?? ""
+        guard let r = Range(range, in: current) else { return true }
+        let next = current.replacingCharacters(in: r, with: string)
+
+        return next.count <= max
     }
 }
 
@@ -395,5 +404,24 @@ extension CustomTextField {
             isTapOnly: true,
             onTapField: onTapField
         )
+    }
+    
+    private func visibleTextCount(_ textField: UITextField) -> Int {
+        // 한글 조합 중이면 아직 확정 안 된 상태 → 기존 텍스트 기준
+        if let markedRange = textField.markedTextRange,
+           textField.position(from: markedRange.start, offset: 0) != nil {
+            return textField.text?.count ?? 0
+        }
+        
+        return textField.text?.count ?? 0
+    }
+    
+    @objc private func handleEditingChanged(_ sender: UITextField) {
+        if let marked = sender.markedTextRange,
+           sender.position(from: marked.start, offset: 0) != nil {
+            return
+        }
+
+        updateCountIfNeeded()
     }
 }
