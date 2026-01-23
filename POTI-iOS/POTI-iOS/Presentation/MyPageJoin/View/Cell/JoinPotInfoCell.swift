@@ -139,7 +139,7 @@ final class JoinPotInfoCell: UITableViewCell {
     
     /// 0121 어떻게 재사용할 수 있을지 고민.. (PotInfoCell 이랑 JoinInfoCell)
     func configure(model: PotInfoViewState) {
-        potIdLabel.text = "참여 번호 poti-" + String(model.postId)
+        potIdLabel.text = "참여번호 poti-" + String(model.postId)
         
         if let url = URL(string: model.imageUrl) {
             thumbnailView.kf.setImage(

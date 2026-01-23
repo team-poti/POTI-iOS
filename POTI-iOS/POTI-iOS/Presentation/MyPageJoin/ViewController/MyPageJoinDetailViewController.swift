@@ -301,9 +301,9 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         
         switch section {
         case .myJoinInfo:
-            return 153
+            return 110
         case .progress:
-            return 216
+            return UITableView.automaticDimension
         case .myJoinDepositInfo:
             return UITableView.automaticDimension
         case .statusInfo:
