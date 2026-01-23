@@ -26,7 +26,7 @@ protocol ViewControllerFactory {
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
-    func makeMyPageJoinDetailViewController(participantId: Int, orderId: Int) -> MyPageJoinDetailViewController
+    func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
     func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
     func makeYourPageViewController(userId: Int) -> YourPageViewController
 }
@@ -82,8 +82,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         ParticipantListTableViewController(viewModel: diContainer.makeManageViewModel(postId: postId))
     }
     
-    func makeMyPageJoinDetailViewController(participantId participationId: Int, orderId: Int) -> MyPageJoinDetailViewController {
-        MyPageJoinDetailViewController(viewModel: diContainer.makeMyPageJoinViewModel(participationId: participationId, orderId: orderId))
+    func makeMyPageJoinDetailViewController(participationId : Int) -> MyPageJoinDetailViewController {
+        MyPageJoinDetailViewController(viewModel: diContainer.makeMyPageJoinViewModel(participationId: participationId))
     }
     
     func makePotDetailViewController(postId: Int) -> PotDetailViewController {

@@ -6,7 +6,7 @@
 //
 
 protocol PostPaymentsUseCase {
-    func execute(orderId: Int, depositorName: String, depositedAt: String) async throws -> PostPaymentEntity
+    func execute(entity: PostPaymentEntity) async throws -> PostPaymentResponseEntity
 }
 
 final class DefaultPostPaymentsUseCase: PostPaymentsUseCase {
@@ -16,13 +16,7 @@ final class DefaultPostPaymentsUseCase: PostPaymentsUseCase {
         self.repository = repository
     }
     
-    func execute(orderId: Int, depositorName: String, depositedAt: String) async throws -> PostPaymentEntity {
-        try await repository.postPaymentConfirm(
-            orderId: orderId,
-            depositorName: depositorName,
-            depositedAt: depositedAt
-        )
+    func execute(entity: PostPaymentEntity) async throws -> PostPaymentResponseEntity {
+        return try await repository.postPaymentConfirm(entity: entity)
     }
-    
 }
-

@@ -21,22 +21,17 @@ final class DefaultPaymentsRepository: PaymentsInterface {
         return response
     }
     
-    func postPaymentConfirm(
-        orderId: Int,
-        depositorName: String,
-        depositedAt: String
-    ) async throws -> PostPaymentEntity {
-        
+    func postPaymentConfirm(entity: PostPaymentEntity) async throws -> PostPaymentResponseEntity {
         let requestDTO = PostPaymentRequestDTO(
-            orderId: orderId,
-            depositorName: depositorName,
-            depositedAt: depositedAt
+            participationId: entity.participationId,
+            depositorName: entity.depositorName,
+            depositedAt: entity.depositedAt
         )
         
         let response = try await networkService.request(
             target: PaymentsAPI.postPayment(request: requestDTO),
             type: PostPaymentResponseDTO.self
         )
-        return response.toEntity()
+        return response.toPostPaymentResponseEntity()
     }
 }
