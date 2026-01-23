@@ -106,6 +106,10 @@ final class AppDIContainer {
         DefaultParticipationsRepository(networkService: makeNetworkService())
     }
     
+    private func makeCreateReviewsRepository() -> ReviewsInterface {
+        DefaultReviewsRepository(networkService: makeNetworkService())
+    }
+    
     // MARK: - UseCase
     
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -214,6 +218,10 @@ final class AppDIContainer {
         DefaultParticipationsDeliveredUseCase(repository: makeParticipationsDeliveredRepository())
     }
     
+    private func makeCreateReviewUseCase() -> ReviewUseCase {
+        DefaultReviewUseCase(repository: makeCreateReviewsRepository())
+    }
+    
     // MARK: - ViewModel
     
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -266,7 +274,8 @@ final class AppDIContainer {
             participationId: participationId,
             participationsDetailUsecase: makeParticipationsDetailUseCase(),
             postPaymentsUseCase: makePostPaymentsUseCase(),
-            participationsDeliveredUseCase: makeParticipationsDeliveredUseCase()
+            participationsDeliveredUseCase: makeParticipationsDeliveredUseCase(),
+            createReviewUseCase: makeCreateReviewUseCase()
         )
     }
     

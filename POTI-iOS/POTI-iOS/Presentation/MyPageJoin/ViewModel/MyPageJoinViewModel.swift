@@ -18,7 +18,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
         case tapPotInfo
         case submitDeposit(orderId: Int, depositorName: String, depositedAt: String)
         case completeDelivery(participantId: Int)
-        case completeReview(participantId: Int)
+        case completeReview(transactionId: Int, rating: Int)
     }
     
     // MARK: - Output
@@ -34,9 +34,11 @@ final class MyPageJoinViewModel: BaseViewModelType {
     }
     
     private(set) var joinModel: MyPageJoinModel?
+    private(set) var yourPageModel: YourPageModel?
     private let participationsDetailUseCase: ParticipationsDetailUseCase
     private let postPaymentsUseCase: PostPaymentsUseCase
     private let participationsDeliveredUseCase: ParticipationsDeliveredUseCase
+    private let createReviewUseCase: ReviewUseCase
     private let viewStateMapper = JoinDetailViewStateMapper()
     
     /// MyPageJoinDetailViewController -> .statusInfo  섹션에서 분기용으로 사용할 현재 상태
@@ -62,12 +64,14 @@ final class MyPageJoinViewModel: BaseViewModelType {
         participationId: Int,
         participationsDetailUsecase: ParticipationsDetailUseCase,
         postPaymentsUseCase: PostPaymentsUseCase,
-        participationsDeliveredUseCase: ParticipationsDeliveredUseCase
+        participationsDeliveredUseCase: ParticipationsDeliveredUseCase,
+        createReviewUseCase: ReviewUseCase
     ) {
         self.participationId = participationId
         self.participationsDeliveredUseCase = participationsDeliveredUseCase
         self.participationsDetailUseCase = participationsDetailUsecase
         self.postPaymentsUseCase = postPaymentsUseCase
+        self.createReviewUseCase = createReviewUseCase
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher(),
             fetchData: fetchDataSubject.eraseToAnyPublisher(),
@@ -121,9 +125,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
                     )
                     // 서버 상태를 다시 받아와 화면을 정확히 갱신
                     await self.fetchParticipationsDetail(participationId: self.participationId)
-                    //self.participantOrderStatus = .recruitCompleted
-                    self.reloadDataSubject.send()
-                    
+                    self.submitDepositResultSubject.send()
                 } catch {
                     print("❌ payment error:", error)
                 }
@@ -134,15 +136,27 @@ final class MyPageJoinViewModel: BaseViewModelType {
                 do {
                     try await participationsDeliveredUseCase.execute(participationId: participantId)
                     await self.fetchParticipationsDetail(participationId: self.participationId)
-                    
-                    self.reloadDataSubject.send()
+                    self.completeDeliveryResultSubject.send()
                 } catch {
                     print("❌ delivery complete error:", error)
                 }
             }
-            completeReviewResultSubject.send()
-        case .completeReview:
-            print("굿")
+        case .completeReview(let transactionId, let rating):
+            Task { [weak self] in
+                guard let self else { return }
+                do {
+                    _ = try await createReviewUseCase.execute(
+                        transactionId: transactionId,
+                        rating: rating
+                    )
+
+                    // 서버 상태를 다시 받아와 화면을 정확히 갱신
+                    await self.fetchParticipationsDetail(participationId: self.participationId)
+                    self.completeReviewResultSubject.send()
+                } catch {
+                    print("❌ review create error:", error)
+                }
+            }
         }
     }
     

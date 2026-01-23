@@ -155,8 +155,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         )
         sheet.onSubmit = { [weak self] depositorName, depositedAt in
             guard let self else { return }
-            ///////orderId 어디있어!!!!!!!!
-            let orderId = 1101
+            let orderId = 1100
             self.didSubmitDeposit = true
             self.viewModel.action(
                 .submitDeposit(orderId: orderId, depositorName: depositorName, depositedAt: depositedAt)
@@ -167,7 +166,7 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private func completeButtonTapped() {
-        let orderId = 1101
+        let orderId = 1100
         let alert = CustomAlertView(
             title: "잠깐! 정말 상품을 수령했나요?",
             message: "거래가 종료되면 되돌릴 수 없어요",
@@ -179,21 +178,19 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             onRightButton: { [weak self] in
                 guard let self else { return }
                 
+                guard let yourPageModel = self.viewModel.yourPageModel else { return }
+                let nickname = yourPageModel.nickname
+                let avgRating = yourPageModel.ratingAverage
                 let starRating = StarRatingPopupView(
-                    onCompleteButton: {
-                        // TODO: 별점 전송 + 완료 처리 (나중에)
-                        self.viewModel.action(.completeDelivery(participantId: orderId))
+                    onCompleteButton: { [weak self] rating in
+                        guard let self else { return }
+                        self.viewModel.action(.completeReview(transactionId: orderId, rating: Int(rating)))
                     },
                     onSkipButton: { [weak self] in
                         guard let self else { return }
                         self.viewModel.action(.completeDelivery(participantId: orderId))
-                        // 1) 팝업 닫기
-                        //starRating.removeFromSuperview()
-                        
-                        // 2) 배송 완료 API 호출
                     }
                 )
-                
                 starRating.show(on: self.navigationController?.view ?? self.view)
             }
         )
