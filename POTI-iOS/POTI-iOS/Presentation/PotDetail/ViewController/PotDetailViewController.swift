@@ -41,6 +41,7 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
         rootView.potDetailCollectionView.delegate = self
         rootView.potDetailCollectionView.dataSource = self
         rootView.joinButton.addTarget(self, action: #selector(joinButtonDidTap), for: .touchUpInside)
+        
     }
     
     override func bindViewModel() {
@@ -78,7 +79,7 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     // MARK: - Method
     
     func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("팟")
+        return .backDefault("")
     }
     
     // MARK: - Action
@@ -109,6 +110,11 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
         self.present(optionsSheetVC, animated: false)
     }
     
+    @objc private func yourProfileButtondidTap() {
+        let yourProfileVC = factory.makeYourPageViewController(userId: viewModel.potDetailModel?.uploader.userId ?? -1)
+        
+        self.navigationController?.pushViewController(yourProfileVC, animated: true)
+    }
 }
 
 // MARK: - Extension
@@ -140,8 +146,18 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
             if let model = viewModel.potDetailModel { cell.configure(with: model) }
             return cell
         case .uploader:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailUploaderCell.identifier, for: indexPath) as! DetailUploaderCell
-            if let model = viewModel.potDetailModel?.uploader { cell.configure(with: model) }
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: DetailUploaderCell.identifier,
+                for: indexPath
+            ) as! DetailUploaderCell
+            
+            if let model = viewModel.potDetailModel?.uploader {
+                cell.configure(
+                    with: model,
+                    target: self,
+                    action: #selector(yourProfileButtondidTap)
+                )
+            }
             return cell
         case .participants:
             if viewModel.displayParticipants.isEmpty {

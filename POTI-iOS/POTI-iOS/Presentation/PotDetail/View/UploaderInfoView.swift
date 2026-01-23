@@ -20,7 +20,7 @@ final class UploaderInfoView: BaseView {
     private let starImageView = UIImageView()
     private let starRatingLabel = UILabel()
     private let reviewLabel = UILabel()
-    private let profileDetailButton = UIButton()
+    let profileDetailButton = UIButton()
     private let dividerView = UIView()
     
     // MARK: - Custom Methods
