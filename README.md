@@ -36,14 +36,14 @@
 | [김나연](https://github.com/Yeonnies)| [김수민](https://github.com/gleamminn)|
 |**iOS Lead Developer**  | **iOS Developer** | 
 
-<br>
-
 ## iOS Developers <~ed>
 
 | <img src="https://github.com/user-attachments/assets/372852a3-395e-4046-92da-da3fe5e82646" width="300" /> | <img src="https://github.com/user-attachments/assets/2b9b7e50-0850-44f9-a6b0-4540c4c40f97" width="300" /> |
 | :---: | :---: |
 | [박정환](https://github.com/Jhw9n) | [이서현](https://github.com/doitexactly) |
 |**iOS Developer**  | **iOS Developer** | 
+
+<br>
 
 ## 🛠️ Tech Stack & Library
 
@@ -153,11 +153,15 @@
 │   │   └── 📁 Fonts
 ```
 
+<br>
+
 ## 🎨 Project Design
 
 <img width="8610"  alt="image" src="https://github.com/user-attachments/assets/11c5dc93-795c-4379-99de-a28ee7928914" />
 
 <img width="8610" alt="IMG_9004 PNG" src="https://github.com/user-attachments/assets/d3d0dd94-df1a-4bf5-87dd-fedac841da21" />
+
+<br>
 
 ## 📣 Convention
 
@@ -230,6 +234,8 @@
 (PR을 develop에 merge 시)
 [merge] #이슈번호 - 작업 내용 간략히
 ```
+
+<br>
 
 ## 🐾 Git Flow
 
