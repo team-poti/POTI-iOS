@@ -29,14 +29,21 @@
 
 <br>
 
-## 🍎 iOS Developer
+## iOS Developers <~ing>
 
-| [김나연](https://github.com/Yeonnies)<br>iOS Lead Developer | [김수민](https://github.com/gleamminn)<br>iOS Developer | [박정환](https://github.com/Jhw9n)<br>iOS Developer | [이서현](https://github.com/doitexactly)<br>iOS Developer |
-| :---: | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/81064d16-25b1-463f-9396-386f9f5adfe2" width="2000" /> | <img src="https://github.com/user-attachments/assets/dba178d6-7b95-4e29-bda5-75659e147c50" width="2000" /> | <img src="https://github.com/user-attachments/assets/372852a3-395e-4046-92da-da3fe5e82646" width="2000" /> | <img src="https://github.com/user-attachments/assets/2b9b7e50-0850-44f9-a6b0-4540c4c40f97" width="2000" /> |
-| `스플래시/로그인` `온보딩` <br> `마이페이지` `모집/참여 내역` `프로필` | `홈` `굿즈별 페이지` <br> `분철팟 상세` `참여` | `등록` `아티스트 검색` | `모집 상세 내역` `참여 상세 내역` <br> `참여자 관리` |
+| <img src="https://github.com/user-attachments/assets/81064d16-25b1-463f-9396-386f9f5adfe2" width="300" /> | <img src="https://github.com/user-attachments/assets/dba178d6-7b95-4e29-bda5-75659e147c50" width="300" /> |
+| :---: | :---: | 
+| [김나연](https://github.com/Yeonnies)| [김수민](https://github.com/gleamminn)|
+|**iOS Lead Developer**  | **iOS Developer** | 
 
 <br>
+
+## iOS Developers <~ed>
+
+| <img src="https://github.com/user-attachments/assets/372852a3-395e-4046-92da-da3fe5e82646" width="300" /> | <img src="https://github.com/user-attachments/assets/2b9b7e50-0850-44f9-a6b0-4540c4c40f97" width="300" /> |
+| :---: | :---: |
+| [박정환](https://github.com/Jhw9n) | [이서현](https://github.com/doitexactly) |
+|**iOS Developer**  | **iOS Developer** | 
 
 ## 🛠️ Tech Stack & Library
 
