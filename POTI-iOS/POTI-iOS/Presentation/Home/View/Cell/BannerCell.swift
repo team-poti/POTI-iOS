@@ -2,11 +2,12 @@
 //  BannerCell.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/13/26.
+//  Created by mandoo on 5/27/26.
 //
 
 import UIKit
 
+import Kingfisher
 import SnapKit
 import Then
 
@@ -14,7 +15,7 @@ final class BannerCell: UICollectionViewCell {
     
     // MARK: - UI Components
     
-    private var bannerImageView = UIImageView()
+    private let bannerImageView = UIImageView()
     
     // MARK: - Initializer
     
@@ -33,7 +34,8 @@ final class BannerCell: UICollectionViewCell {
     // MARK: - Custom Methods
     
     private func setStyle() {
-        self.backgroundColor = .clear
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
         
         bannerImageView.do {
             $0.contentMode = .scaleAspectFill
@@ -43,22 +45,21 @@ final class BannerCell: UICollectionViewCell {
     }
     
     private func setUI() {
-        addSubviews(bannerImageView)
+        contentView.addSubview(bannerImageView)
     }
     
     private func setLayout() {
         bannerImageView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(22)
-            $0.height.equalTo(196)
-            $0.top.equalToSuperview()
+            $0.edges.equalToSuperview()
         }
     }
 }
 
-// MARK: - Extension
+// MARK: - Configure
 
 extension BannerCell {
     func configure(banner: BannerModel) {
-        bannerImageView.kf.setImage(with: URL(string: banner.imageUrl))
+        guard let url = URL(string: banner.imageUrl) else { return }
+        bannerImageView.kf.setImage(with: url)
     }
 }
