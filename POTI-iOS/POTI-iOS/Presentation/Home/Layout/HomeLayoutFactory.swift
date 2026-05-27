@@ -9,81 +9,47 @@ import UIKit
 
 import Combine
 
-//struct HomeLayoutFactory {
-//    static func createLayout(currentPageNumber: PassthroughSubject<Int, Never>) -> UICollectionViewCompositionalLayout {
-//        return UICollectionViewCompositionalLayout { (sectionNumber, env) -> NSCollectionLayoutSection? in
-//            guard let sectionType = HomeSection(rawValue: sectionNumber) else { return nil }
-//            
-//            switch sectionType {
-//            case .banner:
-//                return createBannerSection(currentPageNumber: currentPageNumber)
-//            case .myGroup:
-//                return createGoodsSection(bottomValue: 40)
-//            case .otherGroup:
-//                return createGoodsSection(bottomValue: .dynamicH(114) + 40)
-//            }
-//        }
-//    }
-//}
-
 struct HomeLayoutFactory {
-    static func createLayout(currentPageNumber: PassthroughSubject<Int, Never>) -> UICollectionViewCompositionalLayout {
+    static func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { (sectionNumber, env) -> NSCollectionLayoutSection? in
             guard let sectionType = HomeSection(rawValue: sectionNumber) else { return nil }
             
             switch sectionType {
             case .banner:
-                let section = createBannerSection(currentPageNumber: currentPageNumber)
-                let backgroundItem = NSCollectionLayoutDecorationItem.background(elementKind: BannerBackgroundView.identifier)
-                section.decorationItems = [backgroundItem]
-                return section
+                return createBannerSection()
             case .myGroup:
-                return createGoodsSection(bottomValue: 40)
+                return createGoodsSection(bottomValue: .dynamicH(40))
             case .otherGroup:
-                return createGoodsSection(bottomValue: .dynamicH(114) + 40)
+                return createGoodsSection(bottomValue: .dynamicH(118))
             }
         }
-        layout.register(BannerBackgroundView.self, forDecorationViewOfKind: BannerBackgroundView.identifier)
         return layout
     }
 }
 
 private extension HomeLayoutFactory {
-    static func createBannerSection(currentPageNumber: PassthroughSubject<Int, Never>) -> NSCollectionLayoutSection {
+    static func createBannerSection() -> NSCollectionLayoutSection {
         let item = NSCollectionLayoutItem(
-            layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+            layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                               heightDimension: .fractionalHeight(1.0))
         )
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(.dynamicH(196)))
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(196)
+        )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .paging
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 48, trailing: 0)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 40, trailing: 0)
         
-        section.visibleItemsInvalidationHandler = { (visibleItems, offset, env) in
-            let currentPage = Int(max(0, round(offset.x / env.container.contentSize.width)))
-            currentPageNumber.send(currentPage)
-        }
-        
-        let footerSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(30),
-            heightDimension: .absolute(.dynamicH(6))
-        )
-        let footer = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: footerSize,
-            elementKind: UICollectionView.elementKindSectionFooter,
-            alignment: .bottom,
-            absoluteOffset: CGPoint(x: 0, y: .dynamicH(-73))
-        )
-        
-        section.boundarySupplementaryItems = [footer]
         return section
     }
     
     static func createGoodsSection(bottomValue: CGFloat) -> NSCollectionLayoutSection {
         let item = NSCollectionLayoutItem(
-            layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+            layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                              heightDimension: .fractionalHeight(1.0))
         )
         
         let groupSize = NSCollectionLayoutSize(
@@ -103,8 +69,8 @@ private extension HomeLayoutFactory {
             elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
-        
         section.boundarySupplementaryItems = [header]
+        
         return section
     }
 }
