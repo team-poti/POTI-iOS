@@ -17,10 +17,10 @@ final class GoodsCell: UICollectionViewCell {
     
     private let backgroundGrayView = UIView()
     private var imageView = UIImageView()
-    private var popularTagView = TagView(type: .secondarySmall, tagText: "인기")
+    private var popularTagView = TagView(type: .secondarySmall)
     private var artistNameLabel = UILabel()
     private var productNameLabel = UILabel()
-    private var potTagView = TagView(type: .primaryWhiteSmall, tagText: "")
+    private var potTagView = TagView(type: .primaryWhiteSmall)
     
     // MARK: - Initializer
     
@@ -82,7 +82,7 @@ final class GoodsCell: UICollectionViewCell {
         
         popularTagView.snp.makeConstraints {
             $0.top.leading.equalTo(backgroundGrayView).inset(12)
-            $0.bottom.equalTo(imageView.snp.bottom).inset(93)
+            $0.height.equalTo(23)
         }
         
         artistNameLabel.snp.makeConstraints {
@@ -98,22 +98,23 @@ final class GoodsCell: UICollectionViewCell {
         potTagView.snp.makeConstraints {
             $0.top.equalTo(productNameLabel.snp.bottom).offset(8)
             $0.leading.equalTo(backgroundGrayView).inset(12)
-            $0.bottom.equalToSuperview().inset(12)
-            $0.trailing.lessThanOrEqualToSuperview().inset(12)
+            $0.height.equalTo(26)
         }
     }
 }
 
-// MARK: - Extension
+// MARK: - Configure
 
 extension GoodsCell {
     func configure(goods: GoodsModel) {
         imageView.kf.setImage(with: URL(string: goods.postImage ?? ""))
         artistNameLabel.text = goods.artist
         productNameLabel.text = goods.postTitle
-        potTagView.setTagText("팟 \(goods.postCount)개")
+        potTagView.setTagText(goods.potCountText)
+        popularTagView.isHidden = !goods.hasPopularTag
         
-        let isPopular = (goods.tag == "인기")
-        popularTagView.isHidden = !isPopular
+        if goods.hasPopularTag {
+            popularTagView.setTagText(goods.tag)
+        }
     }
 }

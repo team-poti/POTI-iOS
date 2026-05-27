@@ -9,33 +9,24 @@ struct HomeEntity {
     let nickname: String
     let mainArtist: String?
     let mainArtistId: Int?
-    let myGroupItems: [GoodsItem]
-    let otherGroupItems: [GoodsItem]
-    let banners: [BannerItem]
+    let myGroupItems: [GoodsEntity]
+    let otherGroupItems: [GoodsEntity]
+    let banners: [BannerEntity]
     
-    init(nickname: String, mainArtist: String?, mainArtistId: Int?, myGroupItems: [GoodsItem], otherGroupItems: [GoodsItem], banners: [BannerItem]) {
-        self.nickname = nickname
-        self.mainArtist = mainArtist
-        self.mainArtistId = mainArtistId
-        self.myGroupItems = myGroupItems
-        self.otherGroupItems = otherGroupItems
-        self.banners = banners
-    }
-    
-    func toMyGoodsModelList() -> [GoodsModel] {
+    func toMyGoodsModels() -> [GoodsModel] {
         return myGroupItems.map { $0.toGoodsModel() }
     }
     
-    func toOtherGoodsModelList() -> [GoodsModel] {
+    func toOtherGoodsModels() -> [GoodsModel] {
         return otherGroupItems.map { $0.toGoodsModel() }
     }
     
-    func toBannerModelList() -> [BannerModel] {
+    func toBannerModels() -> [BannerModel] {
         return banners.map { $0.toBannerModel() }
     }
 }
 
-struct GoodsItem {
+struct GoodsEntity {
     let artist: String
     let artistId: Int
     let postImage: String?
@@ -48,7 +39,7 @@ struct GoodsItem {
     }
 }
 
-struct BannerItem {
+struct BannerEntity {
     let postId: Int
     let imageUrl: String
     
