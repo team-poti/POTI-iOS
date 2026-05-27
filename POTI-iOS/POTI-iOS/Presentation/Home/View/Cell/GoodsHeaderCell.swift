@@ -7,7 +7,6 @@
 
 import UIKit
 
-import Combine
 import SnapKit
 import Then
 
@@ -67,25 +66,26 @@ final class GoodsHeaderCell: UICollectionReusableView {
         }
         
         moreButton.snp.makeConstraints {
+            $0.centerY.equalTo(titleLabel)
             $0.trailing.top.equalToSuperview()
         }
     }
     
-    // MARK: - Private Method
-    
     private func addTarget() {
-        moreButton.addTarget(self, action: #selector(moreButtonTapped), for: .touchUpInside)
+        moreButton.addTarget(self, action: #selector(moreButtonDidTap), for: .touchUpInside)
     }
     
-    @objc private func moreButtonTapped() {
+    // MARK: - Action
+    
+    @objc private func moreButtonDidTap() {
         delegate?.moreButtonDidTap(in: sectionIndex)
     }
 }
 
-// MARK: - Extension
+// MARK: - Configure
 
 extension GoodsHeaderCell {
-    func configure(text: String?, section: Int) {
+    func configure(text: String, section: Int) {
         titleLabel.text = text
         self.sectionIndex = section
     }
