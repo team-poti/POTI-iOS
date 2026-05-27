@@ -9,9 +9,9 @@ struct HomeDTO: Decodable {
     let nickname: String
     let mainArtist: String?
     let mainArtistId: Int?
-    let myGroupItems: [GoodsItemDTO]
-    let otherGroupItems: [GoodsItemDTO]
-    let banners: [BannerItemDTO]
+    let myGroupItems: [GoodsDTO]
+    let otherGroupItems: [GoodsDTO]
+    let banners: [BannerDTO]
     
     func toEntity() -> HomeEntity {
         return .init(
@@ -25,31 +25,31 @@ struct HomeDTO: Decodable {
     }
 }
 
-struct GoodsItemDTO: Decodable {
-    let artist: String
-    let artistId: Int
+struct GoodsDTO: Decodable {
+    let artist: String?
+    let artistId: Int?
     let postImage: String?
-    let postTitle: String
-    let postCount: Int
-    let tag: String
+    let postTitle: String?
+    let postCount: Int?
+    let tag: String?
     
-    func toEntity() -> GoodsItem {
+    func toEntity() -> GoodsEntity {
         return .init(
-            artist: artist,
-            artistId: artistId,
+            artist: artist ?? "unknown artist",
+            artistId: artistId ?? 0,
             postImage: postImage,
-            postTitle: postTitle,
-            postCount: postCount,
-            tag: tag
+            postTitle: postTitle ?? "unknown title",
+            postCount: postCount ?? 0,
+            tag: tag ?? ""
         )
     }
 }
 
-struct BannerItemDTO: Decodable {
+struct BannerDTO: Decodable {
     let postId: Int
     let imageUrl: String
     
-    func toEntity() -> BannerItem {
+    func toEntity() -> BannerEntity {
         return .init(postId: postId, imageUrl: imageUrl)
     }
 }
