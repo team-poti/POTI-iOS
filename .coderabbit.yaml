@@ -1,0 +1,102 @@
+language: ko-KR
+
+tone_instructions: |
+  iOS 엔지니어링 관점에서 깔끔하고 담백한 톤으로 피드백해줘. 
+  친근함은 유지하되, 무엇이 문제이고 어떻게 수정해야 하는지 핵심 위주로 명확하게 짚어줘.
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_in_walkthrough: false
+
+  auto_title_instructions: |
+    iOS 변경사항과 연동된 Issue 번호를 기반으로 다음 템플릿 형식에 맞추어 명확하고 간결한 국문 PR 제목을 생성해줘:
+    [태그] #이슈번호 - 작업 내용
+    (예시: [feat] #15 - 홈 화면 바인딩 로직 구현 / [refactor] #23 - DefaultAuthRepository 에러 핸들링 개선)
+
+  review_status: true
+  commit_status: true
+  collapse_walkthrough: false
+  changed_files_summary: true
+  sequence_diagrams: false
+
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  auto_apply_labels: false
+  poem: false
+
+  path_instructions:
+    # [공통] Swift 기본 관례
+    - path: "**/*.swift"
+      instructions: |
+        강제 언래핑(!), try!, as! 사용을 지양하고 guard 문을 활용한 early exit을 권장하세요.
+        Apple의 Swift API Design Guidelines를 준수하고 가독성이 좋은 네이밍을 제안하세요.
+        클로저 캡처 Scope에서 [weak self]를 적절히 사용하여 순환 참조(Retain Cycle)를 방지하세요.
+        하드코딩된 시크릿 키가 있다면 Keychain이나 환경변수(.xcconfig)로 분리하도록 안내하세요.
+
+    # [Core] 공통 유틸리티 및 앱 설정 (AppConfig, Logger, Error)
+    - path: "**/Core/**/*.swift"
+      instructions: |
+        Core 레이어는 프로젝트 전역의 유틸리티 및 설정(Config, Logger, Error)을 관리합니다.
+        AppConfig 등에서 환경 변수나 Info.plist 값을 읽어올 때 강제 타입 캐스팅(as!) 대신 안전한 옵셔널 바인딩을 거치는지 확인하세요.
+        설정값 로드 실패 시 PotiError를 throw하고 PotiLogger로 추적하는 에러 핸들링 흐름이 잘 지켜졌는지 점검하세요.
+        Domain이나 Presentation 레이어에 대한 의존성이 역으로 침범하지 않았는지 확인하세요.
+
+    # Domain 레이어 (Entity, Interface, UseCase)
+    - path: "**/Domain/**/*.swift"
+      instructions: |
+        Domain 레이어는 서비스의 핵심 비즈니스 로직이며 가장 순수해야 합니다.
+        import UIKit, import Alamofire 등 UI 프레임워크나 외부 네트워크 라이브러리 의존성이 절대 수입되지 않았는지 확인하세요.
+        UseCase는 단일 책임 원칙(SRP)을 따라 하나의 주요 비즈니스 흐름만 처리해야 합니다.
+        Interface 폴더 안의 Repository는 프로토콜로만 정의되어 있어야 합니다.
+
+    # Data 레이어 (Network, Repository Impl, Storage)
+    - path: "**/Data/**/*.swift"
+      instructions: |
+        Data 레이어는 외부 데이터 소스(Alamofire 기반 Network 통신, KeychainManager 등 로컬 Storage)와의 통신을 담당합니다.
+        Network 하위 도메인(Auth, Artists, Home 등)에서 받아온 통신 결과(DTO)가 Domain의 순수 Entity로 올바르게 변환(Mapping)되는지 확인하세요.
+        API 통신 실패나 런타임 에러 시, Core에 정의된 PotiError 및 PotiLogger를 유기적으로 활용하여 안전하게 예외 처리를 수행하는지 점검하세요.
+
+    # 기능별 화면 및 뷰 컨트롤러 (UIKit + MVVM)
+    - path: "**/Presentation/**/*.swift"
+      instructions: |
+        Presentation 레이어는 UI 렌더링 및 사용자 인터페이스 상태 관리를 담당합니다.
+        ViewController는 UI 컴포넌트 배치(SnapKit, Then 활용 등)와 이벤트 수집만 담당하고, 비즈니스 로직은 ViewModel로 위임했는지 확인하세요.
+        Combine의 .sink 등을 사용하여 ViewModel의 상태를 바인딩할 때, `[weak self]` 및 `.store(in: &cancellables)`가 누락되어 메모리 누수가 발생하지 않는지 엄격하게 점검하세요.
+        모든 UI 업데이트는 메인 스레드에서 보장되도록 @MainActor 또는 DispatchQueue.main 처리가 적절한지 확인하세요.
+
+    # 화면 생성 및 의존성 주입 흐름
+    - path: "**/Presentation/Factory/**/*.swift"
+      instructions: |
+        ViewControllerFactory는 각 기능별 화면(ViewController)의 인스턴스 생성을 캡슐화합니다.
+        ViewController 내부에서 다음 화면을 직접 생성(init)하여 하드코딩된 결합을 만들지 않고, Factory 패턴 및 AppDIContainer를 통해 의존성이 정상적으로 주입되는지 검증하세요.
+
+    # [Application] AppDIContainer 및 전체 앱 초기화
+    - path: "**/Application/**/*.swift"
+      instructions: |
+        AppDIContainer는 앱 전체의 의존성을 관리하는 최상위 컨테이너입니다.
+        순환 의존성이 발생하지 않는지, 싱글톤 객체들이 오용되거나 남발되지 않는지 구조를 검토하세요.
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    ignore_title_keywords:
+      - "WIP"
+      - "draft"
+    drafts: false
+    base_branches:
+      - "develop"
+
+finishing_touches:
+  docstrings:
+    enabled: true
+
+chat:
+  auto_reply: true
+
+code_generation:
+  docstrings:
+    language: "ko-KR"
