@@ -65,7 +65,7 @@ reviews:
       instructions: |
         Presentation 레이어는 UI 렌더링 및 사용자 인터페이스 상태 관리를 담당합니다.
         ViewController는 UI 컴포넌트 배치(SnapKit, Then 활용 등)와 이벤트 수집만 담당하고, 비즈니스 로직은 ViewModel로 위임했는지 확인하세요.
-        Combine의 .sink 등을 사용하여 ViewModel의 상태를 바인딩할 때, `[weak self]` 및 `.store(in: &cancellables)`가 누락되어 메모리 누수가 발생하지 않는지 엄격하게 검점하세요.
+        Combine의 .sink 등을 사용하여 ViewModel의 상태를 바인딩할 때, `[weak self]` 및 `.store(in: &cancellables)`가 누락되어 메모리 누수가 발생하지 않는지 엄격하게 점검하세요.
         모든 UI 업데이트는 메인 스레드에서 보장되도록 @MainActor 또는 DispatchQueue.main 처리가 적절한지 확인하세요.
 
     # 화면 생성 및 의존성 주입 흐름
