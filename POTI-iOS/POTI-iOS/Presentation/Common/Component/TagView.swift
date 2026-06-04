@@ -43,15 +43,6 @@ enum TagType {
             return PotiFontManager.caption10m.font
         }
     }
-    
-    private var isLarge: Bool {
-        switch self {
-        case .primaryWhiteLarge, .primaryGrayLarge, .secondaryLarge:
-            return true
-        default:
-            return false
-        }
-    }
 }
 
 final class TagView: BaseView {
