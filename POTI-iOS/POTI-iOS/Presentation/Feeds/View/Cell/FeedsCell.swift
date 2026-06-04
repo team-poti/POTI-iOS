@@ -1,5 +1,5 @@
 //
-//  GoodsListCell.swift
+//  FeedsCell.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/14/26.
@@ -11,16 +11,16 @@ import Kingfisher
 import SnapKit
 import Then
 
-final class GoodsListCell: UICollectionViewCell {
+final class FeedsCell: UICollectionViewCell {
     
     // MARK: - UI Components
     
     private let backgroundGrayView = UIView()
     private var imageView = UIImageView()
-    private var popularTagView = TagView(type: .secondarySmall, tagText: "인기")
+    private var popularTagView = TagView(type: .secondaryLarge)
     private var artistNameLabel = UILabel()
     private var productNameLabel = UILabel()
-    private var potTagView = TagView(type: .primaryWhiteLarge, tagText: "")
+    private var potTagView = TagView(type: .primaryWhiteSmall)
     
     // MARK: - Initializer
     
@@ -82,8 +82,7 @@ final class GoodsListCell: UICollectionViewCell {
         
         popularTagView.snp.makeConstraints {
             $0.top.leading.equalTo(backgroundGrayView).inset(12)
-            $0.bottom.equalTo(imageView.snp.bottom).inset(90)
-            $0.leading.greaterThanOrEqualTo(artistNameLabel.snp.trailing).offset(12)
+            $0.height.equalTo(26)
         }
         
         artistNameLabel.snp.makeConstraints {
@@ -106,14 +105,18 @@ final class GoodsListCell: UICollectionViewCell {
 
 // MARK: - Extension
 
-extension GoodsListCell {
-    func configure(goods: GroupItemModel) {
-        imageView.kf.setImage(with: URL(string: goods.postImage ?? ""))
-        artistNameLabel.text = goods.artist
-        productNameLabel.text = goods.title
-        potTagView.setTagText("팟 \(goods.postCount)개")
+extension FeedsCell {
+    func configure(groupItem: GroupItemModel) {
+        imageView.kf.setImage(with: URL(string: groupItem.postImage ?? ""))
+        artistNameLabel.text = groupItem.artist
+        productNameLabel.text = groupItem.title
+        potTagView.setTagText("팟 \(groupItem.postCount)개")
         
-        let isPopular = (goods.tag == "인기")
-        popularTagView.isHidden = !isPopular
+        potTagView.setTagText(groupItem.potCountText)
+        popularTagView.isHidden = !groupItem.hasPopularTag
+        
+        if groupItem.hasPopularTag {
+            popularTagView.setTagText(groupItem.tag)
+        }
     }
 }

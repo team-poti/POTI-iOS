@@ -1,5 +1,5 @@
 //
-//  GoodsListViewController.swift
+//  FeedsViewController.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/14/26.
@@ -9,22 +9,21 @@ import UIKit
 
 import Combine
 
-protocol GoodsListViewScrollDelegate: AnyObject {
-    func goodsListViewDidScroll(yOffset: CGFloat)
+protocol FeedsViewScrollDelegate: AnyObject {
+    func feedsViewDidScroll(yOffset: CGFloat)
 }
 
-final class GoodsListViewController: BaseViewController<GoodsListViewModel>, NavigationConfigurable {
+final class FeedsViewController: BaseViewController<FeedsViewModel>, NavigationConfigurable {
     
     // MARK: - Properties
     
-    weak var scrollDelegate: GoodsListViewScrollDelegate?
-    private let rootView = GoodsListView()
-    private let setGoodsListData = PassthroughSubject<Void, Never>()
+    weak var scrollDelegate: FeedsViewScrollDelegate?
+    private let rootView = FeedsView()
     private let factory: ViewControllerFactory
     
     // MARK: - Initializer
     
-    init(viewModel: GoodsListViewModel, factory: ViewControllerFactory) {
+    init(viewModel: FeedsViewModel, factory: ViewControllerFactory) {
         self.factory = factory
         super.init(viewModel: viewModel)
     }
@@ -63,25 +62,21 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>, Nav
     // MARK: - Custom Methods
     
     override func setDelegate() {
-        rootView.goodsListCollectionView.delegate = self
-        rootView.goodsListCollectionView.dataSource = self
+        rootView.feedsCollectionView.delegate = self
+        rootView.feedsCollectionView.dataSource = self
     }
     
     override func bindViewModel() {
         viewModel.output.reloadData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                self?.rootView.goodsListCollectionView.reloadData()
+                self?.rootView.feedsCollectionView.reloadData()
             }
             .store(in: &cancellables)
     }
     
     override func addTarget() {
-        rootView.floatingButton.addTarget(
-            self,
-            action: #selector(didTapFloatingButton),
-            for: .touchUpInside
-        )
+        rootView.floatingButton.addTarget(self, action: #selector(floatingButtonDidTap), for: .touchUpInside)
     }
     
     // MARK: - Method
@@ -91,15 +86,17 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>, Nav
         return .backDefault(title)
     }
     
-    @objc private func didTapFloatingButton() {
-        let vc = factory.makeProductRegisterViewController()
-        self.navigationController?.pushViewController(vc, animated: true)
+    // MARK: - Action
+    
+    @objc private func floatingButtonDidTap() {
+        let registerViewContorller = factory.makeProductRegisterViewController()
+        self.navigationController?.pushViewController(registerViewContorller, animated: true)
     }
 }
 
 // MARK: - UICollectionViewDataSource
 
-extension GoodsListViewController: UICollectionViewDataSource {
+extension FeedsViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
@@ -110,12 +107,12 @@ extension GoodsListViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GoodsListCell.identifier, for: indexPath) as? GoodsListCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedsCell.identifier, for: indexPath) as? FeedsCell else {
             return UICollectionViewCell()
         }
         
-        let goods = viewModel.groupItems[indexPath.item]
-        cell.configure(goods: goods)
+        let groupItem = viewModel.groupItems[indexPath.item]
+        cell.configure(groupItem: groupItem)
         
         return cell
     }
@@ -126,9 +123,9 @@ extension GoodsListViewController: UICollectionViewDataSource {
         case UICollectionView.elementKindSectionHeader:
             let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind,
-                withReuseIdentifier: GoodsListHeaderCell.identifier,
+                withReuseIdentifier: FeedsHeaderCell.identifier,
                 for: indexPath
-            ) as! GoodsListHeaderCell
+            ) as! FeedsHeaderCell
             
             header.delegate = self
             
@@ -146,9 +143,9 @@ extension GoodsListViewController: UICollectionViewDataSource {
 
 //MARK: - Extensions
 
-extension GoodsListViewController: UICollectionViewDelegate {
+extension FeedsViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        scrollDelegate?.goodsListViewDidScroll(yOffset: scrollView.contentOffset.y)
+        scrollDelegate?.feedsViewDidScroll(yOffset: scrollView.contentOffset.y)
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
@@ -159,31 +156,40 @@ extension GoodsListViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let goods = viewModel.groupItems[indexPath.item]
+        let groupItem = viewModel.groupItems[indexPath.item]
         
-        let potListVC = factory.makePotListViewController(
-            title: goods.title,
-            artistId: goods.artistId,
-            artistName: goods.artist
+        let potListViewController = factory.makePotListViewController(
+            title: groupItem.title,
+            artistId: groupItem.artistId,
+            artistName: groupItem.artist
         )
-        self.navigationController?.pushViewController(potListVC, animated: true)
+        self.navigationController?.pushViewController(potListViewController, animated: true)
     }
 }
 
-extension GoodsListViewController: GoodsListHeaderCellDelegate {
+extension FeedsViewController: FeedsHeaderCellDelegate {
     func filterButtonDidTap() {
-        let initialIndex = (viewModel.currentSort == "LATEST") ? 0 : 1
-        let bottomSheet = factory.makeSortBottomSheet(type: .goods, initialIndex: initialIndex)
+        if let header = rootView.feedsCollectionView.supplementaryView(
+            forElementKind: UICollectionView.elementKindSectionHeader,
+            at: IndexPath(item: 0, section: 0)
+        ) as? FeedsHeaderCell {
+            header.setFilterButtonState(isSelected: true)
+        }
+        
+        let initialIndex = (viewModel.currentSort == .latest) ? 0 : 1
+        let bottomSheet = factory.makeSortBottomSheet(type: .feeds, initialIndex: initialIndex)
         
         bottomSheet.onSelectCompletion = { [weak self] index in
-            self?.viewModel.action(.didTapSortOption(index: index))
+            let selectedOption: FeedsSortOption = (index == 0) ? .latest : .hot
+            
+            self?.viewModel.action(.didTapSortOption(option: selectedOption))
         }
         
         bottomSheet.onDismissCompletion = { [weak self] in
-            if let header = self?.rootView.goodsListCollectionView.supplementaryView(
+            if let header = self?.rootView.feedsCollectionView.supplementaryView(
                 forElementKind: UICollectionView.elementKindSectionHeader,
                 at: IndexPath(item: 0, section: 0)
-            ) as? GoodsListHeaderCell {
+            ) as? FeedsHeaderCell {
                 header.setFilterButtonState(isSelected: false)
             }
         }

@@ -1,39 +1,37 @@
 //
-//  GoodsListDTO.swift
+//  FeedsDTO.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/15/26.
 //
 
-struct GoodsListDTO: Decodable {
+struct FeedsDTO: Decodable {
     let nickname: String
     let mainArtist: String?
     let mainArtistId: Int?
-    let hasNext: Bool?
-    let groupItems: [GoodsListItemDTO]?
+    let groupItems: [GroupItemDTO]?
     
-    func toEntity() -> GoodsListEntity {
-        return .init(
+    func toEntity() -> FeedsEntity {
+        FeedsEntity(
             nickname: nickname,
             mainArtist: mainArtist,
-            mainArtistId: mainArtistId ?? -1,
-            hasNext: hasNext ?? false,
+            mainArtistId: mainArtistId,
             groupItems: groupItems?.map { $0.toEntity() } ?? []
         )
     }
 }
 
-struct GoodsListItemDTO: Decodable {
+struct GroupItemDTO: Decodable {
+    let title: String?
     let artist: String?
     let artistId: Int?
     let postImage: String?
-    let postTitle: String?
     let postCount: Int?
     let tag: String?
     
     func toEntity() -> GroupItem {
-        return .init(
-            title: postTitle ?? "", 
+        GroupItem(
+            title: title ?? "",
             artist: artist ?? "",
             artistId: artistId ?? -1,
             postImage: postImage,
