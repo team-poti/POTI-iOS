@@ -14,15 +14,6 @@ enum HomeSection: Int, CaseIterable {
     case myGroup
     case otherGroup
     
-    var numberOfItemsInSection: Int {
-        switch self {
-        case .banner:
-            return 1
-        case .myGroup, .otherGroup:
-            return 5
-        }
-    }
-    
     func getHeaderTitle(nickname: String) -> String {
         switch self {
         case .banner:
@@ -55,7 +46,6 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     
     weak var scrollDelegate: HomeViewScrollDelegate?
     private let rootView = HomeView()
-    private let setHomeData = PassthroughSubject<Void, Never>()
     
     // MARK: - Initializer
     
@@ -147,9 +137,12 @@ extension HomeViewController: UICollectionViewDataSource {
         guard let sectionType = HomeSection(rawValue: section) else { return 0 }
         
         switch sectionType {
-        case .banner: return 1
-        case .myGroup: return viewModel.myGroupItems.count
-        case .otherGroup: return viewModel.otherGroupItems.count
+        case .banner:
+            return 1
+        case .myGroup:
+            return min(viewModel.myGroupItems.count, 5)
+        case .otherGroup:
+            return min(viewModel.otherGroupItems.count, 5)
         }
     }
     
@@ -161,7 +154,7 @@ extension HomeViewController: UICollectionViewDataSource {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BannerCarouselCell.identifier, for: indexPath) as! BannerCarouselCell
             cell.configure(banners: viewModel.banners)
             return cell
-        
+            
         case .myGroup:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GoodsCell.identifier, for: indexPath) as! GoodsCell
             cell.configure(goods: viewModel.myGroupItems[indexPath.item])
@@ -227,23 +220,29 @@ extension HomeViewController: GoodsHeaderCellDelegate {
         
         let targetArtistId: Int
         
-        if sectionType == .myGroup {
-            if viewModel.isMyGroupMixed {
+        switch sectionType {
+        case .banner:
+            return
+            
+        case .myGroup:
+            switch viewModel.userStatus {
+            case .favoriteArtistExist:
+                targetArtistId = viewModel.mainArtistId ?? 0
+            case .favoriteArtistNoArticles, .noFavoriteArtist:
                 targetArtistId = 0
-            } else {
-                targetArtistId = (viewModel.mainArtistId != -1) ? viewModel.mainArtistId : 0
             }
-        } else {
+            
+        case .otherGroup:
             targetArtistId = 0
         }
         
-        let goodsListViewController = factory.makeGoodsListViewController(
+        let feedsViewController = factory.makeFeedsViewController(
             sectionType: sectionType,
             artistId: targetArtistId,
             nickname: viewModel.nickname
         )
-        goodsListViewController.title = sectionType.getHeaderTitle(nickname: viewModel.nickname)
+        feedsViewController.title = sectionType.getHeaderTitle(nickname: viewModel.nickname)
         
-        self.navigationController?.pushViewController(goodsListViewController, animated: true)
+        self.navigationController?.pushViewController(feedsViewController, animated: true)
     }
 }
