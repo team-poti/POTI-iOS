@@ -50,8 +50,8 @@ final class AppDIContainer {
         DefaultHomeRepository(networkService: makeNetworkService())
     }
     
-    private func makeGoodsListRepository() -> GoodsListInterface {
-        DefaultGoodsListRepository(networkService: makeNetworkService())
+    private func makeFeedsRepository() -> FeedsInterface {
+        DefaultFeedsRepository(networkService: makeNetworkService())
     }
     
     private func makeOrderRepository() -> OrderInterface {
