@@ -8,11 +8,16 @@
 enum FeedsSortOption: String {
     case hot = "HOT"
     case latest = "LATEST"
+    case random = "RANDOM"
     
     var text: String {
         switch self {
-        case .hot: return "인기순"
-        case .latest: return "최신순"
+        case .hot: 
+            return "인기순"
+        case .latest: 
+            return "최신순"
+        case .random:
+            return ""
         }
     }
 }

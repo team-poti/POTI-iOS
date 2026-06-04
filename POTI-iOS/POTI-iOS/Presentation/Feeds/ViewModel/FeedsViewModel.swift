@@ -37,7 +37,7 @@ final class FeedsViewModel: BaseViewModelType {
     private var currentPage: Int = 0
     private var isFetching: Bool = false
     private var hasNextPage: Bool = true
-    private(set) var currentSort: FeedsSortOption = .hot
+    private(set) var currentSort: FeedsSortOption
     
     var currentSortText: String {
         return currentSort.text
@@ -54,6 +54,12 @@ final class FeedsViewModel: BaseViewModelType {
         self.sectionType = sectionType
         self.artistId = artistId
         self.nickname = nickname
+        
+        if sectionType == .otherGroup {
+            self.currentSort = .random
+        } else {
+            self.currentSort = .hot
+        }
         
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher()
@@ -79,7 +85,9 @@ final class FeedsViewModel: BaseViewModelType {
         guard !isFetching && (isFirstPage || hasNextPage) else { return }
         
         isFetching = true
-        if isFirstPage { currentPage = 0 }
+        if isFirstPage {
+            currentPage = 0
+        }
         
         Task {
             do {

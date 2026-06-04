@@ -35,6 +35,9 @@ final class MockFeedsRepository: FeedsInterface {
             
         case .latest:
             return FeedsEntity(nickname: "수민", mainArtist: "아이브", mainArtistId: 1, groupItems: filteredItems)
+            
+        case .random:
+            return FeedsEntity(nickname: "수민", mainArtist: "아이브", mainArtistId: 1, groupItems: filteredItems)
         }
     }
 }
