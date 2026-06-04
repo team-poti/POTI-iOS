@@ -7,6 +7,12 @@
 
 import Combine
 
+enum HomeUserStatus {
+    case favoriteArtistExist
+    case favoriteArtistNoArticles
+    case noFavoriteArtist
+}
+
 final class HomeViewModel: BaseViewModelType {
     
     // MARK: - Input
@@ -33,7 +39,6 @@ final class HomeViewModel: BaseViewModelType {
     private let useCase: HomeUseCase
     private let withDrawUseCase: WithdrawUseCase
     private var cancellables = Set<AnyCancellable>()
-    private(set) var isMyGroupMixed: Bool = false
     
     let output: Output
     
@@ -41,7 +46,8 @@ final class HomeViewModel: BaseViewModelType {
     private(set) var myGroupItems: [GoodsModel] = []
     private(set) var otherGroupItems: [GoodsModel] = []
     private(set) var nickname: String = ""
-    private(set) var mainArtistId: Int = 0
+    private(set) var mainArtistId: Int? = nil
+    private(set) var userStatus: HomeUserStatus = .noFavoriteArtist
     
     // MARK: - Initializer
     
@@ -65,6 +71,7 @@ final class HomeViewModel: BaseViewModelType {
         case .viewDidLoad:
             fetchHomeData()
         case .searchButtonTapped:
+            // TODO: - 검색 View로 이동으로 변경하기
             withdraw()
         }
     }
@@ -80,11 +87,16 @@ final class HomeViewModel: BaseViewModelType {
                 self.myGroupItems = data.toMyGoodsModels()
                 self.otherGroupItems = data.toOtherGoodsModels()
                 self.nickname = data.nickname
-                self.mainArtistId = data.mainArtistId ?? 0
+                self.mainArtistId = data.mainArtistId
                 
-                if !myGroupItems.isEmpty {
-                    self.isMyGroupMixed = myGroupItems.contains { $0.artistId != self.mainArtistId }
+                guard let mainArtistId = self.mainArtistId else {
+                    self.userStatus = .noFavoriteArtist
+                    reloadDataSubject.send(())
+                    return
                 }
+                
+                let isFallback = myGroupItems.contains { $0.artistId != mainArtistId }
+                self.userStatus = isFallback ? .favoriteArtistNoArticles : .favoriteArtistExist
                 
                 reloadDataSubject.send(())
             } catch {
