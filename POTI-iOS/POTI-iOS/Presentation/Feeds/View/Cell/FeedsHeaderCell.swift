@@ -79,7 +79,7 @@ final class FeedsHeaderCell: UICollectionReusableView {
         filterButton.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
     }
     
-    //MARK: - Action
+    // MARK: - Action
     
     @objc private func filterButtonTapped() {
         delegate?.filterButtonDidTap()
