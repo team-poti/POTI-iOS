@@ -95,8 +95,8 @@ final class HomeViewModel: BaseViewModelType {
                     return
                 }
                 
-                let isFallback = myGroupItems.contains { $0.artistId != mainArtistId }
-                self.userStatus = isFallback ? .favoriteArtistNoArticles : .favoriteArtistExist
+                let hasFavoriteArticles = myGroupItems.contains { $0.artistId == mainArtistId }
+                self.userStatus = hasFavoriteArticles ? .favoriteArtistExist : .favoriteArtistNoArticles
                 
                 reloadDataSubject.send(())
             } catch {
