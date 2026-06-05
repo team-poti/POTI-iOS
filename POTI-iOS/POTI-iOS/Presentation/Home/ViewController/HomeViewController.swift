@@ -14,21 +14,12 @@ enum HomeSection: Int, CaseIterable {
     case myGroup
     case otherGroup
     
-    var numberOfItemsInSection: Int {
+    func getHeaderTitle(nickname: String) -> String {
         switch self {
         case .banner:
-            return 3
-        case .myGroup, .otherGroup:
-            return 5
-        }
-    }
-    
-    func getHeaderTitle(nickName: String) -> String? {
-        switch self {
-        case .banner:
-            return nil
+            return ""
         case .myGroup:
-            return "\(nickName)님을 위한 추천 굿즈"
+            return "\(nickname)님을 위한 추천 굿즈"
         case .otherGroup:
             return "다른 굿즈 구경하기"
         }
@@ -42,7 +33,7 @@ protocol HomeViewScrollDelegate: AnyObject {
 final class HomeViewController: BaseViewController<HomeViewModel>, NavigationConfigurable {
     
     private let factory: ViewControllerFactory
-
+    
     init(
         viewModel: HomeViewModel,
         factory: ViewControllerFactory
@@ -55,7 +46,6 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     
     weak var scrollDelegate: HomeViewScrollDelegate?
     private let rootView = HomeView()
-    private let setHomeData = PassthroughSubject<Void, Never>()
     
     // MARK: - Initializer
     
@@ -81,6 +71,16 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
         }
     }
     
+    // MARK: - Custom Methods
+    
+    override func addTarget() {
+        rootView.floatingButton.addTarget(
+            self,
+            action: #selector(didTapFloatingButton),
+            for: .touchUpInside
+        )
+    }
+    
     override func setDelegate() {
         rootView.homeCollectionView.delegate = self
         rootView.homeCollectionView.dataSource = self
@@ -94,20 +94,6 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
             }
             .store(in: &cancellables)
         
-        viewModel.output.updateBannerPage
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] page in
-                self?.updateBannerFooter(page)
-                self?.updateSectionBackground(page: page)
-            }
-            .store(in: &cancellables)
-        
-        rootView.currentPageNumber
-            .sink { [weak self] page in
-                self?.viewModel.action(.bannerScrolled(index: page))
-            }
-            .store(in: &cancellables)
-        
         viewModel.output.withdrawCompleted
             .receive(on: RunLoop.main)
             .sink { [weak self] in
@@ -116,42 +102,18 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
             .store(in: &cancellables)
     }
     
-    override func addTarget() {
-        rootView.floatingButton.addTarget(
-            self,
-            action: #selector(didTapFloatingButton),
-            for: .touchUpInside
-        )
+    // MARK: - Action
+    
+    @objc private func didTapFloatingButton() {
+        let productRegisterViewController = factory.makeProductRegisterViewController()
+        self.navigationController?.pushViewController(productRegisterViewController, animated: true)
+        //                KeychainManager.deleteAllTokens()
     }
     
     // MARK: - Methods
     
     func navigationStyle() -> PotiNavigationStyle {
         return .home
-    }
-    
-    private func updateBannerFooter(_ page: Int) {
-        if let footer = rootView.homeCollectionView.supplementaryView(
-            forElementKind: UICollectionView.elementKindSectionFooter,
-            at: IndexPath(item: 0, section: 0)
-        ) as? BannerFooterCell {
-            footer.updatePageControl(currentPage: page)
-        }
-    }
-    
-    private func updateSectionBackground(page: Int) {
-        guard page < viewModel.banners.count else { return }
-        let bannerUrl = viewModel.banners[page].imageUrl
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            self.rootView.homeCollectionView.subviews.forEach { view in
-                if let bgView = view as? BannerBackgroundView {
-                    bgView.updateImage(url: bannerUrl)
-                }
-            }
-        }
     }
     
     override func searchButtonTapped() {
@@ -175,9 +137,12 @@ extension HomeViewController: UICollectionViewDataSource {
         guard let sectionType = HomeSection(rawValue: section) else { return 0 }
         
         switch sectionType {
-        case .banner: return viewModel.banners.count
-        case .myGroup: return viewModel.myGroupItems.count
-        case .otherGroup: return viewModel.otherGroupItems.count
+        case .banner:
+            return 1
+        case .myGroup:
+            return min(viewModel.myGroupItems.count, 5)
+        case .otherGroup:
+            return min(viewModel.otherGroupItems.count, 5)
         }
     }
     
@@ -186,8 +151,8 @@ extension HomeViewController: UICollectionViewDataSource {
         
         switch section {
         case .banner:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BannerCell.identifier, for: indexPath) as! BannerCell
-            cell.configure(banner: viewModel.banners[indexPath.item])
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BannerCarouselCell.identifier, for: indexPath) as! BannerCarouselCell
+            cell.configure(banners: viewModel.banners)
             return cell
             
         case .myGroup:
@@ -208,17 +173,10 @@ extension HomeViewController: UICollectionViewDataSource {
         switch kind {
         case UICollectionView.elementKindSectionHeader:
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: GoodsHeaderCell.identifier, for: indexPath) as! GoodsHeaderCell
-            let nickName = viewModel.nickname
-            header.configure(text: section.getHeaderTitle(nickName: nickName), section: indexPath.section)
+            let nickname = viewModel.nickname
+            header.configure(text: section.getHeaderTitle(nickname: nickname), section: indexPath.section)
             header.delegate = self
             return header
-            
-        case UICollectionView.elementKindSectionFooter:
-            if section == .banner {
-                let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: BannerFooterCell.identifier, for: indexPath) as! BannerFooterCell
-                return footer
-            }
-            return UICollectionReusableView()
             
         default:
             return UICollectionReusableView()
@@ -226,7 +184,7 @@ extension HomeViewController: UICollectionViewDataSource {
     }
 }
 
-// MARK: - Extensions
+// MARK: - UICollectionViewDelegate
 
 extension HomeViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -246,13 +204,13 @@ extension HomeViewController: UICollectionViewDelegate {
             selectedGoods = viewModel.otherGroupItems[indexPath.item]
         }
         
-        let potListVC = factory.makePotListViewController(
+        let potListViewController = factory.makePotListViewController(
             title: selectedGoods.postTitle,
             artistId: selectedGoods.artistId,
             artistName: selectedGoods.artist
         )
         
-        self.navigationController?.pushViewController(potListVC, animated: true)
+        self.navigationController?.pushViewController(potListViewController, animated: true)
     }
 }
 
@@ -260,31 +218,31 @@ extension HomeViewController: GoodsHeaderCellDelegate {
     func moreButtonDidTap(in section: Int) {
         guard let sectionType = HomeSection(rawValue: section) else { return }
         
-        let targetArtistId: Int
+        let targetArtistId: Int?
         
-        if sectionType == .myGroup {
-            if viewModel.isMyGroupMixed {
-                targetArtistId = 0
-            } else {
-                targetArtistId = (viewModel.mainArtistId != -1) ? viewModel.mainArtistId : 0
+        switch sectionType {
+        case .banner:
+            return
+            
+        case .myGroup:
+            switch viewModel.userStatus {
+            case .favoriteArtistExist:
+                targetArtistId = viewModel.mainArtistId ?? 0
+            case .favoriteArtistNoArticles, .noFavoriteArtist:
+                targetArtistId = nil
             }
-        } else {
-            targetArtistId = 0
+            
+        case .otherGroup:
+            targetArtistId = nil
         }
         
-        let goodsListViewController = factory.makeGoodsListViewController(
+        let feedsViewController = factory.makeFeedsViewController(
             sectionType: sectionType,
             artistId: targetArtistId,
             nickname: viewModel.nickname
         )
-        goodsListViewController.title = sectionType.getHeaderTitle(nickName: viewModel.nickname)
-        self.navigationController?.pushViewController(goodsListViewController, animated: true)
-    }
-    
-    @objc private func didTapFloatingButton() {
+        feedsViewController.title = sectionType.getHeaderTitle(nickname: viewModel.nickname)
         
-        let vc = factory.makeProductRegisterViewController()
-        self.navigationController?.pushViewController(vc, animated: true)
-//                KeychainManager.deleteAllTokens()
+        self.navigationController?.pushViewController(feedsViewController, animated: true)
     }
 }

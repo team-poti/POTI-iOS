@@ -8,12 +8,12 @@
 import Combine
 
 enum SortType {
-    case goods
+    case feeds
     case pot
     
     var options: [String] {
         switch self {
-        case .goods: return ["최신순", "인기순"]
+        case .feeds: return ["최신순", "인기순"]
         case .pot:   return ["최신순", "마감임박순", "평점순"]
         }
     }
@@ -74,12 +74,24 @@ final class SortViewModel: BaseViewModelType {
     
     func getSortString(for index: Int) -> String {
         switch sortType {
-        case .goods:
-            return index == 0 ? "LATEST" : "HOT"
+        case .feeds:
+            switch index {
+            case 0:
+                return "LATEST"
+            case 1:
+                return "HOT"
+            default:
+                return "LATEST"
+            }
         case .pot:
-            if index == 0 { return "LATEST" }
-            if index == 1 { return "DEADLINE" }
-            return "RATING"
+            switch index {
+            case 0:
+                return "LATEST"
+            case 1:
+                return "DEADLINE"
+            default:
+                return "RATING"
+            }
         }
     }
     

@@ -50,8 +50,8 @@ final class AppDIContainer {
         DefaultHomeRepository(networkService: makeNetworkService())
     }
     
-    private func makeGoodsListRepository() -> GoodsListInterface {
-        DefaultGoodsListRepository(networkService: makeNetworkService())
+    private func makeFeedsRepository() -> FeedsInterface {
+        DefaultFeedsRepository(networkService: makeNetworkService())
     }
     
     private func makeOrderRepository() -> OrderInterface {
@@ -138,8 +138,8 @@ final class AppDIContainer {
         DefaultHomeUseCase(repository: makeHomeRepository())
     }
     
-    private func makeGoodsListUseCase() -> GoodsListUseCase {
-        DefaultGoodsListUseCase(repository: makeGoodsListRepository())
+    private func makeFeedsUseCase() -> FeedsUseCase {
+        DefaultFeedsUseCase(repository: makeFeedsRepository())
     }
     
     private func makeOrderUseCase() -> SubmitOrderUseCase {
@@ -256,8 +256,8 @@ final class AppDIContainer {
         HomeViewModel(useCase: makeHomeUseCase(), withDrawUseCase: makeWithdrawUseCase())
     }
     
-    func makeGoodsListViewModel(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewModel {
-        GoodsListViewModel(useCase: makeGoodsListUseCase(),sectionType: sectionType,artistId: artistId,nickname: nickname)
+    func makeFeedsViewModel(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewModel {
+        FeedsViewModel(useCase: makeFeedsUseCase(), sectionType: sectionType, artistId: artistId, nickname: nickname)
     }
     
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {

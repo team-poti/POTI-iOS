@@ -7,21 +7,16 @@
 
 import UIKit
 
-import Combine
 import SnapKit
 import Then
 
 final class HomeView: BaseView {
     
-    // MARK: - Property
-    
-    var currentPageNumber = PassthroughSubject<Int, Never>()
-    
     // MARK: - UI Components
     
     lazy var homeCollectionView = UICollectionView(
         frame: .zero,
-        collectionViewLayout: HomeLayoutFactory.createLayout(currentPageNumber: currentPageNumber)
+        collectionViewLayout: HomeLayoutFactory.createLayout()
     )
     let floatingButton = FloatingButton()
     
@@ -34,10 +29,8 @@ final class HomeView: BaseView {
             $0.showsVerticalScrollIndicator = false
             $0.contentInset = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
             
-            $0.register(BannerCell.self)
+            $0.register(BannerCarouselCell.self)
             $0.register(GoodsCell.self)
-            
-            $0.registerFooter(BannerFooterCell.self)
             $0.registerHeader(GoodsHeaderCell.self)
         }
     }
@@ -48,8 +41,7 @@ final class HomeView: BaseView {
     
     override func setLayout() {
         homeCollectionView.snp.makeConstraints {
-            $0.top.equalToSuperview()
-            $0.bottom.horizontalEdges.equalToSuperview()
+            $0.edges.equalToSuperview()
         }
         
         floatingButton.snp.makeConstraints {

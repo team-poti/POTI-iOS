@@ -10,7 +10,7 @@ protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
     func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
-    func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController
+    func makeFeedsViewController(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewController
     func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
@@ -63,8 +63,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makeGoodsListViewController(sectionType: HomeSection, artistId: Int, nickname: String) -> GoodsListViewController {
-        GoodsListViewController(viewModel: diContainer.makeGoodsListViewModel(sectionType: sectionType, artistId: artistId, nickname: nickname), factory: self)
+    func makeFeedsViewController(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewController {
+        FeedsViewController(viewModel: diContainer.makeFeedsViewModel(sectionType: sectionType, artistId: artistId, nickname: nickname), factory: self)
     }
     
     func makeMyPageViewController() -> MyPageViewController {

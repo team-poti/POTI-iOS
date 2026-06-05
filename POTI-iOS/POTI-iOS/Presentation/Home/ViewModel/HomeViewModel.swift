@@ -7,13 +7,18 @@
 
 import Combine
 
+enum HomeUserStatus {
+    case favoriteArtistExist
+    case favoriteArtistNoArticles
+    case noFavoriteArtist
+}
+
 final class HomeViewModel: BaseViewModelType {
     
     // MARK: - Input
     
     enum Input {
         case viewDidLoad
-        case bannerScrolled(index: Int)
         case searchButtonTapped
     }
     
@@ -21,7 +26,6 @@ final class HomeViewModel: BaseViewModelType {
     
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
-        let updateBannerPage: AnyPublisher<Int, Never>
         let withdrawCompleted: AnyPublisher<Void, Never>
     }
     
@@ -29,14 +33,12 @@ final class HomeViewModel: BaseViewModelType {
     
     private let withdrawCompletedSubject = PassthroughSubject<Void, Never>()
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
-    private let bannerPageSubject = PassthroughSubject<Int, Never>()
     
     // MARK: - Properties
     
     private let useCase: HomeUseCase
     private let withDrawUseCase: WithdrawUseCase
     private var cancellables = Set<AnyCancellable>()
-    private(set) var isMyGroupMixed: Bool = false
     
     let output: Output
     
@@ -44,7 +46,8 @@ final class HomeViewModel: BaseViewModelType {
     private(set) var myGroupItems: [GoodsModel] = []
     private(set) var otherGroupItems: [GoodsModel] = []
     private(set) var nickname: String = ""
-    private(set) var mainArtistId: Int = 0
+    private(set) var mainArtistId: Int? = nil
+    private(set) var userStatus: HomeUserStatus = .noFavoriteArtist
     
     // MARK: - Initializer
     
@@ -57,7 +60,6 @@ final class HomeViewModel: BaseViewModelType {
         
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher(),
-            updateBannerPage: bannerPageSubject.eraseToAnyPublisher(),
             withdrawCompleted: withdrawCompletedSubject.eraseToAnyPublisher()
         )
     }
@@ -68,9 +70,8 @@ final class HomeViewModel: BaseViewModelType {
         switch trigger {
         case .viewDidLoad:
             fetchHomeData()
-        case .bannerScrolled(let index):
-            bannerPageSubject.send(index)
         case .searchButtonTapped:
+            // TODO: - 검색 View로 이동으로 변경하기
             withdraw()
         }
     }
@@ -82,15 +83,20 @@ final class HomeViewModel: BaseViewModelType {
             do {
                 let data = try await useCase.execute()
                 
-                self.banners = data.toBannerModelList()
-                self.myGroupItems = data.toMyGoodsModelList()
-                self.otherGroupItems = data.toOtherGoodsModelList()
+                self.banners = data.toBannerModels()
+                self.myGroupItems = data.toMyGoodsModels()
+                self.otherGroupItems = data.toOtherGoodsModels()
                 self.nickname = data.nickname
-                self.mainArtistId = data.mainArtistId ?? 0
+                self.mainArtistId = data.mainArtistId
                 
-                if !myGroupItems.isEmpty {
-                    self.isMyGroupMixed = myGroupItems.contains { $0.artistId != self.mainArtistId }
+                guard let mainArtistId = self.mainArtistId else {
+                    self.userStatus = .noFavoriteArtist
+                    reloadDataSubject.send(())
+                    return
                 }
+                
+                let hasFavoriteArticles = myGroupItems.contains { $0.artistId == mainArtistId }
+                self.userStatus = hasFavoriteArticles ? .favoriteArtistExist : .favoriteArtistNoArticles
                 
                 reloadDataSubject.send(())
             } catch {
