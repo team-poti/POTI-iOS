@@ -36,15 +36,4 @@ struct GroupItem {
     let postImage: String?
     let postCount: Int
     let tag: String
-    
-    func toGroupItemModel() -> GroupItemModel {
-        GroupItemModel(
-            title: title,
-            artist: artist,
-            artistId: artistId ?? -1,
-            postImage: postImage,
-            postCount: postCount,
-            tag: tag
-        )
-    }
 }
