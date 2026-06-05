@@ -218,7 +218,7 @@ extension HomeViewController: GoodsHeaderCellDelegate {
     func moreButtonDidTap(in section: Int) {
         guard let sectionType = HomeSection(rawValue: section) else { return }
         
-        let targetArtistId: Int
+        let targetArtistId: Int?
         
         switch sectionType {
         case .banner:
@@ -229,11 +229,11 @@ extension HomeViewController: GoodsHeaderCellDelegate {
             case .favoriteArtistExist:
                 targetArtistId = viewModel.mainArtistId ?? 0
             case .favoriteArtistNoArticles, .noFavoriteArtist:
-                targetArtistId = 0
+                targetArtistId = nil
             }
             
         case .otherGroup:
-            targetArtistId = 0
+            targetArtistId = nil
         }
         
         let feedsViewController = factory.makeFeedsViewController(
