@@ -73,6 +73,21 @@ final class FeedsViewController: BaseViewController<FeedsViewModel>, NavigationC
                 self?.rootView.feedsCollectionView.reloadData()
             }
             .store(in: &cancellables)
+        
+        viewModel.output.showPotList
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] groupItem in
+                guard let self = self else { return }
+                guard let artistId = groupItem.artistId else { return }
+                
+                let potListViewController = self.factory.makePotListViewController(
+                    title: groupItem.title,
+                    artistId: artistId,
+                    artistName: groupItem.artist
+                )
+                self.navigationController?.pushViewController(potListViewController, animated: true)
+            }
+            .store(in: &cancellables)
     }
     
     override func addTarget() {
@@ -157,13 +172,7 @@ extension FeedsViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let groupItem = viewModel.groupItems[indexPath.item]
-        
-        let potListViewController = factory.makePotListViewController(
-            title: groupItem.title,
-            artistId: groupItem.artistId,
-            artistName: groupItem.artist
-        )
-        self.navigationController?.pushViewController(potListViewController, animated: true)
+        viewModel.action(.didTapItem(item: groupItem))
     }
 }
 

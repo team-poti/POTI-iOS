@@ -22,7 +22,8 @@ final class MockFeedsRepository: FeedsInterface {
         ]
         
         let filteredItems: [GroupItem]
-        if let id = artistId, id != 0 {
+        
+        if let id = artistId {
             filteredItems = totalItems.filter { $0.artistId == id }
         } else {
             filteredItems = totalItems

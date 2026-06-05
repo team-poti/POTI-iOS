@@ -15,12 +15,14 @@ final class FeedsViewModel: BaseViewModelType {
         case viewDidLoad
         case didTapSortOption(option: FeedsSortOption)
         case loadNextPage
+        case didTapItem(item: GroupItemModel)
     }
     
     // MARK: - Output
     
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
+        let showPotList: AnyPublisher<GroupItemModel, Never>
     }
     
     // MARK: - Properties
@@ -46,6 +48,7 @@ final class FeedsViewModel: BaseViewModelType {
     // MARK: - Subject
     
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
+    private let showPotListSubject = PassthroughSubject<GroupItemModel, Never>()
     
     // MARK: - Initializer
     
@@ -62,7 +65,8 @@ final class FeedsViewModel: BaseViewModelType {
         }
         
         self.output = Output(
-            reloadData: reloadDataSubject.eraseToAnyPublisher()
+            reloadData: reloadDataSubject.eraseToAnyPublisher(),
+            showPotList: showPotListSubject.eraseToAnyPublisher()
         )
     }
     
@@ -76,6 +80,11 @@ final class FeedsViewModel: BaseViewModelType {
             updateSort(to: option)
         case .loadNextPage:
             fetchFeeds(isFirstPage: false)
+        case .didTapItem(let item):
+            guard let artistId = item.artistId, artistId != -1 else {
+                return
+            }
+            showPotListSubject.send(item)
         }
     }
     
