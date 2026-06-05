@@ -75,14 +75,21 @@ final class SortViewModel: BaseViewModelType {
     func getSortString(for index: Int) -> String {
         switch sortType {
         case .feeds:
-            return index == 0 ? "LATEST" : "HOT"
+            switch index {
+            case 0:
+                return "LATEST"
+            case 1:
+                return "HOT"
+            default:
+                return "LATEST"
+            }
         case .pot:
             switch index {
-            case 0:  
+            case 0:
                 return "LATEST"
-            case 1:  
+            case 1:
                 return "DEADLINE"
-            default: 
+            default:
                 return "RATING"
             }
         }
