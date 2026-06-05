@@ -67,7 +67,7 @@ final class GoodsHeaderCell: UICollectionReusableView {
         
         moreButton.snp.makeConstraints {
             $0.centerY.equalTo(titleLabel)
-            $0.trailing.top.equalToSuperview()
+            $0.trailing.equalToSuperview()
         }
     }
     
