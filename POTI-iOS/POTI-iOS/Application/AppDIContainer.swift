@@ -166,7 +166,7 @@ final class AppDIContainer {
         DefaultPotListUseCase(repository: makePotListRepository())
     }
     
-    private func makeArtistsUseCase() -> ArtistsUsecase {
+    private func makeArtistMembersUseCase() -> ArtistMembersUseCase {
         DefaultArtistsUseCase(repository: makeArtistsRepository())
     }
     
@@ -299,8 +299,8 @@ final class AppDIContainer {
         return PotListViewModel(useCase: makePotListUseCase(),title: title,artistId: artistId, artistName: artistName)
     }
     
-    func makeArtistsViewModel(artistId: Int, selectedIds: [Int]) -> ArtistsViewModel {
-        return ArtistsViewModel(useCase: makeArtistsUseCase(), artistId: artistId, selectedIds: selectedIds)
+    func makeArtistMembersFilterViewModel(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterViewModel {
+        return ArtistMembersFilterViewModel(useCase: makeArtistMembersUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
     
     func makeProductRegisterViewModel() -> ProductRegisterViewModel {
@@ -308,7 +308,7 @@ final class AppDIContainer {
             registerTitlesUseCase: makeRegisterTitlesUseCase(),
             registerPostsUseCase: makeRegisterPostsUseCase(),
             imagesRepository: makeImagesRepository(),
-            artistsUseCase: makeArtistsUseCase()
+            artistsUseCase: makeArtistMembersUseCase()
         )
     }
     

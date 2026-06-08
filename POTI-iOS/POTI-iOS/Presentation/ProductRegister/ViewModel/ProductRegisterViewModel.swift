@@ -54,7 +54,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
     private let registerTitlesUseCase: RegisterTitlesUseCase
     private let registerPostsUseCase: RegisterPostsUseCase
     private let imagesRepository: ImagesInterface
-    private let artistsUseCase: ArtistsUsecase
+    private let artistsUseCase: ArtistMembersUseCase
 
     private let titlesSubject = CurrentValueSubject<[String], Never>([])
     private let imagesSubject = CurrentValueSubject<[UIImage], Never>([])
@@ -95,7 +95,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
         registerTitlesUseCase: RegisterTitlesUseCase,
         registerPostsUseCase: RegisterPostsUseCase,
         imagesRepository: ImagesInterface,
-        artistsUseCase: ArtistsUsecase
+        artistsUseCase: ArtistMembersUseCase
     ) {
         self.maxCount = maxCount
         self.registerTitlesUseCase = registerTitlesUseCase

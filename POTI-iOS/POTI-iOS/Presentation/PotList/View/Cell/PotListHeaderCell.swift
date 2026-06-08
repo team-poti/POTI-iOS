@@ -11,8 +11,8 @@ import SnapKit
 import Then
 
 protocol PotListHeaderCellDelegate: AnyObject {
-    func rightFilterButtonDidTap()
-    func leftFilterButtonDidTap()
+    func memberFilterButtonDidTap()
+    func sortButtonDidTap()
 }
 
 final class PotListHeaderCell: UICollectionReusableView {
@@ -23,8 +23,8 @@ final class PotListHeaderCell: UICollectionReusableView {
     
     // MARK: - UI Components
     
-    private let leftFilterButton = UIButton()
-    private let rightFilterButton = UIButton()
+    private let memberFilterButton = UIButton()
+    private let sortFilterButton = UIButton()
     
     // MARK: - Initializer
     
@@ -44,10 +44,7 @@ final class PotListHeaderCell: UICollectionReusableView {
     // MARK: - Custom Methods
     
     private func setStyle() {
-        leftFilterButton.do {
-            
-            // TODO: - 멤버선택 바텀시트 추가 후 변경 텍스트로 변경하기
-            
+        memberFilterButton.do {
             $0.setTitle("멤버 선택", for: .normal)
             $0.setTitleColor(.potiBlack, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
@@ -56,7 +53,7 @@ final class PotListHeaderCell: UICollectionReusableView {
             $0.semanticContentAttribute = .forceRightToLeft
         }
         
-        rightFilterButton.do {
+        sortFilterButton.do {
             $0.setTitleColor(.potiBlack, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
             $0.setImage(.icnArrowDownSm, for: .normal)
@@ -66,41 +63,38 @@ final class PotListHeaderCell: UICollectionReusableView {
     }
     
     private func setUI() {
-        addSubviews(leftFilterButton, rightFilterButton)
+        addSubviews(memberFilterButton, sortFilterButton)
     }
     
     private func setLayout() {
-        leftFilterButton.snp.makeConstraints {
-            $0.leading.top.equalToSuperview()
+        memberFilterButton.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(20)
+            $0.top.equalToSuperview().inset(13.5)
         }
         
-        rightFilterButton.snp.makeConstraints {
-            $0.trailing.top.equalToSuperview()
+        sortFilterButton.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(16)
+            $0.top.equalToSuperview().inset(13.5)
         }
     }
     
     // MARK: - Methods
     
     private func addTarget() {
-        leftFilterButton.addTarget(self, action: #selector(leftFilterButtonTapped), for: .touchUpInside)
-        
-        rightFilterButton.addTarget(self, action: #selector(rightFilterButtonTapped), for: .touchUpInside)
-    }
-    
-    func setSortButtonTitle(_ title: String) {
-        rightFilterButton.setTitle(title, for: .normal)
+        memberFilterButton.addTarget(self, action: #selector(leftFilterButtonTapped), for: .touchUpInside)
+        sortFilterButton.addTarget(self, action: #selector(rightFilterButtonTapped), for: .touchUpInside)
     }
     
     //MARK: - Action
     
     @objc private func leftFilterButtonTapped() {
-        leftFilterButton.isSelected.toggle()
-        delegate?.leftFilterButtonDidTap()
+        memberFilterButton.isSelected.toggle()
+        delegate?.memberFilterButtonDidTap()
     }
     
     @objc private func rightFilterButtonTapped() {
-        rightFilterButton.isSelected.toggle()
-        delegate?.rightFilterButtonDidTap()
+        sortFilterButton.isSelected.toggle()
+        delegate?.sortButtonDidTap()
     }
 }
 
@@ -108,19 +102,19 @@ final class PotListHeaderCell: UICollectionReusableView {
 
 extension PotListHeaderCell {
     func configure(leftText: String, rightText: String) {
-        leftFilterButton.setTitle(leftText, for: .normal)
-        rightFilterButton.setTitle(rightText, for: .normal)
+        memberFilterButton.setTitle(leftText, for: .normal)
+        sortFilterButton.setTitle(rightText, for: .normal)
     }
     
-    func setFilterButtonState(isLeft: Bool, isSelected: Bool) {
-        if isLeft {
-            leftFilterButton.isSelected = isSelected
+    func setMemberFilterButtonState(isMemberFilter: Bool, isSelected: Bool) {
+        if isMemberFilter {
+            memberFilterButton.isSelected = isSelected
         } else {
-            rightFilterButton.isSelected = isSelected
+            sortFilterButton.isSelected = isSelected
         }
     }
     
-    func setLeftFilterButtonTitle(_ title: String) {
-        leftFilterButton.setTitle(title, for: .normal)
+    func setSortButtonTitle(_ title: String) {
+        memberFilterButton.setTitle(title, for: .normal)
     }
 }
