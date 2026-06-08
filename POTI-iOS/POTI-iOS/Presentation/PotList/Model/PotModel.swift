@@ -8,8 +8,6 @@
 struct PotModel {
     let potId: Int
     var recruiter: RecruiterModel
-    let profileImage: String
-    let rating: Double
     let currentCount: Int
     let totalCount: Int
     let availableMembers: [String]
