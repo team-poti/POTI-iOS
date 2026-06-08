@@ -21,10 +21,6 @@ struct PotListEntity {
         self.hasNext = hasNext
         self.pots = pots
     }
-
-    func toFeedModel() -> [FeedModel] {
-        return pots.map { $0.toFeedModel() }
-    }
 }
 
 struct Pot {
@@ -47,21 +43,6 @@ struct Pot {
         self.availableMembers = availableMembers
         self.recruiter = recruiter
     }
-
-    func toFeedModel() -> FeedModel {
-        FeedModel(
-            potId: potId,
-            recruiter: recruiter.toRecruiterModel(),
-            profileImage: recruiter.profileImage,
-            rating: recruiter.rating,
-            currentCount: currentCount,
-            totalCount: totalCount,
-            availableMembers: availableMembers,
-            price: price,
-            thumbnailUrl: thumbnailUrl,
-            status: status
-        )
-    }
 }
 
 struct Recruiter {
@@ -75,9 +56,5 @@ struct Recruiter {
         self.nickname = nickname
         self.profileImage = profileImage
         self.rating = rating
-    }
-
-    func toRecruiterModel() -> RecruiterModel {
-        RecruiterModel(userId: userId, nickname: nickname, profileImage: profileImage, rating: rating)
     }
 }

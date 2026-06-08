@@ -46,12 +46,28 @@ final class AppDIContainer {
         DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService(), tokenRefreshNetworkService: makeTokenRefreshNetworkService())
     }
     
-    private func makeHomeRepository() -> HomeInterface {
-        DefaultHomeRepository(networkService: makeNetworkService())
+    private func makePostRepository() -> PostInterface {
+        DefaultPostRepository(networkService: makeNetworkService())
     }
     
-    private func makeFeedsRepository() -> FeedsInterface {
-        DefaultFeedsRepository(networkService: makeNetworkService())
+    private func makeHomeRepository() -> PostInterface {
+        return makePostRepository()
+    }
+    
+    private func makeFeedsRepository() -> PostInterface {
+        return makePostRepository()
+    }
+    
+    private func makePotListRepository() -> PostInterface {
+        return makePostRepository()
+    }
+    
+    private func makePotDetailRepository() -> PostInterface {
+        return makePostRepository()
+    }
+    
+    private func makeArtistsRepository() -> ArtistsInterface {
+        DefaultArtistsRepository(networkService: makeNetworkService())
     }
     
     private func makeOrderRepository() -> OrderInterface {
@@ -62,20 +78,8 @@ final class AppDIContainer {
         DefaultPostsRepository(networkService: makeNetworkService())
     }
     
-    private func makePotDetailRepository() -> PotDetailInterface {
-        DefaultPotDetailRepository(networkService: makeNetworkService())
-    }
-    
     private func makeManageRepository() -> PostsInterface {
         DefaultPostsRepository(networkService: makeNetworkService())
-    }
-    
-    private func makePotListRepository() -> PotListInterface {
-        DefaultPotListRepository(networkService: makeNetworkService())
-    }
-    
-    private func makeArtistsRepository() -> ArtistsInterface {
-        DefaultArtistsRepository(networkService: makeNetworkService())
     }
     
     private func makeUsersRepository() -> UsersInterface {

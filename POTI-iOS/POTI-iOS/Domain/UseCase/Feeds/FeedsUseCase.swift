@@ -10,9 +10,9 @@ protocol FeedsUseCase {
 }
 
 final class DefaultFeedsUseCase: FeedsUseCase {
-    private let repository: FeedsInterface
+    private let repository: PostInterface
     
-    init(repository: FeedsInterface) {
+    init(repository: PostInterface) {
         self.repository = repository
     }
     

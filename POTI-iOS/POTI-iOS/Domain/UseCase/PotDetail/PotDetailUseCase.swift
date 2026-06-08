@@ -11,9 +11,9 @@ protocol PotDetailUseCase {
 
 final class DefaultPotDetailUseCase: PotDetailUseCase {
     
-    private let repository: PotDetailInterface
+    private let repository: PostInterface
     
-    init(repository: PotDetailInterface) {
+    init(repository: PostInterface) {
         self.repository = repository
     }
     
