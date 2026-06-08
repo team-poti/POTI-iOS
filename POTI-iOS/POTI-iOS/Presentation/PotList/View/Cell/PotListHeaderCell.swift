@@ -24,7 +24,7 @@ final class PotListHeaderCell: UICollectionReusableView {
     // MARK: - UI Components
     
     private let memberFilterButton = UIButton()
-    private let sortFilterButton = UIButton()
+    private let sortButton = UIButton()
     
     // MARK: - Initializer
     
@@ -53,7 +53,7 @@ final class PotListHeaderCell: UICollectionReusableView {
             $0.semanticContentAttribute = .forceRightToLeft
         }
         
-        sortFilterButton.do {
+        sortButton.do {
             $0.setTitleColor(.potiBlack, for: .normal)
             $0.titleLabel?.font = PotiFontManager.body14m.font
             $0.setImage(.icnArrowDownSm, for: .normal)
@@ -63,7 +63,7 @@ final class PotListHeaderCell: UICollectionReusableView {
     }
     
     private func setUI() {
-        addSubviews(memberFilterButton, sortFilterButton)
+        addSubviews(memberFilterButton, sortButton)
     }
     
     private func setLayout() {
@@ -72,7 +72,7 @@ final class PotListHeaderCell: UICollectionReusableView {
             $0.top.equalToSuperview().inset(13.5)
         }
         
-        sortFilterButton.snp.makeConstraints {
+        sortButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
             $0.top.equalToSuperview().inset(13.5)
         }
@@ -82,7 +82,7 @@ final class PotListHeaderCell: UICollectionReusableView {
     
     private func addTarget() {
         memberFilterButton.addTarget(self, action: #selector(leftFilterButtonTapped), for: .touchUpInside)
-        sortFilterButton.addTarget(self, action: #selector(rightFilterButtonTapped), for: .touchUpInside)
+        sortButton.addTarget(self, action: #selector(rightFilterButtonTapped), for: .touchUpInside)
     }
     
     //MARK: - Action
@@ -93,7 +93,7 @@ final class PotListHeaderCell: UICollectionReusableView {
     }
     
     @objc private func rightFilterButtonTapped() {
-        sortFilterButton.isSelected.toggle()
+        sortButton.isSelected.toggle()
         delegate?.sortButtonDidTap()
     }
 }
@@ -101,20 +101,17 @@ final class PotListHeaderCell: UICollectionReusableView {
 // MARK: - Extension
 
 extension PotListHeaderCell {
-    func configure(leftText: String, rightText: String) {
-        memberFilterButton.setTitle(leftText, for: .normal)
-        sortFilterButton.setTitle(rightText, for: .normal)
+    func configure(memberFilterText: String, sortText: String) {
+        memberFilterButton.setTitle(memberFilterText, for: .normal)
+        sortButton.setTitle(sortText, for: .normal)
     }
     
-    func setMemberFilterButtonState(isMemberFilter: Bool, isSelected: Bool) {
-        if isMemberFilter {
-            memberFilterButton.isSelected = isSelected
-        } else {
-            sortFilterButton.isSelected = isSelected
-        }
+    func setButtonSelectionState(isMemberFilter: Bool, isSelected: Bool) {
+        let targetButton = isMemberFilter ? memberFilterButton : sortButton
+        targetButton.isSelected = isSelected
     }
     
     func setSortButtonTitle(_ title: String) {
-        memberFilterButton.setTitle(title, for: .normal)
+        sortButton.setTitle(title, for: .normal)
     }
 }

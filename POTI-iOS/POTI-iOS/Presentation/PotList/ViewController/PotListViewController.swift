@@ -111,7 +111,7 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
             forElementKind: UICollectionView.elementKindSectionHeader,
             at: IndexPath(item: 0, section: 0)
         ) as? PotListHeaderCell {
-            header.setMemberFilterButtonState(isMemberFilter: isMemberFilter, isSelected: isSelected)
+            header.setButtonSelectionState(isMemberFilter: isMemberFilter, isSelected: isSelected)
         }
     }
     
@@ -169,8 +169,8 @@ extension PotListViewController: UICollectionViewDataSource {
         
         header.delegate = self
         header.configure(
-            leftText: viewModel.output.filterTitle.value,
-            rightText: viewModel.currentSort.title
+            memberFilterText: viewModel.output.filterTitle.value,
+            sortText: viewModel.currentSort.title
         )
         return header
     }
