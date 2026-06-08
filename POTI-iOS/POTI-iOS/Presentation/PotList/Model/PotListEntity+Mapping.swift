@@ -18,8 +18,6 @@ extension Pot {
         return PotModel(
             potId: potId,
             recruiter: recruiter.toRecruiterModel(),
-            profileImage: recruiter.profileImage,
-            rating: recruiter.rating,
             currentCount: currentCount,
             totalCount: totalCount,
             availableMembers: availableMembers,
