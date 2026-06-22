@@ -87,7 +87,7 @@ final class GoodsListViewController: BaseViewController<GoodsListViewModel>, Nav
     // MARK: - Method
     
     func navigationStyle() -> PotiNavigationStyle {
-        let title = viewModel.sectionType.getHeaderTitle(nickName: viewModel.nickname) ?? ""
+        let title = viewModel.sectionType.getHeaderTitle(nickname: viewModel.nickname)
         return .backDefault(title)
     }
     

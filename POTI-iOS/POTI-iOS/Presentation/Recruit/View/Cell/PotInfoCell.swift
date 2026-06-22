@@ -146,4 +146,3 @@ final class PotInfoCell: UITableViewCell {
         potStatusLabel.textColor = model.status.badgeColor
     }
 }
-a

@@ -10,41 +10,53 @@ import UIKit
 import SnapKit
 import Then
 
+enum TagType {
+    case primaryWhiteSmall, primaryWhiteLarge
+    case primaryGraySmall, primaryGrayLarge
+    case secondarySmall, secondaryLarge
+    
+    var backgroundColor: UIColor {
+        switch self {
+        case .primaryWhiteSmall, .primaryWhiteLarge, .secondarySmall, .secondaryLarge:
+            return .potiWhite
+        case .primaryGraySmall, .primaryGrayLarge:
+            return .gray100
+        }
+    }
+    
+    var textColor: UIColor {
+        switch self {
+        case .secondarySmall, .secondaryLarge:
+            return .sementicRed
+        default:
+            return .poti600
+        }
+    }
+    
+    var font: UIFont {
+        switch self {
+        case .primaryWhiteSmall, .primaryGraySmall, .secondaryLarge:
+            return PotiFontManager.caption12m.font
+        case .primaryWhiteLarge, .primaryGrayLarge:
+            return PotiFontManager.body14m.font
+        case .secondarySmall:
+            return PotiFontManager.caption10m.font
+        }
+    }
+    
+    private var isLarge: Bool {
+        switch self {
+        case .primaryWhiteLarge, .primaryGrayLarge, .secondaryLarge:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 final class TagView: BaseView {
     
     // MARK: - Properties
-    
-    enum TagType {
-        case primaryWhiteSmall, primaryWhiteLarge
-        case primaryGraySmall, primaryGrayLarge
-        case secondarySmall, secondaryLarge
-        
-        var backgroundColor: UIColor {
-            switch self {
-            case .primaryWhiteSmall, .primaryWhiteLarge, .secondarySmall, .secondaryLarge: return .potiWhite
-            case .primaryGraySmall, .primaryGrayLarge: return .gray100
-            }
-        }
-        
-        var textColor: UIColor {
-            switch self {
-            case .secondarySmall, .secondaryLarge: return .sementicRed
-            default: return .poti600
-            }
-        }
-        
-        var font: UIFont {
-            switch self {
-            case .primaryWhiteSmall, .primaryGraySmall, .secondaryLarge: return PotiFontManager.caption12m.font
-            case .primaryWhiteLarge, .primaryGrayLarge: return PotiFontManager.body14m.font
-            case .secondarySmall: return PotiFontManager.caption10m.font
-            }
-        }
-        
-        private var isLarge: Bool {
-            return String(describing: self).contains("Large")
-        }
-    }
     
     private var type: TagType
     
@@ -54,15 +66,11 @@ final class TagView: BaseView {
     
     // MARK: - Initializer
     
-    init(type: TagType, tagText: String) {
+    init(type: TagType, tagText: String = "") {
         self.type = type
         super.init(frame: .zero)
         
         tagTextLabel.text = tagText
-        
-        setStyle()
-        setUI()
-        setLayout()
     }
     
     required init?(coder: NSCoder) {

@@ -13,7 +13,6 @@ final class HomeViewModel: BaseViewModelType {
     
     enum Input {
         case viewDidLoad
-        case bannerScrolled(index: Int)
         case searchButtonTapped
     }
     
@@ -21,7 +20,6 @@ final class HomeViewModel: BaseViewModelType {
     
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
-        let updateBannerPage: AnyPublisher<Int, Never>
         let withdrawCompleted: AnyPublisher<Void, Never>
     }
     
@@ -29,7 +27,6 @@ final class HomeViewModel: BaseViewModelType {
     
     private let withdrawCompletedSubject = PassthroughSubject<Void, Never>()
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
-    private let bannerPageSubject = PassthroughSubject<Int, Never>()
     
     // MARK: - Properties
     
@@ -57,7 +54,6 @@ final class HomeViewModel: BaseViewModelType {
         
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher(),
-            updateBannerPage: bannerPageSubject.eraseToAnyPublisher(),
             withdrawCompleted: withdrawCompletedSubject.eraseToAnyPublisher()
         )
     }
@@ -68,8 +64,6 @@ final class HomeViewModel: BaseViewModelType {
         switch trigger {
         case .viewDidLoad:
             fetchHomeData()
-        case .bannerScrolled(let index):
-            bannerPageSubject.send(index)
         case .searchButtonTapped:
             withdraw()
         }
@@ -82,9 +76,9 @@ final class HomeViewModel: BaseViewModelType {
             do {
                 let data = try await useCase.execute()
                 
-                self.banners = data.toBannerModelList()
-                self.myGroupItems = data.toMyGoodsModelList()
-                self.otherGroupItems = data.toOtherGoodsModelList()
+                self.banners = data.toBannerModels()
+                self.myGroupItems = data.toMyGoodsModels()
+                self.otherGroupItems = data.toOtherGoodsModels()
                 self.nickname = data.nickname
                 self.mainArtistId = data.mainArtistId ?? 0
                 
