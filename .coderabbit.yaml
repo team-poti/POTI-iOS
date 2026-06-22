@@ -90,6 +90,10 @@ reviews:
     base_branches:
       - "develop"
 
+finishing_touches:
+  docstrings:
+    enabled: true
+
 chat:
   auto_reply: true
 
