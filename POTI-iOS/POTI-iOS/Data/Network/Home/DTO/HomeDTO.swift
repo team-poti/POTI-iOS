@@ -14,7 +14,7 @@ struct HomeDTO: Decodable {
     let banners: [BannerDTO]
     
     func toEntity() -> HomeEntity {
-        return .init(
+        HomeEntity(
             nickname: nickname,
             mainArtist: mainArtist,
             mainArtistId: mainArtistId,
@@ -34,7 +34,7 @@ struct GoodsDTO: Decodable {
     let tag: String?
     
     func toEntity() -> GoodsEntity {
-        return .init(
+        GoodsEntity(
             artist: artist ?? "unknown artist",
             artistId: artistId ?? 0,
             postImage: postImage,
@@ -50,6 +50,6 @@ struct BannerDTO: Decodable {
     let imageUrl: String
     
     func toEntity() -> BannerEntity {
-        return .init(postId: postId, imageUrl: imageUrl)
+        BannerEntity(postId: postId, imageUrl: imageUrl)
     }
 }

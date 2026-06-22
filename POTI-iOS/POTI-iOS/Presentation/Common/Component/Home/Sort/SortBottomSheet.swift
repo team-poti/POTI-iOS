@@ -146,12 +146,12 @@ final class SortBottomSheet: BaseView {
     }
     
     @objc private func dismiss() {
-        UIView.animate(withDuration: 0.3, animations: {
-            self.containerView.transform = CGAffineTransform(translationX: 0, y: 500)
-            self.backgroundView.alpha = 0
-        }) { _ in
-            self.onDismissCompletion?()
-            self.removeFromSuperview()
+        UIView.animate(withDuration: 0.3, animations: { [weak self] in
+            self?.containerView.transform = CGAffineTransform(translationX: 0, y: 500)
+            self?.backgroundView.alpha = 0
+        }) { [weak self] _ in
+            self?.onDismissCompletion?()
+            self?.removeFromSuperview()
         }
     }
 }

@@ -131,12 +131,17 @@ final class BannerCarouselView: BaseView {
     
     func configure(banners: [BannerModel]) {
         self.banners = banners
+        lastRecordedPage = 0
+        pageControl.currentPage = 0
         pageControl.numberOfPages = banners.count
+        collectionView.setContentOffset(.zero, animated: false)
         collectionView.reloadData()
         
-        if let firstBanner = banners.first {
-            shadowImageView.kf.setImage(with: URL(string: firstBanner.imageUrl))
+        guard let firstBanner = banners.first else {
+            shadowImageView.image = nil
+            return
         }
+        shadowImageView.kf.setImage(with: URL(string: firstBanner.imageUrl))
     }
 }
 
