@@ -10,7 +10,7 @@ import UIKit
 import Combine
 
 protocol PotListViewScrollDelegate: AnyObject {
-    func potsListViewDidScroll(yOffset: CGFloat)
+    func potListViewDidScroll(yOffset: CGFloat)
 }
 
 final class PotListViewController: BaseViewController<PotListViewModel>, NavigationConfigurable {
@@ -51,18 +51,11 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
         }
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if let tabBarController = self.tabBarController as? PotiTabBar {
-            tabBarController.tabBar.isHidden = true
-        }
-    }
-    
     // MARK: - Custom Methods
     
     override func setDelegate() {
-        rootView.potsListCollectionView.delegate = self
-        rootView.potsListCollectionView.dataSource = self
+        rootView.potListCollectionView.delegate = self
+        rootView.potListCollectionView.dataSource = self
     }
     
     override func bindViewModel() {
@@ -70,7 +63,7 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self = self else { return }
-                self.rootView.potsListCollectionView.reloadData()
+                self.rootView.potListCollectionView.reloadData()
             }
             .store(in: &cancellables)
         
@@ -113,17 +106,17 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
         )
     }
     
-    private func setHeaderButtonState(isLeft: Bool, isSelected: Bool) {
-        if let header = rootView.potsListCollectionView.supplementaryView(
+    private func setHeaderButtonState(isMemberFilter: Bool, isSelected: Bool) {
+        if let header = rootView.potListCollectionView.supplementaryView(
             forElementKind: UICollectionView.elementKindSectionHeader,
             at: IndexPath(item: 0, section: 0)
         ) as? PotListHeaderCell {
-            header.setFilterButtonState(isLeft: isLeft, isSelected: isSelected)
+            header.setButtonSelectionState(isMemberFilter: isMemberFilter, isSelected: isSelected)
         }
     }
     
     private func updateHeaderSortTitle(_ title: String) {
-        if let header = rootView.potsListCollectionView.supplementaryView(
+        if let header = rootView.potListCollectionView.supplementaryView(
             forElementKind: UICollectionView.elementKindSectionHeader,
             at: IndexPath(item: 0, section: 0)
         ) as? PotListHeaderCell {
@@ -132,11 +125,11 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
     }
     
     private func updateHeaderFilterTitle(_ title: String) {
-        if let header = rootView.potsListCollectionView.supplementaryView(
+        if let header = rootView.potListCollectionView.supplementaryView(
             forElementKind: UICollectionView.elementKindSectionHeader,
             at: IndexPath(item: 0, section: 0)
         ) as? PotListHeaderCell {
-            header.setLeftFilterButtonTitle(title)
+            header.setSortButtonTitle(title)
         }
     }
     
@@ -169,15 +162,17 @@ extension PotListViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        switch kind {
-        case UICollectionView.elementKindSectionHeader:
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: PotListHeaderCell.identifier, for: indexPath) as! PotListHeaderCell
-            header.delegate = self
-            return header
-            
-        default:
-            return UICollectionReusableView()
+        guard kind == UICollectionView.elementKindSectionHeader,
+              let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: PotListHeaderCell.identifier, for: indexPath) as? PotListHeaderCell else {
+            return UICollectionReusableView() 
         }
+        
+        header.delegate = self
+        header.configure(
+            memberFilterText: viewModel.output.filterTitle.value,
+            sortText: viewModel.currentSort.title
+        )
+        return header
     }
 }
 
@@ -185,56 +180,54 @@ extension PotListViewController: UICollectionViewDataSource {
 
 extension PotListViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        scrollDelegate?.potsListViewDidScroll(yOffset: scrollView.contentOffset.y)
+        scrollDelegate?.potListViewDidScroll(yOffset: scrollView.contentOffset.y)
         
-        let contentHeight = scrollView.contentSize.height
-        let yOffset = scrollView.contentOffset.y
-        let frameHeight = scrollView.frame.size.height
-        
-        if yOffset > (contentHeight - frameHeight) * 0.8 {
-            viewModel.action(.viewDidLoad)
+        let threshold = scrollView.contentSize.height - scrollView.frame.size.height
+        if scrollView.contentOffset.y > threshold * 0.85 {
+            viewModel.action(.loadNextPage)
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedPot = viewModel.pots[indexPath.item]
-        let detailVC = factory.makePotDetailViewController(postId: selectedPot.potId)
-        self.navigationController?.pushViewController(detailVC, animated: true)
+        guard selectedPot.status != "CLOSED" else { return }
+        
+        let detailViewController = factory.makePotDetailViewController(postId: selectedPot.potId)
+        self.navigationController?.pushViewController(detailViewController, animated: true)
     }
 }
 
 extension PotListViewController: PotListHeaderCellDelegate {
-    func leftFilterButtonDidTap() {
-        let bottomSheet = factory.makeArtistsBottomSheet(
+    func memberFilterButtonDidTap() {
+        let memberFilterBottomSheet = factory.makeArtistMembersFilterBottomSheet(
             artistId: viewModel.artistId,
             selectedIds: viewModel.selectedMemberIds
         )
         
-        bottomSheet.onComplete = { [weak self] data in
+        memberFilterBottomSheet.onComplete = { [weak self] data in
             self?.viewModel.action(.filterByMembers(members: data.ids, names: data.names))
         }
         
-        bottomSheet.onDismissCompletion = { [weak self] in
-            self?.setHeaderButtonState(isLeft: true, isSelected: false)
+        memberFilterBottomSheet.onDismissCompletion = { [weak self] in
+            self?.setHeaderButtonState(isMemberFilter: true, isSelected: false)
         }
         
-        bottomSheet.show(in: self.navigationController?.view ?? self.view)
+        memberFilterBottomSheet.show(in: self.navigationController?.view ?? self.view)
     }
     
-    func rightFilterButtonDidTap() {
-        let initialIndex = viewModel.currentSortIndex
+    func sortButtonDidTap() {
+        let initialIndex = viewModel.currentSort.rawValue
+        let sortBottomSheet = factory.makeSortBottomSheet(type: .pot, initialIndex: initialIndex)
         
-        let bottomSheet = factory.makeSortBottomSheet(type: .pot, initialIndex: initialIndex)
-        
-        bottomSheet.onSelectCompletion = { [weak self] index in
+        sortBottomSheet.onSelectCompletion = { [weak self] index in
             self?.viewModel.action(.didTapSortOption(index: index))
         }
         
-        bottomSheet.onDismissCompletion = { [weak self] in
-            self?.setHeaderButtonState(isLeft: false, isSelected: false)
+        sortBottomSheet.onDismissCompletion = { [weak self] in
+            self?.setHeaderButtonState(isMemberFilter: false, isSelected: false)
         }
         
-        bottomSheet.show(on: self.navigationController?.view ?? self.view)
+        sortBottomSheet.show(on: self.navigationController?.view ?? self.view)
     }
 }
 

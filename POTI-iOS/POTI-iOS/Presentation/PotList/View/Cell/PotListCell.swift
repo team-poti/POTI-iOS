@@ -5,14 +5,13 @@
 //  Created by mandoo on 1/21/26.
 //
 
-
 import UIKit
 
 import Kingfisher
 import SnapKit
 import Then
 
-enum FeedStatus: String {
+enum PotListStatus: String {
     case recruiting = "RECRUITING"
     case closed = "CLOSED"
 }
@@ -31,7 +30,7 @@ final class PotListCell: UICollectionViewCell {
     
     private let separator = UIView()
     
-    private let memberListLabel = UILabel()
+    private let memberContainerView = UIView()
     private let priceLabel = UILabel()
     private let productImageView = UIImageView()
     
@@ -47,6 +46,16 @@ final class PotListCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        self.containerView.alpha = 1.0
+        self.countLabel.alpha = 1.0
+        self.countLabel.attributedText = nil
+        self.countLabel.text = nil
+        self.priceLabel.alpha = 1.0
+        self.productImageView.alpha = 1.0
+        self.containerView.layer.borderColor = UIColor.gray300.cgColor
     }
     
     // MARK: - Custom Methods
@@ -91,13 +100,6 @@ final class PotListCell: UICollectionViewCell {
             $0.backgroundColor = .gray300
         }
         
-        memberListLabel.do {
-            $0.textColor = .gray800
-            $0.font = PotiFontManager.body14m.font
-            $0.numberOfLines = 2
-            $0.lineBreakMode = .byTruncatingTail
-        }
-        
         productImageView.do {
             $0.contentMode = .scaleAspectFill
             $0.clipsToBounds = true
@@ -111,11 +113,11 @@ final class PotListCell: UICollectionViewCell {
     }
     
     private func setUI() {
-        addSubview(containerView)
+        contentView.addSubview(containerView)
         containerView.addSubviews(
             userProfileImageView, userNicknameLabel, starRatingStackView, countLabel,
             separator,
-            memberListLabel, priceLabel, productImageView
+            memberContainerView, priceLabel, productImageView
         )
         starRatingStackView.addArrangedSubviews(starIcon, starScoreLabel)
     }
@@ -155,14 +157,16 @@ final class PotListCell: UICollectionViewCell {
             $0.height.equalTo(1)
         }
         
-        memberListLabel.snp.makeConstraints {
+        memberContainerView.snp.makeConstraints {
             $0.top.equalTo(separator.snp.bottom).offset(16)
             $0.leading.equalTo(separator)
-            $0.trailing.equalTo(productImageView.snp.leading).offset(-12)
+            $0.trailing.equalTo(productImageView.snp.leading).offset(-30)
+            $0.height.equalTo(40)
+            $0.width.equalTo(200)
         }
         
         priceLabel.snp.makeConstraints {
-            $0.leading.equalTo(memberListLabel)
+            $0.leading.equalTo(memberContainerView)
             $0.bottom.equalToSuperview().inset(15)
         }
         
@@ -177,10 +181,8 @@ final class PotListCell: UICollectionViewCell {
 
 // MARK: - Extension
 
-// MARK: - Extension
-
 extension PotListCell {
-    func configure(model: FeedModel) {
+    func configure(model: PotModel) {
         userProfileImageView.kf.setImage(with: URL(string: model.recruiter.profileImage))
         userNicknameLabel.text = model.recruiter.nickname
         starScoreLabel.text = "\(model.recruiter.rating)"
@@ -188,18 +190,18 @@ extension PotListCell {
         productImageView.kf.setImage(with: URL(string: model.thumbnailUrl))
         setPriceLabel(price: model.price)
         
-        let status = FeedStatus(rawValue: model.status) ?? .recruiting
+        let status = PotListStatus(rawValue: model.status) ?? .recruiting
         updateUI(status: status, model: model)
     }
     
-    private func updateUI(status: FeedStatus, model: FeedModel) {
+    private func updateUI(status: PotListStatus, model: PotModel) {
         let isClosed = (status == .closed)
         let alpha: CGFloat = isClosed ? 0.5 : 1.0
         
         [userProfileImageView, userNicknameLabel, starScoreLabel, starIcon, priceLabel, productImageView].forEach {
             $0.alpha = alpha
         }
-        memberListLabel.isHidden = isClosed
+        memberContainerView.isHidden = isClosed
         
         if isClosed {
             setClosedStyle()
@@ -219,21 +221,28 @@ extension PotListCell {
     }
     
     private func setRecruitingStyle(current: Int, total: Int, members: [String]) {
+        countLabel.alpha = 1.0
+        countLabel.font = PotiFontManager.display18b.font
+        
         let currentString = "\(current.formattedWithComma)"
         let totalString = "/\(total.formattedWithComma)"
         let fullCountText = NSMutableAttributedString(string: currentString + totalString)
         
-        fullCountText.addAttribute(.foregroundColor, value: UIColor.sementicRed, range: (fullCountText.string as NSString).range(of: totalString))
-        fullCountText.addAttribute(.font, value: PotiFontManager.body16sb.font, range: (fullCountText.string as NSString).range(of: totalString))
+        let currentRange = NSRange(location: 0, length: currentString.count)
+        fullCountText.addAttributes([
+            .foregroundColor: UIColor.sementicRed,
+            .font: PotiFontManager.display18b.font
+        ], range: currentRange)
+        
+        let totalRange = NSRange(location: currentString.count, length: totalString.count)
+        fullCountText.addAttributes([
+            .foregroundColor: UIColor.sementicRed,
+            .font: PotiFontManager.body16sb.font
+        ], range: totalRange)
         
         countLabel.attributedText = fullCountText
         
-        let joinedMembers = members.joined(separator: " | ")
-        let paragraphStyle = NSMutableParagraphStyle().then { $0.lineSpacing = 4 }
-        memberListLabel.attributedText = NSAttributedString(
-            string: joinedMembers,
-            attributes: [.paragraphStyle: paragraphStyle]
-        )
+        configureMemberTags(members)
     }
     
     private func setPriceLabel(price: Int) {
@@ -247,5 +256,82 @@ extension PotListCell {
         ], range: (fullPriceText.string as NSString).range(of: perPersonString))
         
         priceLabel.attributedText = fullPriceText
+    }
+    
+    private func configureMemberTags(_ members: [String]) {
+        memberContainerView.subviews.forEach {
+            $0.removeFromSuperview()
+        }
+        
+        let maxWidth: CGFloat = 200
+        let maxLines = 2
+        let lineHeight: CGFloat = 18
+        let itemSpacing: CGFloat = 4
+        
+        var currentX: CGFloat = 0
+        var currentY: CGFloat = 0
+        var currentLine = 1
+        
+        for member in members {
+            let text = "\(member) |"
+            
+            let label = UILabel()
+            label.font = PotiFontManager.body14m.font
+            label.textColor = .gray800
+            label.text = text
+            
+            let size = label.intrinsicContentSize
+            
+            if currentX + size.width > maxWidth {
+                
+                currentLine += 1
+                
+                if currentLine > maxLines {
+                    addEllipsis(x: currentX, y: currentY)
+                    return
+                }
+                
+                currentX = 0
+                currentY += lineHeight + itemSpacing
+            }
+            
+            if currentLine == maxLines {
+                let ellipsisWidth = ("..." as NSString).size(
+                    withAttributes: [.font: PotiFontManager.body14m.font]
+                ).width
+                
+                if currentX + size.width + ellipsisWidth > maxWidth {
+                    addEllipsis(x: currentX, y: currentY)
+                    return
+                }
+            }
+            
+            memberContainerView.addSubview(label)
+            
+            label.frame = CGRect(
+                x: currentX,
+                y: currentY,
+                width: size.width,
+                height: lineHeight
+            )
+            
+            currentX += size.width + itemSpacing
+        }
+    }
+    
+    private func addEllipsis(x: CGFloat, y: CGFloat) {
+        let label = UILabel()
+        label.font = PotiFontManager.body14m.font
+        label.textColor = .gray800
+        label.text = "..."
+        
+        memberContainerView.addSubview(label)
+        
+        label.frame = CGRect(
+            x: x,
+            y: y,
+            width: label.intrinsicContentSize.width,
+            height: 18
+        )
     }
 }

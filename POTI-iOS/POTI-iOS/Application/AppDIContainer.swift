@@ -46,12 +46,28 @@ final class AppDIContainer {
         DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService(), tokenRefreshNetworkService: makeTokenRefreshNetworkService())
     }
     
-    private func makeHomeRepository() -> HomeInterface {
-        DefaultHomeRepository(networkService: makeNetworkService())
+    private func makePostRepository() -> PostInterface {
+        DefaultPostRepository(networkService: makeNetworkService())
     }
     
-    private func makeFeedsRepository() -> FeedsInterface {
-        DefaultFeedsRepository(networkService: makeNetworkService())
+    private func makeHomeRepository() -> PostInterface {
+        return makePostRepository()
+    }
+    
+    private func makeFeedsRepository() -> PostInterface {
+        return makePostRepository()
+    }
+    
+    private func makePotListRepository() -> PostInterface {
+        return makePostRepository()
+    }
+    
+    private func makePotDetailRepository() -> PostInterface {
+        return makePostRepository()
+    }
+    
+    private func makeArtistsRepository() -> ArtistsInterface {
+        DefaultArtistsRepository(networkService: makeNetworkService())
     }
     
     private func makeOrderRepository() -> OrderInterface {
@@ -62,20 +78,8 @@ final class AppDIContainer {
         DefaultPostsRepository(networkService: makeNetworkService())
     }
     
-    private func makePotDetailRepository() -> PotDetailInterface {
-        DefaultPotDetailRepository(networkService: makeNetworkService())
-    }
-    
     private func makeManageRepository() -> PostsInterface {
         DefaultPostsRepository(networkService: makeNetworkService())
-    }
-    
-    private func makePotListRepository() -> PotListInterface {
-        DefaultPotListRepository(networkService: makeNetworkService())
-    }
-    
-    private func makeArtistsRepository() -> ArtistsInterface {
-        DefaultArtistsRepository(networkService: makeNetworkService())
     }
     
     private func makeUsersRepository() -> UsersInterface {
@@ -166,7 +170,7 @@ final class AppDIContainer {
         DefaultPotListUseCase(repository: makePotListRepository())
     }
     
-    private func makeArtistsUseCase() -> ArtistsUsecase {
+    private func makeArtistMembersUseCase() -> ArtistMembersUseCase {
         DefaultArtistsUseCase(repository: makeArtistsRepository())
     }
     
@@ -299,8 +303,8 @@ final class AppDIContainer {
         return PotListViewModel(useCase: makePotListUseCase(),title: title,artistId: artistId, artistName: artistName)
     }
     
-    func makeArtistsViewModel(artistId: Int, selectedIds: [Int]) -> ArtistsViewModel {
-        return ArtistsViewModel(useCase: makeArtistsUseCase(), artistId: artistId, selectedIds: selectedIds)
+    func makeArtistMembersFilterViewModel(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterViewModel {
+        return ArtistMembersFilterViewModel(useCase: makeArtistMembersUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
     
     func makeProductRegisterViewModel() -> ProductRegisterViewModel {
@@ -308,7 +312,7 @@ final class AppDIContainer {
             registerTitlesUseCase: makeRegisterTitlesUseCase(),
             registerPostsUseCase: makeRegisterPostsUseCase(),
             imagesRepository: makeImagesRepository(),
-            artistsUseCase: makeArtistsUseCase()
+            artistsUseCase: makeArtistMembersUseCase()
         )
     }
     

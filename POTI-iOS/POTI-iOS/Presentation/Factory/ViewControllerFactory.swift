@@ -26,7 +26,7 @@ protocol ViewControllerFactory {
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistSearchViewController() -> ArtistSearchViewController
     func makeProductRegisterViewController() -> ProductRegisterViewController
-    func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet
+    func makeArtistMembersFilterBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
     func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
     func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
@@ -65,6 +65,16 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeFeedsViewController(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewController {
         FeedsViewController(viewModel: diContainer.makeFeedsViewModel(sectionType: sectionType, artistId: artistId, nickname: nickname), factory: self)
+    }
+    
+    func makeArtistMembersFilterBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterBottomSheet {
+        let viewModel = diContainer.makeArtistMembersFilterViewModel(artistId: artistId, selectedIds: selectedIds)
+        return ArtistMembersFilterBottomSheet(viewModel: viewModel)
+    }
+    
+    func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet {
+        let viewModel = SortViewModel(type: type, initialIndex: initialIndex)
+        return SortBottomSheet(viewModel: viewModel)
     }
     
     func makeMyPageViewController() -> MyPageViewController {
@@ -141,16 +151,6 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
             viewModel: diContainer.makeProductRegisterViewModel(),
             factory: self
         )
-    }
-    
-    func makeArtistsBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistsBottomSheet {
-        let viewModel = diContainer.makeArtistsViewModel(artistId: artistId, selectedIds: selectedIds)
-        return ArtistsBottomSheet(viewModel: viewModel)
-    }
-    
-    func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet {
-        let viewModel = SortViewModel(type: type, initialIndex: initialIndex)
-        return SortBottomSheet(viewModel: viewModel)
     }
     
     func makeYourPageViewController(userId: Int) -> YourPageViewController {

@@ -10,9 +10,9 @@ protocol HomeUseCase {
 }
 
 final class DefaultHomeUseCase: HomeUseCase {
-    private let repository: HomeInterface
+    private let repository: PostInterface
     
-    init(repository: HomeInterface) {
+    init(repository: PostInterface) {
         self.repository = repository
     }
     

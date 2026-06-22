@@ -1,8 +1,8 @@
 //
-//  ArtistsBottomSheet.swift
+//  ArtistMembersFilterBottomSheet.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/16/26.
+//  Created by mandoo on 6/8/26.
 //
 
 import UIKit
@@ -11,11 +11,11 @@ import Combine
 import SnapKit
 import Then
 
-final class ArtistsBottomSheet: BaseView {
+final class ArtistMembersFilterBottomSheet: BaseView {
     
     // MARK: - Properties
     
-    private let viewModel: ArtistsViewModel
+    private let viewModel: ArtistMembersFilterViewModel
     var onComplete: (((ids: [Int], names: [String])) -> Void)?
     var onDismissCompletion: (() -> Void)?
     private var cancellables = Set<AnyCancellable>()
@@ -29,7 +29,7 @@ final class ArtistsBottomSheet: BaseView {
     
     private lazy var collectionView = UICollectionView(
         frame: .zero,
-        collectionViewLayout: UICollectionViewFlowLayout()
+        collectionViewLayout: makeCollectionViewLayout()
     )
     
     private let bottomButtonStackView = UIStackView()
@@ -38,7 +38,7 @@ final class ArtistsBottomSheet: BaseView {
     
     // MARK: - Initializer
     
-    init(viewModel: ArtistsViewModel) {
+    init(viewModel: ArtistMembersFilterViewModel) {
         self.viewModel = viewModel
         super.init(frame: .zero)
         bindViewModel()
@@ -47,8 +47,6 @@ final class ArtistsBottomSheet: BaseView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: - Custom Methods
     
     override func setStyle() {
         setAddTarget()
@@ -64,9 +62,7 @@ final class ArtistsBottomSheet: BaseView {
             $0.clipsToBounds = true
         }
         
-        closeButton.do {
-            $0.setImage(.icnX, for: .normal)
-        }
+        closeButton.do { $0.setImage(.icnX, for: .normal) }
         
         titleLabel.do {
             $0.text = "멤버 선택"
@@ -75,26 +71,14 @@ final class ArtistsBottomSheet: BaseView {
         }
         
         collectionView.do {
-            let layout = UICollectionViewFlowLayout()
-            let totalPadding: CGFloat = 20 + 20 + 13
-            let width = (UIScreen.main.bounds.width - totalPadding) / 2
-            
-            layout.itemSize = CGSize(width: width, height: 56)
-            layout.minimumInteritemSpacing = 13
-            layout.minimumLineSpacing = 12
-            layout.scrollDirection = .vertical
-            
-            $0.collectionViewLayout = layout
-            $0.register(ArtistsCell.self, forCellWithReuseIdentifier: ArtistsCell.identifier)
+            $0.register(ArtistMembersFilterCell.self, forCellWithReuseIdentifier: ArtistMembersFilterCell.identifier)
             $0.dataSource = self
             $0.delegate = self
             $0.backgroundColor = .clear
             $0.showsVerticalScrollIndicator = false
-            $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 40, right: 0)
         }
         
         bottomButtonStackView.do {
-            $0.backgroundColor = .clear
             $0.axis = .horizontal
             $0.distribution = .fillProportionally
             $0.spacing = 10
@@ -116,23 +100,13 @@ final class ArtistsBottomSheet: BaseView {
     
     override func setUI() {
         addSubviews(backgroundView, containerView)
-        containerView.addSubviews(
-            closeButton,
-            titleLabel,
-            collectionView,
-            bottomButtonStackView
-        )
+        containerView.addSubviews(closeButton, titleLabel, collectionView, bottomButtonStackView)
         bottomButtonStackView.addArrangedSubviews(resetButton, completeButton)
     }
     
     override func setLayout() {
-        backgroundView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        containerView.snp.makeConstraints {
-            $0.leading.trailing.bottom.equalToSuperview()
-        }
+        backgroundView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        containerView.snp.makeConstraints { $0.leading.trailing.bottom.equalToSuperview() }
         
         closeButton.snp.makeConstraints {
             $0.top.equalToSuperview().inset(8)
@@ -147,40 +121,55 @@ final class ArtistsBottomSheet: BaseView {
         
         collectionView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(28)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(492)
-            $0.bottom.equalTo(bottomButtonStackView.snp.top).inset(40)
+            $0.bottom.equalTo(bottomButtonStackView.snp.top).offset(-40)
         }
         
         bottomButtonStackView.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(38)
-        }
-        
-        completeButton.snp.makeConstraints {
-            $0.top.equalTo(collectionView.snp.bottom).offset(4)
+            $0.height.equalTo(56)
         }
     }
+}
+
+extension ArtistMembersFilterBottomSheet {
+    func makeCollectionViewLayout() -> UICollectionViewFlowLayout {
+        let layout = UICollectionViewFlowLayout()
+        let sidePadding: CGFloat = 16
+        let interItemSpacing: CGFloat = 13
+        let screenWidth = UIScreen.main.bounds.width
+        
+        let availableWidth = screenWidth - (sidePadding * 2) - interItemSpacing
+        let itemWidth = availableWidth / 2
+        
+        layout.itemSize = CGSize(width: itemWidth, height: 56)
+        layout.minimumInteritemSpacing = interItemSpacing
+        layout.minimumLineSpacing = 12
+        layout.scrollDirection = .vertical
+        layout.sectionInset = UIEdgeInsets(top: 0, left: sidePadding, bottom: 40, right: sidePadding)
+        return layout
+    }
     
-    private func setAddTarget() {
+    func setAddTarget() {
         closeButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
         resetButton.addTarget(self, action: #selector(didTapReset), for: .touchUpInside)
         completeButton.addTarget(self, action: #selector(didTapComplete), for: .touchUpInside)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
         backgroundView.addGestureRecognizer(tapGesture)
-        
         backgroundView.isUserInteractionEnabled = true
     }
     
-    private func bindViewModel() {
-        viewModel.output.artistsList
-            .receive(on: RunLoop.main)
+    func bindViewModel() {
+        viewModel.output.membersList
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.collectionView.reloadData() }
             .store(in: &cancellables)
         
         viewModel.output.isCompleteEnabled
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] isEnabled in
                 self?.completeButton.isDisabled = !isEnabled
                 self?.completeButton.color = isEnabled ? .secondaryMain : .deactiveMain
@@ -188,7 +177,7 @@ final class ArtistsBottomSheet: BaseView {
             .store(in: &cancellables)
         
         viewModel.output.selectedMemberData
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] data in
                 self?.onComplete?(data)
                 self?.dismiss()
@@ -196,15 +185,10 @@ final class ArtistsBottomSheet: BaseView {
             .store(in: &cancellables)
     }
     
-    @objc private func didTapReset() {
-        viewModel.action(.tapReset)
-    }
+    @objc func didTapReset() { viewModel.action(.tapReset) }
+    @objc func didTapComplete() { viewModel.action(.tapComplete) }
     
-    @objc private func didTapComplete() {
-        viewModel.action(.tapComplete)
-    }
-    
-    @objc private func dismiss() {
+    @objc func dismiss() {
         UIView.animate(withDuration: 0.3, animations: {
             self.containerView.transform = CGAffineTransform(translationX: 0, y: self.frame.height)
             self.backgroundView.alpha = 0
@@ -215,7 +199,7 @@ final class ArtistsBottomSheet: BaseView {
     }
     
     func show(in view: UIView) {
-        viewModel.action(.viewDidLoad(artistId: viewModel.artistId))
+        viewModel.action(.viewDidLoad)
         view.addSubview(self)
         self.snp.makeConstraints { $0.edges.equalToSuperview() }
         containerView.transform = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height)
@@ -229,26 +213,27 @@ final class ArtistsBottomSheet: BaseView {
     }
 }
 
-// MARK: - Extension
+// MARK: - CollectionView DataSource & Delegate
 
-extension ArtistsBottomSheet: UICollectionViewDataSource, UICollectionViewDelegate {
+extension ArtistMembersFilterBottomSheet: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.currentArtistsList.count
+        return viewModel.currentMembersList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: ArtistsCell.identifier,
+            withReuseIdentifier: ArtistMembersFilterCell.identifier,
             for: indexPath
-        ) as? ArtistsCell else { return UICollectionViewCell() }
+        ) as? ArtistMembersFilterCell else { return UICollectionViewCell() }
         
-        let data = viewModel.currentArtistsList[indexPath.item]
-        cell.configure(name: data.name, style: data.isSelected ? .selected : .unselected)
-        
+        let data = viewModel.currentMembersList[indexPath.item]
+        cell.configure(name: data.name, isSelected: data.isSelected)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.action(.selectArtist(index: indexPath.item))
+        viewModel.action(.selectMember(index: indexPath.item))
     }
 }
+
+

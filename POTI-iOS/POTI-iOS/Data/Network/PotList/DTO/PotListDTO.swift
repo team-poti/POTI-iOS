@@ -14,7 +14,7 @@ struct PotListDTO: Decodable {
     let pots: [PotListItemDTO]?
     
     func toEntity() -> PotListEntity {
-        return .init(
+        PotListEntity(
             postTitle: postTitle ?? "",
             artistId: artistId ?? 0,
             artist: artist ?? "",
@@ -41,7 +41,7 @@ struct PotListItemDTO: Decodable {
     }
     
     func toEntity() -> Pot {
-        return .init(
+        Pot(
             potId: potId,
             price: price,
             thumbnailUrl: thumbnailUrl,
@@ -61,7 +61,7 @@ struct RecruiterDTO: Decodable {
     let rating: Double
     
     func toEntity() -> Recruiter {
-        return .init(
+        Recruiter(
             userId: userId,
             nickname: nickname,
             profileImage: profileImage ?? "",

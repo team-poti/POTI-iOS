@@ -11,9 +11,9 @@ protocol PotListUseCase {
 
 final class DefaultPotListUseCase: PotListUseCase {
     
-    private let repository: PotListInterface
+    private let repository: PostInterface
 
-    init(repository: PotListInterface) {
+    init(repository: PostInterface) {
         self.repository = repository
     }
     

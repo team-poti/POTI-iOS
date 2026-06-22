@@ -1,19 +1,19 @@
 //
-//  ArtistsViewModel.swift
+//  ArtistMembersFilterViewModel.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/17/26.
+//  Created by mandoo on 6/8/26.
 //
 
 import Combine
 
-final class ArtistsViewModel: BaseViewModelType {
+final class ArtistMembersFilterViewModel: BaseViewModelType {
     
     // MARK: - Input
     
     enum Input {
-        case viewDidLoad(artistId: Int)
-        case selectArtist(index: Int)
+        case viewDidLoad
+        case selectMember(index: Int)
         case tapReset
         case tapComplete
     }
@@ -21,36 +21,39 @@ final class ArtistsViewModel: BaseViewModelType {
     // MARK: - Output
     
     struct Output {
-        let artistsList: AnyPublisher<[(name: String, isSelected: Bool)], Never>
+        let membersList: AnyPublisher<[(name: String, isSelected: Bool)], Never>
         let isCompleteEnabled: AnyPublisher<Bool, Never>
         let selectedMemberData: AnyPublisher<(ids: [Int], names: [String]), Never>
     }
     
     let output: Output
-    private let useCase: ArtistsUsecase
+    private let useCase: ArtistMembersUseCase
     private var cancellables = Set<AnyCancellable>()
     
     let artistId: Int
     private var isChangedInThisSession: Bool = false
     private var originalEntities: [ArtistsEntity] = []
-    var currentArtistsList: [(name: String, isSelected: Bool)] {
-        return artistsListSubject.value
+    
+    var currentMembersList: [(name: String, isSelected: Bool)] {
+        return membersListSubject.value
     }
     private let initialSelectedIds: [Int]
     
     // MARK: - Subjects
     
-    private let artistsListSubject = CurrentValueSubject<[(name: String, isSelected: Bool)], Never>([])
+    private let membersListSubject = CurrentValueSubject<[(name: String, isSelected: Bool)], Never>([])
     private let isCompleteEnabledSubject = CurrentValueSubject<Bool, Never>(false)
     private let selectedMemberDataSubject = PassthroughSubject<(ids: [Int], names: [String]), Never>()
     
-    init(useCase: ArtistsUsecase, artistId: Int, selectedIds: [Int]) {
+    // MARK: - Initializer
+    
+    init(useCase: ArtistMembersUseCase, artistId: Int, selectedIds: [Int]) {
         self.useCase = useCase
         self.artistId = artistId
         self.initialSelectedIds = selectedIds
         
         self.output = Output(
-            artistsList: artistsListSubject.eraseToAnyPublisher(),
+            membersList: membersListSubject.eraseToAnyPublisher(),
             isCompleteEnabled: isCompleteEnabledSubject.eraseToAnyPublisher(),
             selectedMemberData: selectedMemberDataSubject.eraseToAnyPublisher()
         )
@@ -58,36 +61,27 @@ final class ArtistsViewModel: BaseViewModelType {
     
     func action(_ trigger: Input) {
         switch trigger {
-        case .viewDidLoad(let artistId):
-            fetchArtistsList(artistId: artistId)
-        case .selectArtist(let index):
+        case .viewDidLoad:
+            fetchMembersList()
+        case .selectMember(let index):
             handleSelection(index: index)
         case .tapReset:
             handleReset()
         case .tapComplete:
-            let selectedData = artistsListSubject.value.enumerated()
-                .filter { $0.element.isSelected }
-            
-            let selectedIds = selectedData.compactMap { index, _ in
-                index < originalEntities.count ? originalEntities[index].artistId : nil
-            }
-            
-            let selectedNames = selectedData.map { $0.element.name }
-            
-            selectedMemberDataSubject.send((ids: selectedIds, names: selectedNames))
+            handleComplete()
         }
     }
 }
 
-private extension ArtistsViewModel {
-    func fetchArtistsList(artistId: Int) {
+private extension ArtistMembersFilterViewModel {
+    func fetchMembersList() {
         Task {
             do {
-                let entities = try await useCase.execute(artistId: artistId)
+                let entities = try await useCase.execute(artistId: self.artistId)
                 
                 if entities.isEmpty {
                     await MainActor.run {
-                        artistsListSubject.send([])
+                        membersListSubject.send([])
                         isCompleteEnabledSubject.send(false)
                     }
                     return
@@ -101,14 +95,14 @@ private extension ArtistsViewModel {
                 }
                 
                 await MainActor.run {
-                    artistsListSubject.send(uiModels)
+                    membersListSubject.send(uiModels)
                     self.isChangedInThisSession = false
                     isCompleteEnabledSubject.send(false)
                 }
             } catch {
-                print("Network Error: \(error)")
+                print("⚠️ 아티스트 멤버 로드 실패: \(error)")
                 await MainActor.run {
-                    artistsListSubject.send([])
+                    membersListSubject.send([])
                     isCompleteEnabledSubject.send(false)
                 }
             }
@@ -116,21 +110,30 @@ private extension ArtistsViewModel {
     }
     
     func handleSelection(index: Int) {
-        var current = artistsListSubject.value
+        var current = membersListSubject.value
         current[index].isSelected.toggle()
-        artistsListSubject.send(current)
-        
+        membersListSubject.send(current)
         notifyChange()
     }
     
     func handleReset() {
-        let resetData = artistsListSubject.value.map { (name: $0.name, isSelected: false) }
-        artistsListSubject.send(resetData)
-        
+        let resetData = membersListSubject.value.map { (name: $0.name, isSelected: false) }
+        membersListSubject.send(resetData)
         notifyChange()
     }
     
-    private func notifyChange() {
+    func handleComplete() {
+        let selectedData = membersListSubject.value.enumerated().filter { $0.element.isSelected }
+        
+        let selectedIds = selectedData.compactMap { index, _ in
+            index < originalEntities.count ? originalEntities[index].artistId : nil
+        }
+        
+        let selectedNames = selectedData.map { $0.element.name }
+        selectedMemberDataSubject.send((ids: selectedIds, names: selectedNames))
+    }
+    
+    func notifyChange() {
         if !isChangedInThisSession {
             isChangedInThisSession = true
             isCompleteEnabledSubject.send(true)

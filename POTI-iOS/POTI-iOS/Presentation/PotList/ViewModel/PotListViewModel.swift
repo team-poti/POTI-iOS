@@ -7,6 +7,28 @@
 
 import Combine
 
+enum PotSortOption: Int {
+    case latest = 0
+    case deadline
+    case rating
+    
+    var serverKey: String {
+        switch self {
+        case .latest: return "LATEST"
+        case .deadline: return "DEADLINE"
+        case .rating: return "RATING"
+        }
+    }
+    
+    var title: String {
+        switch self {
+        case .latest: return "최신순"
+        case .deadline: return "마감임박순"
+        case .rating: return "평점순"
+        }
+    }
+}
+
 final class PotListViewModel: BaseViewModelType {
     
     // MARK: - Input
@@ -15,6 +37,7 @@ final class PotListViewModel: BaseViewModelType {
         case viewDidLoad
         case filterByMembers(members: [Int], names: [String])
         case didTapSortOption(index: Int)
+        case loadNextPage
     }
     
     // MARK: - Output
@@ -33,25 +56,7 @@ final class PotListViewModel: BaseViewModelType {
     let artistName: String
     var selectedMemberIds: [Int] = []
     
-    var currentSort: String = "LATEST"
-    
-    var currentSortIndex: Int {
-        switch currentSort {
-        case "LATEST": return 0
-        case "DEADLINE": return 1
-        case "RATING": return 2
-        default: return 0
-        }
-    }
-    
-    var currentSortText: String {
-        switch currentSort {
-        case "LATEST": return "최신순"
-        case "DEADLINE": return "마감임박순"
-        case "RATING": return "평점순"
-        default: return "최신순"
-        }
-    }
+    var currentSort: PotSortOption = .latest
     
     private var currentPage: Int = 0
     private var hasNextPage: Bool = true
@@ -59,7 +64,7 @@ final class PotListViewModel: BaseViewModelType {
     
     private var cancellables = Set<AnyCancellable>()
     let output: Output
-    private(set) var pots: [FeedModel] = []
+    private(set) var pots: [PotModel] = []
     
     // MARK: - Subject
     
@@ -77,7 +82,7 @@ final class PotListViewModel: BaseViewModelType {
             reloadData: reloadDataSubject.eraseToAnyPublisher()
         )
         
-        self.output.sortTitle.send(currentSortText)
+        self.output.sortTitle.send(currentSort.title)
     }
     
     // MARK: - Action
@@ -92,6 +97,8 @@ final class PotListViewModel: BaseViewModelType {
             self.selectedMemberIds = ids
             updateFilterTitle(names: names)
             fetchPotListData(isFirstPage: true)
+        case .loadNextPage:
+            fetchPotListData(isFirstPage: false)
         }
     }
     
@@ -107,11 +114,11 @@ final class PotListViewModel: BaseViewModelType {
                     title: self.title,
                     artistId: self.artistId,
                     memberIds: self.selectedMemberIds,
-                    sort: self.currentSort,
+                    sort: self.currentSort.serverKey,
                     page: isFirstPage ? 0 : currentPage
                 )
                 
-                let newPots = potEntities.toFeedModel()
+                let newPots = potEntities.toPotListModel()
                 
                 if isFirstPage {
                     self.pots = newPots
@@ -134,21 +141,13 @@ final class PotListViewModel: BaseViewModelType {
     }
     
     private func updateSort(index: Int) {
-        let newSort: String
-        switch index {
-        case 0: newSort = "LATEST"
-        case 1: newSort = "DEADLINE"
-        case 2: newSort = "RATING"
-        default: newSort = "LATEST"
-        }
-        
-        guard currentSort != newSort else { return }
+        guard let newSort = PotSortOption(rawValue: index), currentSort != newSort else { return }
         
         self.currentSort = newSort
         self.currentPage = 0
         self.hasNextPage = true
         
-        self.output.sortTitle.send(currentSortText)
+        self.output.sortTitle.send(currentSort.title)
         fetchPotListData(isFirstPage: true)
     }
     

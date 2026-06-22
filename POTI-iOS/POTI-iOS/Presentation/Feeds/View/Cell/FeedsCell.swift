@@ -110,8 +110,6 @@ extension FeedsCell {
         imageView.kf.setImage(with: URL(string: groupItem.postImage ?? ""))
         artistNameLabel.text = groupItem.artist
         productNameLabel.text = groupItem.title
-        potTagView.setTagText("팟 \(groupItem.postCount)개")
-        
         potTagView.setTagText(groupItem.potCountText)
         popularTagView.isHidden = !groupItem.hasPopularTag
         
