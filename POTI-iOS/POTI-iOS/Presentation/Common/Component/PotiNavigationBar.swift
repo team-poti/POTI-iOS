@@ -129,7 +129,7 @@ struct PotiNavigationBar {
         
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .potiWhite
+        appearance.backgroundColor = target.view.backgroundColor
         appearance.shadowColor = .clear
         
         navigationController?.navigationBar.isTranslucent = false
