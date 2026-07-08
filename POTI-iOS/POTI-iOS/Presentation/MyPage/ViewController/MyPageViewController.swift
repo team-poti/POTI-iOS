@@ -31,7 +31,7 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        view.backgroundColor = .gray100
         viewModel.action(.viewDidLoad)
     }
     
@@ -65,7 +65,7 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         let initialTab: MyPageHistoryViewController.HistoryTab
         
         switch filterType {
-        case .all, .ongoing:
+        case .ongoing:
             initialTab = .ongoing
         case .completed:
             initialTab = .completed

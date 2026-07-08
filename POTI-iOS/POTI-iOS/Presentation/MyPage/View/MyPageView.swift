@@ -7,7 +7,6 @@
 
 import UIKit
 
-import Kingfisher
 import SnapKit
 import Then
 
@@ -16,71 +15,26 @@ final class MyPageView: BaseView {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     
-    private let profileImage = UIImageView()
-    private let nickNameLabel = UILabel()
-    private let emailLabel = UILabel()
-    private let buttonStackView = UIStackView()
-    private let ratingView = RatingView(rating: 0)
-    private let idolButton = ChooseFavoriteIdolButton()
+    private let profileInformationView = ProfileInformationView(nickname: "", email: "", profileImageURL: "", ratingAverage: 0, hasFavoriteArtist: false, favoriteArtistName: "")
+    
     private let userInformationView = UserInformationView(recentActivity: "", signUpDate: "")
-    private let participationLabel = UILabel()
+    
     let participationView = MyPageNavigationView()
-    private let recruitmentLabel = UILabel()
     let recruitmentView = MyPageNavigationView()
+    
+    private let inquiryInfoView = InquiryInformationView()
     
     override func setStyle() {
         scrollView.do {
             $0.showsVerticalScrollIndicator = false
         }
-        
-        profileImage.do {
-            $0.image = .imgDone
-            $0.contentMode = .scaleAspectFill
-            $0.clipsToBounds = true
-        }
-        
-        nickNameLabel.do {
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
-            $0.textAlignment = .center
-        }
-        
-        emailLabel.do {
-            $0.font = PotiFontManager.caption12m.font
-            $0.textColor = .gray700
-            $0.textAlignment = .center
-        }
-        
-        buttonStackView.do {
-            $0.axis = .horizontal
-            $0.spacing = 8
-            $0.alignment = .center
-        }
-        
-        participationLabel.do {
-            $0.text = "참여 내역"
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
-        }
-        
-        recruitmentLabel.do {
-            $0.text = "모집 내역"
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
-        }
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        profileImage.layer.cornerRadius = profileImage.bounds.width / 2
     }
     
     override func setUI() {
         addSubview(scrollView)
         scrollView.addSubview(contentView)
-        buttonStackView.addArrangedSubviews(ratingView, idolButton)
         
-        contentView.addSubviews(profileImage, nickNameLabel, emailLabel, buttonStackView, userInformationView, participationLabel, participationView, recruitmentLabel, recruitmentView)
+        contentView.addSubviews(profileInformationView, userInformationView, participationView, recruitmentView, inquiryInfoView)
     }
     
     override func setLayout() {
@@ -93,74 +47,39 @@ final class MyPageView: BaseView {
             $0.width.equalTo(scrollView)
         }
         
-        profileImage.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(20)
-            $0.centerX.equalToSuperview()
-            $0.width.height.equalTo(98)
-        }
-        
-        nickNameLabel.snp.makeConstraints {
-            $0.top.equalTo(profileImage.snp.bottom).offset(12)
-            $0.centerX.equalToSuperview()
-        }
-        
-        emailLabel.snp.makeConstraints {
-            $0.top.equalTo(nickNameLabel.snp.bottom).offset(2)
-            $0.centerX.equalToSuperview()
-        }
-        
-        buttonStackView.snp.makeConstraints {
-            $0.top.equalTo(emailLabel.snp.bottom).offset(24)
-            $0.centerX.equalToSuperview()
+        profileInformationView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
         
         userInformationView.snp.makeConstraints {
-            $0.top.equalTo(buttonStackView.snp.bottom).offset(24)
+            $0.top.equalTo(profileInformationView.snp.bottom).offset(12)
             $0.leading.trailing.equalToSuperview().inset(16)
-        }
-        
-        participationLabel.snp.makeConstraints {
-            $0.top.equalTo(userInformationView.snp.bottom).offset(24)
-            $0.leading.equalToSuperview().offset(16)
         }
         
         participationView.snp.makeConstraints {
-            $0.top.equalTo(participationLabel.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(16)
-        }
-        
-        recruitmentLabel.snp.makeConstraints {
-            $0.top.equalTo(participationView.snp.bottom).offset(24)
-            $0.leading.equalToSuperview().offset(16)
+            $0.top.equalTo(userInformationView.snp.bottom).offset(12)
+            $0.leading.equalToSuperview().inset(16)
         }
         
         recruitmentView.snp.makeConstraints {
-            $0.top.equalTo(recruitmentLabel.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(60)
+            $0.top.equalTo(userInformationView.snp.bottom).offset(12)
+            $0.trailing.equalToSuperview().inset(16)
+            $0.leading.equalTo(participationView.snp.trailing).offset(12)
+        }
+        
+        inquiryInfoView.snp.makeConstraints {
+            $0.top.equalTo(recruitmentView.snp.bottom).offset(12)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(37+114)
         }
     }
 }
 
 extension MyPageView {
     func configure(with model: MyPageModel) {
-        nickNameLabel.text = model.nickname
-        emailLabel.text = model.email
-        if let imageURL = model.profileImage,
-           let url = URL(string: imageURL) {
-            
-            profileImage.kf.setImage(
-                with: url,
-                placeholder: UIImage(named: "img_profile_placeholder"),
-                options: [
-                    .transition(.fade(0.2)),
-                    .cacheOriginalImage
-                ]
-            )
-        } else {
-        }
-
-        ratingView.update(rating: model.ratingAverage)
+    
+        profileInformationView.configure(nickname: model.nickname, email: model.email, profileImageURL: model.profileImage, ratingAverage: model.ratingAverage, hasFavoriteArtist: model.hasFavoriteArtist, favoriteArtistName: model.favoriteArtistName)
 
         userInformationView.configure(
             recentActivity: model.activityMessage,
@@ -168,24 +87,19 @@ extension MyPageView {
         )
 
         participationView.configure(
+            title: MyPageNavigationTitle.participation,
             counts: (
-                all: model.participationSummary.totalCount,
                 ongoing: model.participationSummary.inProgressCount,
                 completed: model.participationSummary.completedCount
             )
         )
 
         recruitmentView.configure(
+            title: MyPageNavigationTitle.recruitment,
             counts: (
-                all: model.recruitSummary.totalCount,
                 ongoing: model.recruitSummary.inProgressCount,
                 completed: model.recruitSummary.completedCount
             )
-        )
-        
-        idolButton.configure(
-            hasFavoriteArtist: model.hasFavoriteArtist,
-            favoriteArtistName: model.favoriteArtistName
         )
     }
 }
