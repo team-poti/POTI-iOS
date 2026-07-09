@@ -73,7 +73,7 @@ final class MyPageView: BaseView {
         inquiryInfoView.snp.makeConstraints {
             $0.top.equalTo(recruitmentView.snp.bottom).offset(12)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(37)
+            $0.bottom.equalToSuperview().inset(57)
         }
     }
 }
