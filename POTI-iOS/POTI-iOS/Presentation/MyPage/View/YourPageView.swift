@@ -37,11 +37,14 @@ final class YourPageView: BaseView {
         participationView.snp.makeConstraints {
             $0.top.equalTo(userInformationView.snp.bottom).offset(12)
             $0.leading.equalToSuperview().inset(16)
+            $0.trailing.equalTo(recruitmentView.snp.leading).offset(-12)
+            $0.width.equalTo(recruitmentView)
         }
         
         recruitmentView.snp.makeConstraints {
             $0.top.equalTo(userInformationView.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.trailing.equalToSuperview().inset(16)
+            $0.leading.equalTo(participationView.snp.trailing).offset(12)
         }
     }
 }
@@ -58,7 +61,7 @@ extension YourPageView {
         
         // TODO: - 추후 변경
         participationView.configure(
-            title: MyPageNavigationTitle.participation,
+            title: "참여 내역",
             counts: (
                 ongoing: model.recruitSummary.inProgressCount,
                 completed: model.recruitSummary.completedCount
@@ -66,7 +69,7 @@ extension YourPageView {
         )
 
         recruitmentView.configure(
-            title: MyPageNavigationTitle.recruitment,
+            title: "모집 내역",
             counts: (
                 ongoing: model.recruitSummary.inProgressCount,
                 completed: model.recruitSummary.completedCount

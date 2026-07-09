@@ -60,6 +60,8 @@ final class MyPageView: BaseView {
         participationView.snp.makeConstraints {
             $0.top.equalTo(userInformationView.snp.bottom).offset(12)
             $0.leading.equalToSuperview().inset(16)
+            $0.trailing.equalTo(recruitmentView.snp.leading).offset(-12)
+            $0.width.equalTo(recruitmentView)
         }
         
         recruitmentView.snp.makeConstraints {
@@ -71,7 +73,7 @@ final class MyPageView: BaseView {
         inquiryInfoView.snp.makeConstraints {
             $0.top.equalTo(recruitmentView.snp.bottom).offset(12)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(37+114)
+            $0.bottom.equalToSuperview().inset(37)
         }
     }
 }
@@ -87,7 +89,7 @@ extension MyPageView {
         )
 
         participationView.configure(
-            title: MyPageNavigationTitle.participation,
+            title: "참여 내역",
             counts: (
                 ongoing: model.participationSummary.inProgressCount,
                 completed: model.participationSummary.completedCount
@@ -95,7 +97,7 @@ extension MyPageView {
         )
 
         recruitmentView.configure(
-            title: MyPageNavigationTitle.recruitment,
+            title: "모집 내역",
             counts: (
                 ongoing: model.recruitSummary.inProgressCount,
                 completed: model.recruitSummary.completedCount

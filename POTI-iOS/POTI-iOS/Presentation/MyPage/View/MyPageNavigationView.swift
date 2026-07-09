@@ -10,11 +10,6 @@ import UIKit
 import SnapKit
 import Then
 
-enum MyPageNavigationTitle: String {
-    case participation = "참여 내역"
-    case recruitment = "모집 내역"
-}
-
 enum MyPageNavigationType: Int, CaseIterable {
     case ongoing = 1
     case completed = 2
@@ -37,8 +32,8 @@ final class MyPageNavigationView: BaseView {
     private let stackView = UIStackView()
     private let titleLabel = UILabel()
     
-    private lazy var ongoingButton = makeFilterButton(type: .ongoing)
-    private lazy var completedButton = makeFilterButton(type: .completed)
+    private lazy var ongoingButton = makeFilterButton(type: .ongoing, fontColor: .poti600)
+    private lazy var completedButton = makeFilterButton(type: .completed, fontColor: .potiBlack)
     
     private let divider = UIView()
     
@@ -68,7 +63,7 @@ final class MyPageNavigationView: BaseView {
         
         stackView.do {
             $0.axis = .vertical
-            $0.distribution = .fillEqually
+            $0.distribution = .fill
             $0.spacing = 4
         }
         
@@ -88,7 +83,12 @@ final class MyPageNavigationView: BaseView {
         }
         
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(4)
+            $0.top.equalToSuperview().inset(16)
+            $0.centerX.equalToSuperview()
+        }
+        
+        divider.snp.makeConstraints {
+            $0.height.equalTo(1)
         }
         
         stackView.snp.makeConstraints {
@@ -97,7 +97,7 @@ final class MyPageNavigationView: BaseView {
         }
     }
     
-    private func makeFilterButton(type: MyPageNavigationType) -> UIButton {
+    private func makeFilterButton(type: MyPageNavigationType, fontColor: UIColor) -> UIButton {
         let button = UIButton().then {
             $0.tag = type.rawValue
             $0.layer.cornerRadius = 12
@@ -121,10 +121,10 @@ final class MyPageNavigationView: BaseView {
         let countLabel = UILabel().then {
             $0.font = PotiFontManager.display18b.font
             $0.textAlignment = .center
-            $0.textColor = .poti600
+            $0.textColor = fontColor
         }
         
-        stackView.addArrangedSubviews(countLabel, titleLabel)
+        stackView.addArrangedSubviews(titleLabel, countLabel)
         
         button.addSubview(stackView)
         
@@ -138,7 +138,7 @@ final class MyPageNavigationView: BaseView {
         
         button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
         
-        button.setBackgroundImage(.fromUIColor(color: .gray100), for: .normal)
+        button.setBackgroundImage(.fromUIColor(color: .potiWhite), for: .normal)
         
         button.setBackgroundImage(.fromUIColor(color: .gray300), for: .highlighted)
         
@@ -155,8 +155,8 @@ final class MyPageNavigationView: BaseView {
     
     // MARK: - Public Methods
     
-    func configure(title: MyPageNavigationTitle, counts: (ongoing: Int, completed: Int)) {
-        titleLabel.text = "\(title)"
+    func configure(title: String, counts: (ongoing: Int, completed: Int)) {
+        titleLabel.text = title
         countLabels[.ongoing]?.text = "\(counts.ongoing)"
         countLabels[.completed]?.text = "\(counts.completed)"
     }
