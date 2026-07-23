@@ -10,14 +10,14 @@ protocol PotOptionsUseCase {
 }
 
 final class DefaultPotOptionsUseCase: PotOptionsUseCase {
-    private let repository: PostsInterface
+    private let repository: PostInterface
     
-    init(repository: PostsInterface) {
+    init(repository: PostInterface) {
         self.repository = repository
     }
     
     func execute(postId: Int) async throws -> PotOptionsEntity {
-        return try await repository.fetchOrderOptions(postId: postId)
+        return try await repository.fetchPotOptions(postId: postId)
     }
 }
 
