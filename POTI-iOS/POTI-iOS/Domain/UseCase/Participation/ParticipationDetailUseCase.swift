@@ -5,15 +5,15 @@
 //  Created by 이서현 on 1/23/26.
 //
 
-protocol ParticipationsDetailUseCase {
+protocol ParticipationDetailUseCase {
     func execute(participationId: Int) async throws -> JoinDetailEntity
 }
 
-final class DefaultParticipationsDetailUseCase: ParticipationsDetailUseCase {
+final class DefaultParticipationDetailUseCase: ParticipationDetailUseCase {
     
-    private let repository: ParticipationsInterface
+    private let repository: ParticipationInterface
     
-    init(repository: ParticipationsInterface) {
+    init(repository: ParticipationInterface) {
         self.repository = repository
     }
     

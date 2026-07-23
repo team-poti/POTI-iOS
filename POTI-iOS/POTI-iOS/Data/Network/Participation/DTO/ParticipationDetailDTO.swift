@@ -5,8 +5,6 @@
 //  Created by 이서현 on 1/23/26.
 //
 
-import Foundation
-
 struct ParticipationDetailDTO: Decodable {
     let participationId: Int
     let postId: Int

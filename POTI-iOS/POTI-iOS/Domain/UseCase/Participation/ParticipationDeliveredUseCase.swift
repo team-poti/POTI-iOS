@@ -1,19 +1,19 @@
 //
-//  ParticipationsDeliveredUseCase.swift
+//  ParticipationDeliveredUseCase.swift
 //  POTI-iOS
 //
 //  Created by 이서현 on 1/23/26.
 //
 
-protocol ParticipationsDeliveredUseCase {
+protocol ParticipationDeliveredUseCase {
     func execute(participationId: Int) async throws
 }
 
-final class DefaultParticipationsDeliveredUseCase: ParticipationsDeliveredUseCase {
+final class DefaultParticipationDeliveredUseCase: ParticipationDeliveredUseCase {
     
-    private let repository: ParticipationsInterface
+    private let repository: ParticipationInterface
     
-    init(repository: ParticipationsInterface) {
+    init(repository: ParticipationInterface) {
         self.repository = repository
     }
     
