@@ -1,9 +1,14 @@
 //
-//  ParticipantInfoModel.swift
+//  ParticipantModel.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/19/26.
+//  Created by mandoo on 1/21/26.
 //
+
+struct ParticipantModel {
+    let userInfo: ParticipantInfoModel
+    let selectedMember: String
+}
 
 struct ParticipantInfoModel {
     let userId: Int

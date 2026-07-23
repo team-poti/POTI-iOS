@@ -8,7 +8,7 @@
 struct UploaderModel {
     let userId: Int
     let nickname: String
-    let profileImage: String?
+    let profileImage: String
     let rating: Double
     let reviewCount: Int
 }
