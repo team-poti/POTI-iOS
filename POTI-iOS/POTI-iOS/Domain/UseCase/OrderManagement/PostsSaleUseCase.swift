@@ -11,9 +11,9 @@ protocol PostsSaleUseCase {
 
 final class DefaultPostsSaleUseCase: PostsSaleUseCase {
     
-    private let repository: PostsInterface
+    private let repository: OrderManagementInterface
     
-    init(repository: PostsInterface) {
+    init(repository: OrderManagementInterface) {
         self.repository = repository
     }
     

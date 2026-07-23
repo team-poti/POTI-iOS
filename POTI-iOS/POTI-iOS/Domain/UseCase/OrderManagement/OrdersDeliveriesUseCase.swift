@@ -12,9 +12,9 @@ protocol OrdersDeliveriesUseCase {
 
 final class DefaultOrdersDeliveriesUseCase: OrdersDeliveriesUseCase {
     
-    private let repository: OrderInterface
+    private let repository: OrderManagementInterface
     
-    init(repository: OrderInterface) {
+    init(repository: OrderManagementInterface) {
         self.repository = repository
     }
     
