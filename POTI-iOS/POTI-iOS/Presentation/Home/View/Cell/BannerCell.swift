@@ -45,7 +45,7 @@ final class BannerCell: UICollectionViewCell {
     }
     
     private func setUI() {
-        contentView.addSubview(bannerImageView)
+        addSubviews(bannerImageView)
     }
     
     private func setLayout() {

@@ -52,7 +52,6 @@ final class FeedsHeaderCell: UICollectionReusableView {
         
         filterButton.do {
             $0.configuration = configuration
-            // 💡 화살표 이미지 색상도 글자색과 맞추기 위해 tintColor는 유지합니다.
             $0.tintColor = .potiBlack
             
             $0.configurationUpdateHandler = { button in
