@@ -2,7 +2,7 @@
 //  TagView.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/13/26.
+//  Created by soomin on 1/13/26.
 //
 
 import UIKit

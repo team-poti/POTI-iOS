@@ -2,7 +2,7 @@
 //  PostAPI.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 6/10/26.
+//  Created by soomin on 6/10/26.
 //
 
 import Alamofire

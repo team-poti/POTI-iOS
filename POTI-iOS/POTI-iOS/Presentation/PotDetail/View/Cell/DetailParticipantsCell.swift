@@ -2,7 +2,7 @@
 //  DetailParticipantsCell.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/18/26.
+//  Created by soomin on 1/18/26.
 //
 
 import UIKit

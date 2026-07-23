@@ -2,7 +2,7 @@
 //  PostInterface.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 6/6/26.
+//  Created by soomin on 6/6/26.
 //
 
 protocol PostInterface {

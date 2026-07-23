@@ -2,7 +2,7 @@
 //  PotOptionsDTO.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/23/26.
+//  Created by soomin on 1/23/26.
 //
 
 struct PotOptionsDTO: Decodable {

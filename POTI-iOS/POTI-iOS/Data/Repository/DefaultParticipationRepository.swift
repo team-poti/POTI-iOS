@@ -2,7 +2,7 @@
 //  DefaultParticipationRepository.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 6/11/26.
+//  Created by soomin on 6/11/26.
 //
 
 final class DefaultParticipationRepository: ParticipationInterface {
