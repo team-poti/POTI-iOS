@@ -90,7 +90,7 @@ final class PotOrderView: BaseView {
         dividerBottomView.snp.makeConstraints {
             $0.top.equalTo(orderContentView.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(8)
+            $0.height.equalTo(9)
         }
         
         noticeView.snp.makeConstraints {
