@@ -31,7 +31,6 @@ final class PotDetailView: BaseView {
             $0.register(DetailUploaderCell.self)
             $0.register(DetailParticipantsCell.self)
             $0.register(DetailEmptyCell.self)
-            $0.registerHeader(DetailParticipantsHeaderView.self)
             $0.registerFooter(DetailSubContentFooterView.self)
         }
         

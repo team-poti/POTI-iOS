@@ -30,7 +30,7 @@ final class PotDetailViewModel: BaseViewModelType {
     
     let output: Output
     
-    private(set) var displayParticipants: [ParticipantDisplayModel] = []
+    private(set) var participants: [ParticipantModel] = []
     private(set) var potDetailModel: PotDetailModel?
     
     // MARK: - Subject
@@ -65,9 +65,9 @@ final class PotDetailViewModel: BaseViewModelType {
                 let model = entity.toPotDetailModel()
                 
                 self.potDetailModel = model
-                self.displayParticipants = model.participants.flatMap { participant in
+                self.participants = model.participants.flatMap { participant in
                     participant.selectedMembers.map { memberName in
-                        ParticipantDisplayModel(userInfo: participant, selectedMember: memberName)
+                        ParticipantModel(userInfo: participant, selectedMember: memberName)
                     }
                 }
                 

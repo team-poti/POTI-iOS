@@ -15,6 +15,9 @@ final class DetailSubContentFooterView: UICollectionReusableView {
     // MARK: - UI Components
     
     private let grayLineView = UIView()
+    private let shareStackView = UIStackView()
+    private let shareIconView = UIImageView()
+    private let shareLabel = UILabel()
     private let noticeView = joinNoticeView()
     
     // MARK: - Initializer
@@ -37,10 +40,26 @@ final class DetailSubContentFooterView: UICollectionReusableView {
         grayLineView.do {
             $0.backgroundColor = .gray100
         }
+        
+        shareStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 8
+        }
+        
+        shareIconView.do {
+            $0.image = .icnShare
+        }
+        
+        shareLabel.do {
+            $0.text = "이 분철팟 공유하기"
+            $0.font = PotiFontManager.button14sb.font
+            $0.textColor = .gray800
+        }
     }
     
     private func setUI() {
-        addSubviews(grayLineView, noticeView)
+        shareStackView.addArrangedSubviews(shareIconView, shareLabel)
+        addSubviews(grayLineView, shareStackView, noticeView)
     }
     
     private func setLayout() {
@@ -50,8 +69,17 @@ final class DetailSubContentFooterView: UICollectionReusableView {
             $0.height.equalTo(8)
         }
         
-        noticeView.snp.makeConstraints {
+        shareIconView.snp.makeConstraints {
+            $0.size.equalTo(24)
+        }
+        
+        shareStackView.snp.makeConstraints {
             $0.top.equalTo(grayLineView.snp.bottom).offset(16)
+            $0.centerX.equalToSuperview()
+        }
+        
+        noticeView.snp.makeConstraints {
+            $0.top.equalTo(shareStackView.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview().inset(60)
         }
