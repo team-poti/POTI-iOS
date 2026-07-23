@@ -96,11 +96,11 @@ final class PotOptionsViewModel: BaseViewModelType {
         }
     }
     
-    func makeOrderItems() -> [OrderItem] {
-        return members.compactMap { member -> OrderItem? in
+    func makeParticipationItems() -> [ParticipationItem] {
+        return members.compactMap { member -> ParticipationItem? in
             guard let price = selectedMembers[member.memberName] else { return nil }
 
-            return OrderItem(
+            return ParticipationItem(
                 optionId: member.memberOptionId,
                 count: price
             )

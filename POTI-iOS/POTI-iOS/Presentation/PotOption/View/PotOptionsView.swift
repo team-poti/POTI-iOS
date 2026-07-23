@@ -5,7 +5,6 @@
 //  Created by mandoo on 1/23/26.
 //
 
-
 import UIKit
 
 import Combine
@@ -28,7 +27,7 @@ final class PotOptionsView: BaseView {
     private var currentDropdown: AccordionDropdownView?
     private var deliveryInfoView: SelectedInfoView?
     
-    var onContinue: ((Int, [OrderItem], (String, Int)?, [(String, Int)]) -> Void)?
+    var onContinue: ((Int, [ParticipationItem], (String, Int)?, [(String, Int)]) -> Void)?
     var onDismiss: (() -> Void)?
     
     // MARK: - Initializer
@@ -177,7 +176,7 @@ final class PotOptionsView: BaseView {
     @objc private func continueButtonTapped() {
         guard let shippingId = viewModel.selectedShippingId() else { return }
         
-        let orderItems = viewModel.makeOrderItems()
+        let orderItems = viewModel.makeParticipationItems()
         let selectedMemberInfos = viewModel.selectedMembers.map { (name: $0.key, price: $0.value) }
         let selectedShippingInfo = viewModel.selectedDelivery
         
