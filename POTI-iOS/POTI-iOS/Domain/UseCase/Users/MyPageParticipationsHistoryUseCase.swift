@@ -10,9 +10,9 @@ protocol MyPageParticipationsHistoryUseCase {
 }
 
 final class DefaultMyPageParticipationsHistoryUseCase: MyPageParticipationsHistoryUseCase {
-    private let repository: ParticipationsInterface
+    private let repository: UsersInterface
     
-    init(repository: ParticipationsInterface) {
+    init(repository: UsersInterface) {
         self.repository = repository
     }
     

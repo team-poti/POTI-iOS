@@ -10,9 +10,9 @@ protocol MyPagePostsHistoryUseCase {
 }
 
 final class DefaultMyPagePostsHistoryUseCase: MyPagePostsHistoryUseCase {
-    private let repository: PostsInterface
+    private let repository: UsersInterface
     
-    init(repository: PostsInterface) {
+    init(repository: UsersInterface) {
         self.repository = repository
     }
     
