@@ -5,14 +5,14 @@
 //  Created by mandoo on 1/21/26.
 //
 
-struct OrdersDTO: Codable {
+struct ParticipationRequestDTO: Encodable {
     let groupBuyPostId: Int
     let shippingId: Int
     let deliveryInfo: DeliveryInfoDTO
-    let items: [OrderItemDTO]
+    let items: [ParticipationItemDTO]
     
-    func toEntity() -> OrdersEntity {
-        return OrdersEntity(
+    func toEntity() -> ParticipationEntity {
+        return ParticipationEntity(
             postId: groupBuyPostId,
             shippingId: shippingId,
             receiverName: deliveryInfo.receiverName,
@@ -31,22 +31,22 @@ struct DeliveryInfoDTO: Codable {
     let phone: String
 }
 
-struct OrderItemDTO: Codable {
+struct ParticipationItemDTO: Codable {
     let groupBuyOptionId: Int
     let count: Int
     
-    func toEntity() -> OrderItem {
-        return OrderItem(
+    func toEntity() -> ParticipationItem {
+        return ParticipationItem(
             optionId: groupBuyOptionId,
             count: count
         )
     }
 }
 
-struct OrderResponseDTO: Codable {
+struct ParticipationResponseDTO: Decodable {
     let participationId: Int
     
-    func toOrderResponseEntity() -> OrderResponseEntity {
-        return OrderResponseEntity(participationId: self.participationId)
+    func toEntity() -> ParticipationResponseEntity {
+        return ParticipationResponseEntity(participationId: self.participationId)
     }
 }

@@ -1,25 +1,25 @@
 //
-//  OrdersEntity.swift
+//  ParticipationEntity.swift
 //  POTI-iOS
 //
 //  Created by mandoo on 1/21/26.
 //
 
-struct OrdersEntity {
+struct ParticipationEntity {
     let postId: Int
     let shippingId: Int
     let receiverName: String
     let zipcode: String
     let addressLine: String
     let phone: String
-    let items: [OrderItem]
+    let items: [ParticipationItem]
 }
 
-struct OrderItem {
+struct ParticipationItem {
     let optionId: Int
     let count: Int
 }
 
-struct OrderResponseEntity {
+struct ParticipationResponseEntity {
     let participationId: Int
 }
