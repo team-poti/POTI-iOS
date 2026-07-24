@@ -2,7 +2,7 @@
 //  SortViewModel.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/17/26.
+//  Created by soomin on 1/17/26.
 //
 
 import Combine

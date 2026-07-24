@@ -2,7 +2,7 @@
 //  MockPostRepository.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 6/8/26.
+//  Created by soomin on 6/8/26.
 //
 
 import Foundation
@@ -11,13 +11,13 @@ final class MockPostRepository: PostInterface {
     func fetchHomeData() async throws -> HomeEntity {
         return createMockHomeEntity(mainArtistId: 1, isFallback: false)
     }
-    
+
     private func createMockHomeEntity(mainArtistId: Int?, isFallback: Bool) -> HomeEntity {
         let myItems = [
             GoodsEntity(artist: "아이브", artistId: 1, postImage: "https://www.news1.kr/_next/image?url=https%3A%2F%2Fi3n.news1.kr%2Fsystem%2Fphotos%2F2025%2F7%2F31%2F7423083%2Fhigh.jpg&w=1920&q=75", postTitle: "아이브다", postCount: 12, tag: "인기"),
             GoodsEntity(artist: "아일릿", artistId: 2, postImage: "https://talkimg.imbc.com/TVianUpload/tvian/TViews/image/2025/03/25/45725324-2b02-4a0a-948a-c271179bfb9b.jpg", postTitle: "아일릿포카", postCount: 23, tag: "")
         ]
-        
+
         return HomeEntity(
             nickname: "수민",
             mainArtist: mainArtistId == 1 ? "아이브" : nil,
@@ -27,28 +27,30 @@ final class MockPostRepository: PostInterface {
                 GoodsEntity(artist: "아일릿", artistId: 2, postImage: "https://talkimg.imbc.com/TVianUpload/tvian/TViews/image/2025/03/25/45725324-2b02-4a0a-948a-c271179bfb9b.jpg", postTitle: "아일릿잇츠미" , postCount: 23, tag: "")
             ],
             banners: [
+                BannerEntity(postId: 101, imageUrl: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg"),
+                BannerEntity(postId: 101, imageUrl: "https://www.news1.kr/_next/image?url=https%3A%2F%2Fi3n.news1.kr%2Fsystem%2Fphotos%2F2025%2F7%2F31%2F7423083%2Fhigh.jpg&w=1920&q=75"),
                 BannerEntity(postId: 101, imageUrl: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg")
             ]
         )
     }
-    
+
     func fetchFeedsData(artistId: Int?, sort: FeedsSortOption, page: Int) async throws -> FeedsEntity {
         if page > 0 {
             return FeedsEntity(nickname: "수민", mainArtist: "아이브", mainArtistId: 1, groupItems: [])
         }
-        
+
         let totalItems = [
             GroupItem(title: "아이브앨범", artist: "아이브", artistId: 1, postImage: "https://www.news1.kr/_next/image?url=https%3A%2F%2Fi3n.news1.kr%2Fsystem%2Fphotos%2F2025%2F7%2F31%2F7423083%2Fhigh.jpg&w=1920&q=75", postCount: 12, tag: "인기")
         ]
-        
+
         return FeedsEntity(nickname: "수민", mainArtist: "아이브", mainArtistId: 1, groupItems: totalItems)
     }
-    
+
     func fetchPotListData(title: String, artistId: Int, memberIds: [Int]?, sort: String, page: Int) async throws -> PotListEntity {
         if page > 0 {
             return PotListEntity(postTitle: title, artistId: artistId, artist: "아이브", currentPage: page, hasNext: false, pots: [])
         }
-        
+
         let totalPotsWithMeta: [(pot: Pot, memberIds: [Int])] = [
             (
                 pot: Pot(
@@ -129,18 +131,18 @@ final class MockPostRepository: PostInterface {
                 memberIds: [11, 14]
             )
         ]
-        
+
         let artistFilteredPots = totalPotsWithMeta.filter { $0.pot.potId < 2000 }
-        
+
         var filterResult = artistFilteredPots
         if let selectedIds = memberIds, !selectedIds.isEmpty {
             filterResult = artistFilteredPots.filter { item in
                 item.memberIds.contains { selectedIds.contains($0) }
             }
         }
-        
+
         var resultPots = filterResult.map { $0.pot }
-        
+
         switch sort {
         case "RATING":
             resultPots.sort { $0.recruiter.rating > $1.recruiter.rating }
@@ -153,7 +155,7 @@ final class MockPostRepository: PostInterface {
         default:
             break
         }
-        
+
         return PotListEntity(
             postTitle: title,
             artistId: artistId,
@@ -165,6 +167,53 @@ final class MockPostRepository: PostInterface {
     }
 
     func fetchPotDetail(postId: Int) async throws -> PotDetailEntity {
-        throw NSError(domain: "MockPostRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "아직 구현 X"])
+        return PotDetailEntity(
+            postId: postId,
+            isMyPost: false,
+            status: "RECRUITING",
+            artist: "아이브",
+            title: "아이브 미니 2집 신상 포카 분철합니다!!",
+            price: 15000,
+            uploadTime: "2026-06-11 14:20",
+            deadline: "2026-06-20",
+            images: [
+                "https://www.news1.kr/_next/image?url=https%3A%2F%2Fi3n.news1.kr%2Fsystem%2Fphotos%2F2025%2F7%2F31%2F7423083%2Fhigh.jpg&w=1920&q=75",
+                "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg"
+            ],
+            content: "아이브 미니 2집 앨범 특전 포함 분철 팟입니다.",
+            shippingOptions: [
+                ShippingOption(shippingId: 1, name: "택배", price: 4000),
+                ShippingOption(shippingId: 2, name: "준등기", price: 1800)
+            ],
+            uploader: Uploader(
+                userId: 501,
+                nickname: "유진최애",
+                profileImage: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg",
+                rating: 4.9,
+                reviewCount: 24
+            ),
+            currentCount: 3,
+            totalCount: 6,
+            participants: [
+                ParticipantInfo(userId: 601, nickname: "워녕짱", profileImage: "https://talkimg.imbc.com/TVianUpload/tvian/TViews/image/2025/03/25/45725324-2b02-4a0a-948a-c271179bfb9b.jpg", rating: 4.7, selectedMembers: ["장원영"]),
+                ParticipantInfo(userId: 602, nickname: "가을짱", profileImage: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg", rating: 4.5, selectedMembers: ["가을"]),
+                ParticipantInfo(userId: 603, nickname: "리즈짱", profileImage: "https://dimg.donga.com/wps/SPORTS/IMAGE/2025/08/25/132250320.1.jpg", rating: 5.0, selectedMembers: ["리즈"])
+            ]
+        )
+    }
+
+    func fetchPotOptions(postId: Int) async throws -> PotOptionsEntity {
+        return PotOptionsEntity(
+            members: [
+                MemberEntity(id: 11, name: "안유진", price: 15000),
+                MemberEntity(id: 12, name: "레이", price: 14000),
+                MemberEntity(id: 14, name: "이서", price: 13000)
+            ],
+            shippings: [
+                ShippingEntity(id: 1, name: "GS 반값택배", price: 1800),
+                ShippingEntity(id: 2, name: "일반 준등기", price: 2000),
+                ShippingEntity(id: 3, name: "우체국 택배", price: 4000)
+            ]
+        )
     }
 }
