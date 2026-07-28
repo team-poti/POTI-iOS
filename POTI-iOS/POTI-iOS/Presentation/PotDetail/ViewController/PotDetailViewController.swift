@@ -99,38 +99,31 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     // MARK: - Action
 
     @objc private func joinButtonDidTap() {
-        let optionsViewModel = factory.makePotOptionsViewModel(postId: viewModel.postId)
-        let optionsView = PotOptionsView(viewModel: optionsViewModel)
+        let optionsViewController = factory.makePotOptionsViewController(postId: viewModel.postId)
+        optionsViewController.modalPresentationStyle = .overFullScreen
 
-        optionsView.onContinue = { [weak self] (shippingId: Int, orderItems: [ParticipationItem], shippingInfo: (String, Int)?, memberInfos: [(String, Int)]) in
+        optionsViewController.onContinue = { [weak self] result in
             guard let self = self else { return }
 
-            guard let shippingInfo = shippingInfo else { return }
             let nickname = self.viewModel.potDetailModel?.uploader.nickname ?? ""
 
-            let orderVC = self.factory.makePotOrderViewController(
-                postId: self.viewModel.postId,
-                shippingId: shippingId,
-                orderItems: orderItems,
-                shippingInfo: shippingInfo,
-                memberInfos: memberInfos,
-                uploaderNickname: nickname
-            )
+            let orderViewController = self.factory.makePotOrderViewController(
+                postId: self.viewModel.postId, shippingId: result.shippingId, orderItems: result.orderItems,
+                shippingInfo: result.shippingInfo, memberInfos: result.memberInfos, uploaderNickname: nickname)
 
-            orderVC.onSuccess = { [weak self] in
+            orderViewController.onSuccess = { [weak self] in
                 self?.viewModel.action(.viewDidLoad)
             }
 
-            self.navigationController?.pushViewController(orderVC, animated: true)
+            self.navigationController?.pushViewController(orderViewController, animated: true)
         }
 
-        optionsView.show(in: self.navigationController?.view ?? self.view)
+        present(optionsViewController, animated: false)
     }
 
     @objc private func yourProfileButtondidTap() {
-        let yourProfileVC = factory.makeYourPageViewController(userId: viewModel.potDetailModel?.uploader.userId ?? -1)
-
-        self.navigationController?.pushViewController(yourProfileVC, animated: true)
+        let yourProfileViewController = factory.makeYourPageViewController(userId: viewModel.potDetailModel?.uploader.userId ?? -1)
+        self.navigationController?.pushViewController(yourProfileViewController, animated: true)
     }
 }
 
@@ -163,17 +156,10 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
             if let model = viewModel.potDetailModel { cell.configure(with: model) }
             return cell
         case .uploader:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: DetailUploaderCell.identifier,
-                for: indexPath
-            ) as! DetailUploaderCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailUploaderCell.identifier, for: indexPath) as! DetailUploaderCell
 
             if let model = viewModel.potDetailModel?.uploader {
-                cell.configure(
-                    with: model,
-                    target: self,
-                    action: #selector(yourProfileButtondidTap)
-                )
+                cell.configure(with: model, target: self, action: #selector(yourProfileButtondidTap))
             }
             return cell
         case .participants:
@@ -201,11 +187,7 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
                 return UICollectionReusableView()
             }
 
-            let footer = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: DetailSubContentFooterView.identifier,
-                for: indexPath
-            ) as! DetailSubContentFooterView
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailSubContentFooterView.identifier, for: indexPath) as! DetailSubContentFooterView
             return footer
         }
 
