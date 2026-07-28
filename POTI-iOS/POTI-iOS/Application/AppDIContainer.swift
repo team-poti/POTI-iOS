@@ -122,8 +122,8 @@ final class AppDIContainer {
         DefaultPotDetailUseCase(repository: makePostRepository())
     }
 
-    private func makePotOptionUseCase() -> PotOptionsUseCase {
-        DefaultPotOptionsUseCase(repository: makePostRepository())
+    private func makePotOptionUseCase() -> FetchPotOptionsUseCase {
+        DefaultFetchPotOptionsUseCase(repository: makePostRepository())
     }
 
     private func makeApplyParticipationUseCase() -> ApplyParticipationUseCase {

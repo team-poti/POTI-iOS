@@ -5,11 +5,11 @@
 //  Created by soomin on 1/21/26.
 //
 
-protocol PotOptionsUseCase {
+protocol FetchPotOptionsUseCase {
     func execute(postId: Int) async throws -> PotOptionsEntity
 }
 
-final class DefaultPotOptionsUseCase: PotOptionsUseCase {
+final class DefaultFetchPotOptionsUseCase: FetchPotOptionsUseCase {
     private let repository: PostInterface
     
     init(repository: PostInterface) {
