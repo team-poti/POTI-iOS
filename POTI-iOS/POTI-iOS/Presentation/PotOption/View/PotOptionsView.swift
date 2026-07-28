@@ -155,7 +155,7 @@ final class PotOptionsView: BaseView {
         )
         
         dropdown.anchorView = anchor
-        dropdown.passthroughViews = [contentView.memberButton, contentView.deliveryButton]
+        dropdown.passthroughViews = [closeButton, contentView.memberButton, contentView.deliveryButton]
         
         dropdown.onSelect = { [weak self] id in
             if isMember {
