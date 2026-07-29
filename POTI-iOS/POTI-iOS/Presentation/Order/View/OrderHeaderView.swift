@@ -79,7 +79,7 @@ final class OrderHeaderView: BaseView {
         }
     }
     
-    // MARK: - Method
+    // MARK: - Public Method
     
     func configure(items: [(type: Kind, title: String, price: String)], totalAmount: String) {
         contentStackView.arrangedSubviews.forEach {

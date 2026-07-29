@@ -70,12 +70,8 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
                 guard let self = self else { return }
                 
                 let navigationStyle = PotiNavigationStyle.backDefault("\(nickname)의 팟")
-                PotiNavigationBar.configure(
-                    navigationItem: self.navigationItem,
-                    navigationController: self.navigationController,
-                    style: navigationStyle,
-                    target: self
-                )
+                PotiNavigationBar.configure(navigationItem: self.navigationItem, navigationController: self.navigationController,
+                                            style: navigationStyle, target: self)
                 
                 self.title = "\(nickname)의 팟"
             }
@@ -149,7 +145,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
                 
                 if isSuccess {
                     let completeView = OrderCompleteView()
-                    completeView.completionHandler = { [weak self] in
+                    completeView.confirmAction = { [weak self] in
                         guard let self = self else { return }
                         
                         self.onSuccess?()
@@ -175,7 +171,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .store(in: &cancellables)
     }
     
-    // MARK: - Method
+    // MARK: - Public Method
     
     func navigationStyle() -> PotiNavigationStyle {
         return .backDefault("팟")
