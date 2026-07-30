@@ -2,7 +2,7 @@
 //  ArtistMembersFilterBottomSheet.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 6/8/26.
+//  Created by soomin on 6/8/26.
 //
 
 import UIKit

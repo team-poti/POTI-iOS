@@ -6,307 +6,271 @@
 //
 
 final class AppDIContainer {
-    
+
     static let shared = AppDIContainer()
     private init() {}
-    
+
     // MARK: - Service
-    
+
     @MainActor private func makeAuthService() -> AuthService {
         DefaultAuthService()
     }
-    
+
     private func makeTokenRefreshNetworkService() -> NetworkService {
         NetworkService()
     }
-    
+
     private func makeNetworkService() -> NetworkService {
         NetworkService(interceptor: makeAuthInterceptor())
     }
-    
+
     private func makeTokenRefreshService() -> TokenRefreshService {
         DefaultTokenRefreshService(
             networkService: makeTokenRefreshNetworkService()
         )
     }
-    
+
     private func makeAuthInterceptor() -> AuthInterceptor {
         AuthInterceptor(
             tokenRefreshService: makeTokenRefreshService()
         )
     }
-    
+
     private func makeImageUploadService() -> ImageUploadService {
         DefaultImageUploadService(networkService: makeNetworkService())
     }
-    
+
     // MARK: - Repository
-    
+
     @MainActor private func makeAuthRepository() -> AuthInterface {
         DefaultAuthRepository(authService: makeAuthService(), networkService: makeNetworkService(), tokenRefreshNetworkService: makeTokenRefreshNetworkService())
     }
-    
+
     private func makePostRepository() -> PostInterface {
-        DefaultPostRepository(networkService: makeNetworkService())
+        MockPostRepository()
     }
-    
-    private func makeHomeRepository() -> PostInterface {
-        return makePostRepository()
-    }
-    
-    private func makeFeedsRepository() -> PostInterface {
-        return makePostRepository()
-    }
-    
-    private func makePotListRepository() -> PostInterface {
-        return makePostRepository()
-    }
-    
-    private func makePotDetailRepository() -> PostInterface {
-        return makePostRepository()
-    }
-    
+
     private func makeArtistsRepository() -> ArtistsInterface {
-        DefaultArtistsRepository(networkService: makeNetworkService())
+        MockArtistRepository()
     }
-    
-    private func makeOrderRepository() -> OrderInterface {
-        DefaultOrderRepository(networkService: makeNetworkService())
+
+    private func makeParticipationRepository() -> ParticipationInterface {
+        DefaultParticipationRepository(networkService: makeNetworkService())
     }
-    
-    private func makePostsRepository() -> PostsInterface {
-        DefaultPostsRepository(networkService: makeNetworkService())
+
+    private func makeOrderManagementRepository() -> OrderManagementInterface {
+        DefaultOrderManagementRepository(networkService: makeNetworkService())
     }
-    
-    private func makeManageRepository() -> PostsInterface {
-        DefaultPostsRepository(networkService: makeNetworkService())
-    }
-    
+
     private func makeUsersRepository() -> UsersInterface {
         DefaultUsersRepository(networkService: makeNetworkService())
     }
-    
+
     private func makeImagesRepository() -> ImagesInterface {
         DefaultImagesRepository(imageUploadService: makeImageUploadService())
     }
-    
-    private func makePotsSaleRepository() -> PostsInterface {
-        DefaultPostsRepository(networkService: makeNetworkService())
-    }
-    
+
     private func makeRegisterRepository() -> RegisterInterface {
         DefaultRegisterRepository(networkService: makeNetworkService())
     }
-    
+
     private func makePaymentsRepository() -> PaymentsInterface {
         DefaultPaymentsRepository(networkService: makeNetworkService())
     }
-    
-    private func makeParticipationsRepository() -> ParticipationsInterface {
-        DefaultParticipationsRepository(networkService: makeNetworkService())
-    }
-    
+
     private func makePostPaymentsRepository() -> PaymentsInterface {
         DefaultPaymentsRepository(networkService: makeNetworkService())
     }
-    
-    private func makeParticipationsDeliveredRepository() -> ParticipationsInterface {
-        DefaultParticipationsRepository(networkService: makeNetworkService())
-    }
-    
+
     private func makeCreateReviewsRepository() -> ReviewsInterface {
         DefaultReviewsRepository(networkService: makeNetworkService())
     }
-    
+
     // MARK: - UseCase
-    
+
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
         DefaultLoginUseCase(
             repository: makeAuthRepository()
         )
     }
-    
+
     @MainActor private func makeDevLoginUseCase() -> DevLoginUseCase {
         DefaultDevLoginUseCase(
             repository: makeAuthRepository()
         )
     }
-    
+
     @MainActor private func makeRefreshTokenUseCase() -> RefreshTokenUseCase {
         DefaultRefreshTokenUseCase(
             repository: makeAuthRepository()
         )
     }
-    
+
     private func makeHomeUseCase() -> HomeUseCase {
-        DefaultHomeUseCase(repository: makeHomeRepository())
+        DefaultHomeUseCase(repository: makePostRepository())
     }
-    
+
     private func makeFeedsUseCase() -> FeedsUseCase {
-        DefaultFeedsUseCase(repository: makeFeedsRepository())
+        DefaultFeedsUseCase(repository: makePostRepository())
     }
-    
-    private func makeOrderUseCase() -> SubmitOrderUseCase {
-        DefaultSubmitOrderUseCase(repository: makeOrderRepository())
-    }
-    
-    private func makePotDetailUseCase() -> PotDetailUseCase {
-        DefaultPotDetailUseCase(repository: makePotDetailRepository())
-    }
-    
-    private func makeSubmitUseCase() -> SubmitOrderUseCase {
-        DefaultSubmitOrderUseCase(repository: makeOrderRepository())
-    }
-    
-    private func makePotOptionUseCase() -> PotOptionsUseCase {
-        DefaultPotOptionsUseCase(repository: makePostsRepository())
-    }
-    
-    private func makeManageUseCase() -> PostsParticipantsUseCase {
-        DefaultManageUseCase(repository: makeManageRepository())
-    }
-    
+
     private func makePotListUseCase() -> PotListUseCase {
-        DefaultPotListUseCase(repository: makePotListRepository())
+        DefaultPotListUseCase(repository: makePostRepository())
     }
-    
+
+    private func makePotDetailUseCase() -> PotDetailUseCase {
+        DefaultPotDetailUseCase(repository: makePostRepository())
+    }
+
+    private func makePotOptionUseCase() -> FetchPotOptionsUseCase {
+        DefaultFetchPotOptionsUseCase(repository: makePostRepository())
+    }
+
+    private func makeApplyParticipationUseCase() -> ApplyParticipationUseCase {
+        DefaultApplyParticipationUseCase(repository: makeParticipationRepository())
+    }
+
     private func makeArtistMembersUseCase() -> ArtistMembersUseCase {
         DefaultArtistsUseCase(repository: makeArtistsRepository())
     }
-    
+
     private func makeRegisterArtistsUseCase() -> RegisterArtistsUseCase {
         DefaultRegisterArtistsUseCase(repository: makeRegisterRepository())
     }
-    
+
     private func makeRegisterTitlesUseCase() -> RegisterTitlesUseCase {
         DefaultRegisterTitlesUseCase(repository: makeRegisterRepository())
     }
-    
+
     private func makeRegisterPostsUseCase() -> RegisterPostsUseCase {
         DefaultRegisterPostsUseCase(repository: makeRegisterRepository())
     }
-    
+
     private func makePostsSaleUseCase() -> PostsSaleUseCase {
-        DefaultPostsSaleUseCase(repository: makePostsRepository())
+        DefaultPostsSaleUseCase(repository:  makeOrderManagementRepository())
     }
-    
+
     private func makeOnboardingArtistsUsecase() -> OnboardingArtistsUsecase {
         DefaultOnboardingArtistsUsecase(repository: makeArtistsRepository())
     }
-    
+
     private func makeValidNicknameUseCase() -> ValidNicknameUseCase {
         DefaultValidNicknameUseCase(repository: makeUsersRepository())
     }
-    
+
     private func makeSubmitOnboardingUseCase() -> SubmitOnboardingUseCase {
         DefaultSubmitOnboardingUseCase(repository: makeUsersRepository())
     }
-    
+
     private func makePaymentsUseCase() -> PaymentsConfirmUseCase {
         DefaultPaymentsUseCase(repository: makePaymentsRepository())
     }
-    
+
     private func makeOrdersDeliveriesUseCase() -> OrdersDeliveriesUseCase {
-        DefaultOrdersDeliveriesUseCase(repository: makeOrderRepository())
+        DefaultOrdersDeliveriesUseCase(repository: makeOrderManagementRepository())
     }
-    
+
     private func makeGetMyPageInformationUseCase() -> GetMyPageInformationUseCase {
         DefaultGetMyPageInformationUseCase(repository: makeUsersRepository())
     }
-    
+
     private func makeMyPagePostsHistoryUseCase() -> MyPagePostsHistoryUseCase {
-        DefaultMyPagePostsHistoryUseCase(repository: makePostsRepository())
+        DefaultMyPagePostsHistoryUseCase(repository: makeUsersRepository())
     }
-    
+
     private func makeMyPageParticipationsHistoryUseCase() -> MyPageParticipationsHistoryUseCase {
-        DefaultMyPageParticipationsHistoryUseCase(repository: makeParticipationsRepository())
+        DefaultMyPageParticipationsHistoryUseCase(repository: makeUsersRepository())
     }
-    
+
     private func makeGetYourPageInformationUseCase() -> GetYourPageInformationUseCase {
         DefaultGetYourPageInformationUseCase(repository: makeUsersRepository())
     }
-    
-    private func makeParticipationsDetailUseCase() -> ParticipationsDetailUseCase {
-        DefaultParticipationsDetailUseCase(repository: makeParticipationsRepository())
+
+    private func makeParticipationDetailUseCase() -> ParticipationDetailUseCase {
+        DefaultParticipationDetailUseCase(repository: makeParticipationRepository())
     }
-    
+
     private func makePostPaymentsUseCase() -> PostPaymentsUseCase {
         DefaultPostPaymentsUseCase(repository: makePaymentsRepository())
     }
-    
-    private func makeParticipationsDeliveredUseCase() -> ParticipationsDeliveredUseCase {
-        DefaultParticipationsDeliveredUseCase(repository: makeParticipationsDeliveredRepository())
+
+    private func makePostsParticipantsUseCase() -> PostsParticipantsUseCase {
+        DefaultPostsParticipantsUseCase(repository: makeOrderManagementRepository())
     }
-    
+
+    private func makeParticipationDeliveredUseCase() -> ParticipationDeliveredUseCase {
+        DefaultParticipationDeliveredUseCase(repository: makeParticipationRepository())
+    }
+
     func makeCreateReviewUseCase() -> ReviewUseCase {
         DefaultReviewUseCase(repository: makeCreateReviewsRepository())
     }
-    
+
     @MainActor private func makeWithdrawUseCase() -> WithdrawUseCase {
         DefaultWithdrawUseCase(repository: makeAuthRepository())
     }
-    
+
     // MARK: - ViewModel
-    
+
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
         LaunchScreenViewModel(refreshTokenUseCase: makeRefreshTokenUseCase())
     }
-    
+
     @MainActor func makeLoginViewModel() -> LoginViewModel {
         LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())
     }
-    
+
     @MainActor func makeHomeViewModel() -> HomeViewModel {
         HomeViewModel(useCase: makeHomeUseCase(), withDrawUseCase: makeWithdrawUseCase())
     }
-    
+
     func makeFeedsViewModel(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewModel {
         FeedsViewModel(useCase: makeFeedsUseCase(), sectionType: sectionType, artistId: artistId, nickname: nickname)
     }
-    
+
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
         PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
     }
-    
-    func makePotOrderViewModel(postId: Int, shippingId: Int,orderItems: [OrderItem], shippingInfo: (name: String, price: Int), memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewModel {
-        return PotOrderViewModel(useCase: makeSubmitUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems, shippingInfo: shippingInfo, memberInfos: memberInfos, uploaderNickname: uploaderNickname)
+
+    func makePotOrderViewModel(postId: Int, shippingId: Int,orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int), memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewModel {
+        return PotOrderViewModel(useCase: makeApplyParticipationUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems, shippingInfo: shippingInfo, memberInfos: memberInfos, uploaderNickname: uploaderNickname)
     }
-    
+
     func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel {
         PotOptionsViewModel(useCase: makePotOptionUseCase(), postId: postId)
     }
-    
+
     func makeRecruitDetailViewModel(postId: Int) -> RecruitDetailViewModel {
         RecruitDetailViewModel(postId: postId, postsSaleUseCase: makePostsSaleUseCase())
     }
-    
+
     func makeManageViewModel(postId: Int) -> ParticipantManageViewModel {
         ParticipantManageViewModel(
             postId: postId,
-            postsParticipantsUseCase: makeManageUseCase(),
+            postsParticipantsUseCase: makePostsParticipantsUseCase(),
             paymentsUseCase: makePaymentsUseCase(),
             ordersDeliveriesUseCase: makeOrdersDeliveriesUseCase()
         )
     }
-    
+
     func makeMyPageJoinViewModel(participationId: Int,) -> MyPageJoinViewModel {
         MyPageJoinViewModel(
             participationId: participationId,
-            participationsDetailUsecase: makeParticipationsDetailUseCase(),
+            participationsDetailUsecase: makeParticipationDetailUseCase(),
             postPaymentsUseCase: makePostPaymentsUseCase(),
-            participationsDeliveredUseCase: makeParticipationsDeliveredUseCase(),
+            participationsDeliveredUseCase: makeParticipationDeliveredUseCase(),
             createReviewUseCase: makeCreateReviewUseCase()
         )
     }
-    
+
     func makePotListViewModel(title: String, artistId: Int, artistName: String) -> PotListViewModel {
         return PotListViewModel(useCase: makePotListUseCase(),title: title,artistId: artistId, artistName: artistName)
     }
-    
+
     func makeArtistMembersFilterViewModel(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterViewModel {
         return ArtistMembersFilterViewModel(useCase: makeArtistMembersUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
-    
+
     func makeProductRegisterViewModel() -> ProductRegisterViewModel {
         ProductRegisterViewModel(
             registerTitlesUseCase: makeRegisterTitlesUseCase(),
@@ -315,11 +279,11 @@ final class AppDIContainer {
             artistsUseCase: makeArtistMembersUseCase()
         )
     }
-    
+
     func makeArtistSearchViewModel() -> ArtistSearchViewModel {
         ArtistSearchViewModel(registerArtistsUseCase: makeRegisterArtistsUseCase())
     }
-    
+
     func makeOnboardingViewModel() -> OnboardingViewModel {
         OnboardingViewModel(
             onboardingArtistsUsecase: makeOnboardingArtistsUsecase(),
@@ -327,11 +291,11 @@ final class AppDIContainer {
             submitOnboardingUseCase: makeSubmitOnboardingUseCase()
         )
     }
-    
+
     func makeMyPageViewModel() -> MyPageViewModel {
         MyPageViewModel(getMyPageInformationUseCase: makeGetMyPageInformationUseCase())
     }
-    
+
     func makeMyPageHistoryViewModel(
         initialType: MyPageHistoryType
     ) -> MyPageHistoryViewModel {
@@ -341,7 +305,7 @@ final class AppDIContainer {
             myPageParticipationsHistoryUseCase: makeMyPageParticipationsHistoryUseCase()
         )
     }
-    
+
     func makeYourPageViewModel(userId: Int) -> YourPageViewModel {
         YourPageViewModel(
             userId: userId, getYourPageInformationUseCase: makeGetYourPageInformationUseCase()

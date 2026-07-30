@@ -2,7 +2,7 @@
 //  PotOrderViewModel.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/21/26.
+//  Created by soomin on 1/21/26.
 //
 
 import Combine
@@ -39,12 +39,12 @@ final class PotOrderViewModel: BaseViewModelType {
     var cancellables = Set<AnyCancellable>()
     let output = Output()
     
-    private let useCase: SubmitOrderUseCase
+    private let useCase: ApplyParticipationUseCase
     
     let postId: Int
     private let shippingId: Int
     private let uploaderNickname: String
-    private let orderItems: [OrderItem]
+    private let orderItems: [ParticipationItem]
     private let memberInfos: [(name: String, price: Int)]
     private let shippingInfo: (name: String, price: Int)
     
@@ -57,10 +57,10 @@ final class PotOrderViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: SubmitOrderUseCase,
+    init(useCase: ApplyParticipationUseCase,
          postId: Int,
          shippingId: Int,
-         orderItems: [OrderItem],
+         orderItems: [ParticipationItem],
          shippingInfo: (name: String, price: Int),
          memberInfos: [(name: String, price: Int)], uploaderNickname: String) {
         
@@ -153,7 +153,7 @@ final class PotOrderViewModel: BaseViewModelType {
     private func requestSubmitOrder() {
         Task {
             do {
-                let entity = OrdersEntity(
+                let entity = ParticipationEntity(
                     postId: self.postId,
                     shippingId: self.shippingId,
                     receiverName: name,
@@ -163,7 +163,7 @@ final class PotOrderViewModel: BaseViewModelType {
                     items: self.orderItems
                 )
                 
-                _ = try await useCase.execute(orderInfo: entity)
+                _ = try await useCase.execute(info: entity)
                 output.orderResult.send(true)
             } catch {
                 output.orderResult.send(false)

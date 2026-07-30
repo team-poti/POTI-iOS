@@ -2,7 +2,7 @@
 //  GroupItemModel.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/16/26.
+//  Created by soomin on 1/16/26.
 //
 
 struct GroupItemModel {
