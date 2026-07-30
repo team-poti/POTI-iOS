@@ -10,4 +10,6 @@ protocol UsersInterface {
     func submitOnboarding(nickname: String, favoriteArtistId: Int?) async throws -> OnboardingSubmitEntity
     func getMyPageInformation() async throws -> MyPageEntity
     func getYourPageInformation(userId: Int) async throws -> YourPageEntity
+    func fetchMyPostsHistory(status: String) async throws -> MyPagePostsHistoryEntity
+    func fetchMyParticipationsHistory(status: String) async throws -> MyPageParticipationsHistoryEntity
 }

@@ -2,7 +2,7 @@
 //  OrderHeaderRowView.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/21/26.
+//  Created by soomin on 1/21/26.
 //
 
 import UIKit
@@ -55,15 +55,11 @@ final class OrderHeaderRowView: BaseView {
         }
         
         titleLabel.do {
-            $0.text = text
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
+            $0.setLabel(text, font: .body14m, color: .gray800)
         }
         
         priceLabel.do {
-            $0.text = price
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel(price, font: .body16sb, color: .potiBlack)
         }
     }
     
@@ -88,13 +84,6 @@ final class OrderHeaderRowView: BaseView {
             $0.centerY.equalToSuperview()
             $0.verticalEdges.equalToSuperview()
         }
-    }
-    
-    // MARK: - Method
-    
-    func updateData(title: String, price: String) {
-        self.titleLabel.text = title
-        self.priceLabel.text = price
     }
 }
 

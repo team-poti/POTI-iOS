@@ -2,7 +2,7 @@
 //  PotOrderViewController.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/21/26.
+//  Created by soomin on 1/21/26.
 //
 
 import UIKit
@@ -18,6 +18,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     private let rootView = PotOrderView()
     private let factory: ViewControllerFactory
     var onSuccess: (() -> Void)?
+    var onAddressSearch: (() -> Void)?
     
     // MARK: - Initializer
     
@@ -48,19 +49,23 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] in self?.viewModel.action(.nameDidChange($0)) }
             .store(in: &cancellables)
         
-        rootView.orderContentView.zipcodeField.textPublisher
-            .sink { [weak self] in self?.viewModel.action(.zipcodeDidChange($0)) }
-            .store(in: &cancellables)
+        rootView.orderContentView.zipcodeField.onTapField = { [weak self] in
+            self?.onAddressSearch?()
+        }
         
-        rootView.orderContentView.addressField.textPublisher
-            .sink { [weak self] in self?.viewModel.action(.addressDidChange($0)) }
+        rootView.orderContentView.addressField.onTapField = { [weak self] in
+            self?.onAddressSearch?()
+        }
+
+        rootView.orderContentView.detailAddressField.textPublisher
+            .sink { [weak self] in self?.viewModel.action(.detailAddressDidChange($0)) }
             .store(in: &cancellables)
         
         rootView.orderContentView.phoneField.textPublisher
             .sink { [weak self] in self?.viewModel.action(.phoneDidChange($0)) }
             .store(in: &cancellables)
         
-        rootView.bottomButton.addTarget(self, action: #selector(joinButtonTapped), for: .touchUpInside)
+        rootView.bottomButton.addTarget(self, action: #selector(joinButtonDidTap), for: .touchUpInside)
     }
     
     override func bindViewModel() {
@@ -70,12 +75,8 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
                 guard let self = self else { return }
                 
                 let navigationStyle = PotiNavigationStyle.backDefault("\(nickname)의 팟")
-                PotiNavigationBar.configure(
-                    navigationItem: self.navigationItem,
-                    navigationController: self.navigationController,
-                    style: navigationStyle,
-                    target: self
-                )
+                PotiNavigationBar.configure(navigationItem: self.navigationItem, navigationController: self.navigationController,
+                                            style: navigationStyle, target: self)
                 
                 self.title = "\(nickname)의 팟"
             }
@@ -122,10 +123,22 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .receive(on: RunLoop.main)
             .sink { [weak self] message in
                 guard let self = self else { return }
-                if let msg = message {
-                    self.rootView.orderContentView.addressField.apply(state: .error(msg))
+                if let message = message {
+                    self.rootView.orderContentView.addressField.apply(state: .error(message))
                 } else {
                     self.rootView.orderContentView.addressField.apply(state: .normal)
+                }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.output.detailAddressError
+            .receive(on: RunLoop.main)
+            .sink { [weak self] message in
+                guard let self = self else { return }
+                if let message = message {
+                    self.rootView.orderContentView.detailAddressField.apply(state: .error(message))
+                } else {
+                    self.rootView.orderContentView.detailAddressField.apply(state: .normal)
                 }
             }
             .store(in: &cancellables)
@@ -134,8 +147,8 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .receive(on: RunLoop.main)
             .sink { [weak self] message in
                 guard let self = self else { return }
-                if let msg = message {
-                    self.rootView.orderContentView.phoneField.apply(state: .error(msg))
+                if let message = message {
+                    self.rootView.orderContentView.phoneField.apply(state: .error(message))
                 } else {
                     self.rootView.orderContentView.phoneField.apply(state: .normal)
                 }
@@ -148,34 +161,55 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
                 guard let self = self else { return }
                 
                 if isSuccess {
-                    let completeView = OrderCompleteView()
-                    completeView.completionHandler = { [weak self] in
-                        guard let self = self else { return }
-                        
-                        self.onSuccess?()
-                        
-                        if let nav = self.navigationController {
-                            if let detailVC = nav.viewControllers.first(where: { $0 is PotDetailViewController }) {
-                                nav.popToViewController(detailVC, animated: true)
-                            } else {
-                                self.dismiss(animated: true)
-                            }
-                        } else {
-                            self.dismiss(animated: true)
-                        }
-                    }
-                    let targetView = self.navigationController?.view ?? self.view
-                    completeView.show(in: targetView!)
-                    
                     self.view.endEditing(true)
+                    self.showParticipationNotice()
                 } else {
-                    print("참여 실패")
+                    PotiLogger.error(PotiError.apiError(message: "참여에 실패했습니다."))
                 }
             }
             .store(in: &cancellables)
     }
+
+    private func showParticipationNotice() {
+        let noticeView = NoticeModalView(type: .participate)
+        noticeView.confirmAction = { [weak self] in
+            self?.showOrderCompleteView()
+        }
+        
+        guard let targetView = navigationController?.view ?? view else { return }
+        noticeView.show(in: targetView)
+    }
+
+    private func showOrderCompleteView() {
+        let completeView = OrderCompleteView()
+        completeView.confirmAction = { [weak self] in
+            guard let self = self else { return }
+            
+            self.onSuccess?()
+            
+            if let navigation = self.navigationController {
+                if let detailViewController = navigation.viewControllers.first(where: { $0 is PotDetailViewController }) {
+                    navigation.popToViewController(detailViewController, animated: true)
+                } else {
+                    self.dismiss(animated: true)
+                }
+            } else {
+                self.dismiss(animated: true)
+            }
+        }
+        
+        guard let targetView = navigationController?.view ?? view else { return }
+        completeView.show(in: targetView)
+    }
     
-    // MARK: - Method
+    // MARK: - Public Method
+
+    func applySelectedAddress(zipcode: String, address: String) {
+        rootView.orderContentView.zipcodeField.setText(zipcode)
+        rootView.orderContentView.addressField.setText(address)
+        viewModel.action(.zipcodeDidChange(zipcode))
+        viewModel.action(.addressDidChange(address))
+    }
     
     func navigationStyle() -> PotiNavigationStyle {
         return .backDefault("팟")
@@ -183,7 +217,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     
     // MARK: - Action
     
-    @objc private func joinButtonTapped() {
+    @objc private func joinButtonDidTap() {
         viewModel.action(.joinButtonDidTap)
     }
 }

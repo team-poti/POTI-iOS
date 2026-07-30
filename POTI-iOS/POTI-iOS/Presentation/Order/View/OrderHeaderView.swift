@@ -2,7 +2,7 @@
 //  OrderHeaderView.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/21/26.
+//  Created by soomin on 1/21/26.
 //
 
 import UIKit
@@ -79,7 +79,7 @@ final class OrderHeaderView: BaseView {
         }
     }
     
-    // MARK: - Method
+    // MARK: - Public Method
     
     func configure(items: [(type: Kind, title: String, price: String)], totalAmount: String) {
         contentStackView.arrangedSubviews.forEach {

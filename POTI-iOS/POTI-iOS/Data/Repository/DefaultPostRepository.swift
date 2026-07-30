@@ -2,7 +2,7 @@
 //  DefaultPostRepository.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 6/6/26.
+//  Created by soomin on 6/6/26.
 //
 
 final class DefaultPostRepository: PostInterface {
@@ -14,7 +14,7 @@ final class DefaultPostRepository: PostInterface {
 
     func fetchHomeData() async throws -> HomeEntity {
         let homeDTO: HomeDTO = try await networkService.request(
-            target: HomeAPI.fetchHome,
+            target: PostAPI.fetchHome,
             type: HomeDTO.self
         )
         return homeDTO.toEntity()
@@ -22,7 +22,7 @@ final class DefaultPostRepository: PostInterface {
 
     func fetchFeedsData(artistId: Int?, sort: FeedsSortOption, page: Int) async throws -> FeedsEntity {
         let response: FeedsDTO = try await networkService.request(
-            target: FeedsAPI.fetchFeeds(artistId: artistId, sort: sort, page: page),
+            target: PostAPI.fetchFeeds(artistId: artistId, sort: sort, page: page),
             type: FeedsDTO.self
         )
         return response.toEntity()
@@ -30,7 +30,7 @@ final class DefaultPostRepository: PostInterface {
 
     func fetchPotListData(title: String, artistId: Int, memberIds: [Int]?, sort: String, page: Int) async throws -> PotListEntity {
         let response: PotListDTO = try await networkService.request(
-            target: PotListAPI.fetchPotList(title: title, artistId: artistId, memberIds: memberIds, sort: sort, page: page),
+            target: PostAPI.fetchPotList(title: title, artistId: artistId, memberIds: memberIds, sort: sort, page: page),
             type: PotListDTO.self
         )
         return response.toEntity()
@@ -38,8 +38,16 @@ final class DefaultPostRepository: PostInterface {
 
     func fetchPotDetail(postId: Int) async throws -> PotDetailEntity {
         let response: PotDetailDTO = try await networkService.request(
-            target: PostsAPI.fetchPotDetail(postId: postId),
+            target: PostAPI.fetchPotDetail(postId: postId),
             type: PotDetailDTO.self
+        )
+        return response.toEntity()
+    }
+
+    func fetchPotOptions(postId: Int) async throws -> PotOptionsEntity {
+        let response: PotOptionsDTO = try await networkService.request(
+            target: PostAPI.fetchPotOptions(postId: postId),
+            type: PotOptionsDTO.self
         )
         return response.toEntity()
     }

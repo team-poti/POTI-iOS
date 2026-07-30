@@ -2,7 +2,7 @@
 //  PotDetailLayoutFactory.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/19/26.
+//  Created by soomin on 1/19/26.
 //
 
 import UIKit
@@ -64,14 +64,14 @@ private extension PotDetailLayoutFactory {
     
     static func createUploaderSection() -> NSCollectionLayoutSection {
         let item = NSCollectionLayoutItem(
-            layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+            layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(120))
         )
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(80))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(120))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 16, bottom: 54, trailing: 16)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 16, bottom: 24, trailing: 16)
         
         return section
     }
@@ -85,7 +85,7 @@ private extension PotDetailLayoutFactory {
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(200)
+            heightDimension: .estimated(52)
         )
         let group = NSCollectionLayoutGroup.vertical(
             layoutSize: groupSize,
@@ -94,18 +94,7 @@ private extension PotDetailLayoutFactory {
         
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 20
-        section.contentInsets = .init(top: 20, leading: 16, bottom: 0, trailing: 16)
-        
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(24)
-        )
-        
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
+        section.contentInsets = .init(top: 0, leading: 16, bottom: 0, trailing: 16)
         
         let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100))
         let footer = NSCollectionLayoutBoundarySupplementaryItem(
@@ -114,7 +103,7 @@ private extension PotDetailLayoutFactory {
             alignment: .bottom
         )
         
-        section.boundarySupplementaryItems = [header, footer]
+        section.boundarySupplementaryItems = [footer]
         return section
     }
 }

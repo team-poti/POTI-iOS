@@ -6,64 +6,64 @@
 import UIKit
 
 final class PotDetailViewController: BaseViewController<PotDetailViewModel>, NavigationConfigurable {
-    
+
     // MARK: - Properties
-    
+
     private let rootView = PotDetailView()
     private let factory: ViewControllerFactory
-    
+
     // MARK: - Life Cycle
-    
+
     override func loadView() {
         self.view = rootView
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
         self.definesPresentationContext = true
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if let tabBarController = self.tabBarController as? PotiTabBar {
             tabBarController.tabBar.isHidden = true
         }
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if let tabBarController = self.tabBarController as? PotiTabBar {
             tabBarController.tabBar.isHidden = true
         }
     }
-    
+
     // MARK: - Initializer
-    
+
     init(viewModel: PotDetailViewModel, factory: ViewControllerFactory) {
         self.factory = factory
         super.init(viewModel: viewModel)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Custom Methods
-    
+
     override func setDelegate() {
         rootView.potDetailCollectionView.delegate = self
         rootView.potDetailCollectionView.dataSource = self
         rootView.joinButton.addTarget(self, action: #selector(joinButtonDidTap), for: .touchUpInside)
-        
+
     }
-    
+
     override func bindViewModel() {
         viewModel.output.reloadData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self = self else { return }
-                
+
                 if let nickname = self.viewModel.potDetailModel?.uploader.nickname {
                     let navigationStyle = PotiNavigationStyle.backDefault("\(nickname)의 팟")
                     PotiNavigationBar.configure(
@@ -73,11 +73,11 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
                         target: self
                     )
                 }
-                
+
                 self.rootView.potDetailCollectionView.reloadData()
             }
             .store(in: &cancellables)
-        
+
         viewModel.output.isJoinButtonEnabled
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isEnabled in
@@ -89,70 +89,63 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
             }
             .store(in: &cancellables)
     }
-    
+
     // MARK: - Method
-    
+
     func navigationStyle() -> PotiNavigationStyle {
         return .backDefault("")
     }
-    
+
     // MARK: - Action
-    
+
     @objc private func joinButtonDidTap() {
-        let optionsViewModel = factory.makePotOptionsViewModel(postId: viewModel.postId)
-        let optionsView = PotOptionsView(viewModel: optionsViewModel)
-        
-        optionsView.onContinue = { [weak self] (shippingId: Int, orderItems: [OrderItem], shippingInfo: (String, Int)?, memberInfos: [(String, Int)]) in
+        let optionsViewController = factory.makePotOptionsViewController(postId: viewModel.postId)
+        optionsViewController.modalPresentationStyle = .overFullScreen
+
+        optionsViewController.onContinue = { [weak self] result in
             guard let self = self else { return }
-            
-            guard let shippingInfo = shippingInfo else { return }
+
             let nickname = self.viewModel.potDetailModel?.uploader.nickname ?? ""
-            
-            let orderVC = self.factory.makePotOrderViewController(
-                postId: self.viewModel.postId,
-                shippingId: shippingId,
-                orderItems: orderItems,
-                shippingInfo: shippingInfo,
-                memberInfos: memberInfos,
-                uploaderNickname: nickname
-            )
-            
-            orderVC.onSuccess = { [weak self] in
+
+            let orderViewController = self.factory.makePotOrderViewController(
+                postId: self.viewModel.postId, shippingId: result.shippingId, orderItems: result.orderItems,
+                shippingInfo: result.shippingInfo, memberInfos: result.memberInfos, uploaderNickname: nickname)
+
+            orderViewController.onSuccess = { [weak self] in
                 self?.viewModel.action(.viewDidLoad)
             }
-            
-            self.navigationController?.pushViewController(orderVC, animated: true)
+
+            self.navigationController?.pushViewController(orderViewController, animated: true)
         }
-        
-        optionsView.show(in: self.navigationController?.view ?? self.view)
+
+        present(optionsViewController, animated: false)
     }
-    
+
     @objc private func yourProfileButtondidTap() {
-        let yourProfileVC = factory.makeYourPageViewController(userId: viewModel.potDetailModel?.uploader.userId ?? -1)
-        
-        self.navigationController?.pushViewController(yourProfileVC, animated: true)
+        let yourProfileViewController = factory.makeYourPageViewController(userId: viewModel.potDetailModel?.uploader.userId ?? -1)
+        self.navigationController?.pushViewController(yourProfileViewController, animated: true)
     }
 }
 
-// MARK: - Extension
+// MARK: - UICollectionViewDataSource, UICollectionViewDelegate
 
 extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return PotDetailSection.allCases.count
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard let sectionType = PotDetailSection(rawValue: section) else { return 0 }
         switch sectionType {
         case .imageBanner: return viewModel.potDetailModel?.images.count ?? 3
         case .potInfo, .uploader: return viewModel.potDetailModel == nil ? 0 : 1
-        case .participants: return viewModel.displayParticipants.isEmpty ? 1 : viewModel.displayParticipants.count
+        case .participants: return viewModel.participants.isEmpty ? 1 : viewModel.participants.count
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let sectionType = PotDetailSection(rawValue: indexPath.section) else { return UICollectionViewCell() }
-        
+
         switch sectionType {
         case .imageBanner:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailBannerCell.identifier, for: indexPath) as! DetailBannerCell
@@ -163,64 +156,41 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
             if let model = viewModel.potDetailModel { cell.configure(with: model) }
             return cell
         case .uploader:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: DetailUploaderCell.identifier,
-                for: indexPath
-            ) as! DetailUploaderCell
-            
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailUploaderCell.identifier, for: indexPath) as! DetailUploaderCell
+
             if let model = viewModel.potDetailModel?.uploader {
-                cell.configure(
-                    with: model,
-                    target: self,
-                    action: #selector(yourProfileButtondidTap)
-                )
+                cell.configure(with: model, target: self, action: #selector(yourProfileButtondidTap))
             }
             return cell
         case .participants:
-            if viewModel.displayParticipants.isEmpty {
+            if viewModel.participants.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailEmptyCell.identifier, for: indexPath) as! DetailEmptyCell
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailParticipantsCell.identifier, for: indexPath) as! DetailParticipantsCell
-                let displayData = viewModel.displayParticipants[indexPath.item]
-                cell.configure(displayData)
+
+                let participantData = viewModel.participants[indexPath.item]
+                let current = viewModel.potDetailModel?.currentCount ?? 0
+                let total = viewModel.potDetailModel?.totalCount ?? 0
+
+                cell.configure(model: participantData, index: indexPath.item, currentCount: current, totalCount: total)
                 return cell
             }
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
-        if kind == UICollectionView.elementKindSectionHeader {
+
+        if kind == UICollectionView.elementKindSectionFooter {
             guard let sectionType = PotDetailSection(rawValue: indexPath.section),
                   sectionType == .participants else {
                 return UICollectionReusableView()
             }
-            
-            let header = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: DetailParticipantsHeaderView.identifier,
-                for: indexPath
-            ) as! DetailParticipantsHeaderView
-            
-            header.configure(currentCount: viewModel.potDetailModel?.currentCount ?? 0, totalCount: viewModel.potDetailModel?.totalCount ?? 0)
-            return header
-        }
-        
-        else if kind == UICollectionView.elementKindSectionFooter {
-            guard let sectionType = PotDetailSection(rawValue: indexPath.section),
-                  sectionType == .participants else {
-                return UICollectionReusableView()
-            }
-            
-            let footer = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: DetailSubContentFooterView.identifier,
-                for: indexPath
-            ) as! DetailSubContentFooterView
+
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailSubContentFooterView.identifier, for: indexPath) as! DetailSubContentFooterView
             return footer
         }
-        
+
         return UICollectionReusableView()
     }
 }
