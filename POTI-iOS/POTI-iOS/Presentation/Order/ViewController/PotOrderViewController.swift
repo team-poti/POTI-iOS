@@ -144,34 +144,55 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
                 guard let self = self else { return }
                 
                 if isSuccess {
-                    let completeView = OrderCompleteView()
-                    completeView.confirmAction = { [weak self] in
-                        guard let self = self else { return }
-                        
-                        self.onSuccess?()
-                        
-                        if let nav = self.navigationController {
-                            if let detailVC = nav.viewControllers.first(where: { $0 is PotDetailViewController }) {
-                                nav.popToViewController(detailVC, animated: true)
-                            } else {
-                                self.dismiss(animated: true)
-                            }
-                        } else {
-                            self.dismiss(animated: true)
-                        }
-                    }
-                    let targetView = self.navigationController?.view ?? self.view
-                    completeView.show(in: targetView!)
-                    
                     self.view.endEditing(true)
+                    self.showParticipationNotice()
                 } else {
-                    print("참여 실패")
+                    PotiLogger.error(PotiError.apiError(message: "참여에 실패했습니다."))
                 }
             }
             .store(in: &cancellables)
     }
+
+    private func showParticipationNotice() {
+        let noticeView = NoticeModalView(type: .participate)
+        noticeView.confirmAction = { [weak self] in
+            self?.showOrderCompleteView()
+        }
+        
+        guard let targetView = navigationController?.view ?? view else { return }
+        noticeView.show(in: targetView)
+    }
+
+    private func showOrderCompleteView() {
+        let completeView = OrderCompleteView()
+        completeView.confirmAction = { [weak self] in
+            guard let self = self else { return }
+            
+            self.onSuccess?()
+            
+            if let navigation = self.navigationController {
+                if let detailViewController = navigation.viewControllers.first(where: { $0 is PotDetailViewController }) {
+                    navigation.popToViewController(detailViewController, animated: true)
+                } else {
+                    self.dismiss(animated: true)
+                }
+            } else {
+                self.dismiss(animated: true)
+            }
+        }
+        
+        guard let targetView = navigationController?.view ?? view else { return }
+        completeView.show(in: targetView)
+    }
     
     // MARK: - Public Method
+
+    func applySelectedAddress(zipcode: String, address: String) {
+        rootView.orderContentView.zipcodeField.setText(zipcode)
+        rootView.orderContentView.addressField.setText(address)
+        viewModel.action(.zipcodeDidChange(zipcode))
+        viewModel.action(.addressDidChange(address))
+    }
     
     func navigationStyle() -> PotiNavigationStyle {
         return .backDefault("팟")
@@ -179,7 +200,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     
     // MARK: - Action
     
-    @objc private func joinButtonTapped() {
+    @objc private func joinButtonDidTap() {
         viewModel.action(.joinButtonDidTap)
     }
 }
