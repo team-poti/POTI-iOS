@@ -27,14 +27,13 @@ final class PotOrderContentView: BaseView {
     
     private let nameLabel = UILabel()
     private let zipcodeLabel = UILabel()
-    private let zipcodeIconView = UIImageView()
     private let addressLabel = UILabel()
     private let detailAddressLabel = UILabel()
     private let phoneLabel = UILabel()
     
     let nameField = CustomTextField.short(placeholder: "이름을 입력하세요")
-    let zipcodeField = CustomTextField.short(placeholder: "우편번호를 입력하세요")
-    let addressField = CustomTextField.short(placeholder: "주소를 입력하세요")
+    let zipcodeField = CustomTextField.searchNavigate(placeholder: "우편번호를 검색하세요")
+    let addressField = CustomTextField.shortNavigate(placeholder: "주소를 입력하세요")
     let detailAddressField = CustomTextField.short(placeholder: "상세주소를 입력하세요")
     let phoneField = CustomTextField.short(placeholder: "연락처를 입력하세요")
     
@@ -60,6 +59,8 @@ final class PotOrderContentView: BaseView {
             $0.transform = CGAffineTransform(translationX: 0, y: 2)
         }
 
+        renderShipmentRegistrationState(.unselected)
+
         nameLabel.do {
             $0.setLabel("이름", font: .body14sb, color: .potiBlack)
         }
@@ -67,10 +68,13 @@ final class PotOrderContentView: BaseView {
         zipcodeLabel.do {
             $0.setLabel("우편번호", font: .body14sb, color: .potiBlack)
         }
-        
-        zipcodeIconView.do {
-            $0.image = .icnSearch.withRenderingMode(.alwaysTemplate)
-            $0.tintColor = .gray700
+
+        zipcodeField.do {
+            $0.showsFocusedBorderOnTap = false
+        }
+
+        addressField.do {
+            $0.showsFocusedBorderOnTap = false
         }
         
         addressLabel.do {
@@ -89,7 +93,7 @@ final class PotOrderContentView: BaseView {
     override func setUI() {
         registerShipmentStackView.addArrangedSubviews(registerShipmentButton, registerShipmentLabel)
         addSubviews(titleLabel, registerShipmentStackView, nameLabel, nameField, zipcodeLabel,
-                    zipcodeField, zipcodeIconView, addressLabel, addressField,
+                    zipcodeField, addressLabel, addressField,
                     detailAddressLabel, detailAddressField, phoneLabel, phoneField)
     }
     
@@ -126,12 +130,6 @@ final class PotOrderContentView: BaseView {
         zipcodeField.snp.makeConstraints {
             $0.top.equalTo(zipcodeLabel.snp.bottom).offset(8)
             $0.horizontalEdges.equalToSuperview()
-        }
-        
-        zipcodeIconView.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.verticalEdges.equalTo(zipcodeField).inset(14)
-            $0.trailing.equalTo(zipcodeField).offset(-16)
         }
         
         addressLabel.snp.makeConstraints {
