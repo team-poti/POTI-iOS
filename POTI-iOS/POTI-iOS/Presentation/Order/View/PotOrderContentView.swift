@@ -10,6 +10,12 @@ import UIKit
 import SnapKit
 import Then
 
+enum ShipmentRegistrationState {
+    case unselected
+    case selected
+    case unavailable
+}
+
 final class PotOrderContentView: BaseView {
     
     // MARK: - UI Components
@@ -160,15 +166,22 @@ final class PotOrderContentView: BaseView {
         }
     }
     
-    // MARK: - Private Method
-    
-    private func setAddTarget() {
-        registerShipmentButton.addTarget(self, action: #selector(registerShipmentButtonDidTap), for: .touchUpInside)
-    }
+    // MARK: - Public Method
 
-    // MARK: - Action
-
-    @objc private func registerShipmentButtonDidTap() {
-        registerShipmentButton.isSelected.toggle()
+    func renderShipmentRegistrationState(_ state: ShipmentRegistrationState) {
+        switch state {
+        case .unselected:
+            registerShipmentButton.isSelected = false
+            registerShipmentButton.isUserInteractionEnabled = true
+            registerShipmentLabel.alpha = 1
+        case .selected:
+            registerShipmentButton.isSelected = true
+            registerShipmentButton.isUserInteractionEnabled = true
+            registerShipmentLabel.alpha = 1
+        case .unavailable:
+            registerShipmentButton.isSelected = false
+            registerShipmentButton.isUserInteractionEnabled = false
+            registerShipmentLabel.alpha = 0.4
+        }
     }
 }
