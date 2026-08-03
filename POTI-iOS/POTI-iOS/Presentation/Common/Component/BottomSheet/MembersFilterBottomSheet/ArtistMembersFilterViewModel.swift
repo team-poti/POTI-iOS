@@ -32,7 +32,7 @@ final class ArtistMembersFilterViewModel: BaseViewModelType {
     
     let artistId: Int
     private var isChangedInThisSession: Bool = false
-    private var originalEntities: [ArtistsEntity] = []
+    private var originalEntities: [ArtistMemberEntity] = []
     
     var currentMembersList: [(name: String, isSelected: Bool)] {
         return membersListSubject.value
@@ -90,8 +90,8 @@ private extension ArtistMembersFilterViewModel {
                 self.originalEntities = entities
                 
                 let uiModels = entities.map { entity -> (name: String, isSelected: Bool) in
-                    let isSelected = initialSelectedIds.contains(entity.artistId)
-                    return (name: entity.artistName, isSelected: isSelected)
+                    let isSelected = initialSelectedIds.contains(entity.memberId)
+                    return (name: entity.name, isSelected: isSelected)
                 }
                 
                 await MainActor.run {
@@ -126,7 +126,7 @@ private extension ArtistMembersFilterViewModel {
         let selectedData = membersListSubject.value.enumerated().filter { $0.element.isSelected }
         
         let selectedIds = selectedData.compactMap { index, _ in
-            index < originalEntities.count ? originalEntities[index].artistId : nil
+            index < originalEntities.count ? originalEntities[index].memberId : nil
         }
         
         let selectedNames = selectedData.map { $0.element.name }
