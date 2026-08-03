@@ -280,7 +280,6 @@ final class AppDIContainer {
         )
     }
 
-    @MainActor
     func makeArtistSearchViewModel() -> ArtistSearchViewModel {
         ArtistSearchViewModel(artistSearchUseCase: makeArtistSearchUseCase())
     }

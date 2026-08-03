@@ -33,8 +33,8 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
         rootView.queryPublisher
             .sink { [weak self] in self?.viewModel.action(.queryChanged($0)) }
             .store(in: &cancellables)
-        rootView.onSelectArtist = { [weak self] in self?.viewModel.action(.selectArtist($0)) }
-        rootView.onTapConfirm = { [weak self] in self?.viewModel.action(.tapDone) }
+        rootView.onSelectArtist = { [weak self] in self?.viewModel.action(.artistSelected($0)) }
+        rootView.onTapConfirm = { [weak self] in self?.viewModel.action(.confirmButtonTapped) }
     }
 
     override func bindViewModel() {
