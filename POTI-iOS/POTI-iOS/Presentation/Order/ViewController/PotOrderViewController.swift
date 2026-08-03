@@ -49,11 +49,11 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] in self?.viewModel.action(.nameDidChange($0)) }
             .store(in: &cancellables)
         
-        rootView.orderContentView.zipcodeField.onTapField = { [weak self] in
+        rootView.orderContentView.zipcodeField.onTap = { [weak self] in
             self?.onAddressSearch?()
         }
         
-        rootView.orderContentView.addressField.onTapField = { [weak self] in
+        rootView.orderContentView.addressField.onTap = { [weak self] in
             self?.onAddressSearch?()
         }
 
@@ -100,9 +100,9 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] message in
                 guard let self = self else { return }
                 if let msg = message {
-                    self.rootView.orderContentView.nameField.apply(state: .error(msg))
+                    self.rootView.orderContentView.nameField.setValidationState(.error(message: msg))
                 } else {
-                    self.rootView.orderContentView.nameField.apply(state: .normal)
+                    self.rootView.orderContentView.nameField.setValidationState(.normal)
                 }
             }
             .store(in: &cancellables)
@@ -112,9 +112,9 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] message in
                 guard let self = self else { return }
                 if let msg = message {
-                    self.rootView.orderContentView.zipcodeField.apply(state: .error(msg))
+                    self.rootView.orderContentView.zipcodeField.setValidationState(.error(message: msg))
                 } else {
-                    self.rootView.orderContentView.zipcodeField.apply(state: .normal)
+                    self.rootView.orderContentView.zipcodeField.setValidationState(.normal)
                 }
             }
             .store(in: &cancellables)
@@ -124,9 +124,9 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] message in
                 guard let self = self else { return }
                 if let message = message {
-                    self.rootView.orderContentView.addressField.apply(state: .error(message))
+                    self.rootView.orderContentView.addressField.setValidationState(.error(message: message))
                 } else {
-                    self.rootView.orderContentView.addressField.apply(state: .normal)
+                    self.rootView.orderContentView.addressField.setValidationState(.normal)
                 }
             }
             .store(in: &cancellables)
@@ -136,9 +136,9 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] message in
                 guard let self = self else { return }
                 if let message = message {
-                    self.rootView.orderContentView.detailAddressField.apply(state: .error(message))
+                    self.rootView.orderContentView.detailAddressField.setValidationState(.error(message: message))
                 } else {
-                    self.rootView.orderContentView.detailAddressField.apply(state: .normal)
+                    self.rootView.orderContentView.detailAddressField.setValidationState(.normal)
                 }
             }
             .store(in: &cancellables)
@@ -148,9 +148,9 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] message in
                 guard let self = self else { return }
                 if let message = message {
-                    self.rootView.orderContentView.phoneField.apply(state: .error(message))
+                    self.rootView.orderContentView.phoneField.setValidationState(.error(message: message))
                 } else {
-                    self.rootView.orderContentView.phoneField.apply(state: .normal)
+                    self.rootView.orderContentView.phoneField.setValidationState(.normal)
                 }
             }
             .store(in: &cancellables)
@@ -205,8 +205,8 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     // MARK: - Public Method
 
     func applySelectedAddress(zipcode: String, address: String) {
-        rootView.orderContentView.zipcodeField.setText(zipcode)
-        rootView.orderContentView.addressField.setText(address)
+        rootView.orderContentView.zipcodeField.text = zipcode
+        rootView.orderContentView.addressField.text = address
         viewModel.action(.zipcodeDidChange(zipcode))
         viewModel.action(.addressDidChange(address))
     }

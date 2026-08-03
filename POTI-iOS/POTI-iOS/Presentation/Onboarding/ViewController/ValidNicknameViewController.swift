@@ -41,18 +41,18 @@ final class ValidNicknameViewController: BaseViewController<OnboardingViewModel>
                 
                 switch result {
                 case .valid:
-                    let nickname = self.rootView.validTextField.getText()
+                    let nickname = self.rootView.validTextField.text
                     self.viewModel.action(.nicknameConfirmed(nickname))
                     self.moveToNextScreen()
                     
                 case .duplicated:
-                    self.rootView.validTextField.apply(state: .error("사용중인 닉네임이에요"))
+                    self.rootView.validTextField.setValidationState(.error(message: "사용중인 닉네임이에요"))
                     
                 case .invalidFormat:
-                    self.rootView.validTextField.apply(state: .error("2글자 이상 적어주세요"))
+                    self.rootView.validTextField.setValidationState(.error(message: "2글자 이상 적어주세요"))
                     
                 case .containsProfanity:
-                    self.rootView.validTextField.apply(state: .error("사용할 수 없는 문자가 있어요"))
+                    self.rootView.validTextField.setValidationState(.error(message: "사용할 수 없는 문자가 있어요"))
                 }
             }
             .store(in: &cancellables)
@@ -65,10 +65,10 @@ final class ValidNicknameViewController: BaseViewController<OnboardingViewModel>
 
 extension ValidNicknameViewController {
     @objc private func nextButtonTapped() {
-        let nickname = rootView.validTextField.getText()
+        let nickname = rootView.validTextField.text
         
         guard !nickname.isEmpty else {
-            rootView.validTextField.apply(state: .error("2글자 이상 적어주세요"))
+            rootView.validTextField.setValidationState(.error(message: "2글자 이상 적어주세요"))
             return
         }
         viewModel.action(.validateNickname(nickname))
