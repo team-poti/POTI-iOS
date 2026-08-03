@@ -24,7 +24,7 @@ protocol ViewControllerFactory {
         initialTab: MyPageHistoryViewController.HistoryTab
     ) -> MyPageHistoryContainerViewController
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
-    func makeArtistSearchViewController() -> ArtistSearchViewController
+    @MainActor func makeArtistSearchViewController() -> ArtistSearchViewController
     func makeProductRegisterViewController() -> ProductRegisterViewController
     func makeArtistMembersFilterBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
@@ -140,6 +140,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
+    @MainActor
     func makeArtistSearchViewController() -> ArtistSearchViewController {
         ArtistSearchViewController(
             viewModel: diContainer.makeArtistSearchViewModel()
