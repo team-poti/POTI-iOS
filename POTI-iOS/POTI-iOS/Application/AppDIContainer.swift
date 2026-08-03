@@ -131,7 +131,7 @@ final class AppDIContainer {
     }
 
     private func makeArtistMembersUseCase() -> ArtistMembersUseCase {
-        DefaultArtistsUseCase(repository: makeArtistsRepository())
+        DefaultArtistMembersUseCase(repository: makeArtistsRepository())
     }
 
     private func makeRegisterArtistsUseCase() -> RegisterArtistsUseCase {

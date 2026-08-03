@@ -6,17 +6,17 @@
 //
 
 protocol ArtistMembersUseCase {
-    func execute(artistId: Int) async throws -> [ArtistsEntity]
+    func execute(artistId: Int) async throws -> [ArtistMemberEntity]
 }
 
-final class DefaultArtistsUseCase: ArtistMembersUseCase {
+final class DefaultArtistMembersUseCase: ArtistMembersUseCase {
     private let repository: ArtistsInterface
     
     init(repository: ArtistsInterface) {
         self.repository = repository
     }
     
-    func execute(artistId: Int) async throws -> [ArtistsEntity] {
+    func execute(artistId: Int) async throws -> [ArtistMemberEntity] {
         return try await repository.fetchArtistMembers(artistId: artistId)
     }
 }
