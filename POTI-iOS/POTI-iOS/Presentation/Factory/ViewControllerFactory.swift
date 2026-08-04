@@ -29,7 +29,7 @@ protocol ViewControllerFactory {
     func makeArtistMembersFilterBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
     func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
-    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
     func makeYourPageViewController(userId: Int) -> YourPageViewController
     func makeReviewUseCase() -> ReviewUseCase
 }
@@ -124,7 +124,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         return PotListViewController(viewModel: viewModel, factory: self)
     }
     
-    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController {
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController {
         return PotOrderViewController(viewModel: diContainer.makePotOrderViewModel(postId: postId, shippingId: shippingId,orderItems: orderItems, shippingInfo: shippingInfo,memberInfos: memberInfos, uploaderNickname: uploaderNickname), factory: self
         )
     }
