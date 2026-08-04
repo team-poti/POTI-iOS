@@ -7,7 +7,6 @@
 
 import UIKit
 
-import Combine
 import SnapKit
 import Then
 
@@ -22,30 +21,20 @@ final class PotOptionsView: BaseView {
     
     // MARK: - Properties
     
-    private let viewModel: PotOptionsViewModel
-    private var cancellables = Set<AnyCancellable>()
     private var currentDropdown: AccordionDropdownView?
-    private var deliveryInfoView: SelectedInfoView?
+    private var memberDropdownItems: [DropdownItem] = []
+    private var deliveryDropdownItems: [DropdownItem] = []
     
-    var onContinue: ((Int, [ParticipationItem], (String, Int)?, [(String, Int)]) -> Void)?
-    var onDismiss: (() -> Void)?
-    
-    // MARK: - Initializer
-    
-    init(viewModel: PotOptionsViewModel) {
-        self.viewModel = viewModel
-        super.init(frame: .zero)
-        bind()
-        viewModel.action(.viewDidLoad)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    var onMemberSelected: ((Int) -> Void)?
+    var onDeliverySelected: ((Int) -> Void)?
+    var onMemberDelete: ((Int) -> Void)?
+    var onContinue: (() -> Void)?
+    var onClose: (() -> Void)?
     
     // MARK: - Custom Methods
     
     override func setStyle() {
+        setActions()
         self.alpha = 0
         
         backgroundView.do {
@@ -75,7 +64,7 @@ final class PotOptionsView: BaseView {
         
         containerView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
-            $0.height.equalTo(750)
+            $0.top.equalToSuperview().inset(116)
         }
         
         closeButton.snp.makeConstraints {
@@ -86,189 +75,66 @@ final class PotOptionsView: BaseView {
         
         contentView.snp.makeConstraints {
             $0.top.equalTo(closeButton.snp.bottom)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
     }
     
-    // MARK: - Bind
-    
-    private func bind() {
-        viewModel.output.memberAdded
-            .receive(on: RunLoop.main)
-            .sink { [weak self] data in
-                self?.addMemberInfoView(name: data.name, priceText: data.priceText)
-            }
-            .store(in: &cancellables)
-        
-        viewModel.output.memberRemoved
-            .receive(on: RunLoop.main)
-            .sink { [weak self] name in
-                self?.removeMemberInfoView(name: name)
-            }
-            .store(in: &cancellables)
-        
-        viewModel.output.deliveryUpdated
-            .receive(on: RunLoop.main)
-            .sink { [weak self] data in
-                self?.updateDeliveryInfoView(name: data.name, priceText: data.priceText)
-            }
-            .store(in: &cancellables)
-        
-        viewModel.output.totalPrice
-            .receive(on: RunLoop.main)
-            .sink { [weak self] price in
-                self?.contentView.totalPriceNumberLabel.text = price
-            }
-            .store(in: &cancellables)
-        
-        viewModel.output.isBottomButtonEnabled
-            .receive(on: RunLoop.main)
-            .sink { [weak self] isEnabled in
-                guard let self = self else { return }
-                
-                self.contentView.bottomButton.isDisabled = !isEnabled
-                self.contentView.bottomButton.color = isEnabled ? .secondaryMain : .deactiveMain
-            }
-            .store(in: &cancellables)
-        
-        setActions()
-    }
-    
-    // MARK: - Method
-    
-    func show(in parentView: UIView) {
-        parentView.addSubview(self)
-        self.snp.makeConstraints { $0.edges.equalToSuperview() }
-        self.layoutIfNeeded()
-        
-        containerView.transform = CGAffineTransform(translationX: 0, y: 750)
-        
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
-            self.alpha = 1
-            self.containerView.transform = .identity
-        } completion: { _ in
-            self.toggleMember()
-        }
-    }
-    
-    @objc func hide() {
-        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn) {
-            self.containerView.transform = CGAffineTransform(translationX: 0, y: 750)
-            self.alpha = 0
-        } completion: { _ in
-            self.onDismiss?()
-            self.removeFromSuperview()
-        }
-    }
-    
-    // MARK: - Action
+    // MARK: - Private Methods
     
     private func setActions() {
         contentView.memberButton.addTarget(self, action: #selector(toggleMember), for: .touchUpInside)
         contentView.deliveryButton.addTarget(self, action: #selector(toggleDelivery), for: .touchUpInside)
         contentView.bottomButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
-        closeButton.addTarget(self, action: #selector(hide), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hide))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeButtonTapped))
         backgroundView.addGestureRecognizer(tapGesture)
     }
     
-    @objc private func continueButtonTapped() {
-        guard let shippingId = viewModel.selectedShippingId() else { return }
-        
-        let orderItems = viewModel.makeParticipationItems()
-        let selectedMemberInfos = viewModel.selectedMembers.map { (name: $0.key, price: $0.value) }
-        let selectedShippingInfo = viewModel.selectedDelivery
-        
-        onContinue?(shippingId, orderItems, selectedShippingInfo, selectedMemberInfos)
-        hide()
-    }
-    
-    @objc private func toggleMember() {
-        handleDropdown(anchor: contentView.memberButton, isMember: true)
-    }
-    
-    @objc private func toggleDelivery() {
-        handleDropdown(anchor: contentView.deliveryButton, isMember: false)
-    }
-}
-
-// MARK: - Private Methods
-
-private extension PotOptionsView {
-    func insertViewRespectingOrder(_ infoView: SelectedInfoView) {
+    private func renderSelectedOptions(_ state: PotOptionsViewState) {
         let stackView = contentView.selectedStackView
         
-        if infoView.type == .Delievery {
-            stackView.addArrangedSubview(infoView)
-        } else {
-            if let deliveryView = deliveryInfoView,
-               let deliveryIndex = stackView.arrangedSubviews.firstIndex(of: deliveryView) {
-                stackView.insertArrangedSubview(infoView, at: deliveryIndex)
-            } else {
-                stackView.addArrangedSubview(infoView)
+        stackView.arrangedSubviews
+            .compactMap { $0 as? SelectedInfoView }
+            .forEach {
+                stackView.removeArrangedSubview($0)
+                $0.removeFromSuperview()
             }
-        }
-    }
-    
-    func addMemberInfoView(name: String, priceText: String) {
-        let infoView = SelectedInfoView(title: name, price: priceText, type: .Member)
         
-        infoView.onDelete = { [weak self, weak infoView] in
-            infoView?.removeFromSuperview()
-            self?.viewModel.action(.memberDeleteButtonTap(name: name))
-        }
-        
-        insertViewRespectingOrder(infoView)
-        scrollToBottom()
-    }
-    
-    func removeMemberInfoView(name: String) {
-        let stackView = contentView.selectedStackView
-        stackView.arrangedSubviews.forEach { view in
-            if let memberView = view as? SelectedInfoView, memberView.type == .Member {
-                memberView.removeFromSuperview()
+        state.selectedMembers.forEach { member in
+            let infoView = SelectedInfoView(title: member.name, price: member.priceText, type: .Member)
+
+            infoView.onDelete = { [weak self] in
+                self?.onMemberDelete?(member.id)
             }
-        }
-    }
-    
-    func updateDeliveryInfoView(name: String, priceText: String) {
-        updateDeliveryButtonTitle(name)
-        let stackView = contentView.selectedStackView
-        
-        if let existingView = deliveryInfoView {
-            existingView.updateData(title: name, price: priceText)
-        } else {
-            let infoView = SelectedInfoView(title: name, price: priceText, type: .Delievery)
-            deliveryInfoView = infoView
+
             stackView.addArrangedSubview(infoView)
         }
         
-        scrollToBottom()
+        if let delivery = state.selectedDelivery {
+            let infoView = SelectedInfoView(title: delivery.name, price: delivery.priceText, type: .Delievery)
+            stackView.addArrangedSubview(infoView)
+        }
+        
     }
     
-    func updateDeliveryButtonTitle(_ title: String?) {
+    private func updateDeliveryButtonTitle(_ title: String?) {
         let isSelected = title != nil
         let displayTitle = title ?? "배송 방법을 선택하세요"
         let titleColor: UIColor = isSelected ? .potiBlack : .gray700
         
-        var config = contentView.deliveryButton.configuration
-        config?.attributedTitle = AttributedString(displayTitle, attributes: AttributeContainer([
-            .font: PotiFontManager.body16m.font,
-            .foregroundColor: titleColor
-        ]))
-        contentView.deliveryButton.configuration = config
+        var configuration = contentView.deliveryButton.configuration
+        configuration?.attributedTitle = AttributedString(displayTitle, attributes: AttributeContainer([
+            .font: PotiFontManager.body16m.font, .foregroundColor: titleColor]))
+        contentView.deliveryButton.configuration = configuration
     }
     
-    func scrollToBottom() {
+    private func scrollToBottom() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             guard let self = self else { return }
             let scrollView = self.contentView.scrollContainerView
             
-            let bottomOffset = CGPoint(
-                x: 0,
-                y: max(0, scrollView.contentSize.height - scrollView.bounds.size.height + scrollView.contentInset.bottom)
-            )
+            let bottomOffset = CGPoint(x: 0, y: max(0, scrollView.contentSize.height - scrollView.bounds.size.height + scrollView.contentInset.bottom))
             
             if bottomOffset.y > 0 {
                 scrollView.setContentOffset(bottomOffset, animated: true)
@@ -276,7 +142,7 @@ private extension PotOptionsView {
         }
     }
     
-    func handleDropdown(anchor: UIButton, isMember: Bool) {
+    private func handleDropdown(anchor: UIButton, isMember: Bool) {
         if let current = currentDropdown {
             let isSame = current.anchorView == anchor
             currentDropdown = nil
@@ -285,14 +151,18 @@ private extension PotOptionsView {
         }
         
         let dropdown = AccordionDropdownView(
-            items: isMember ? viewModel.getMemberDropdownItems() : viewModel.getDeliveryDropdownItems(),
-            disabledIndices: isMember ? viewModel.getDisabledMemberIndices() : []
+            items: isMember ? memberDropdownItems : deliveryDropdownItems
         )
         
         dropdown.anchorView = anchor
+        dropdown.passthroughViews = [closeButton, contentView.memberButton, contentView.deliveryButton]
         
-        dropdown.onSelectIndex = { [weak self] index in
-            self?.viewModel.action(isMember ? .memberSelected(index: index) : .deliverySelected(index: index))
+        dropdown.onSelect = { [weak self] id in
+            if isMember {
+                self?.onMemberSelected?(id)
+            } else {
+                self?.onDeliverySelected?(id)
+            }
         }
         
         dropdown.onClose = { [weak self, weak anchor] in
@@ -303,10 +173,66 @@ private extension PotOptionsView {
         containerView.layoutIfNeeded()
         
         dropdown.open(below: anchor, in: containerView, bottomAnchorView: contentView.grayLineView)
-        
-        containerView.bringSubviewToFront(anchor)
-        
+
         anchor.configuration?.image = .icnArrowUpLg.withRenderingMode(.alwaysTemplate)
         currentDropdown = dropdown
+    }
+    
+    // MARK: - Public Methods
+    
+    func show() {
+        self.layoutIfNeeded()
+        
+        containerView.transform = CGAffineTransform(translationX: 0, y: bounds.height)
+        
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
+            self.alpha = 1
+            self.containerView.transform = .identity
+        } completion: { _ in
+            self.toggleMember()
+        }
+    }
+    
+    func hide(completion: (() -> Void)? = nil) {
+        currentDropdown?.close()
+        currentDropdown = nil
+
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn) {
+            self.containerView.transform = CGAffineTransform(translationX: 0, y: self.bounds.height)
+            self.alpha = 0
+        } completion: { _ in
+            completion?()
+        }
+    }
+    
+    func render(_ state: PotOptionsViewState) {
+        memberDropdownItems = state.memberDropdownItems
+        deliveryDropdownItems = state.deliveryDropdownItems
+        
+        renderSelectedOptions(state)
+        updateDeliveryButtonTitle(state.selectedDelivery?.name)
+        contentView.totalPriceNumberLabel.text = state.totalPriceText
+        contentView.bottomButton.isDisabled = !state.isContinueEnabled
+        contentView.bottomButton.color = state.isContinueEnabled ? .secondaryMain : .deactiveMain
+
+        scrollToBottom()
+    }
+
+    // MARK: - Actions
+
+    @objc private func closeButtonTapped() {
+        onClose?()
+    }
+    
+    @objc private func continueButtonTapped() {
+        onContinue?()
+    }
+    
+    @objc private func toggleMember() {
+        handleDropdown(anchor: contentView.memberButton, isMember: true)
+    }
+    
+    @objc private func toggleDelivery() {
+        handleDropdown(anchor: contentView.deliveryButton, isMember: false)
     }
 }
