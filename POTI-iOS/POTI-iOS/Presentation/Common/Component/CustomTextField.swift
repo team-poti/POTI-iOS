@@ -15,6 +15,7 @@ final class CustomTextField: BaseView {
     
     var onTapField: (() -> Void)?
     var onBeginEditing: ((UITextField) -> Void)?
+    var showsFocusedBorderOnTap = true
     private(set) var variant: TextFieldVariant = .short
     private var uiState: TextFieldUIState = .normal
     private var isTapOnly: Bool = false
@@ -297,14 +298,18 @@ final class CustomTextField: BaseView {
     
     @objc private func didTapField() {
         if isTapOnly {
-            apply(state: .focused)
+            if showsFocusedBorderOnTap {
+                apply(state: .focused)
+            }
             onTapField?()
             return
         }
 
         switch variant {
         case .searchNavigate:
-            apply(state: .focused)
+            if showsFocusedBorderOnTap {
+                apply(state: .focused)
+            }
             onTapField?()
         default:
             break

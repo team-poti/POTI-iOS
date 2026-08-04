@@ -72,7 +72,7 @@ final class PotOptionsViewController: BaseViewController<PotOptionsViewModel> {
         guard let result = viewModel.makeParticipationOptionResult() else { return }
         let onContinue = self.onContinue
         
-        dismissOptions {
+        dismiss(animated: false) {
             onContinue?(result)
         }
     }

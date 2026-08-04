@@ -17,6 +17,7 @@ final class PotOrderViewModel: BaseViewModelType {
         case nameDidChange(String)
         case zipcodeDidChange(String)
         case addressDidChange(String)
+        case detailAddressDidChange(String)
         case phoneDidChange(String)
         case joinButtonDidTap
     }
@@ -31,6 +32,7 @@ final class PotOrderViewModel: BaseViewModelType {
         let nameError = PassthroughSubject<String?, Never>()
         let zipcodeError = PassthroughSubject<String?, Never>()
         let addressError = PassthroughSubject<String?, Never>()
+        let detailAddressError = PassthroughSubject<String?, Never>()
         let phoneError = PassthroughSubject<String?, Never>()
     }
     
@@ -53,6 +55,7 @@ final class PotOrderViewModel: BaseViewModelType {
     @Published private var name: String = ""
     @Published private var zipcode: String = ""
     @Published private var address: String = ""
+    @Published private var detailAddress: String = ""
     @Published private var phone: String = ""
     
     // MARK: - Initializer
@@ -90,6 +93,9 @@ final class PotOrderViewModel: BaseViewModelType {
         case .addressDidChange(let text):
             address = text
             output.addressError.send(nil)
+        case .detailAddressDidChange(let text):
+            detailAddress = text
+            output.detailAddressError.send(nil)
         case .phoneDidChange(let text):
             phone = text
             output.phoneError.send(nil)
@@ -106,22 +112,27 @@ final class PotOrderViewModel: BaseViewModelType {
         if name.isEmpty {
             output.nameError.send("이름을 입력해주세요.")
             isValid = false
-        } else { output.nameError.send(nil) }
+        } else {
+            output.nameError.send(nil)
+        }
         
-        if zipcode.isEmpty {
-            output.zipcodeError.send("우편번호를 입력해주세요.")
-            isValid = false
-        } else { output.zipcodeError.send(nil) }
+        // TODO: 주소 외부 API 연동 후 우편번호, 주소 검증 활성화
+        output.zipcodeError.send(nil)
+        output.addressError.send(nil)
         
-        if address.isEmpty {
-            output.addressError.send("주소를 입력해주세요.")
+        if detailAddress.isEmpty {
+            output.detailAddressError.send("상세주소를 입력해주세요.")
             isValid = false
-        } else { output.addressError.send(nil) }
+        } else {
+            output.detailAddressError.send(nil)
+        }
         
         if phone.isEmpty {
             output.phoneError.send("연락처를 입력해주세요.")
             isValid = false
-        } else { output.phoneError.send(nil) }
+        } else {
+            output.phoneError.send(nil)
+        }
         
         return isValid
     }
@@ -146,22 +157,18 @@ final class PotOrderViewModel: BaseViewModelType {
         totalAmount += shippingInfo.price
         
         output.orderHeaderData.send((items: displayItems, total: "\(totalAmount.formattedWithComma)원"))
-        
         output.nickname.send(uploaderNickname)
     }
     
     private func requestSubmitOrder() {
         Task {
             do {
-                let entity = ParticipationEntity(
-                    postId: self.postId,
-                    shippingId: self.shippingId,
-                    receiverName: name,
-                    zipcode: zipcode,
-                    addressLine: address,
-                    phone: phone,
-                    items: self.orderItems
-                )
+                // TODO: 주소 외부 API 연동 후 임시 값 제거 및 실제 우편번호, 주소 값 전달
+                let requestZipcode = zipcode.isEmpty ? "00000" : zipcode
+                let requestAddress = address.isEmpty ? "임시 주소" : address
+                let entity = ParticipationEntity(postId: self.postId, shippingId: self.shippingId, receiverName: name,
+                                                 zipcode: requestZipcode, addressLine: requestAddress,
+                                                 phone: phone, items: self.orderItems)
                 
                 _ = try await useCase.execute(info: entity)
                 output.orderResult.send(true)
