@@ -1,0 +1,22 @@
+//
+//  HomeUseCase.swift
+//  POTI-iOS
+//
+//  Created by soomin on 1/15/26.
+//
+
+protocol HomeUseCase {
+    func execute() async throws -> HomeEntity
+}
+
+final class DefaultHomeUseCase: HomeUseCase {
+    private let repository: PostInterface
+    
+    init(repository: PostInterface) {
+        self.repository = repository
+    }
+    
+    func execute() async throws -> HomeEntity {
+        return try await repository.fetchHomeData()
+    }
+}

@@ -2,7 +2,7 @@
 //  BannerCarouselCell.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 5/27/26.
+//  Created by soomin on 5/27/26.
 //
 
 import UIKit

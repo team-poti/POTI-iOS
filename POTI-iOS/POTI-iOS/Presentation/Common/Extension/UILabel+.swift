@@ -9,12 +9,9 @@ import UIKit
 
 public extension UILabel {
 
-    func setLabel(
-        _ text: String,
-        font style: PotiFontManager,
-        alignment: NSTextAlignment = .natural,
-        color: UIColor = .label
-    ) {
+    // MARK: - Public Methods
+
+    func setLabel(_ text: String, font style: PotiFontManager, alignment: NSTextAlignment = .natural, color: UIColor = .label) {
         let property = style.fontProperty
 
         let paragraph = NSMutableParagraphStyle()
@@ -22,18 +19,15 @@ public extension UILabel {
         paragraph.maximumLineHeight = property.lineHeight
         paragraph.alignment = alignment
 
-        let font = UIFont(
-            name: property.font.name,
-            size: property.size
-        ) ?? UIFont.systemFont(ofSize: property.size)
+        let font = UIFont(name: property.font.name, size: property.size) ?? UIFont.systemFont(ofSize: property.size)
 
-        self.attributedText = NSAttributedString(
-            string: text,
-            attributes: [
-                .font: font,
-                .paragraphStyle: paragraph,
-                .foregroundColor: color
-            ]
-        )
+        attributedText = NSAttributedString(string: text, attributes: [.font: font, .paragraphStyle: paragraph, .foregroundColor: color])
+    }
+
+    func setText(_ text: String, lineSpacing: CGFloat, alignment: NSTextAlignment = .natural) {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = alignment
+        paragraphStyle.lineSpacing = lineSpacing
+        attributedText = NSAttributedString(string: text, attributes: [.paragraphStyle: paragraphStyle])
     }
 }

@@ -2,21 +2,21 @@
 //  ArtistMembersUseCase.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/18/26.
+//  Created by soomin on 1/18/26.
 //
 
 protocol ArtistMembersUseCase {
-    func execute(artistId: Int) async throws -> [ArtistsEntity]
+    func execute(artistId: Int) async throws -> [ArtistMemberEntity]
 }
 
-final class DefaultArtistsUseCase: ArtistMembersUseCase {
+final class DefaultArtistMembersUseCase: ArtistMembersUseCase {
     private let repository: ArtistsInterface
     
     init(repository: ArtistsInterface) {
         self.repository = repository
     }
     
-    func execute(artistId: Int) async throws -> [ArtistsEntity] {
+    func execute(artistId: Int) async throws -> [ArtistMemberEntity] {
         return try await repository.fetchArtistMembers(artistId: artistId)
     }
 }

@@ -2,7 +2,7 @@
 //  OrderCompleteView.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/21/26.
+//  Created by soomin on 1/21/26.
 //
 
 import UIKit
@@ -23,7 +23,7 @@ final class OrderCompleteView: BaseView {
     private let submitSuccessView = LottieAnimationView(name: "join")
     private let bottomButton = PotiBottomButton()
     
-    var completionHandler: (() -> Void)?
+    var confirmAction: (() -> Void)?
     
     // MARK: - Custom Methods
     
@@ -63,6 +63,7 @@ final class OrderCompleteView: BaseView {
         
         bottomButton.do {
             $0.text = "확인"
+            $0.buttonSize = 48
         }
     }
     
@@ -105,13 +106,15 @@ final class OrderCompleteView: BaseView {
         }
     }
     
+    // MARK: - Private Method
+    
     private func setAddTarget() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
         backgroundView.addGestureRecognizer(tapGesture)
         bottomButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
     }
     
-    // MARK: - Methods
+    // MARK: - Public Method
     
     func show(in view: UIView) {
         view.addSubview(self)
@@ -141,7 +144,7 @@ final class OrderCompleteView: BaseView {
             self.backgroundView.alpha = 0
         }) { _ in
             self.removeFromSuperview()
-            self.completionHandler?()
+            self.confirmAction?()
         }
     }
 }

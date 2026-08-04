@@ -2,7 +2,7 @@
 //  OptionContentView.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/20/26.
+//  Created by soomin on 1/20/26.
 //
 
 import UIKit
@@ -43,16 +43,17 @@ final class OptionContentView: BaseView {
         }
         
         memberButton.do {
-            var config = UIButton.Configuration.plain()
-            config.attributedTitle = AttributedString("분철 받을 멤버를 선택하세요", attributes: AttributeContainer([
+            var configuration = UIButton.Configuration.plain()
+            configuration.attributedTitle = AttributedString("분철 받을 멤버를 선택하세요", attributes: AttributeContainer([
                 .font: PotiFontManager.body16m.font,
                 .foregroundColor: UIColor.gray700
             ]))
-            config.image = .icnArrowDownLg.withRenderingMode(.alwaysTemplate)
-            config.imagePlacement = .trailing
-            config.imageColorTransformer = .init { _ in return .gray700 }
-            config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
-            $0.configuration = config
+            configuration.image = .icnArrowDownLg.withRenderingMode(.alwaysTemplate)
+            configuration.imagePlacement = .trailing
+            configuration.imageColorTransformer = .init { _ in return .gray700 }
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+
+            $0.configuration = configuration
             $0.contentHorizontalAlignment = .fill
             $0.layer.cornerRadius = 8
             $0.layer.borderColor = UIColor.gray300.cgColor
@@ -66,16 +67,17 @@ final class OptionContentView: BaseView {
         }
         
         deliveryButton.do {
-            var config = UIButton.Configuration.plain()
-            config.attributedTitle = AttributedString("배송 방법을 선택하세요", attributes: AttributeContainer([
+            var configuration = UIButton.Configuration.plain()
+            configuration.attributedTitle = AttributedString("배송 방법을 선택하세요", attributes: AttributeContainer([
                 .font: PotiFontManager.body16m.font,
                 .foregroundColor: UIColor.gray700
             ]))
-            config.image = .icnArrowDownLg.withRenderingMode(.alwaysTemplate)
-            config.imagePlacement = .trailing
-            config.imageColorTransformer = .init { _ in return .gray700 }
-            config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
-            $0.configuration = config
+            configuration.image = .icnArrowDownLg.withRenderingMode(.alwaysTemplate)
+            configuration.imagePlacement = .trailing
+            configuration.imageColorTransformer = .init { _ in return .gray700 }
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+
+            $0.configuration = configuration
             $0.contentHorizontalAlignment = .fill
             $0.layer.cornerRadius = 8
             $0.layer.borderColor = UIColor.gray300.cgColor
