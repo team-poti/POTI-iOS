@@ -1,17 +1,24 @@
+//
+//  RegisterAPI.swift
+//  POTI-iOS
+//
+//  Created by soomin on 8/3/26.
+//
+
 import Alamofire
 
 enum RegisterAPI: BaseTargetType {
-    case registerPosts(RegisterRequestDTO)
-    case fetchTitles(artistId: Int, keyword: String)
-    case fetchArtists(keyword: String)
+    case registerPosts(CreatePostRequestDTO)
+    case fetchProductTitles(artistId: Int, keyword: String)
+    case searchArtists(keyword: String)
 
     var path: String {
         switch self {
         case .registerPosts:
             return "/api/v1/posts"
-        case .fetchTitles:
+        case .fetchProductTitles:
             return "/api/v1/posts/titles"
-        case .fetchArtists:
+        case .searchArtists:
             return "/api/v1/posts/artists"
         }
     }
@@ -20,20 +27,20 @@ enum RegisterAPI: BaseTargetType {
         switch self {
         case .registerPosts:
             return .post
-        case .fetchTitles, .fetchArtists:
+        case .fetchProductTitles, .searchArtists:
             return .get
         }
     }
 
     var queryParameters: [String : String]? {
         switch self {
-        case .fetchTitles(let artistId, let keyword):
+        case .fetchProductTitles(let artistId, let keyword):
             return [
                 "artistId": "\(artistId)",
                 "keyword": keyword
             ]
 
-        case .fetchArtists(let keyword):
+        case .searchArtists(let keyword):
             return ["keyword": keyword]
 
         case .registerPosts:

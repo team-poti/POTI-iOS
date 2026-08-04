@@ -2,7 +2,7 @@
 //  ProductRegisterViewController.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/14/26.
+//  Created by soomin on 1/14/26.
 //
 
 import UIKit
@@ -152,7 +152,7 @@ final class ProductRegisterViewController:
             }
         }
         
-        registerInfoView.artistField.onTapField = { [weak self] in
+        registerInfoView.artistField.onTap = { [weak self] in
             guard let self else { return }
             self.presentArtistSearch()
         }
@@ -185,14 +185,14 @@ final class ProductRegisterViewController:
 //            bottomSheet.show(in: self.view)
 //        }
 
-        registerInfoView.productTypeField.onQueryChanged = { [weak self] keyword in
-            self?.titleQuerySubject.send(keyword)
-        }
+        registerInfoView.productTypeField.textPublisher
+            .sink { [weak self] keyword in self?.titleQuerySubject.send(keyword) }
+            .store(in: &cancellables)
 
-        registerInfoView.productTypeField.onSelectItem = { [weak self] _, value in
+        registerInfoView.productTypeField.onSelectItem = { [weak self] value in
             guard let self else { return }
-            self.registerInfoView.productTypeField.setText(value)
-            self.registerInfoView.productTypeField.clearItems()
+            self.registerInfoView.productTypeField.text = value
+            self.registerInfoView.productTypeField.updateSuggestions([])
         }
 
         registerInfoView.onInputViewDidBeginEditing = { [weak self] inputView in
@@ -261,11 +261,6 @@ final class ProductRegisterViewController:
         let inputFrame = inputView.convert(inputView.bounds, to: view)
         let inputBottomY = inputFrame.maxY
 
-        let isSearchField = inputView is CustomSearchField
-
-        let dropdownHeight: CGFloat = isSearchField ? 168 : 0
-        rootView.contentScrollView.contentInset.bottom = dropdownHeight
-
         let visibleHeight = view.frame.height - coveredHeight
 
         let baseOffset: CGFloat
@@ -275,8 +270,7 @@ final class ProductRegisterViewController:
             baseOffset = 0
         }
 
-        let totalOffset = baseOffset + dropdownHeight
-        guard totalOffset > 0 else { return }
+        guard baseOffset > 0 else { return }
 
         let maxOffsetY = max(
             0,
@@ -286,7 +280,7 @@ final class ProductRegisterViewController:
         )
 
         let targetOffsetY = min(
-            rootView.contentScrollView.contentOffset.y + totalOffset,
+            rootView.contentScrollView.contentOffset.y + baseOffset,
             maxOffsetY
         )
 
@@ -306,11 +300,11 @@ final class ProductRegisterViewController:
                 guard let self else { return }
 
                 if keyword.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    self.registerInfoView.productTypeField.clearItems()
+                    self.registerInfoView.productTypeField.updateSuggestions([])
                     return
                 }
 
-                self.viewModel.action(.fetchTitles(keyword: keyword))
+                self.viewModel.action(.fetchProductTitles(keyword: keyword))
             }
             .store(in: &cancellables)
         
@@ -334,7 +328,7 @@ final class ProductRegisterViewController:
             .receive(on: RunLoop.main)
             .sink { [weak self] titles in
                 guard let self else { return }
-                self.registerInfoView.productTypeField.setItems(titles)
+                self.registerInfoView.productTypeField.updateSuggestions(titles)
             }
             .store(in: &cancellables)
         
@@ -350,39 +344,39 @@ final class ProductRegisterViewController:
                 }
                 
                 if let message = errors.artist {
-                    self.registerInfoView.artistField.apply(state: .error(message))
+                    self.registerInfoView.artistField.setValidationState(.error(message: message))
                 } else {
-                    self.registerInfoView.artistField.apply(state: .normal)
+                    self.registerInfoView.artistField.setValidationState(.normal)
                 }
                 
                 if let message = errors.productType {
-                    self.registerInfoView.productTypeField.showError(message)
+                    self.registerInfoView.productTypeField.setValidationState(.error(message: message))
                 } else {
-                    self.registerInfoView.productTypeField.hideError()
+                    self.registerInfoView.productTypeField.setValidationState(.normal)
                 }
                 
                 if let message = errors.deadline {
-                    self.registerInfoView.deadlineField.apply(state: .error(message))
+                    self.registerInfoView.deadlineField.setValidationState(.error(message: message))
                 } else {
-                    self.registerInfoView.deadlineField.apply(state: .normal)
+                    self.registerInfoView.deadlineField.setValidationState(.normal)
                 }
                 
                 if let message = errors.description {
-                    self.registerInfoView.descriptionField.apply(state: .error(message))
+                    self.registerInfoView.descriptionField.setValidationState(.error(message: message))
                 } else {
-                    self.registerInfoView.descriptionField.apply(state: .normal)
+                    self.registerInfoView.descriptionField.setValidationState(.normal)
                 }
                 
                 if let message = errors.accountNumber {
-                    self.registerInfoView.accountField.apply(state: .error(message))
+                    self.registerInfoView.accountField.setValidationState(.error(message: message))
                 } else {
-                    self.registerInfoView.accountField.apply(state: .normal)
+                    self.registerInfoView.accountField.setValidationState(.normal)
                 }
                 
                 if let message = errors.bank {
-                    self.registerInfoView.bankField.apply(state: .error(message))
+                    self.registerInfoView.bankField.setValidationState(.error(message: message))
                 } else {
-                    self.registerInfoView.bankField.apply(state: .normal)
+                    self.registerInfoView.bankField.setValidationState(.normal)
                 }
                 
                 if let message = errors.members {
@@ -526,7 +520,7 @@ final class ProductRegisterViewController:
             initialDate: Date(),
             onConfirm: { [weak self] date in
                 guard let self else { return }
-                self.registerInfoView.deadlineField.setText(Self.format(date))
+                self.registerInfoView.deadlineField.text = Self.format(date)
                 self.viewModel.action(.deadlineSelected(date))
                 self.registerInfoView.deadlineField.setFocused(false)
             },
@@ -561,15 +555,14 @@ final class ProductRegisterViewController:
             self.registerInfoView.artistField.setFocused(false)
 
             self.viewModel.action(.setArtist(artist))
-            self.registerInfoView.artistField.setText(artist.name)
+            self.registerInfoView.artistField.text = artist.name
 
-            if let artistId = artist.artistId {
-                print("Artist selected, fetch members:", artistId)
-                self.viewModel.action(.fetchArtistsList(artistId: artistId))
-            }
+            print("Artist selected, fetch members:", artist.artistId)
+            self.viewModel.action(.fetchArtistsList(artistId: artist.artistId))
         }
 
         if let nav = navigationController {
+            searchVC.hidesBottomBarWhenPushed = true
             nav.pushViewController(searchVC, animated: true)
         } else {
             present(UINavigationController(rootViewController: searchVC), animated: true)

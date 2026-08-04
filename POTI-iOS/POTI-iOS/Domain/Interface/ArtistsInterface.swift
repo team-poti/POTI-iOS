@@ -6,6 +6,6 @@
 //
 
 protocol ArtistsInterface {
-    func fetchArtistMembers(artistId: Int) async throws -> [ArtistsEntity]
+    func fetchArtistMembers(artistId: Int) async throws -> [ArtistMemberEntity]
     func fetchOnboardingArtists() async throws -> OnboardingArtistsEntity
 }

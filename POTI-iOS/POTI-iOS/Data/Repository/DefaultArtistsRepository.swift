@@ -13,7 +13,7 @@ final class DefaultArtistsRepository: ArtistsInterface {
         self.networkService = networkService
     }
     
-    func fetchArtistMembers(artistId: Int) async throws -> [ArtistsEntity] {
+    func fetchArtistMembers(artistId: Int) async throws -> [ArtistMemberEntity] {
         let response: ArtistsDTO = try await networkService.request(
             target: ArtistsAPI.fetchArtistMembers(artistId: artistId),
             type: ArtistsDTO.self

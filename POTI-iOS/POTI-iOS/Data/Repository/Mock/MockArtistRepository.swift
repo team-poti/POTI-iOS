@@ -8,24 +8,24 @@
 import Foundation
 
 final class MockArtistRepository: ArtistsInterface {
-    func fetchArtistMembers(artistId: Int) async throws -> [ArtistsEntity] {
+    func fetchArtistMembers(artistId: Int) async throws -> [ArtistMemberEntity] {
         let totalMembers = [
-            ArtistsEntity(artistId: 10, artistName: "장원영"),
-            ArtistsEntity(artistId: 11, artistName: "안유진"),
-            ArtistsEntity(artistId: 12, artistName: "레이"),
-            ArtistsEntity(artistId: 13, artistName: "리즈"),
-            ArtistsEntity(artistId: 14, artistName: "이서"),
-            ArtistsEntity(artistId: 15, artistName: "가을"),
+            ArtistMemberEntity(memberId: 10, name: "장원영"),
+            ArtistMemberEntity(memberId: 11, name: "안유진"),
+            ArtistMemberEntity(memberId: 12, name: "레이"),
+            ArtistMemberEntity(memberId: 13, name: "리즈"),
+            ArtistMemberEntity(memberId: 14, name: "이서"),
+            ArtistMemberEntity(memberId: 15, name: "가을"),
         ]
         
         if artistId == 1 {
-            return totalMembers.filter { $0.artistId >= 10 && $0.artistId < 20 }
+            return totalMembers.filter { $0.memberId >= 10 && $0.memberId < 20 }
         } else if artistId == 2 {
-            return totalMembers.filter { $0.artistId >= 20 && $0.artistId < 30 }
+            return totalMembers.filter { $0.memberId >= 20 && $0.memberId < 30 }
         } else {
             return [
-                ArtistsEntity(artistId: 99, artistName: "테스트 멤버A"),
-                ArtistsEntity(artistId: 100, artistName: "테스트 멤버B")
+                ArtistMemberEntity(memberId: 99, name: "테스트 멤버A"),
+                ArtistMemberEntity(memberId: 100, name: "테스트 멤버B")
             ]
         }
     }

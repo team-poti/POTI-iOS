@@ -2,11 +2,10 @@
 //  DefaultRegisterRepository.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/22/26.
+//  Created by soomin on 1/22/26.
 //
 
 final class DefaultRegisterRepository: RegisterInterface {
-
     private let networkService: NetworkService
 
     init(networkService: NetworkService) {
@@ -14,27 +13,27 @@ final class DefaultRegisterRepository: RegisterInterface {
     }
 
     func registerPosts(_ entity: RegisterRequestEntity) async throws -> RegisterResponseEntity {
-        let dto = RegisterRequestDTO(from: entity)
+        let dto = CreatePostRequestDTO(from: entity)
 
         let result = try await networkService.request(
             target: RegisterAPI.registerPosts(dto),
-            type: RegisterResponseDTO.self
+            type: CreatePostResponseDTO.self
         )
         return result.toEntity()
     }
 
-    func fetchTitles(artistId: Int, keyword: String) async throws -> [String] {
+    func fetchProductTitles(artistId: Int, keyword: String) async throws -> [String] {
         let result = try await networkService.request(
-            target: RegisterAPI.fetchTitles(artistId: artistId, keyword: keyword),
-            type: RegisterTitlesResponseDTO.self
+            target: RegisterAPI.fetchProductTitles(artistId: artistId, keyword: keyword),
+            type: FetchProductTitlesResponseDTO.self
         )
-        return result.toEntities().compactMap { $0 }
+        return result.titles
     }
 
-    func fetchArtists(keyword: String) async throws -> [RegisterArtistEntity] {
+    func searchArtists(keyword: String) async throws -> [ArtistSearchResultEntity] {
         let result = try await networkService.request(
-            target: RegisterAPI.fetchArtists(keyword: keyword),
-            type: RegisterArtistsResponseDTO.self
+            target: RegisterAPI.searchArtists(keyword: keyword),
+            type: ArtistSearchResponseDTO.self
         )
 
         return result.toEntities()

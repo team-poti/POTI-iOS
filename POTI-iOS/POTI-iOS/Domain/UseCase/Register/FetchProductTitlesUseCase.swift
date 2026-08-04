@@ -1,18 +1,18 @@
 //
-//  RegisterPostUseCase.swift
+//  FetchProductTitlesUseCase.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/22/26.
+//  Created by soomin on 1/22/26.
 //
 
-protocol RegisterTitlesUseCase {
+protocol FetchProductTitlesUseCase {
     func execute(
         artistId: Int,
         keyword: String
     ) async throws -> [String]
 }
 
-final class DefaultRegisterTitlesUseCase: RegisterTitlesUseCase {
+final class DefaultFetchProductTitlesUseCase: FetchProductTitlesUseCase {
 
     private let repository: RegisterInterface
 
@@ -24,7 +24,7 @@ final class DefaultRegisterTitlesUseCase: RegisterTitlesUseCase {
         artistId: Int,
         keyword: String
     ) async throws -> [String] {
-        try await repository.fetchTitles(
+        try await repository.fetchProductTitles(
             artistId: artistId,
             keyword: keyword
         )

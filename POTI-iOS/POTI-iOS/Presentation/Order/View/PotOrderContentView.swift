@@ -31,11 +31,11 @@ final class PotOrderContentView: BaseView {
     private let detailAddressLabel = UILabel()
     private let phoneLabel = UILabel()
     
-    let nameField = CustomTextField.short(placeholder: "이름을 입력하세요")
-    let zipcodeField = CustomTextField.searchNavigate(placeholder: "우편번호를 검색하세요")
-    let addressField = CustomTextField.shortNavigate(placeholder: "주소를 입력하세요")
-    let detailAddressField = CustomTextField.short(placeholder: "상세주소를 입력하세요")
-    let phoneField = CustomTextField.short(placeholder: "연락처를 입력하세요")
+    let nameField = PotiTextField.editable(placeholder: "이름을 입력하세요")
+    let zipcodeField = PotiTextField.readOnly(placeholder: "우편번호를 검색하세요", accessory: .search)
+    let addressField = PotiTextField.readOnly(placeholder: "주소를 입력하세요")
+    let detailAddressField = PotiTextField.editable(placeholder: "상세주소를 입력하세요")
+    let phoneField = PotiTextField.editable(placeholder: "연락처를 입력하세요")
     
     // MARK: - Custom Methods
     

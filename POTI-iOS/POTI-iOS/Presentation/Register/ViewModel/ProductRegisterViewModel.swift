@@ -2,7 +2,7 @@
 //  ProductRegisterViewModel.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/16/26.
+//  Created by soomin on 1/16/26.
 //
 
 import UIKit
@@ -26,8 +26,8 @@ final class ProductRegisterViewModel: BaseViewModelType {
             shippings: [RegisterShippingView.ShippingRequest]
         )
         case setMembers(ids: [Int], names: [String?])
-        case setArtist(RegisterArtistEntity)
-        case fetchTitles(keyword: String)
+        case setArtist(ArtistSearchResultEntity)
+        case fetchProductTitles(keyword: String)
         case fetchArtistsList(artistId: Int)
     }
 
@@ -51,18 +51,21 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
     private let maxCount: Int
 
-    private let registerTitlesUseCase: RegisterTitlesUseCase
+    private let fetchProductTitlesUseCase: FetchProductTitlesUseCase
     private let registerPostsUseCase: RegisterPostsUseCase
     private let imagesRepository: ImagesInterface
     private let artistsUseCase: ArtistMembersUseCase
+
+    private var productTitleSearchTask: Task<Void, Never>?
+    private var currentProductTitleQuery = ""
 
     private let titlesSubject = CurrentValueSubject<[String], Never>([])
     private let imagesSubject = CurrentValueSubject<[UIImage], Never>([])
     private let requestPickerSubject = PassthroughSubject<Int, Never>()
     private let deadlineSubject = CurrentValueSubject<Date?, Never>(nil)
     private let membersSubject = CurrentValueSubject<[String], Never>([])
-    private let selectedArtistSubject = CurrentValueSubject<RegisterArtistEntity?, Never>(nil)
-    private var selectedArtist: RegisterArtistEntity?
+    private let selectedArtistSubject = CurrentValueSubject<ArtistSearchResultEntity?, Never>(nil)
+    private var selectedArtist: ArtistSearchResultEntity?
     private var hasEverHadMembers: Bool = false
     private var originalMemberEntities: [MemberEntity] = []
 
@@ -92,13 +95,13 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
     init(
         maxCount: Int = 5,
-        registerTitlesUseCase: RegisterTitlesUseCase,
+        fetchProductTitlesUseCase: FetchProductTitlesUseCase,
         registerPostsUseCase: RegisterPostsUseCase,
         imagesRepository: ImagesInterface,
         artistsUseCase: ArtistMembersUseCase
     ) {
         self.maxCount = maxCount
-        self.registerTitlesUseCase = registerTitlesUseCase
+        self.fetchProductTitlesUseCase = fetchProductTitlesUseCase
         self.registerPostsUseCase = registerPostsUseCase
         self.imagesRepository = imagesRepository
         self.artistsUseCase = artistsUseCase
@@ -151,7 +154,7 @@ final class ProductRegisterViewModel: BaseViewModelType {
             }
             
         case .productTypeQueryChanged(_, let keyword):
-            action(.fetchTitles(keyword: keyword))
+            action(.fetchProductTitles(keyword: keyword))
             
         case .deadlineSelected(let date):
             deadlineSubject.send(date)
@@ -172,6 +175,8 @@ final class ProductRegisterViewModel: BaseViewModelType {
             hasEverHadMembers = !mappedMembers.isEmpty
             
         case .setArtist(let artist):
+            productTitleSearchTask?.cancel()
+            currentProductTitleQuery = ""
             selectedArtist = artist
             selectedArtistSubject.send(artist)
 
@@ -181,8 +186,11 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
             titlesSubject.send([])
             
-        case .fetchTitles(let keyword):
+        case .fetchProductTitles(let keyword):
             let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            productTitleSearchTask?.cancel()
+            currentProductTitleQuery = trimmed
 
             guard !trimmed.isEmpty else {
                 titlesSubject.send([])
@@ -201,18 +209,23 @@ final class ProductRegisterViewModel: BaseViewModelType {
             errors.artist = nil
             fieldErrorsSubject.send(errors)
 
-            Task { [weak self] in
+            let requestedQuery = trimmed
+            productTitleSearchTask = Task { [weak self] in
                 guard let self else { return }
                 do {
-                    let titles = try await self.registerTitlesUseCase.execute(
+                    let titles = try await self.fetchProductTitlesUseCase.execute(
                         artistId: artistId,
                         keyword: trimmed
                     )
                     await MainActor.run {
+                        guard !Task.isCancelled,
+                              self.currentProductTitleQuery == requestedQuery else { return }
                         self.titlesSubject.send(titles)
                     }
                 } catch {
                     await MainActor.run {
+                        guard !Task.isCancelled,
+                              self.currentProductTitleQuery == requestedQuery else { return }
                         self.titlesSubject.send([])
                     }
                 }
@@ -368,8 +381,8 @@ final class ProductRegisterViewModel: BaseViewModelType {
 
                 let mappedMembers = entities.map { entity in
                     MemberEntity(
-                        id: entity.artistId,
-                        name: entity.artistName,
+                        id: entity.memberId,
+                        name: entity.name,
                         price: 0
                     )
                 }

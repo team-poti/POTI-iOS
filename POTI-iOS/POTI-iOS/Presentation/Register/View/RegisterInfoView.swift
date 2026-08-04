@@ -35,12 +35,12 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
     private let bankTitleLabel = UILabel()
     private let bottomBoxView = UIView()
 
-    private(set) var artistField = CustomTextField.searchNavigate(placeholder: "아티스트 찾기")
-    private(set) var productTypeField = CustomSearchField()
-    private(set) var deadlineField = CustomTextField.shortNavigate(placeholder: "날짜를 선택해주세요")
-    private(set) var descriptionField = CustomLongTextField.long(placeholder: "분철팟 설명을 자세히 적어주세요\n예) 굿즈 구성 / 구매 여부 / 예상 배송일 등")
-    private(set) var accountField = CustomTextField.short(placeholder: "계좌번호를 입력해주세요")
-    private(set) var bankField = CustomTextField.short(placeholder: "은행 정보를 입력해주세요")
+    private(set) var artistField = PotiTextField.readOnly(placeholder: "아티스트 찾기", accessory: .search)
+    private(set) var productTypeField = PotiSearchField<String>(placeholder: "상품 종류를 입력해주세요", maxVisibleRows: 3, showsSearchIcon: false, titleProvider: { $0 })
+    private(set) var deadlineField = PotiTextField.readOnly(placeholder: "날짜를 선택해주세요")
+    private(set) var descriptionField = PotiTextView(placeholder: "분철팟 설명을 자세히 적어주세요\n예) 굿즈 구성 / 구매 여부 / 예상 배송일 등")
+    private(set) var accountField = PotiTextField.editable(placeholder: "계좌번호를 입력해주세요")
+    private(set) var bankField = PotiTextField.editable(placeholder: "은행 정보를 입력해주세요")
 
     // MARK: - UI Setting
 
@@ -86,20 +86,15 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
         accountTitleLabel.text = "계좌번호"
         bankTitleLabel.text = "은행"
 
-        artistField.onTapField = { [weak self] in
+        artistField.onTap = { [weak self] in
             self?.endEditing(true)
             self?.onTapArtistField?()
         }
-        deadlineField.onTapField = { [weak self] in
+        deadlineField.onTap = { [weak self] in
             self?.endEditing(true)
             self?.onTapDeadlineField?()
         }
 
-        productTypeField.configure(
-            placeholder: "상품 종류를 입력해주세요",
-            maxVisibleRows: 3,
-            showsRightAccessory: false
-        )
         productTypeField.onBeginEditing = { [weak self] textField in
             self?.onInputViewDidBeginEditing?(textField)
         }
@@ -227,24 +222,19 @@ final class RegisterInfoView: BaseView, UITextFieldDelegate {
 
     func collectDraft() -> Draft {
         return Draft(
-            artistId: selectedArtistId,
-            artist: artistField.getText(),
-            productType: productTypeField.getText(),
-            deadlineText: deadlineField.getText(),
-            description: descriptionField.getText(),
-            accountNumber: accountField.getText(),
-            bank: bankField.getText()
+            artistId: selectedArtistId, artist: artistField.text, productType: productTypeField.text,
+            deadlineText: deadlineField.text, description: descriptionField.text, accountNumber: accountField.text, bank: bankField.text
         )
     }
 
     func setArtist(id: Int, name: String) {
         selectedArtistId = id
-        artistField.setText(name)
+        artistField.text = name
     }
 
     func clearArtist() {
         selectedArtistId = nil
-        artistField.setText("")
+        artistField.text = ""
     }
 
     func setImages(_ images: [UIImage]) {

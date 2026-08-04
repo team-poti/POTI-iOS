@@ -71,7 +71,7 @@ final class AppDIContainer {
     }
 
     private func makeRegisterRepository() -> RegisterInterface {
-        DefaultRegisterRepository(networkService: makeNetworkService())
+        MockRegisterRepository()
     }
 
     private func makePaymentsRepository() -> PaymentsInterface {
@@ -131,15 +131,15 @@ final class AppDIContainer {
     }
 
     private func makeArtistMembersUseCase() -> ArtistMembersUseCase {
-        DefaultArtistsUseCase(repository: makeArtistsRepository())
+        DefaultArtistMembersUseCase(repository: makeArtistsRepository())
     }
 
-    private func makeRegisterArtistsUseCase() -> RegisterArtistsUseCase {
-        DefaultRegisterArtistsUseCase(repository: makeRegisterRepository())
+    private func makeArtistSearchUseCase() -> ArtistSearchUseCase {
+        DefaultArtistSearchUseCase(repository: makeRegisterRepository())
     }
 
-    private func makeRegisterTitlesUseCase() -> RegisterTitlesUseCase {
-        DefaultRegisterTitlesUseCase(repository: makeRegisterRepository())
+    private func makeFetchProductTitlesUseCase() -> FetchProductTitlesUseCase {
+        DefaultFetchProductTitlesUseCase(repository: makeRegisterRepository())
     }
 
     private func makeRegisterPostsUseCase() -> RegisterPostsUseCase {
@@ -273,7 +273,7 @@ final class AppDIContainer {
 
     func makeProductRegisterViewModel() -> ProductRegisterViewModel {
         ProductRegisterViewModel(
-            registerTitlesUseCase: makeRegisterTitlesUseCase(),
+            fetchProductTitlesUseCase: makeFetchProductTitlesUseCase(),
             registerPostsUseCase: makeRegisterPostsUseCase(),
             imagesRepository: makeImagesRepository(),
             artistsUseCase: makeArtistMembersUseCase()
@@ -281,7 +281,7 @@ final class AppDIContainer {
     }
 
     func makeArtistSearchViewModel() -> ArtistSearchViewModel {
-        ArtistSearchViewModel(registerArtistsUseCase: makeRegisterArtistsUseCase())
+        ArtistSearchViewModel(artistSearchUseCase: makeArtistSearchUseCase())
     }
 
     func makeOnboardingViewModel() -> OnboardingViewModel {
