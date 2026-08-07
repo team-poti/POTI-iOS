@@ -14,169 +14,102 @@ final class MyPageHistoryTabView: BaseView {
     
     // MARK: - UI Components
     
-    private let ongoingCountLabel = UILabel()
-    private let ongoingTitleLabel = UILabel()
     let ongoingTabButton = UIButton()
-    
-    private let completedCountLabel = UILabel()
-    private let completedTitleLabel = UILabel()
     let completedTabButton = UIButton()
-    
-    let tabIndicator = UIView()
-    private let tabDivider = UIView()
     
     // MARK: - Custom Methods
     
     override func setStyle() {
-        ongoingCountLabel.do {
-            $0.text = "0"
-            $0.font = PotiFontManager.display18b.font
-            $0.textColor = .gray700
-            $0.textAlignment = .center
-            $0.setContentHuggingPriority(.required, for: .vertical)
-            $0.setContentCompressionResistancePriority(.required, for: .vertical)
-        }
         
-        ongoingTitleLabel.do {
-            $0.text = "진행 중"
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray700
-            $0.textAlignment = .center
-            $0.setContentHuggingPriority(.required, for: .vertical)
-            $0.setContentCompressionResistancePriority(.required, for: .vertical)
-        }
-        
-        ongoingTabButton.do {
-            $0.tag = 0
-            $0.backgroundColor = .clear
-        }
-        
-        completedCountLabel.do {
-            $0.text = "0"
-            $0.font = PotiFontManager.display18b.font
-            $0.textColor = .gray700
-            $0.textAlignment = .center
-            $0.setContentHuggingPriority(.required, for: .vertical)
-            $0.setContentCompressionResistancePriority(.required, for: .vertical)
-        }
-        
-        completedTitleLabel.do {
-            $0.text = "종료"
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray700
-            $0.textAlignment = .center
-            $0.setContentHuggingPriority(.required, for: .vertical)
-            $0.setContentCompressionResistancePriority(.required, for: .vertical)
-        }
-        
-        completedTabButton.do {
-            $0.tag = 1
-            $0.backgroundColor = .clear
-        }
-        
-        tabIndicator.do {
-            $0.backgroundColor = .poti600
-        }
-        
-        tabDivider.do {
-            $0.backgroundColor = .gray300
-        }
-    }
-    
-    override func setUI() {
-        addSubviews(
-            ongoingCountLabel,
-            ongoingTitleLabel,
+        configureButton(
             ongoingTabButton,
-            completedCountLabel,
-            completedTitleLabel,
+            title: "진행중 0",
+            tag: 0,
+            selected: true
+        )
+        
+        configureButton(
             completedTabButton,
-            tabDivider,
-            tabIndicator
+            title: "종료 0",
+            tag: 1,
+            selected: false
         )
     }
     
+    override func setUI() {
+        backgroundColor = .potiWhite
+        addSubviews(ongoingTabButton, completedTabButton)
+    }
+    
     override func setLayout() {
-        ongoingCountLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview().offset(-8)
-            $0.centerX.equalToSuperview().multipliedBy(0.5)
-        }
-        
-        ongoingTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(ongoingCountLabel.snp.bottom).offset(2)
-            $0.centerX.equalTo(ongoingCountLabel)
-        }
         
         ongoingTabButton.snp.makeConstraints {
-            $0.top.bottom.leading.equalToSuperview()
-            $0.width.equalTo(self.snp.width).dividedBy(2)
-        }
-        
-        completedCountLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview().offset(-8)
-            $0.centerX.equalToSuperview().multipliedBy(1.5)
-        }
-        
-        completedTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(completedCountLabel.snp.bottom).offset(2)
-            $0.centerX.equalTo(completedCountLabel)
+            $0.leading.equalToSuperview().inset(16)
+            $0.height.equalTo(CGFloat.dynamicH(36))
         }
         
         completedTabButton.snp.makeConstraints {
-            $0.top.bottom.trailing.equalToSuperview()
-            $0.width.equalTo(self.snp.width).dividedBy(2)
-        }
-        
-        tabIndicator.snp.makeConstraints {
-            $0.bottom.equalToSuperview()
-            $0.leading.equalTo(ongoingTabButton)
-            $0.width.equalTo(ongoingTabButton)
-            $0.height.equalTo(2)
-        }
-        
-        tabDivider.snp.makeConstraints {
-            $0.bottom.equalToSuperview()
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(2)
+            $0.leading.equalTo(ongoingTabButton.snp.trailing).offset(8)
+            $0.height.equalTo(CGFloat.dynamicH(36))
         }
     }
+}
+
+extension MyPageHistoryTabView {
+    private func configureButton(
+        _ button: UIButton,
+        title: String,
+        tag: Int,
+        selected: Bool
+    ) {
+        button.tag = tag
+        button.layer.cornerRadius = CGFloat.dynamicH(18)
+        button.clipsToBounds = true
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = title
+        configuration.contentInsets = NSDirectionalEdgeInsets(
+            top: 7.5,
+            leading: 12,
+            bottom: 7.5,
+            trailing: 12
+        )
+        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
+            var attributes = attributes
+            attributes.font = PotiFontManager.body14sb.font
+            return attributes
+        }
+        button.configuration = configuration
+        
+        update(button, selected: selected)
+    }
     
+    private func update(_ button: UIButton, selected: Bool) {
+        var configuration = button.configuration
+
+        if selected {
+            configuration?.baseForegroundColor = .potiWhite
+            configuration?.background.backgroundColor = .gray900
+        } else {
+            configuration?.baseForegroundColor = .gray900
+            configuration?.background.backgroundColor = .gray100
+        }
+
+        button.configuration = configuration
+    }
+
     // MARK: - Public Methods
-    
-    func updateTabIndicator(to button: UIButton, animated: Bool) {
-        self.tabIndicator.snp.removeConstraints()
-        UIView.animate(withDuration: animated ? 0.25 : 0, delay: 0, options: [.curveEaseInOut], animations: {
-            self.tabIndicator.snp.remakeConstraints {
-                $0.bottom.equalToSuperview()
-                $0.leading.equalTo(button)
-                $0.width.equalTo(button)
-                $0.height.equalTo(2)
-            }
-            self.layoutIfNeeded()
-        })
-    }
-    
+
     func updateTabSelection(tab: MyPageHistoryViewController.HistoryTab) {
-        switch tab {
-        case .ongoing:
-            ongoingCountLabel.textColor = .potiBlack
-            ongoingTitleLabel.textColor = .potiBlack
-            completedCountLabel.textColor = .gray700
-            completedTitleLabel.textColor = .gray700
-        case .completed:
-            ongoingCountLabel.textColor = .gray700
-            ongoingTitleLabel.textColor = .gray700
-            completedCountLabel.textColor = .potiBlack
-            completedTitleLabel.textColor = .potiBlack
-        }
+        update(ongoingTabButton, selected: tab == .ongoing)
+        update(completedTabButton, selected: tab == .completed)
     }
-    
+
     func updateCount(for tab: MyPageHistoryViewController.HistoryTab, count: Int) {
-        switch tab {
-        case .ongoing:
-            ongoingCountLabel.text = "\(count)"
-        case .completed:
-            completedCountLabel.text = "\(count)"
-        }
+        let button = tab == .ongoing ? ongoingTabButton : completedTabButton
+        let title = tab == .ongoing ? "진행중" : "종료"
+        button.configuration?.title = "\(title) \(count)"
     }
 }
