@@ -17,8 +17,8 @@ final class SortBottomSheet: BaseView {
     
     private let viewModel: SortViewModel
     private var cancellables = Set<AnyCancellable>()
-    var onSelectCompletion: ((Int) -> Void)?
-    var onDismissCompletion: (() -> Void)?
+    var onSelect: ((Int) -> Void)?
+    var onDismiss: (() -> Void)?
     
     // MARK: - UI Components
     
@@ -109,7 +109,7 @@ final class SortBottomSheet: BaseView {
         viewModel.output.onSelect
             .receive(on: RunLoop.main)
             .sink { [weak self] index in
-                self?.onSelectCompletion?(index)
+                self?.onSelect?(index)
                 self?.dismiss()
             }
             .store(in: &cancellables)
@@ -124,8 +124,8 @@ final class SortBottomSheet: BaseView {
     }
     
     private func setAddTarget() {
-        closeButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundViewTapped))
         backgroundView.addGestureRecognizer(tapGesture)
     }
     
@@ -145,12 +145,20 @@ final class SortBottomSheet: BaseView {
         }
     }
     
-    @objc private func dismiss() {
+    @objc private func closeButtonTapped() {
+        dismiss()
+    }
+
+    @objc private func backgroundViewTapped() {
+        dismiss()
+    }
+
+    private func dismiss() {
         UIView.animate(withDuration: 0.3, animations: { [weak self] in
             self?.containerView.transform = CGAffineTransform(translationX: 0, y: 500)
             self?.backgroundView.alpha = 0
         }) { [weak self] _ in
-            self?.onDismissCompletion?()
+            self?.onDismiss?()
             self?.removeFromSuperview()
         }
     }

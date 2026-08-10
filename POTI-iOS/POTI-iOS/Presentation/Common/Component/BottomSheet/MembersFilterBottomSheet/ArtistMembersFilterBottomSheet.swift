@@ -17,7 +17,7 @@ final class ArtistMembersFilterBottomSheet: BaseView {
     
     private let viewModel: ArtistMembersFilterViewModel
     var onComplete: (((ids: [Int], names: [String])) -> Void)?
-    var onDismissCompletion: (() -> Void)?
+    var onDismiss: (() -> Void)?
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - UI Components
@@ -27,10 +27,7 @@ final class ArtistMembersFilterBottomSheet: BaseView {
     private let closeButton = UIButton()
     private let titleLabel = UILabel()
     
-    private lazy var collectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: makeCollectionViewLayout()
-    )
+    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeCollectionViewLayout())
     
     private let bottomButtonStackView = UIStackView()
     private let resetButton = PotiBottomButton()
@@ -153,11 +150,11 @@ extension ArtistMembersFilterBottomSheet {
     }
     
     func setAddTarget() {
-        closeButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
-        resetButton.addTarget(self, action: #selector(didTapReset), for: .touchUpInside)
-        completeButton.addTarget(self, action: #selector(didTapComplete), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        resetButton.addTarget(self, action: #selector(resetButtonTapped), for: .touchUpInside)
+        completeButton.addTarget(self, action: #selector(completeButtonTapped), for: .touchUpInside)
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundViewTapped))
         backgroundView.addGestureRecognizer(tapGesture)
         backgroundView.isUserInteractionEnabled = true
     }
@@ -185,15 +182,23 @@ extension ArtistMembersFilterBottomSheet {
             .store(in: &cancellables)
     }
     
-    @objc func didTapReset() { viewModel.action(.tapReset) }
-    @objc func didTapComplete() { viewModel.action(.tapComplete) }
+    @objc private func resetButtonTapped() { viewModel.action(.tapReset) }
+    @objc private func completeButtonTapped() { viewModel.action(.tapComplete) }
+
+    @objc private func closeButtonTapped() {
+        dismiss()
+    }
+
+    @objc private func backgroundViewTapped() {
+        dismiss()
+    }
     
-    @objc func dismiss() {
+    private func dismiss() {
         UIView.animate(withDuration: 0.3, animations: {
             self.containerView.transform = CGAffineTransform(translationX: 0, y: self.frame.height)
             self.backgroundView.alpha = 0
         }) { _ in
-            self.onDismissCompletion?()
+            self.onDismiss?()
             self.removeFromSuperview()
         }
     }
@@ -235,5 +240,3 @@ extension ArtistMembersFilterBottomSheet: UICollectionViewDataSource, UICollecti
         viewModel.action(.selectMember(index: indexPath.item))
     }
 }
-
-

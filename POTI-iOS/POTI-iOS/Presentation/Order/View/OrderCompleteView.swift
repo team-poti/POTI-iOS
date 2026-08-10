@@ -23,7 +23,7 @@ final class OrderCompleteView: BaseView {
     private let submitSuccessView = LottieAnimationView(name: "join")
     private let bottomButton = PotiBottomButton()
     
-    var confirmAction: (() -> Void)?
+    var onTapConfirm: (() -> Void)?
     
     // MARK: - Custom Methods
     
@@ -109,9 +109,9 @@ final class OrderCompleteView: BaseView {
     // MARK: - Private Method
     
     private func setAddTarget() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundViewTapped))
         backgroundView.addGestureRecognizer(tapGesture)
-        bottomButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
+        bottomButton.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
     }
     
     // MARK: - Public Method
@@ -137,14 +137,22 @@ final class OrderCompleteView: BaseView {
     
     // MARK: - Action
     
-    @objc private func dismiss() {
+    @objc private func backgroundViewTapped() {
+        dismiss()
+    }
+
+    @objc private func confirmButtonTapped() {
+        dismiss()
+    }
+
+    private func dismiss() {
         UIView.animate(withDuration: 0.2, animations: {
             self.containerView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
             self.containerView.alpha = 0
             self.backgroundView.alpha = 0
         }) { _ in
             self.removeFromSuperview()
-            self.confirmAction?()
+            self.onTapConfirm?()
         }
     }
 }

@@ -82,8 +82,8 @@ final class PotOptionsView: BaseView {
     // MARK: - Private Methods
     
     private func setActions() {
-        contentView.memberButton.addTarget(self, action: #selector(toggleMember), for: .touchUpInside)
-        contentView.deliveryButton.addTarget(self, action: #selector(toggleDelivery), for: .touchUpInside)
+        contentView.memberButton.addTarget(self, action: #selector(memberButtonTapped), for: .touchUpInside)
+        contentView.deliveryButton.addTarget(self, action: #selector(deliveryButtonTapped), for: .touchUpInside)
         contentView.bottomButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         
@@ -189,7 +189,7 @@ final class PotOptionsView: BaseView {
             self.alpha = 1
             self.containerView.transform = .identity
         } completion: { _ in
-            self.toggleMember()
+            self.memberButtonTapped()
         }
     }
     
@@ -228,11 +228,11 @@ final class PotOptionsView: BaseView {
         onContinue?()
     }
     
-    @objc private func toggleMember() {
+    @objc private func memberButtonTapped() {
         handleDropdown(anchor: contentView.memberButton, isMember: true)
     }
     
-    @objc private func toggleDelivery() {
+    @objc private func deliveryButtonTapped() {
         handleDropdown(anchor: contentView.deliveryButton, isMember: false)
     }
 }
