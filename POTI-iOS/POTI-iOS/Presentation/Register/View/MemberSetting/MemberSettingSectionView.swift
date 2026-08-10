@@ -1,5 +1,5 @@
 //
-//  RegisterMemberView.swift
+//  MemberSettingSectionView.swift
 //  POTI-iOS
 //
 //  Created by 박정환 on 1/14/26.
@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class RegisterMemberView: BaseView {
+final class MemberSettingSectionView: BaseView {
 
     // MARK: - Callbacks
 

@@ -1,5 +1,5 @@
 //
-//  RegisterShippingView.swift
+//  ShippingSettingSectionView.swift
 //  POTI-iOS
 //
 //  Created by 박정환 on 1/14/26.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class RegisterShippingView: BaseView {
+final class ShippingSettingSectionView: BaseView {
     
     private let titleLabel = UILabel()
     private let rowsStackView = UIStackView()
