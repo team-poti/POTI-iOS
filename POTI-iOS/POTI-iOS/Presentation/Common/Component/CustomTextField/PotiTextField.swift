@@ -78,7 +78,7 @@ final class PotiTextField: BaseView {
             $0.setContentHuggingPriority(.required, for: .horizontal)
         }
 
-        tapGesture.addTarget(self, action: #selector(didTapField))
+        tapGesture.addTarget(self, action: #selector(textFieldTapped))
         inputContainer.contentView.addGestureRecognizer(tapGesture)
     }
 
@@ -197,7 +197,7 @@ final class PotiTextField: BaseView {
         textSubject.send(value)
     }
 
-    @objc private func didTapField() {
+    @objc private func textFieldTapped() {
         guard case .readOnly = variant else { return }
         if showsFocusedBorderOnTap { setFocused(true) }
         onTap?()

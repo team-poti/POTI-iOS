@@ -18,7 +18,7 @@ final class DetailSubContentFooterView: UICollectionReusableView {
     private let shareStackView = UIStackView()
     private let shareIconView = UIImageView()
     private let shareLabel = UILabel()
-    private let noticeView = joinNoticeView()
+    private let noticeView = NoticeView(type: .participate)
     
     // MARK: - Initializer
     

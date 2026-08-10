@@ -83,7 +83,7 @@ final class AccordionDropdownView: BaseView {
     }
     
     override func setUI() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(close))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundViewTapped))
         tapGesture.cancelsTouchesInView = false
         
         whiteLayerView.addGestureRecognizer(tapGesture)
@@ -149,7 +149,11 @@ final class AccordionDropdownView: BaseView {
     
     // MARK: - Action
     
-    @objc func close() {
+    @objc private func backgroundViewTapped() {
+        close()
+    }
+
+    func close() {
         guard isOpen else { return }
         isOpen = false
         onClose?()
