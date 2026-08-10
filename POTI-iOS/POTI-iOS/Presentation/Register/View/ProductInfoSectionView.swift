@@ -38,7 +38,11 @@ final class ProductInfoSectionView: BaseView {
     }
 
     override func setLayout() {
-        stackView.snp.makeConstraints { $0.edges.equalToSuperview() }
-        dividerView.snp.makeConstraints { $0.height.equalTo(9) }
+        stackView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        dividerView.snp.makeConstraints {
+            $0.height.equalTo(9)
+        }
     }
 }

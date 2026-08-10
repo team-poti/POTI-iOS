@@ -55,12 +55,9 @@ final class MemberSettingSectionView: BaseView {
 
         emptyStateLabel.do {
             $0.text = "아티스트를 먼저 선택해주세요"
-            $0.font = PotiFontManager.body16m.font
+            $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray700
             $0.textAlignment = .center
-            $0.numberOfLines = 1
-            $0.isHidden = false
-            $0.isUserInteractionEnabled = false
         }
 
         errorStackView.do {
@@ -68,22 +65,18 @@ final class MemberSettingSectionView: BaseView {
             $0.spacing = 6
             $0.alignment = .center
             $0.distribution = .fill
-            $0.isHidden = true
-            $0.isUserInteractionEnabled = false
         }
 
         errorIconView.do {
             $0.contentMode = .scaleAspectFit
-            $0.image = UIImage.icnNotice
+            $0.image = .icnNotice
             $0.tintColor = .sementicRed
-            $0.isUserInteractionEnabled = false
         }
 
         errorLabel.do {
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .sementicRed
             $0.numberOfLines = 0
-            $0.isUserInteractionEnabled = false
         }
     }
 

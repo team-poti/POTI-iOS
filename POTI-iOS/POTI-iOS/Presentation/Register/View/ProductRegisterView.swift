@@ -92,7 +92,7 @@ final class ProductRegisterView: BaseView {
         noticeView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(24)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(60)
+            $0.bottom.equalToSuperview().inset(40)
         }
 
         submitButton.snp.makeConstraints {
@@ -138,7 +138,7 @@ final class ProductRegisterView: BaseView {
 
     func showMembers(_ names: [String]) {
         if names.isEmpty {
-            memberSettingView.showEmpty(message: "선택한 멤버가 없어요")
+            memberSettingView.showEmpty(message: "아티스트를 먼저 선택해주세요")
         } else {
             memberSettingView.showMembers(names: names)
         }
