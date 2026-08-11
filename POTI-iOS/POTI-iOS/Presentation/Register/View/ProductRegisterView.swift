@@ -2,7 +2,7 @@
 //  ProductRegisterView.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/14/26.
+//  Created by soomin on 8/9/26.
 //
 
 import UIKit
@@ -16,21 +16,14 @@ final class ProductRegisterView: BaseView {
     // MARK: - Properties
 
     var productTypeTextPublisher: AnyPublisher<String, Never> { productFormView.productTypeTextPublisher }
-    var onTapAddImage: (() -> Void)?
-    var onTapDeleteImage: ((Int) -> Void)?
-    var onTapArtistField: (() -> Void)?
-    var onTapDeadlineField: (() -> Void)?
-    var onInputViewDidBeginEditing: ((UIView) -> Void)?
-    var onPriceChanged: ((Int, Int?) -> Void)?
-    var onTapSubmit: (() -> Void)?
-
-    private var productFormView: ProductFormView { productInfoView.productFormView }
-    private var imagePickerView: ImagePickerView { productInfoView.imagePickerView }
+    var onAction: ((ProductRegisterAction) -> Void)?
 
     // MARK: - UI Components
 
     private let scrollView = UIScrollView()
     private let contentStackView = UIStackView()
+    private var productFormView: ProductFormView { productInfoView.productFormView }
+    private var imagePickerView: ImagePickerView { productInfoView.imagePickerView }
     private let productInfoView = ProductInfoSectionView()
     private let memberSettingView = MemberSettingSectionView()
     private let shippingSettingView = ShippingSettingSectionView()
@@ -44,11 +37,11 @@ final class ProductRegisterView: BaseView {
         scrollView.do {
             $0.alwaysBounceVertical = true
             $0.showsVerticalScrollIndicator = false
-            $0.keyboardDismissMode = .none
+            $0.keyboardDismissMode = .onDrag
             $0.delaysContentTouches = false
             $0.canCancelContentTouches = true
+            $0.panGestureRecognizer.cancelsTouchesInView = false
         }
-        scrollView.panGestureRecognizer.cancelsTouchesInView = false
 
         contentStackView.do {
             $0.axis = .vertical
@@ -68,14 +61,6 @@ final class ProductRegisterView: BaseView {
         scrollView.addSubview(contentStackView)
         noticeContainerView.addSubview(noticeView)
         contentStackView.addArrangedSubviews(productInfoView, memberSettingView, shippingSettingView, noticeContainerView)
-
-        imagePickerView.onTapAdd = { [weak self] in self?.onTapAddImage?() }
-        imagePickerView.onTapDelete = { [weak self] in self?.onTapDeleteImage?($0) }
-        productFormView.onTapArtistField = { [weak self] in self?.onTapArtistField?() }
-        productFormView.onTapDeadlineField = { [weak self] in self?.onTapDeadlineField?() }
-        productFormView.onInputViewDidBeginEditing = { [weak self] in self?.onInputViewDidBeginEditing?($0) }
-        memberSettingView.onPriceChanged = { [weak self] index, price in self?.onPriceChanged?(index, price) }
-        submitButton.addTarget(self, action: #selector(submitButtonTapped), for: .touchUpInside)
     }
 
     override func setLayout() {
@@ -102,11 +87,33 @@ final class ProductRegisterView: BaseView {
         }
     }
 
-    // MARK: - Public Methods
+    override func addTarget() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(scrollViewTapped))
+        tapGesture.cancelsTouchesInView = false
+        scrollView.addGestureRecognizer(tapGesture)
 
-    func configureShippingOptions(_ options: [(name: String, price: Int)]) {
-        shippingSettingView.configure(options: options)
+        imagePickerView.onTapAdd = { [weak self] in self?.onAction?(.addImage) }
+        imagePickerView.onTapDelete = { [weak self] in self?.onAction?(.deleteImage($0)) }
+        productFormView.onAction = { [weak self] in self?.onAction?(.form($0)) }
+        memberSettingView.onAction = { [weak self] in self?.onAction?(.memberSetting($0)) }
+        shippingSettingView.onAction = { [weak self] in self?.onAction?(.shippingSetting($0)) }
+        submitButton.addTarget(self, action: #selector(submitButtonTapped), for: .touchUpInside)
     }
+
+    // MARK: - Private Method
+
+    private func scrollIfNeeded(for inputFrame: CGRect, coveredHeight: CGFloat) {
+        let visibleHeight = bounds.height - coveredHeight
+        let requiredOffset = inputFrame.maxY > visibleHeight ? inputFrame.maxY - visibleHeight + 30 : 0
+        guard requiredOffset > 0 else { return }
+
+        let maximumOffset = max(0, scrollView.contentSize.height - scrollView.bounds.height + scrollView.contentInset.bottom)
+
+        let targetOffset = min(scrollView.contentOffset.y + requiredOffset, maximumOffset)
+        scrollView.setContentOffset(CGPoint(x: 0, y: targetOffset), animated: true)
+    }
+
+    // MARK: - Public Methods
 
     func setImages(_ images: [UIImage]) {
         imagePickerView.setImages(images)
@@ -128,32 +135,16 @@ final class ProductRegisterView: BaseView {
         productFormView.renderValidation(errors)
     }
 
-    func renderMemberError(_ message: String?) {
-        if let message {
-            memberSettingView.showEditedEmptyError(message: message)
-        } else {
-            memberSettingView.hideEditedEmptyError()
-        }
+    func renderMemberSetting(_ state: MemberSettingViewState) {
+        memberSettingView.render(state)
     }
 
-    func showMembers(_ names: [String]) {
-        if names.isEmpty {
-            memberSettingView.showEmpty(message: "아티스트를 먼저 선택해주세요")
-        } else {
-            memberSettingView.showMembers(names: names)
-        }
+    func renderShippingSetting(_ state: ShippingSettingViewState) {
+        shippingSettingView.render(state)
     }
 
-    func makeDraft() -> ProductRegisterDraft {
-        productFormView.makeDraft()
-    }
-
-    func collectSelectedShippings() -> [ShippingSettingSectionView.ShippingRequest] {
-        shippingSettingView.collectSelectedShippings()
-    }
-
-    func setArtist(id: Int, name: String) {
-        productFormView.setArtist(id: id, name: name)
+    func setArtist(name: String) {
+        productFormView.setArtist(name: name)
     }
 
     func setDeadline(_ deadline: String) {
@@ -164,30 +155,17 @@ final class ProductRegisterView: BaseView {
         productFormView.clearFieldFocus()
     }
 
-    func scrollToDeadlineField(coveredHeight: CGFloat) {
-        scrollIfNeeded(for: productFormView.deadlineFieldFrame(in: self), coveredHeight: coveredHeight)
-    }
-
     func scrollIfNeeded(for inputView: UIView, coveredHeight: CGFloat) {
         scrollIfNeeded(for: inputView.convert(inputView.bounds, to: self), coveredHeight: coveredHeight)
     }
 
-    // MARK: - Private Method
-
-    private func scrollIfNeeded(for inputFrame: CGRect, coveredHeight: CGFloat) {
-        let visibleHeight = bounds.height - coveredHeight
-        let requiredOffset = inputFrame.maxY > visibleHeight ? inputFrame.maxY - visibleHeight + 30 : 0
-        guard requiredOffset > 0 else { return }
-
-        let maximumOffset = max(0, scrollView.contentSize.height - scrollView.bounds.height + scrollView.contentInset.bottom)
-        
-        let targetOffset = min(scrollView.contentOffset.y + requiredOffset, maximumOffset)
-        scrollView.setContentOffset(CGPoint(x: 0, y: targetOffset), animated: true)
-    }
-
-    // MARK: - Action
+    // MARK: - Actions
 
     @objc private func submitButtonTapped() {
-        onTapSubmit?()
+        onAction?(.submit)
+    }
+
+    @objc private func scrollViewTapped() {
+        endEditing(true)
     }
 }
