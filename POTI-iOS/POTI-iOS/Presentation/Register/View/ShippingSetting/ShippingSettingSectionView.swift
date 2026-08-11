@@ -2,22 +2,31 @@
 //  ShippingSettingSectionView.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/14/26.
+//  Created by soomin on 8/11/26.
 //
 
 import UIKit
 
+import SnapKit
+import Then
+
 final class ShippingSettingSectionView: BaseView {
-    
+
+    // MARK: - Properties
+
+    var onAction: ((ShippingSettingAction) -> Void)?
+
+    private var renderedOptionIDs: [Int] = []
+    private var rowViews: [Int: ShippingRowView] = [:]
+
+    // MARK: - UI Components
+
     private let titleLabel = UILabel()
+    private let errorView = ValidationErrorView()
     private let rowsStackView = UIStackView()
-    private let bottomBoxView = UIView()
-    private var selectedIndices: Set<Int> = []
-    
-    struct ShippingRequest {
-        let deliveryMethodId: Int
-        let price: Int
-    }
+    private let grayLineView = UIView()
+
+    // MARK: - Custom Methods
 
     override func setStyle() {
         backgroundColor = .clear
@@ -34,14 +43,14 @@ final class ShippingSettingSectionView: BaseView {
             $0.alignment = .fill
             $0.distribution = .fill
         }
-        
-        bottomBoxView.do {
+
+        grayLineView.do {
             $0.backgroundColor = .gray100
         }
     }
-    
+
     override func setUI() {
-        addSubviews(titleLabel, rowsStackView, bottomBoxView)
+        addSubviews(titleLabel, errorView, rowsStackView, grayLineView)
     }
 
     override func setLayout() {
@@ -50,67 +59,48 @@ final class ShippingSettingSectionView: BaseView {
             $0.leading.equalToSuperview().inset(16)
         }
 
+        errorView.snp.makeConstraints {
+            $0.centerY.equalTo(titleLabel)
+            $0.trailing.equalToSuperview().inset(16)
+        }
+
         rowsStackView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(24)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalToSuperview().inset(16)
         }
 
-        bottomBoxView.snp.makeConstraints {
+        grayLineView.snp.makeConstraints {
             $0.top.equalTo(rowsStackView.snp.bottom).offset(24)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.bottom.equalToSuperview()
             $0.height.equalTo(9)
-            $0.bottom.equalToSuperview()
         }
     }
 
-    // MARK: - Custom Method
+    // MARK: - Private Method
 
-    func configure(options: [(name: String, price: Int)]) {
+    private func makeRows(for options: [RegisterShippingOptionItem]) {
         rowsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        selectedIndices = [0]
+        renderedOptionIDs = options.map(\.deliveryMethodID)
+        rowViews.removeAll()
 
-        for (index, option) in options.enumerated() {
-            let row = ShippingRowView()
-            row.configure(name: option.name, price: option.price)
-            row.setSelected(selectedIndices.contains(index))
-            row.onTap = { [weak self] in
-                guard let self = self else { return }
-                if self.selectedIndices.contains(index) {
-                    if self.selectedIndices.count == 1 {
-                        return
-                    }
-                    self.selectedIndices.remove(index)
-                } else {
-                    self.selectedIndices.insert(index)
-                }
-                for (i, view) in self.rowsStackView.arrangedSubviews.enumerated() {
-                    if let shippingRow = view as? ShippingRowView {
-                        shippingRow.setSelected(self.selectedIndices.contains(i))
-                    }
-                }
-            }
-            rowsStackView.addArrangedSubview(row)
+        options.forEach { option in
+            let rowView = ShippingRowView(deliveryMethodID: option.deliveryMethodID)
+            rowView.onAction = { [weak self] in self?.onAction?($0) }
+            rowViews[option.deliveryMethodID] = rowView
+            rowsStackView.addArrangedSubview(rowView)
         }
     }
-    
-    func collectSelectedShippings() -> [ShippingRequest] {
-        var result: [ShippingRequest] = []
 
-        for index in selectedIndices.sorted() {
-            switch index {
-            case 0:
-                result.append(
-                    ShippingRequest(deliveryMethodId: 1, price: 4000)
-                )
-            case 1:
-                result.append(
-                    ShippingRequest(deliveryMethodId: 2, price: 1800)
-                )
-            default:
-                break
-            }
+    // MARK: - Public Method
+
+    func render(_ state: ShippingSettingViewState) {
+        errorView.setMessage(state.error?.message)
+
+        let optionIDs = state.options.map(\.deliveryMethodID)
+        if renderedOptionIDs != optionIDs {
+            makeRows(for: state.options)
         }
 
-        return result
+        state.options.forEach { rowViews[$0.deliveryMethodID]?.render($0) }
     }
 }
