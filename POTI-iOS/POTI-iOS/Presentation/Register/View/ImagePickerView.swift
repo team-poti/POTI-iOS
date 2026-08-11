@@ -23,7 +23,7 @@ final class ImagePickerView: BaseView {
     
     private let contentStackView = UIStackView()
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeCollectionViewLayout())
-    private let validationErrorView = TextFieldErrorView()
+    private let validationErrorView = ValidationErrorView()
     
     // MARK: - Initializer
     
@@ -101,11 +101,11 @@ final class ImagePickerView: BaseView {
     }
     
     func showValidationError(_ message: String) {
-        validationErrorView.show(message: message)
+        validationErrorView.setMessage(message)
     }
     
     func hideValidationError() {
-        validationErrorView.hide()
+        validationErrorView.setMessage(nil)
     }
 }
 

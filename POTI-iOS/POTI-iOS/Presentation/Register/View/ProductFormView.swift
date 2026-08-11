@@ -16,11 +16,9 @@ final class ProductFormView: BaseView {
     // MARK: - Properties
 
     var productTypeTextPublisher: AnyPublisher<String, Never> { productTypeField.textPublisher }
-    var onTapArtistField: (() -> Void)?
-    var onTapDeadlineField: (() -> Void)?
-    var onInputViewDidBeginEditing: ((UIView) -> Void)?
+    var onAction: ((ProductFormAction) -> Void)?
 
-    private var selectedArtistId: Int?
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - UI Components
 
@@ -69,28 +67,34 @@ final class ProductFormView: BaseView {
             $0.bottom.equalToSuperview().inset(24)
         }
     }
-    
+
     // MARK: - Private Methods
-    
+
     private func bindActions() {
         artistField.onTap = { [weak self] in
             self?.endEditing(true)
-            self?.onTapArtistField?()
+            self?.onAction?(.artistFieldTapped)
         }
         deadlineField.onTap = { [weak self] in
             guard let self else { return }
             endEditing(true)
             deadlineField.setFocused(true)
-            onTapDeadlineField?()
+            onAction?(.deadlineFieldTapped)
         }
         productTypeField.onSelectItem = { [weak self] productType in
             self?.productTypeField.text = productType
             self?.productTypeField.updateSuggestions([])
+            self?.onAction?(.productTypeChanged(productType))
         }
-        productTypeField.onBeginEditing = { [weak self] in self?.onInputViewDidBeginEditing?($0) }
-        descriptionField.onBeginEditing = { [weak self] in self?.onInputViewDidBeginEditing?($0) }
-        accountField.onBeginEditing = { [weak self] in self?.onInputViewDidBeginEditing?($0) }
-        bankField.onBeginEditing = { [weak self] in self?.onInputViewDidBeginEditing?($0) }
+        productTypeField.onBeginEditing = { [weak self] in self?.onAction?(.inputFocused($0)) }
+        descriptionField.onBeginEditing = { [weak self] in self?.onAction?(.inputFocused($0)) }
+        accountField.onBeginEditing = { [weak self] in self?.onAction?(.inputFocused($0)) }
+        bankField.onBeginEditing = { [weak self] in self?.onAction?(.inputFocused($0)) }
+
+        productTypeField.textPublisher.dropFirst().sink { [weak self] in self?.onAction?(.productTypeChanged($0)) }.store(in: &cancellables)
+        descriptionField.textPublisher.dropFirst().sink { [weak self] in self?.onAction?(.descriptionChanged($0)) }.store(in: &cancellables)
+        accountField.textPublisher.dropFirst().sink { [weak self] in self?.onAction?(.accountNumberChanged($0)) }.store(in: &cancellables)
+        bankField.textPublisher.dropFirst().sink { [weak self] in self?.onAction?(.bankChanged($0)) }.store(in: &cancellables)
     }
 
     private func validationState(message: String?) -> TextFieldValidationState {
@@ -100,18 +104,10 @@ final class ProductFormView: BaseView {
 
     // MARK: - Public Methods
 
-    func makeDraft() -> ProductRegisterDraft {
-        ProductRegisterDraft(
-            artistId: selectedArtistId, artist: artistField.text, productType: productTypeField.text,
-            deadlineText: deadlineField.text, description: descriptionField.text, accountNumber: accountField.text, bank: bankField.text
-        )
-    }
-
-    func setArtist(id: Int, name: String) {
-        selectedArtistId = id
+    func setArtist(name: String) {
         artistField.text = name
     }
-    
+
     func setDeadline(_ deadline: String) {
         deadlineField.text = deadline
     }
@@ -134,7 +130,4 @@ final class ProductFormView: BaseView {
         bankField.setValidationState(validationState(message: errors.bank))
     }
 
-    func deadlineFieldFrame(in view: UIView) -> CGRect {
-        deadlineField.convert(deadlineField.bounds, to: view)
-    }
 }
