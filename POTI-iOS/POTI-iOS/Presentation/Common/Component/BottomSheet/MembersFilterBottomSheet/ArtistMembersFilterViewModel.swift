@@ -7,136 +7,164 @@
 
 import Combine
 
+struct SelectableArtistMember: Equatable {
+    let id: Int
+    let name: String
+    var isSelected: Bool
+}
+
+enum ArtistMembersSelectionMode {
+    case filter
+    case registration
+
+    var title: String {
+        switch self {
+        case .filter: "멤버 선택"
+        case .registration: "멤버 편집"
+        }
+    }
+
+    var resetTitle: String {
+        switch self {
+        case .filter: "초기화"
+        case .registration: "전체 선택"
+        }
+    }
+}
+
 final class ArtistMembersFilterViewModel: BaseViewModelType {
-    
+
     // MARK: - Input
-    
+
     enum Input {
         case viewDidLoad
         case selectMember(index: Int)
         case tapReset
         case tapComplete
     }
-    
+
     // MARK: - Output
-    
+
     struct Output {
-        let membersList: AnyPublisher<[(name: String, isSelected: Bool)], Never>
+        let members: AnyPublisher<[SelectableArtistMember], Never>
         let isCompleteEnabled: AnyPublisher<Bool, Never>
-        let selectedMemberData: AnyPublisher<(ids: [Int], names: [String]), Never>
+        let selectedMembers: AnyPublisher<[SelectableArtistMember], Never>
     }
-    
+
     let output: Output
-    private let useCase: ArtistMembersUseCase
-    private var cancellables = Set<AnyCancellable>()
-    
-    let artistId: Int
-    private var isChangedInThisSession: Bool = false
-    private var originalEntities: [ArtistMemberEntity] = []
-    
-    var currentMembersList: [(name: String, isSelected: Bool)] {
-        return membersListSubject.value
-    }
-    private let initialSelectedIds: [Int]
-    
+    let mode: ArtistMembersSelectionMode
+
+    var currentMembers: [SelectableArtistMember] { membersSubject.value }
+
+    private let useCase: ArtistMembersUseCase?
+    private let artistId: Int?
+    private let initialSelectedIDs: Set<Int>
+    private let prefetchedMembers: [ArtistMemberEntity]?
     // MARK: - Subjects
-    
-    private let membersListSubject = CurrentValueSubject<[(name: String, isSelected: Bool)], Never>([])
+
+    private let membersSubject = CurrentValueSubject<[SelectableArtistMember], Never>([])
     private let isCompleteEnabledSubject = CurrentValueSubject<Bool, Never>(false)
-    private let selectedMemberDataSubject = PassthroughSubject<(ids: [Int], names: [String]), Never>()
-    
+    private let selectedMembersSubject = PassthroughSubject<[SelectableArtistMember], Never>()
+
     // MARK: - Initializer
-    
+
     init(useCase: ArtistMembersUseCase, artistId: Int, selectedIds: [Int]) {
         self.useCase = useCase
         self.artistId = artistId
-        self.initialSelectedIds = selectedIds
-        
+        self.initialSelectedIDs = Set(selectedIds)
+        self.prefetchedMembers = nil
+        self.mode = .filter
         self.output = Output(
-            membersList: membersListSubject.eraseToAnyPublisher(),
+            members: membersSubject.eraseToAnyPublisher(),
             isCompleteEnabled: isCompleteEnabledSubject.eraseToAnyPublisher(),
-            selectedMemberData: selectedMemberDataSubject.eraseToAnyPublisher()
+            selectedMembers: selectedMembersSubject.eraseToAnyPublisher()
         )
     }
-    
+
+    init(members: [ArtistMemberEntity], selectedMemberIDs: Set<Int>) {
+        self.useCase = nil
+        self.artistId = nil
+        self.initialSelectedIDs = selectedMemberIDs
+        self.prefetchedMembers = members
+        self.mode = .registration
+        self.output = Output(
+            members: membersSubject.eraseToAnyPublisher(),
+            isCompleteEnabled: isCompleteEnabledSubject.eraseToAnyPublisher(),
+            selectedMembers: selectedMembersSubject.eraseToAnyPublisher()
+        )
+    }
+
+    // MARK: - Action
+
     func action(_ trigger: Input) {
         switch trigger {
         case .viewDidLoad:
-            fetchMembersList()
+            loadMembers()
         case .selectMember(let index):
-            handleSelection(index: index)
+            toggleMember(at: index)
         case .tapReset:
-            handleReset()
+            resetSelection()
         case .tapComplete:
-            handleComplete()
+            completeSelection()
         }
     }
 }
 
 private extension ArtistMembersFilterViewModel {
-    func fetchMembersList() {
-        Task {
+    func loadMembers() {
+        if let prefetchedMembers {
+            updateMembers(prefetchedMembers)
+            return
+        }
+
+        guard let useCase, let artistId else { return }
+
+        Task { [weak self] in
+            guard let self else { return }
             do {
-                let entities = try await useCase.execute(artistId: self.artistId)
-                
-                if entities.isEmpty {
-                    await MainActor.run {
-                        membersListSubject.send([])
-                        isCompleteEnabledSubject.send(false)
-                    }
-                    return
-                }
-                
-                self.originalEntities = entities
-                
-                let uiModels = entities.map { entity -> (name: String, isSelected: Bool) in
-                    let isSelected = initialSelectedIds.contains(entity.memberId)
-                    return (name: entity.name, isSelected: isSelected)
-                }
-                
-                await MainActor.run {
-                    membersListSubject.send(uiModels)
-                    self.isChangedInThisSession = false
-                    isCompleteEnabledSubject.send(false)
-                }
+                let members = try await useCase.execute(artistId: artistId)
+                await MainActor.run { self.updateMembers(members) }
             } catch {
-                print("⚠️ 아티스트 멤버 로드 실패: \(error)")
+                PotiLogger.error(error)
                 await MainActor.run {
-                    membersListSubject.send([])
-                    isCompleteEnabledSubject.send(false)
+                    self.membersSubject.send([])
+                    self.isCompleteEnabledSubject.send(false)
                 }
             }
         }
     }
-    
-    func handleSelection(index: Int) {
-        var current = membersListSubject.value
-        current[index].isSelected.toggle()
-        membersListSubject.send(current)
-        notifyChange()
-    }
-    
-    func handleReset() {
-        let resetData = membersListSubject.value.map { (name: $0.name, isSelected: false) }
-        membersListSubject.send(resetData)
-        notifyChange()
-    }
-    
-    func handleComplete() {
-        let selectedData = membersListSubject.value.enumerated().filter { $0.element.isSelected }
-        
-        let selectedIds = selectedData.compactMap { index, _ in
-            index < originalEntities.count ? originalEntities[index].memberId : nil
+
+    func updateMembers(_ members: [ArtistMemberEntity]) {
+        let selectableMembers = members.map {
+            SelectableArtistMember(id: $0.memberId, name: $0.name, isSelected: initialSelectedIDs.contains($0.memberId))
         }
-        
-        let selectedNames = selectedData.map { $0.element.name }
-        selectedMemberDataSubject.send((ids: selectedIds, names: selectedNames))
+        membersSubject.send(selectableMembers)
+        isCompleteEnabledSubject.send(false)
     }
-    
-    func notifyChange() {
-        if !isChangedInThisSession {
-            isChangedInThisSession = true
-            isCompleteEnabledSubject.send(true)
+
+    func toggleMember(at index: Int) {
+        var members = membersSubject.value
+        guard members.indices.contains(index) else { return }
+        members[index].isSelected.toggle()
+        membersSubject.send(members)
+        updateCompleteButtonState()
+    }
+
+    func resetSelection() {
+        var members = membersSubject.value
+        for index in members.indices {
+            members[index].isSelected = mode == .registration
         }
+        membersSubject.send(members)
+        updateCompleteButtonState()
+    }
+
+    func updateCompleteButtonState() {
+        let selectedIDs = Set(membersSubject.value.filter(\.isSelected).map(\.id))
+        isCompleteEnabledSubject.send(selectedIDs != initialSelectedIDs)
+    }
+
+    func completeSelection() {
+        selectedMembersSubject.send(membersSubject.value.filter(\.isSelected))
     }
 }
