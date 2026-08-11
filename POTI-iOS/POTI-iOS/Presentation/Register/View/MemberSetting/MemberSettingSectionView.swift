@@ -2,7 +2,7 @@
 //  MemberSettingSectionView.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/14/26.
+//  Created by soomin on 8/10/26.
 //
 
 import UIKit
@@ -12,157 +12,200 @@ import Then
 
 final class MemberSettingSectionView: BaseView {
 
-    // MARK: - Callbacks
+    // MARK: - Properties
 
-    var onPriceChanged: ((Int, Int?) -> Void)?
+    var onAction: ((MemberSettingAction) -> Void)?
 
-    // MARK: - UI
+    private var renderedMemberIDs: [Int] = []
+    private var bottomSpacingConstraint: Constraint?
+
+    // MARK: - UI Components
 
     private let titleLabel = UILabel()
-    private let rowsStackView = UIStackView()
-    private let bottomBoxView = UIView()
+    private let errorView = ValidationErrorView()
 
+    private let contentStackView = UIStackView()
+    private let memberContainerView = UIView()
+    private let memberRowsStackView = UIStackView()
+
+    private let emptyStateContainerView = UIView()
     private let emptyStateLabel = UILabel()
-    private let errorStackView = UIStackView()
-    private let errorIconView = UIImageView()
-    private let errorLabel = UILabel()
 
-    // MARK: - Lifecycle
+    private let guideView = UIImageView()
+    private let guideLabel = UILabel()
+    private let editButton = UIButton()
+    private let bottomSpacingView = UIView()
+    private let grayLineView = UIView()
+
+    // MARK: - Custom Methods
 
     override func setStyle() {
-        backgroundColor = .clear
-        isUserInteractionEnabled = true
-
         titleLabel.do {
             $0.text = "멤버 설정"
             $0.font = PotiFontManager.title18sb.font
             $0.textColor = .potiBlack
         }
 
-        rowsStackView.do {
+        contentStackView.do {
             $0.axis = .vertical
-            $0.alignment = .fill
-            $0.distribution = .fill
-            $0.spacing = 20
-            $0.isHidden = true
-            $0.isUserInteractionEnabled = true
+            $0.spacing = 0
         }
 
-        bottomBoxView.do {
-            $0.backgroundColor = .gray100
-            $0.isUserInteractionEnabled = false
+        memberRowsStackView.do {
+            $0.axis = .vertical
+            $0.spacing = 20
         }
 
         emptyStateLabel.do {
-            $0.text = "아티스트를 먼저 선택해주세요"
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray700
             $0.textAlignment = .center
         }
 
-        errorStackView.do {
-            $0.axis = .horizontal
-            $0.spacing = 6
-            $0.alignment = .center
-            $0.distribution = .fill
+        guideView.do {
+            $0.image = .imgHint
+            $0.isHidden = true
+            $0.isUserInteractionEnabled = true
         }
 
-        errorIconView.do {
-            $0.contentMode = .scaleAspectFit
-            $0.image = .icnNotice
-            $0.tintColor = .sementicRed
+        guideLabel.do {
+            $0.text = "모집자 본인이 보유할 멤버는 꼭 제외해주세요!"
+            $0.font = PotiFontManager.body14sb.font
+            $0.textColor = .poti600
+            $0.textAlignment = .center
         }
 
-        errorLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .sementicRed
-            $0.numberOfLines = 0
+        editButton.do {
+            var configuration = UIButton.Configuration.filled()
+            var title = AttributedString("멤버 편집")
+            title.font = PotiFontManager.button14sb.font
+            configuration.attributedTitle = title
+            configuration.image = .icnEditWhite
+            configuration.imagePadding = 5
+            configuration.baseBackgroundColor = .potiBlack
+            configuration.baseForegroundColor = .gray300
+            configuration.cornerStyle = .medium
+            $0.configuration = configuration
         }
+
+        grayLineView.backgroundColor = .gray100
     }
 
     override func setUI() {
-        addSubviews(titleLabel, errorStackView, emptyStateLabel, rowsStackView, bottomBoxView)
-        errorStackView.addArrangedSubviews(errorIconView, errorLabel)
+        addSubviews(titleLabel, errorView, contentStackView, grayLineView, guideView)
+        memberContainerView.addSubview(memberRowsStackView)
+        emptyStateContainerView.addSubview(emptyStateLabel)
+        guideView.addSubview(guideLabel)
+        contentStackView.addArrangedSubviews(memberContainerView, emptyStateContainerView, editButton, bottomSpacingView)
+        contentStackView.setCustomSpacing(24, after: memberContainerView)
+        contentStackView.setCustomSpacing(24, after: emptyStateContainerView)
     }
 
     override func setLayout() {
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(24)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.leading.equalToSuperview().inset(16)
         }
 
-        errorStackView.snp.makeConstraints {
-            $0.centerY.equalTo(titleLabel.snp.centerY)
+        errorView.snp.makeConstraints {
+            $0.centerY.equalTo(titleLabel)
             $0.trailing.equalToSuperview().inset(16)
         }
 
-        errorIconView.snp.makeConstraints {
-            $0.width.height.equalTo(20)
+        contentStackView.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+        }
+
+        memberRowsStackView.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(24)
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
 
         emptyStateLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(76)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-        }
-
-        rowsStackView.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(24)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-        }
-
-        bottomBoxView.snp.makeConstraints {
-            $0.top.greaterThanOrEqualTo(rowsStackView.snp.bottom).offset(24)
-            $0.top.greaterThanOrEqualTo(emptyStateLabel.snp.bottom).offset(24)
+            $0.top.equalToSuperview().inset(76)
             $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(52)
+        }
+
+        editButton.snp.makeConstraints {
+            $0.height.equalTo(48)
+        }
+
+        bottomSpacingView.snp.makeConstraints {
+            bottomSpacingConstraint = $0.height.equalTo(0).constraint
+        }
+
+        grayLineView.snp.makeConstraints {
+            $0.top.equalTo(contentStackView.snp.bottom)
+            $0.horizontalEdges.bottom.equalToSuperview()
             $0.height.equalTo(9)
-            $0.bottom.equalToSuperview()
+        }
+
+        guideView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.height.equalTo(58)
+            $0.bottom.equalTo(editButton.snp.top).offset(-9)
+        }
+
+        guideLabel.snp.makeConstraints {
+            $0.center.equalToSuperview().offset(-6)
         }
     }
 
-    // MARK: - Public
+    func render(_ state: MemberSettingViewState) {
+        errorView.setMessage(state.error?.message)
+        guideView.isHidden = !state.showsGuide
 
-    func showEmpty(message: String) {
+        switch state.content {
+        case .artistNotSelected:
+            renderEmptyState(message: "아티스트를 먼저 선택해주세요", showsEditButton: false)
+
+        case .members(let members):
+            renderMembers(members)
+
+        case .noSelectedMembers:
+            renderEmptyState(message: "선택한 멤버가 없어요", showsEditButton: true)
+        }
+
+        if state.showsGuide { bringSubviewToFront(guideView) }
+    }
+
+    private func renderEmptyState(message: String, showsEditButton: Bool) {
+        renderedMemberIDs = []
+        memberRowsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        memberContainerView.isHidden = true
+        emptyStateContainerView.isHidden = false
         emptyStateLabel.text = message
-        emptyStateLabel.isHidden = false
-        rowsStackView.isHidden = true
-        hideEditedEmptyError()
+        editButton.isHidden = !showsEditButton
+        bottomSpacingConstraint?.update(offset: showsEditButton ? 24 : 0)
     }
 
-    func showMembers(names: [String]) {
-        emptyStateLabel.isHidden = true
-        rowsStackView.isHidden = false
-        hideEditedEmptyError()
+    private func renderMembers(_ members: [RegisterMemberItem]) {
+        memberContainerView.isHidden = false
+        emptyStateContainerView.isHidden = true
+        editButton.isHidden = false
+        bottomSpacingConstraint?.update(offset: 24)
+        let memberIDs = members.map(\.id)
+        guard renderedMemberIDs != memberIDs else { return }
+        renderedMemberIDs = memberIDs
 
-        rowsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-
-        for (idx, name) in names.enumerated() {
-            let row = MemberPriceRowView(index: idx)
-            row.configure(name: name, price: nil)
-
-            // 입력은 VC가 관리하지만, 여기서 index 전달은 해준다.
-            row.onPriceChanged = { [weak self] index, price in
-                self?.onPriceChanged?(index, price)
-            }
-            row.onBeginEditing = { [weak self] _ in
-                // 필요하면 여기서 힌트 숨김 같은 UI 반응만 처리.
-                _ = self
-            }
-
-            rowsStackView.addArrangedSubview(row)
+        memberRowsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        members.forEach { member in
+            let rowView = MemberPriceRowView(memberID: member.id)
+            rowView.configure(name: member.name, price: member.price)
+            rowView.onAction = { [weak self] in self?.onAction?($0) }
+            memberRowsStackView.addArrangedSubview(rowView)
         }
-
-        setNeedsLayout()
-        layoutIfNeeded()
     }
 
-    func showEditedEmptyError(message: String = "멤버를 1명 이상 추가해주세요") {
-        errorLabel.text = message
-        errorStackView.isHidden = false
-        setNeedsLayout()
+    override func addTarget() {
+        editButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
     }
 
-    func hideEditedEmptyError() {
-        errorStackView.isHidden = true
-        setNeedsLayout()
+    // MARK: - Actions
+
+    @objc private func editButtonTapped() {
+        onAction?(.editButtonTapped)
     }
 }
