@@ -15,7 +15,7 @@ final class MyPageView: BaseView {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     
-    private let profileInformationView = ProfileInformationView(nickname: "", email: "", profileImageURL: "", ratingAverage: 0, hasFavoriteArtist: false, favoriteArtistName: "")
+    let profileInformationView = ProfileInformationView(nickname: "", email: "", profileImageURL: "", ratingAverage: 0, hasFavoriteArtist: false, favoriteArtistName: "")
     
     private let userInformationView = UserInformationView(recentActivity: "", signUpDate: "")
     

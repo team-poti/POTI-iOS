@@ -262,7 +262,6 @@ extension MyPageHistoryViewController {
             let vc = factory.makeRecruitDetailViewController(postId: item.id)
             navigationController?.pushViewController(vc, animated: true)
             
-            // 악귀 뷰 이동
         case .participation:
             let vc = factory.makeMyPageJoinDetailViewController(
                 participationId: item.id

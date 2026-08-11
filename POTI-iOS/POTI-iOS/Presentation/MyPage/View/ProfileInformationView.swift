@@ -19,7 +19,7 @@ final class ProfileInformationView: BaseView {
     private let buttonStackView = UIStackView()
     
     private let ratingView = RatingView(rating: 0)
-    private let idolButton = ChooseFavoriteIdolButton()
+    let idolButton = ChooseFavoriteIdolButton()
     
     private let nickname: String
     private let email: String
