@@ -118,7 +118,7 @@ final class DepositInfoView: BaseView {
         }
     }
     
-    private func addTarget() {
+    override func addTarget() {
         copyButton.addTarget(self, action: #selector(didTapCopy), for: .touchUpInside)
     }
     
