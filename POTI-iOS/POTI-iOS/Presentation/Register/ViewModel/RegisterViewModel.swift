@@ -15,8 +15,8 @@ final class RegisterViewModel: BaseViewModelType {
     enum Input {
         case addImageButtonTapped
         case deleteImageButtonTapped(Int)
-        case addSelectedImageData([Data])
-        case setArtist(ArtistSearchResultEntity)
+        case addOptimizedImages([OptimizedImage])
+        case setArtist(ArtistSearchItem)
         case fetchProductTypes(keyword: String)
         case updateProductType(String)
         case updateDescription(String)
@@ -35,7 +35,7 @@ final class RegisterViewModel: BaseViewModelType {
     // MARK: - Output
 
     struct Output {
-        let imageData: AnyPublisher<[Data], Never>
+        let optimizedImages: AnyPublisher<[OptimizedImage], Never>
         let imagePickerRequest: AnyPublisher<Int, Never>
         let fieldErrors: AnyPublisher<ProductRegisterValidationErrors, Never>
         let productTypes: AnyPublisher<[String], Never>
@@ -55,7 +55,7 @@ final class RegisterViewModel: BaseViewModelType {
     private let maxImageCount: Int
     private var productTypeSearchTask: Task<Void, Never>?
     private var currentProductTypeQuery = ""
-    private var selectedArtist: ArtistSearchResultEntity?
+    private var selectedArtist: ArtistSearchItem?
     private var formState = ProductRegisterFormState()
     private var members: [RegisterMemberItem] = []
     private var showsMemberGuide = false
@@ -64,7 +64,7 @@ final class RegisterViewModel: BaseViewModelType {
 
     private let fetchProductTitlesUseCase: FetchProductTitlesUseCase
     private let registerPostUseCase: RegisterPostUseCase
-    private let imagesRepository: ImagesInterface
+    private let uploadPostImagesUseCase: UploadPostImagesUseCase
     private let artistMembersUseCase: ArtistMembersUseCase
 
     // MARK: - Subjects
@@ -72,7 +72,7 @@ final class RegisterViewModel: BaseViewModelType {
     private let registrationCompletedSubject = PassthroughSubject<Int, Never>()
     private let registrationFailedSubject = PassthroughSubject<String, Never>()
     private let productTypesSubject = CurrentValueSubject<[String], Never>([])
-    private let imageDataSubject = CurrentValueSubject<[Data], Never>([])
+    private let optimizedImagesSubject = CurrentValueSubject<[OptimizedImage], Never>([])
     private let imagePickerRequestSubject = PassthroughSubject<Int, Never>()
     private let memberSettingSubject = CurrentValueSubject<MemberSettingViewState, Never>(
         .init(content: .artistNotSelected, error: nil, showsGuide: false)
@@ -87,7 +87,7 @@ final class RegisterViewModel: BaseViewModelType {
 
     init(
         maxImageCount: Int = 5, fetchProductTitlesUseCase: FetchProductTitlesUseCase, registerPostUseCase: RegisterPostUseCase,
-        imagesRepository: ImagesInterface, artistMembersUseCase: ArtistMembersUseCase
+        uploadPostImagesUseCase: UploadPostImagesUseCase, artistMembersUseCase: ArtistMembersUseCase
     ) {
         let shippingOptions = DefaultRegisterShippingOptions.items
         self.maxImageCount = maxImageCount
@@ -95,11 +95,11 @@ final class RegisterViewModel: BaseViewModelType {
         self.shippingSettingSubject = .init(.init(options: shippingOptions, error: nil))
         self.fetchProductTitlesUseCase = fetchProductTitlesUseCase
         self.registerPostUseCase = registerPostUseCase
-        self.imagesRepository = imagesRepository
+        self.uploadPostImagesUseCase = uploadPostImagesUseCase
         self.artistMembersUseCase = artistMembersUseCase
 
         self.output = Output(
-            imageData: imageDataSubject.eraseToAnyPublisher(), imagePickerRequest: imagePickerRequestSubject.eraseToAnyPublisher(),
+            optimizedImages: optimizedImagesSubject.eraseToAnyPublisher(), imagePickerRequest: imagePickerRequestSubject.eraseToAnyPublisher(),
             fieldErrors: fieldErrorsSubject.eraseToAnyPublisher(), productTypes: productTypesSubject.eraseToAnyPublisher(),
             memberSetting: memberSettingSubject.eraseToAnyPublisher(), memberSelectionRequest: memberSelectionRequestSubject.eraseToAnyPublisher(),
             shippingSetting: shippingSettingSubject.eraseToAnyPublisher(),
@@ -125,8 +125,8 @@ final class RegisterViewModel: BaseViewModelType {
         case .deleteImageButtonTapped(let index):
             deleteImage(at: index)
 
-        case .addSelectedImageData(let imageData):
-            addSelectedImageData(imageData)
+        case .addOptimizedImages(let images):
+            addOptimizedImages(images)
 
         case .setArtist(let artist):
             updateSelectedArtist(artist)
@@ -175,26 +175,34 @@ final class RegisterViewModel: BaseViewModelType {
     // MARK: - Private Methods
 
     private func requestImageSelection() {
-        let remainingImageCount = maxImageCount - imageDataSubject.value.count
+        let remainingImageCount = maxImageCount - optimizedImagesSubject.value.count
         guard remainingImageCount > 0 else { return }
         imagePickerRequestSubject.send(remainingImageCount)
     }
 
     private func deleteImage(at index: Int) {
-        var imageData = imageDataSubject.value
-        guard imageData.indices.contains(index) else { return }
-        imageData.remove(at: index)
-        imageDataSubject.send(imageData)
+        var images = optimizedImagesSubject.value
+        guard images.indices.contains(index) else { return }
+        images.remove(at: index)
+        optimizedImagesSubject.send(images)
     }
 
-    private func addSelectedImageData(_ newImageData: [Data]) {
-        guard !newImageData.isEmpty else { return }
-        let remainingImageCount = maxImageCount - imageDataSubject.value.count
+    private func addOptimizedImages(_ newImages: [OptimizedImage]) {
+        guard !newImages.isEmpty else { return }
+        let remainingImageCount = maxImageCount - optimizedImagesSubject.value.count
         guard remainingImageCount > 0 else { return }
-        imageDataSubject.send(imageDataSubject.value + Array(newImageData.prefix(remainingImageCount)))
+        optimizedImagesSubject.send(optimizedImagesSubject.value + Array(newImages.prefix(remainingImageCount)))
+        clearImageValidationError()
     }
 
-    private func updateSelectedArtist(_ artist: ArtistSearchResultEntity) {
+    private func clearImageValidationError() {
+        guard fieldErrorsSubject.value.images != nil else { return }
+        var errors = fieldErrorsSubject.value
+        errors.images = nil
+        fieldErrorsSubject.send(errors)
+    }
+
+    private func updateSelectedArtist(_ artist: ArtistSearchItem) {
         productTypeSearchTask?.cancel()
         artistMembersFetchTask?.cancel()
         currentProductTypeQuery = ""
@@ -207,7 +215,7 @@ final class RegisterViewModel: BaseViewModelType {
         errors.members = nil
         fieldErrorsSubject.send(errors)
         sendMemberSettingState()
-        fetchArtistMembers(artistId: artist.artistId)
+        fetchArtistMembers(artistId: artist.id)
     }
 
     private func updateProductType(_ productType: String) {
@@ -253,7 +261,7 @@ final class RegisterViewModel: BaseViewModelType {
             return
         }
 
-        guard let artistId = selectedArtist?.artistId else {
+        guard let artistId = selectedArtist?.id else {
             updateArtistValidationError("아티스트를 먼저 선택해주세요")
             productTypesSubject.send([])
             return
@@ -290,13 +298,12 @@ final class RegisterViewModel: BaseViewModelType {
         fieldErrorsSubject.send(errors)
         sendMemberSettingState()
         sendShippingSettingState()
-        guard !errors.hasError, let artistId = selectedArtist?.artistId else { return }
+        guard !errors.hasError, let artistId = selectedArtist?.id else { return }
 
         Task { [weak self] in
             guard let self else { return }
             do {
-                // TODO: uploadImages() 결과를 사용하도록 수정
-                let imageFileNames: [String] = []
+                let imageFileNames = try await uploadImages()
                 let entity = makeRegisterPostEntity(artistId: artistId, imageFileNames: imageFileNames)
                 let response = try await registerPostUseCase.execute(entity)
                 await MainActor.run { self.registrationCompletedSubject.send(response.postId) }
@@ -308,10 +315,8 @@ final class RegisterViewModel: BaseViewModelType {
     }
 
     private func validateRegistration() -> ProductRegisterValidationErrors {
-        // TODO: 이미지 업로드 최소 1장 검증 적용
-        let imageError: String? = nil
-        return ProductRegisterValidationErrors(
-            images: imageError,
+        ProductRegisterValidationErrors(
+            images: optimizedImagesSubject.value.isEmpty ? "사진을 1장 이상 등록해주세요" : nil,
             productForm: validateProductForm(),
             members: validateMembers(),
             shipping: validateShipping()
@@ -341,15 +346,7 @@ final class RegisterViewModel: BaseViewModelType {
     }
 
     private func uploadImages() async throws -> [String] {
-        let imageData = imageDataSubject.value
-        let presignedURLs = try await imagesRepository.fetchPresignedUrls(count: imageData.count)
-        var imageFileNames: [String] = []
-
-        for (data, presignedURL) in zip(imageData, presignedURLs) {
-            try await imagesRepository.uploadImage(data: data, to: presignedURL.uploadUrl)
-            imageFileNames.append(presignedURL.fileName)
-        }
-        return imageFileNames
+        try await uploadPostImagesUseCase.execute(images: optimizedImagesSubject.value.map { $0.toUploadImageEntity() })
     }
 
     private func makeRegisterPostEntity(artistId: Int, imageFileNames: [String]) -> RegisterPostEntity {
@@ -386,7 +383,7 @@ final class RegisterViewModel: BaseViewModelType {
                 let artistMembers = try await self.artistMembersUseCase.execute(artistId: artistId)
 
                 await MainActor.run {
-                    guard !Task.isCancelled, self.selectedArtist?.artistId == artistId else { return }
+                    guard !Task.isCancelled, self.selectedArtist?.id == artistId else { return }
                     self.members = artistMembers.map {
                         .init(id: $0.memberId, name: $0.name, isSelected: true, price: nil)
                     }
