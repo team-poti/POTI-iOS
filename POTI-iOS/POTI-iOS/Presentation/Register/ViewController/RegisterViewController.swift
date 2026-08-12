@@ -65,6 +65,7 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
 
     private func bindViewActions() {
         rootView.onAction = { [weak self] in self?.handleProductRegisterAction($0) }
+        rootView.onInputFocus = { [weak self] in self?.handleInputFocus($0) }
     }
 
     private func handleProductRegisterAction(_ action: ProductRegisterAction) {

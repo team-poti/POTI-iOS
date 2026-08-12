@@ -17,6 +17,7 @@ final class ProductRegisterView: BaseView {
 
     var productTypeTextPublisher: AnyPublisher<String, Never> { productFormView.productTypeTextPublisher }
     var onAction: ((ProductRegisterAction) -> Void)?
+    var onInputFocus: ((UIView) -> Void)?
 
     // MARK: - UI Components
 
@@ -95,8 +96,11 @@ final class ProductRegisterView: BaseView {
         imagePickerView.onTapAdd = { [weak self] in self?.onAction?(.addImage) }
         imagePickerView.onTapDelete = { [weak self] in self?.onAction?(.deleteImage($0)) }
         productFormView.onAction = { [weak self] in self?.onAction?(.form($0)) }
+        productFormView.onInputFocus = { [weak self] in self?.onInputFocus?($0) }
         memberSettingView.onAction = { [weak self] in self?.onAction?(.memberSetting($0)) }
+        memberSettingView.onInputFocus = { [weak self] in self?.onInputFocus?($0) }
         shippingSettingView.onAction = { [weak self] in self?.onAction?(.shippingSetting($0)) }
+        shippingSettingView.onInputFocus = { [weak self] in self?.onInputFocus?($0) }
         submitButton.addTarget(self, action: #selector(submitButtonTapped), for: .touchUpInside)
     }
 

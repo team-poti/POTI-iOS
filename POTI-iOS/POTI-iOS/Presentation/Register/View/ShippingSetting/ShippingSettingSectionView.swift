@@ -15,6 +15,7 @@ final class ShippingSettingSectionView: BaseView {
     // MARK: - Properties
 
     var onAction: ((ShippingSettingAction) -> Void)?
+    var onInputFocus: ((UIView) -> Void)?
 
     private var renderedOptionIDs: [Int] = []
     private var rowViews: [Int: ShippingRowView] = [:]
@@ -86,6 +87,7 @@ final class ShippingSettingSectionView: BaseView {
         options.forEach { option in
             let rowView = ShippingRowView(deliveryMethodID: option.deliveryMethodID)
             rowView.onAction = { [weak self] in self?.onAction?($0) }
+            rowView.onInputFocus = { [weak self] in self?.onInputFocus?($0) }
             rowViews[option.deliveryMethodID] = rowView
             rowsStackView.addArrangedSubview(rowView)
         }
