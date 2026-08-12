@@ -15,7 +15,7 @@ final class ArtistSearchViewModel: BaseViewModelType {
 
     enum Input {
         case queryChanged(String)
-        case artistSelected(ArtistSearchResultEntity)
+        case artistSelected(ArtistSearchItem)
         case confirmButtonTapped
     }
 
@@ -31,8 +31,8 @@ final class ArtistSearchViewModel: BaseViewModelType {
 
     struct State {
         var query = ""
-        var artists: [ArtistSearchResultEntity] = []
-        var selectedArtist: ArtistSearchResultEntity?
+        var artists: [ArtistSearchItem] = []
+        var selectedArtist: ArtistSearchItem?
         var phase: SearchPhase = .idle
 
         var isDoneEnabled: Bool { selectedArtist != nil }
@@ -42,7 +42,7 @@ final class ArtistSearchViewModel: BaseViewModelType {
 
     struct Output {
         let state: AnyPublisher<State, Never>
-        let didSelectArtist: AnyPublisher<ArtistSearchResultEntity, Never>
+        let didSelectArtist: AnyPublisher<ArtistSearchItem, Never>
     }
 
     let output: Output
@@ -53,7 +53,7 @@ final class ArtistSearchViewModel: BaseViewModelType {
     private var searchTask: Task<Void, Never>?
     private var currentSearchID: UUID?
     private let stateSubject = CurrentValueSubject<State, Never>(State())
-    private let didSelectArtistSubject = PassthroughSubject<ArtistSearchResultEntity, Never>()
+    private let didSelectArtistSubject = PassthroughSubject<ArtistSearchItem, Never>()
 
     private enum Constant {
         static let debounceDuration = Duration.milliseconds(300)
@@ -103,7 +103,7 @@ final class ArtistSearchViewModel: BaseViewModelType {
         search(query: query)
     }
 
-    private func selectArtist(_ artist: ArtistSearchResultEntity) {
+    private func selectArtist(_ artist: ArtistSearchItem) {
         updateState {
             $0.selectedArtist = artist
             $0.phase = .results
@@ -122,7 +122,7 @@ final class ArtistSearchViewModel: BaseViewModelType {
         searchTask = Task { @MainActor [weak self, artistSearchUseCase] in
             do {
                 try await Task.sleep(for: Constant.debounceDuration)
-                let artists = try await artistSearchUseCase.execute(keyword: query)
+                let artists = try await artistSearchUseCase.execute(keyword: query).map { $0.toArtistSearchItem() }
                 try Task.checkCancellation()
 
                 guard let self, self.currentSearchID == searchID, self.stateSubject.value.query == query else { return }
