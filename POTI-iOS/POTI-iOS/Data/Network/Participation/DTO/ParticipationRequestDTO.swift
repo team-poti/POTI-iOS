@@ -10,37 +10,27 @@ struct ParticipationRequestDTO: Encodable {
     let shippingId: Int
     let deliveryInfo: DeliveryInfoDTO
     let items: [ParticipationItemDTO]
-    
-    func toEntity() -> ParticipationEntity {
-        return ParticipationEntity(
-            postId: groupBuyPostId,
-            shippingId: shippingId,
-            receiverName: deliveryInfo.receiverName,
-            zipcode: deliveryInfo.zipcode,
-            addressLine: deliveryInfo.addressLine,
-            phone: deliveryInfo.phone,
-            items: items.map { $0.toEntity() }
-        )
+
+    init(from entity: ParticipationEntity) {
+        groupBuyPostId = entity.postId
+        shippingId = entity.shippingId
+        deliveryInfo = DeliveryInfoDTO(receiverName: entity.receiverName, zipcode: entity.zipcode, addressLine: entity.addressLine, phone: entity.phone)
+        items = entity.items.map {
+            .init(groupBuyOptionId: $0.optionId, count: $0.count)
+        }
     }
 }
 
-struct DeliveryInfoDTO: Codable {
+struct DeliveryInfoDTO: Encodable {
     let receiverName: String
     let zipcode: String
     let addressLine: String
     let phone: String
 }
 
-struct ParticipationItemDTO: Codable {
+struct ParticipationItemDTO: Encodable {
     let groupBuyOptionId: Int
     let count: Int
-    
-    func toEntity() -> ParticipationItem {
-        return ParticipationItem(
-            optionId: groupBuyOptionId,
-            count: count
-        )
-    }
 }
 
 struct ParticipationResponseDTO: Decodable {

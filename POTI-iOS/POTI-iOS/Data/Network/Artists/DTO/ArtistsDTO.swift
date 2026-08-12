@@ -7,6 +7,10 @@
 
 struct ArtistsDTO: Decodable {
     let members: [ArtistDTO]
+
+    func toEntities() -> [ArtistMemberEntity] {
+        members.map { $0.toEntity() }
+    }
 }
 
 struct ArtistDTO: Decodable {
