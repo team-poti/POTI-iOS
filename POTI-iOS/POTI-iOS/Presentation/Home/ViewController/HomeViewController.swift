@@ -76,7 +76,7 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     override func addTarget() {
         rootView.floatingButton.addTarget(
             self,
-            action: #selector(didTapFloatingButton),
+            action: #selector(floatingButtonTapped),
             for: .touchUpInside
         )
     }
@@ -104,7 +104,7 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     
     // MARK: - Action
     
-    @objc private func didTapFloatingButton() {
+    @objc private func floatingButtonTapped() {
         let productRegisterViewController = factory.makeProductRegisterViewController()
         self.navigationController?.pushViewController(productRegisterViewController, animated: true)
         //                KeychainManager.deleteAllTokens()

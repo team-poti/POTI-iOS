@@ -65,7 +65,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] in self?.viewModel.action(.phoneDidChange($0)) }
             .store(in: &cancellables)
         
-        rootView.bottomButton.addTarget(self, action: #selector(joinButtonDidTap), for: .touchUpInside)
+        rootView.bottomButton.addTarget(self, action: #selector(joinButtonTapped), for: .touchUpInside)
     }
     
     override func bindViewModel() {
@@ -172,7 +172,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
 
     private func showParticipationNotice() {
         let noticeView = NoticeModalView(type: .participate)
-        noticeView.confirmAction = { [weak self] in
+        noticeView.onTapConfirm = { [weak self] in
             self?.showOrderCompleteView()
         }
         
@@ -182,7 +182,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
 
     private func showOrderCompleteView() {
         let completeView = OrderCompleteView()
-        completeView.confirmAction = { [weak self] in
+        completeView.onTapConfirm = { [weak self] in
             guard let self = self else { return }
             
             self.onSuccess?()
@@ -217,7 +217,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     
     // MARK: - Action
     
-    @objc private func joinButtonDidTap() {
+    @objc private func joinButtonTapped() {
         viewModel.action(.joinButtonDidTap)
     }
 }

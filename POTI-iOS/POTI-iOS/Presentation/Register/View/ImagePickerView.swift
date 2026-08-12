@@ -2,168 +2,136 @@
 //  ImagePickerView.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/14/26.
+//  Created by soomin on 8/7/26.
 //
 
 import UIKit
- 
+
 import SnapKit
 import Then
 
 final class ImagePickerView: BaseView {
     
-    // MARK: - Property
-
+    // MARK: - Properties
+    
     var onTapAdd: (() -> Void)?
     var onTapDelete: ((Int) -> Void)?
-
     private var images: [UIImage] = []
-    private let maxImageCount = 5
-
-    // MARK: - UI Components
-
-    private let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 10
-
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .clear
-        cv.showsHorizontalScrollIndicator = false
-        cv.alwaysBounceHorizontal = false
-        cv.contentInset = .zero
-        return cv
-    }()
-
-    private let errorStackView = UIStackView()
-    private let errorIconView = UIImageView()
-    private let errorLabel = UILabel()
-
-    private var errorStackHeightConstraint: Constraint?
-    private var collectionBottomConstraint: Constraint?
-    private var errorBottomConstraint: Constraint?
-
-    // MARK: - Custom Method
+    private var canAddImage: Bool { images.count < 5 }
     
-    override func setUI() {
-        addSubviews(collectionView, errorStackView)
-
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.register(AddCell.self)
-        collectionView.register(ImageCell.self)
-
-        errorStackView.do {
-            $0.axis = .horizontal
-            $0.spacing = 0
-            $0.alignment = .center
-            $0.distribution = .fill
-            $0.isHidden = true
-        }
-
-        errorIconView.do {
-            $0.contentMode = .scaleAspectFit
-            $0.image = .icnNotice
-            $0.tintColor = .sementicRed
-        }
-
-        errorLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .sementicRed
-            $0.numberOfLines = 0
+    // MARK: - UI Components
+    
+    private let contentStackView = UIStackView()
+    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeCollectionViewLayout())
+    private let validationErrorView = ValidationErrorView()
+    
+    // MARK: - Initializer
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        setDelegate()
+        register()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Custom Methods
+    
+    override func setStyle() {
+        contentStackView.do {
+            $0.axis = .vertical
+            $0.spacing = 10
+            $0.alignment = .fill
         }
         
-        errorStackView.addArrangedSubviews(errorIconView, errorLabel)
+        collectionView.do {
+            $0.backgroundColor = .clear
+            $0.showsHorizontalScrollIndicator = false
+            $0.alwaysBounceHorizontal = false
+            $0.contentInset = .zero
+        }
     }
-
+    
+    override func setUI() {
+        addSubview(contentStackView)
+        contentStackView.addArrangedSubviews(collectionView, validationErrorView)
+    }
+    
     override func setLayout() {
+        contentStackView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
         collectionView.snp.makeConstraints {
-            $0.top.horizontalEdges.equalToSuperview()
             $0.height.equalTo(90)
-            collectionBottomConstraint = $0.bottom.equalToSuperview().constraint
         }
-
-        errorIconView.snp.makeConstraints {
-            $0.size.equalTo(24)
-        }
-
-        errorStackView.snp.makeConstraints {
-            $0.top.equalTo(collectionView.snp.bottom).offset(10)
-            $0.horizontalEdges.equalToSuperview()
-            errorStackHeightConstraint = $0.height.equalTo(0).priority(999).constraint
-            errorBottomConstraint = $0.bottom.equalToSuperview().constraint
-        }
-
-        errorBottomConstraint?.deactivate()
     }
-
-    // MARK: - Custom Method
-
+    
+    // MARK: - Private Methods
+    
+    private func setDelegate() {
+        collectionView.dataSource = self
+    }
+    
+    private func register() {
+        collectionView.register(ImageAddCell.self)
+        collectionView.register(SelectedImageCell.self)
+    }
+    
+    private func makeCollectionViewLayout() -> UICollectionViewFlowLayout {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.itemSize = CGSize(width: 90, height: 90)
+        layout.minimumLineSpacing = 10
+        layout.minimumInteritemSpacing = 0
+        return layout
+    }
+    
+    // MARK: - Public Methods
+    
     func setImages(_ images: [UIImage]) {
-        self.images = images
+        self.images = Array(images.prefix(5))
+        if !self.images.isEmpty {
+            hideValidationError()
+        }
         collectionView.reloadData()
     }
-
-    func showError(_ message: String) {
-        errorLabel.text = message
-        errorStackView.isHidden = false
-
-        collectionBottomConstraint?.deactivate()
-        errorBottomConstraint?.activate()
-        errorStackHeightConstraint?.deactivate()
-
-        setNeedsLayout()
-        superview?.layoutIfNeeded()
+    
+    func showValidationError(_ message: String) {
+        validationErrorView.setMessage(message)
     }
-
-    func hideError() {
-        errorLabel.text = nil
-
-        errorStackHeightConstraint?.activate()
-
-        errorBottomConstraint?.deactivate()
-        collectionBottomConstraint?.activate()
-
-        errorStackView.isHidden = true
-
-        setNeedsLayout()
-        superview?.layoutIfNeeded()
+    
+    func hideValidationError() {
+        validationErrorView.setMessage(nil)
     }
 }
 
- // MARK: - delegate Method
+// MARK: - UICollectionViewDataSource
 
-extension ImagePickerView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension ImagePickerView: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return images.count < maxImageCount ? (1 + images.count) : images.count
+        canAddImage ? images.count + 1 : images.count
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if images.count < maxImageCount, indexPath.item == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AddCell.identifier, for: indexPath) as! AddCell
-            cell.onTapUpload = { [weak self] in
-                self?.onTapAdd?()
+        if canAddImage, indexPath.item == 0 {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageAddCell.identifier, for: indexPath) as? ImageAddCell else {
+                return UICollectionViewCell()
             }
+            cell.onTapAdd = { [weak self] in self?.onTapAdd?() }
             return cell
         }
-        let imageIndex = images.count < maxImageCount ? indexPath.item - 1 : indexPath.item
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageCell.identifier, for: indexPath) as! ImageCell
-        cell.configure(image: images[imageIndex])
-        cell.onTapDelete = { [weak self] in
-            self?.onTapDelete?(imageIndex)
+        
+        let imageIndex = canAddImage ? indexPath.item - 1 : indexPath.item
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SelectedImageCell.identifier, for: indexPath) as? SelectedImageCell else {
+            return UICollectionViewCell()
         }
+        
+        cell.configure(image: images[imageIndex])
+        cell.onTapDelete = { [weak self] in self?.onTapDelete?(imageIndex) }
         return cell
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        collectionView.deselectItem(at: indexPath, animated: true)
-    }
-
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        sizeForItemAt indexPath: IndexPath
-    ) -> CGSize {
-        return CGSize(width: 90, height: 90)
     }
 }

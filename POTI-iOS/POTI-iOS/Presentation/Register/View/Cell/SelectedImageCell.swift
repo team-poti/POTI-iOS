@@ -1,8 +1,8 @@
 //
-//  ImageCell.swift
+//  SelectedImageCell.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/14/26.
+//  Created by soomin on 8/7/26.
 //
 
 import UIKit
@@ -10,34 +10,43 @@ import UIKit
 import SnapKit
 import Then
 
-final class ImageCell: UICollectionViewCell {
+final class SelectedImageCell: UICollectionViewCell {
 
     // MARK: - Property
-    
+
     var onTapDelete: (() -> Void)?
 
     // MARK: - UI Components
-    
-    private let boxView = UIView()
+
+    private let containerView = UIView()
     private let imageView = UIImageView()
-    private let deleteButton = UIButton(type: .custom)
+    private let deleteButton = UIButton()
 
     // MARK: - Life Cycle
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setUI()
         setLayout()
         setStyle()
         addTarget()
     }
 
-    required init?(coder: NSCoder) { fatalError() }
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
 
-    // MARK: - Custom Method
-    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onTapDelete = nil
+        imageView.image = nil
+    }
+
+    // MARK: - Private Methods
+
     private func setStyle() {
-        boxView.do {
+        containerView.do {
             $0.clipsToBounds = true
             $0.layer.cornerRadius = 8
         }
@@ -48,23 +57,20 @@ final class ImageCell: UICollectionViewCell {
         }
 
         deleteButton.do {
-            $0.setImage(
-                UIImage(named: "btn-delete-light")?.withRenderingMode(.alwaysOriginal),
-                for: .normal
-            )
+            $0.setImage(.btnDeleteLight.withRenderingMode(.alwaysOriginal), for: .normal)
             $0.imageView?.contentMode = .scaleAspectFit
         }
     }
-    
+
     private func setUI() {
-        contentView.addSubview(boxView)
-        boxView.addSubviews(imageView, deleteButton)
+        contentView.addSubview(containerView)
+        containerView.addSubviews(imageView, deleteButton)
     }
 
     private func setLayout() {
-        boxView.snp.makeConstraints {
+        containerView.snp.makeConstraints {
             $0.center.equalToSuperview()
-            $0.width.height.equalTo(90)
+            $0.size.equalTo(90)
         }
 
         imageView.snp.makeConstraints {
@@ -73,27 +79,23 @@ final class ImageCell: UICollectionViewCell {
 
         deleteButton.snp.makeConstraints {
             $0.top.trailing.equalToSuperview().inset(5)
-            $0.width.height.equalTo(22)
+            $0.size.equalTo(22)
         }
     }
     
-    // MARK: - Action Method
-
     private func addTarget() {
-        deleteButton.addTarget(self, action: #selector(didTapDelete), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
     }
+
+    // MARK: - Public Method
 
     func configure(image: UIImage) {
         imageView.image = image
     }
 
-    @objc private func didTapDelete() {
-        onTapDelete?()
-    }
+    // MARK: - Action
 
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        onTapDelete = nil
-        imageView.image = nil
+    @objc private func deleteButtonTapped() {
+        onTapDelete?()
     }
 }

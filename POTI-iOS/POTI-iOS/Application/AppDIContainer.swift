@@ -142,8 +142,8 @@ final class AppDIContainer {
         DefaultFetchProductTitlesUseCase(repository: makeRegisterRepository())
     }
 
-    private func makeRegisterPostsUseCase() -> RegisterPostsUseCase {
-        DefaultRegisterPostsUseCase(repository: makeRegisterRepository())
+    private func makeRegisterPostUseCase() -> RegisterPostUseCase {
+        DefaultRegisterPostUseCase(repository: makeRegisterRepository())
     }
 
     private func makePostsSaleUseCase() -> PostsSaleUseCase {
@@ -271,13 +271,9 @@ final class AppDIContainer {
         return ArtistMembersFilterViewModel(useCase: makeArtistMembersUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
 
-    func makeProductRegisterViewModel() -> ProductRegisterViewModel {
-        ProductRegisterViewModel(
-            fetchProductTitlesUseCase: makeFetchProductTitlesUseCase(),
-            registerPostsUseCase: makeRegisterPostsUseCase(),
-            imagesRepository: makeImagesRepository(),
-            artistsUseCase: makeArtistMembersUseCase()
-        )
+    func makeProductRegisterViewModel() -> RegisterViewModel {
+        RegisterViewModel(fetchProductTitlesUseCase: makeFetchProductTitlesUseCase(), registerPostUseCase: makeRegisterPostUseCase(),
+                          imagesRepository: makeImagesRepository(), artistMembersUseCase: makeArtistMembersUseCase())
     }
 
     func makeArtistSearchViewModel() -> ArtistSearchViewModel {

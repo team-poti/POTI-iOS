@@ -2,7 +2,7 @@
 //  DeadlinePickerSheetViewController.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/22/26.
+//  Created by soomin on 1/19/26.
 //
 
 import UIKit
@@ -10,23 +10,17 @@ import UIKit
 import SnapKit
 import Then
 
-final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
+final class DeadlinePickerSheetViewController: UIViewController {
 
     // MARK: - Properties
 
     private let onConfirm: (Date) -> Void
     private let onCancel: () -> Void
 
-    private let datePicker = UIDatePicker().then {
-        $0.datePickerMode = .date
-        $0.locale = Locale(identifier: "ko_KR")
-        $0.preferredDatePickerStyle = .wheels
-        $0.minimumDate = Date()
-    }
+    // MARK: - UI Components
 
-    private let toolbar = UIToolbar().then {
-        $0.tintColor = .potiBlack
-    }
+    private let datePicker = UIDatePicker()
+    private let toolbar = UIToolbar()
 
     // MARK: - Initializer
 
@@ -38,11 +32,12 @@ final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePrese
         self.onConfirm = onConfirm
         self.onCancel = onCancel
         super.init(nibName: nil, bundle: nil)
-        
-        datePicker.date = initialDate
+
+        let today = Calendar.current.startOfDay(for: Date())
+        datePicker.minimumDate = today
+        datePicker.date = max(initialDate, today)
     }
 
-    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -52,43 +47,52 @@ final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePrese
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .potiWhite
-
+        presentationController?.delegate = self
+        setStyle()
         setUI()
         setLayout()
-        presentationController?.delegate = self
     }
 
-    // MARK: - UI
+    // MARK: - Private Methods
+
+    private func setStyle() {
+        datePicker.do {
+            $0.datePickerMode = .date
+            $0.locale = Locale(identifier: "ko_KR")
+            $0.preferredDatePickerStyle = .wheels
+        }
+
+        toolbar.do {
+            $0.tintColor = .potiBlack
+
+            let appearance = UIToolbarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .potiWhite
+            appearance.shadowColor = .clear
+            $0.standardAppearance = appearance
+            $0.scrollEdgeAppearance = appearance
+
+            let flex = UIBarButtonItem(systemItem: .flexibleSpace)
+            let cancel = UIBarButtonItem(title: "취소", style: .plain, target: self, action: #selector(tapCancel))
+            let done = UIBarButtonItem(title: "완료", style: .done, target: self, action: #selector(tapDone))
+            $0.items = [cancel, flex, done]
+        }
+    }
 
     private func setUI() {
         view.addSubviews(toolbar, datePicker)
-
-        let flex = UIBarButtonItem(systemItem: .flexibleSpace)
-        let cancel = UIBarButtonItem(
-            title: "취소",
-            style: .plain,
-            target: self,
-            action: #selector(tapCancel)
-        )
-        let done = UIBarButtonItem(
-            title: "완료",
-            style: .done,
-            target: self,
-            action: #selector(tapDone)
-        )
-
-        toolbar.items = [cancel, flex, done]
     }
 
     private func setLayout() {
         toolbar.snp.makeConstraints {
-            $0.top.leading.trailing.equalToSuperview()
+            $0.top.equalToSuperview().inset(12)
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(44)
         }
 
         datePicker.snp.makeConstraints {
-            $0.top.equalTo(toolbar.snp.bottom)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.top.equalTo(toolbar.snp.bottom).offset(-8)
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
     }
 
@@ -103,9 +107,11 @@ final class DeadlinePickerSheetViewController: UIViewController, UIAdaptivePrese
         onConfirm(datePicker.date)
         dismiss(animated: true)
     }
+}
 
-    // MARK: - Delegate
+// MARK: - UIAdaptivePresentationControllerDelegate
 
+extension DeadlinePickerSheetViewController: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         onCancel()
     }

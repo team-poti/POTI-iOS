@@ -11,16 +11,16 @@ import SnapKit
 import Then
 
 final class ParticipantManageHeaderView: BaseView {
-    
+
     //MARK: - UI component
-    
+
     private let titleLabel = UILabel()
     private let participantHeaderButton = UIButton()
-    
+
     var onTapHeaderButton: (() -> Void)?
-    
+
     //MARK: - Custom Method
-    
+
     override func setStyle() {
         backgroundColor = .potiWhite
         titleLabel.do {
@@ -32,7 +32,7 @@ final class ParticipantManageHeaderView: BaseView {
             $0.setImage(UIImage(resource: .icnArrowRightLg).withTintColor(.gray800), for: .normal)
         }
     }
-    
+
     override func setUI() {
         addSubviews(
             titleLabel,
@@ -40,7 +40,7 @@ final class ParticipantManageHeaderView: BaseView {
         )
         addTarget()
     }
-    
+
     override func setLayout() {
         titleLabel.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview().inset(20)
@@ -52,17 +52,17 @@ final class ParticipantManageHeaderView: BaseView {
             $0.size.equalTo(24)
         }
     }
-    
+
     func configure(count: Int) {
         titleLabel.text = "참여자 관리 (" + "\(count))"
     }
-    
-    private func addTarget() {
+
+    override func addTarget() {
         participantHeaderButton.addTarget(self, action: #selector(headerButtonTapped(_:)), for: .touchUpInside)
     }
-    
+
     // MARK: - action
-    
+
     @objc func headerButtonTapped(_ sender: Any) {
         onTapHeaderButton?()
     }

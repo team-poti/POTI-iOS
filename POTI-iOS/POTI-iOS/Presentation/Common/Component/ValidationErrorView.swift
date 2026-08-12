@@ -1,5 +1,5 @@
 //
-//  TextFieldErrorView.swift
+//  ValidationErrorView.swift
 //  POTI-iOS
 //
 //  Created by soomin on 8/3/26.
@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class TextFieldErrorView: BaseView {
+final class ValidationErrorView: BaseView {
 
     // MARK: - UI Components
 
@@ -52,21 +52,16 @@ final class TextFieldErrorView: BaseView {
         stackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-
+        
         iconView.snp.makeConstraints {
-            $0.width.height.equalTo(16)
+            $0.size.equalTo(24)
         }
     }
 
-    // MARK: - Public Methods
+    // MARK: - Public Method
 
-    func show(message: String) {
+    func setMessage(_ message: String?) {
         messageLabel.text = message
-        isHidden = false
-    }
-
-    func hide() {
-        messageLabel.text = nil
-        isHidden = true
+        isHidden = message == nil
     }
 }

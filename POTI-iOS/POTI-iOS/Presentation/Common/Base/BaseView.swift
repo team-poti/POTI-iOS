@@ -10,13 +10,14 @@ import UIKit
 class BaseView: UIView {
 
     // MARK: - Initializer
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         setStyle()
         setUI()
         setLayout()
+        addTarget()
     }
 
     required init?(coder: NSCoder) {
@@ -33,4 +34,7 @@ class BaseView: UIView {
 
     /// 오토레이아웃 설정
     func setLayout() {}
+
+    /// 버튼 / 제스처 연결
+    func addTarget() {}
 }
