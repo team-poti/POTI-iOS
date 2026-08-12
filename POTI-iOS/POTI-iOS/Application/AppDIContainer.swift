@@ -66,8 +66,8 @@ final class AppDIContainer {
         DefaultUsersRepository(networkService: makeNetworkService())
     }
 
-    private func makeImagesRepository() -> ImagesInterface {
-        DefaultImagesRepository(imageUploadService: makeImageUploadService())
+    private func makeImageUploadRepository() -> ImageUploadInterface {
+        DefaultImageUploadRepository(imageUploadService: makeImageUploadService())
     }
 
     private func makeRegisterRepository() -> RegisterInterface {
@@ -144,6 +144,10 @@ final class AppDIContainer {
 
     private func makeRegisterPostUseCase() -> RegisterPostUseCase {
         DefaultRegisterPostUseCase(repository: makeRegisterRepository())
+    }
+
+    private func makeUploadPostImagesUseCase() -> UploadPostImagesUseCase {
+        DefaultUploadPostImagesUseCase(repository: makeImageUploadRepository())
     }
 
     private func makePostsSaleUseCase() -> PostsSaleUseCase {
@@ -273,7 +277,7 @@ final class AppDIContainer {
 
     func makeProductRegisterViewModel() -> RegisterViewModel {
         RegisterViewModel(fetchProductTitlesUseCase: makeFetchProductTitlesUseCase(), registerPostUseCase: makeRegisterPostUseCase(),
-                          imagesRepository: makeImagesRepository(), artistMembersUseCase: makeArtistMembersUseCase())
+                          uploadPostImagesUseCase: makeUploadPostImagesUseCase(), artistMembersUseCase: makeArtistMembersUseCase())
     }
 
     func makeArtistSearchViewModel() -> ArtistSearchViewModel {
