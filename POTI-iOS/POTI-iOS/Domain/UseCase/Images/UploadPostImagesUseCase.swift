@@ -17,7 +17,9 @@ final class DefaultUploadPostImagesUseCase: UploadPostImagesUseCase {
     }
 
     func execute(images: [UploadImageEntity]) async throws -> [String] {
+        guard !images.isEmpty else { throw PotiError.badRequest }
         let presignedURLs = try await repository.fetchPresignedURLs(fileExtensions: images.map(\.fileExtension))
+        guard images.count == presignedURLs.count else { throw PotiError.decodingError }
         var imageFileNames: [String] = []
 
         for (image, presignedURL) in zip(images, presignedURLs) {
