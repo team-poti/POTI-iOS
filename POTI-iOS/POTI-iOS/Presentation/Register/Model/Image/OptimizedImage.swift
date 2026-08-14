@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct OptimizedImage {
+struct OptimizedImage: Sendable {
     let data: Data
     let fileExtension: String
     let mimeType: String

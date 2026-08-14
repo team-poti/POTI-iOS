@@ -80,8 +80,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             viewModel.action(.deleteImageButtonTapped(index))
         case let .form(action):
             handleProductFormAction(action)
-        case let .inputFocused(inputView):
-            handleInputFocus(inputView)
         case let .memberSetting(action):
             handleMemberSettingAction(action)
         case let .shippingSetting(action):
@@ -97,8 +95,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             showArtistSearch()
         case .deadlineFieldTapped:
             showDeadlinePicker()
-        case let .inputFocused(inputView):
-            handleInputFocus(inputView)
         case let .productTypeChanged(productType):
             viewModel.action(.updateProductType(productType))
         case let .descriptionChanged(description):
@@ -116,8 +112,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             viewModel.action(.updateMemberPrice(memberID: memberID, price: price))
         case .editButtonTapped:
             viewModel.action(.editMembersButtonTapped)
-        case let .inputFocused(inputView):
-            handleInputFocus(inputView)
         }
     }
 
@@ -127,8 +121,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             viewModel.action(.toggleShippingSelection(deliveryMethodID: deliveryMethodID))
         case let .priceChanged(deliveryMethodID, price):
             viewModel.action(.updateShippingPrice(deliveryMethodID: deliveryMethodID, price: price))
-        case let .inputFocused(inputView):
-            handleInputFocus(inputView)
         }
     }
 
@@ -375,12 +367,17 @@ extension RegisterViewController: PHPickerViewControllerDelegate {
                 defer {
                     imageFileURLs.forEach { try? FileManager.default.removeItem(at: $0) }
                 }
-                let optimizedImages = imageFileURLs.compactMap {
-                    self.imageOptimizer.optimize(fileURL: $0)
+                let imageOptimizer = imageOptimizer
+                let optimizedImages = try await Task.detached {
+                    try imageFileURLs.map { try imageOptimizer.optimize(fileURL: $0) }
+                }.value
+                await MainActor.run {
+                    self.viewModel.action(.addOptimizedImages(optimizedImages))
                 }
-                viewModel.action(.addOptimizedImages(optimizedImages))
             } catch {
-                rootView.setImageValidationError("이미지를 불러오지 못했어요. 다시 선택해주세요")
+                await MainActor.run {
+                    self.rootView.setImageValidationError("이미지를 불러오지 못했어요. 다시 선택해주세요")
+                }
             }
         }
     }
