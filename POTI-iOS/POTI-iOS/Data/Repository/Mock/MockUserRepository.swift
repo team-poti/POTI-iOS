@@ -24,4 +24,22 @@ final class MockUserRepository: UsersInterface {
         let recruitInfo = YourPageRecruitSummaryEntity(total: 33, inProgress: 22, completed: 1)
         return YourPageEntity(userId: 3, nickname: "하이루", email: "hi@hihi.com", profileImageUrl: "https://media.bunjang.co.kr/product/373927945_1_1767274552_w360.jpg", ratingAvg: 4.5, activityMessage: "최근 1일 이내 활동", joinedAt: "2025-12-28", hasFavoriteArtist: false, recruitSummary: recruitInfo)
     }
+
+    func fetchMyPostsHistory(status: String) async throws -> MyPagePostsHistoryEntity {
+        MyPagePostsHistoryEntity(
+            inProgressCount: 0,
+            completedCount: 0,
+            currentStatus: status,
+            groupBuyPosts: []
+        )
+    }
+
+    func fetchMyParticipationsHistory(status: String) async throws -> MyPageParticipationsHistoryEntity {
+        MyPageParticipationsHistoryEntity(
+            inProgressCount: 0,
+            completedCount: 0,
+            currentStatus: status,
+            participations: []
+        )
+    }
 }
