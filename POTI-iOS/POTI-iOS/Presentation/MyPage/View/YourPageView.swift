@@ -11,6 +11,9 @@ import SnapKit
 import Then
 
 final class YourPageView: BaseView {
+
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     
     private let yourProfileInfoView = YourProfileInformationView(nickname: "", profileImageURL: "", ratingAverage: 0)
     
@@ -18,12 +21,36 @@ final class YourPageView: BaseView {
     
     let participationView = MyPageNavigationView()
     let recruitmentView = MyPageNavigationView()
+
+    override func setStyle() {
+        backgroundColor = .gray100
+
+        scrollView.do {
+            $0.showsVerticalScrollIndicator = false
+        }
+    }
     
     override func setUI() {
-        addSubviews(yourProfileInfoView, userInformationView, participationView, recruitmentView)
+        addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubviews(
+            yourProfileInfoView,
+            userInformationView,
+            participationView,
+            recruitmentView
+        )
     }
     
     override func setLayout() {
+        scrollView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+
+        contentView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.width.equalTo(scrollView)
+        }
+
         yourProfileInfoView.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.leading.trailing.equalToSuperview().inset(16)
@@ -45,6 +72,7 @@ final class YourPageView: BaseView {
             $0.top.equalTo(userInformationView.snp.bottom).offset(12)
             $0.trailing.equalToSuperview().inset(16)
             $0.leading.equalTo(participationView.snp.trailing).offset(12)
+            $0.bottom.equalToSuperview().inset(57)
         }
     }
 }
