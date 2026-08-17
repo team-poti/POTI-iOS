@@ -37,6 +37,7 @@ struct PotiNavigationBar {
         static let leftTitle: CGFloat = 12
     }
     
+    @MainActor
     static func configure(
         navigationItem: UINavigationItem,
         navigationController: UINavigationController?,
@@ -129,7 +130,7 @@ struct PotiNavigationBar {
         
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .potiWhite
+        appearance.backgroundColor = target.view.backgroundColor
         appearance.shadowColor = .clear
         
         navigationController?.navigationBar.isTranslucent = false

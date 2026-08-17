@@ -32,12 +32,12 @@ public final class ChooseFavoriteIdolButton: UIButton {
         
         favoriteIdolLabel.do {
             $0.font = PotiFontManager.body14m.font
-            $0.textColor = .poti600
+            $0.textColor = .potiBlack
         }
         
         arrowImageView.do {
             $0.image = .icnArrowRightSm
-            $0.tintColor = .poti600
+            $0.tintColor = .potiBlack
             $0.contentMode = .scaleAspectFit
         }
     }

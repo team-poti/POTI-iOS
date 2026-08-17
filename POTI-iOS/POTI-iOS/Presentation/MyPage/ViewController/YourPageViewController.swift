@@ -25,7 +25,8 @@ final class YourPageViewController: BaseViewController<YourPageViewModel>, Navig
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        view.backgroundColor = .gray100
         viewModel.action(.viewDidLoad)
     }
     

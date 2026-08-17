@@ -19,6 +19,7 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     
     private let rootView = MyPageView()
     private let factory: ViewControllerFactory
+    private var nickname = ""
     
     init(viewModel: MyPageViewModel, factory: ViewControllerFactory) {
         self.factory = factory
@@ -31,7 +32,7 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        view.backgroundColor = .gray100
         viewModel.action(.viewDidLoad)
     }
     
@@ -39,6 +40,7 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         viewModel.output.myPage
             .receive(on: DispatchQueue.main)
             .sink { [weak self] model in
+                self?.nickname = model.nickname
                 self?.rootView.configure(with: model)
             }
             .store(in: &cancellables)
@@ -59,13 +61,19 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         rootView.recruitmentView.onFilterChanged = { [weak self] type in
             self?.navigateToHistory(historyType: .recruitment, filterType: type)
         }
+
+        rootView.profileInformationView.idolButton.addTarget(
+            self,
+            action: #selector(idolButtonDidTap),
+            for: .touchUpInside
+        )
     }
     
     private func navigateToHistory(historyType: MyPageHistoryType, filterType: MyPageNavigationType) {
         let initialTab: MyPageHistoryViewController.HistoryTab
         
         switch filterType {
-        case .all, .ongoing:
+        case .ongoing:
             initialTab = .ongoing
         case .completed:
             initialTab = .completed
@@ -73,6 +81,17 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         
         let containerVC = factory.makeMyPageHistoryContainerViewController(initialType: historyType, initialTab: initialTab)
         navigationController?.pushViewController(containerVC, animated: true)
+    }
+
+    @objc private func idolButtonDidTap() {
+        guard !nickname.isEmpty else { return }
+
+        let viewController = factory.makeMyPageFavoriteIdolGroupViewController(nickname: nickname)
+        viewController.hidesBottomBarWhenPushed = true
+        viewController.onFavoriteUpdated = { [weak self] in
+            self?.viewModel.action(.viewDidLoad)
+        }
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }
 
