@@ -37,6 +37,7 @@ struct PotiNavigationBar {
         static let leftTitle: CGFloat = 12
     }
     
+    @MainActor
     static func configure(
         navigationItem: UINavigationItem,
         navigationController: UINavigationController?,

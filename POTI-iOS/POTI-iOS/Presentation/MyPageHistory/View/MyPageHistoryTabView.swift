@@ -87,6 +87,7 @@ extension MyPageHistoryTabView {
     }
     
     private func update(_ button: UIButton, selected: Bool) {
+        button.isSelected = selected
         var configuration = button.configuration
 
         if selected {

@@ -87,13 +87,15 @@ extension YourProfileInformationView {
             
             profileImage.kf.setImage(
                 with: url,
-                placeholder: UIImage(named: "img_profile_placeholder"),
+                placeholder: UIImage(resource: .profilepic),
                 options: [
                     .transition(.fade(0.2)),
                     .cacheOriginalImage
                 ]
             )
         } else {
+            profileImage.kf.cancelDownloadTask()
+            profileImage.image = UIImage(resource: .profilepic)
         }
         
         ratingView.update(rating: ratingAverage)
