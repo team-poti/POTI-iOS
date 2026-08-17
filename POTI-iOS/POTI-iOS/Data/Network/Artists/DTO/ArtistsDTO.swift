@@ -2,7 +2,7 @@
 //  ArtistsDTO.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/18/26.
+//  Created by soomin on 1/18/26.
 //
 
 struct ArtistsDTO: Decodable {
@@ -13,7 +13,7 @@ struct ArtistDTO: Decodable {
     let memberId: Int
     let name: String
     
-    func toEntity() -> ArtistsEntity {
-        return ArtistsEntity(artistId: memberId, artistName: name)
+    func toEntity() -> ArtistMemberEntity {
+        ArtistMemberEntity(memberId: memberId, name: name)
     }
 }

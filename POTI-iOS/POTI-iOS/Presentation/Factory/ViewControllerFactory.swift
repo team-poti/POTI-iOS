@@ -11,7 +11,7 @@ protocol ViewControllerFactory {
     func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
     func makeFeedsViewController(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewController
-    func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel
+    func makePotOptionsViewController(postId: Int) -> PotOptionsViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
     func makeMyPageFavoriteIdolGroupViewController(nickname: String) -> MyPageFavoriteIdolGroupViewController
@@ -30,7 +30,7 @@ protocol ViewControllerFactory {
     func makeArtistMembersFilterBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
     func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
-    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
     func makeYourPageViewController(userId: Int) -> YourPageViewController
     func makeReviewUseCase() -> ReviewUseCase
 }
@@ -91,8 +91,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel {
-        diContainer.makePotOptionsViewModel(postId: postId)
+    func makePotOptionsViewController(postId: Int) -> PotOptionsViewController {
+        PotOptionsViewController(viewModel: diContainer.makePotOptionsViewModel(postId: postId))
     }
     
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController {
@@ -132,7 +132,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         return PotListViewController(viewModel: viewModel, factory: self)
     }
     
-    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [OrderItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController {
+    func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController {
         return PotOrderViewController(viewModel: diContainer.makePotOrderViewModel(postId: postId, shippingId: shippingId,orderItems: orderItems, shippingInfo: shippingInfo,memberInfos: memberInfos, uploaderNickname: uploaderNickname), factory: self
         )
     }

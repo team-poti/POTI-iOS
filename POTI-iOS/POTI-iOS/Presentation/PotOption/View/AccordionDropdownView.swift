@@ -2,7 +2,7 @@
 //  AccordionDropdownView.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/19/26.
+//  Created by soomin on 1/19/26.
 //
 
 import UIKit
@@ -16,31 +16,41 @@ final class AccordionDropdownView: BaseView {
     
     private let containerView = UIView()
     private let tableView = UITableView()
-    weak var anchorView: UIView?
     private let whiteLayerView = UIView()
+    weak var anchorView: UIView?
     
     // MARK: - Properties
     
-    private var maxHeight: CGFloat
-    var onSelect: ((String) -> Void)?
     var onClose: (() -> Void)?
+    var onSelect: ((Int) -> Void)?
+    var passthroughViews: [UIView] = []
+    private var maxHeight: CGFloat
     private var heightConstraint: Constraint?
     private var isOpen = false
-    private var displayItems: [(name: String, price: Int)]
-    private var disabledIndices: Set<Int> = []
-    var onSelectIndex: ((Int) -> Void)?
+    private var items: [DropdownItem]
     
     // MARK: - Initializer
     
-    init(items: [(name: String, price: Int)], disabledIndices: Set<Int> = [], maxHeight: CGFloat = 422) {
-        self.displayItems = items
-        self.disabledIndices = disabledIndices
+    init(items: [DropdownItem], maxHeight: CGFloat = 422) {
+        self.items = items
         self.maxHeight = maxHeight
         super.init(frame: .zero)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        if containerView.frame.contains(point) {
+            return super.point(inside: point, with: event)
+        }
+        
+        let isPassthroughArea = passthroughViews.contains { view in
+            view.convert(view.bounds, to: self).contains(point)
+        }
+
+        return isPassthroughArea ? false : super.point(inside: point, with: event)
     }
     
     // MARK: - Custom Methods
@@ -55,7 +65,7 @@ final class AccordionDropdownView: BaseView {
         }
         
         tableView.do {
-            $0.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            $0.register(AccordionDropdownCell.self, forCellReuseIdentifier: AccordionDropdownCell.identifier)
             $0.separatorStyle = .singleLine
             $0.separatorColor = .gray300
             $0.separatorInset = .zero
@@ -97,7 +107,7 @@ final class AccordionDropdownView: BaseView {
         }
     }
     
-    // MARK: - Method
+    // MARK: - Public Method
     
     func open(below anchorView: UIView, in parent: UIView, bottomAnchorView: UIView) {
         guard !isOpen else { return }
@@ -106,7 +116,6 @@ final class AccordionDropdownView: BaseView {
         self.alpha = 0
         frame = parent.bounds
         parent.addSubview(self)
-        parent.bringSubviewToFront(anchorView)
         
         let grayLineFrame = bottomAnchorView.convert(bottomAnchorView.bounds, to: parent)
         let anchorFrame = anchorView.convert(anchorView.bounds, to: parent)
@@ -126,7 +135,7 @@ final class AccordionDropdownView: BaseView {
         
         self.layoutIfNeeded()
         
-        let totalContentHeight = CGFloat(displayItems.count) * tableView.rowHeight
+        let totalContentHeight = CGFloat(items.count) * tableView.rowHeight
         let finalHeight = min(totalContentHeight, maxHeight)
         tableView.isScrollEnabled = totalContentHeight > maxHeight
         
@@ -155,54 +164,29 @@ final class AccordionDropdownView: BaseView {
     }
 }
 
-// MARK: - Extension
+// MARK: - UITableViewDataSource, UITableViewDelegate
 
 extension AccordionDropdownView: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        displayItems.count
+        items.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-        
-        let item = displayItems[indexPath.row]
-        let isDisabled = disabledIndices.contains(indexPath.row)
-        
-        cell.isUserInteractionEnabled = !isDisabled
-        
-        let titleLabel = UILabel().then {
-            $0.text = item.name
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = isDisabled ? .gray700 : .potiBlack
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: AccordionDropdownCell.identifier,
+            for: indexPath
+        ) as? AccordionDropdownCell else {
+            return UITableViewCell()
         }
-        
-        let priceLabel = UILabel().then {
-            $0.text = item.price == 0 ? "0원" : "\(item.price.formattedWithComma)원"
-            $0.font = PotiFontManager.body14sb.font
-            $0.textColor = isDisabled ? .gray700 : .potiBlack
-        }
-        
-        cell.contentView.addSubviews(titleLabel, priceLabel)
-        
-        titleLabel.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(16)
-            $0.centerY.equalToSuperview()
-        }
-        
-        priceLabel.snp.makeConstraints {
-            $0.trailing.equalToSuperview().offset(-16)
-            $0.centerY.equalToSuperview()
-        }
-        
-        cell.selectionStyle = .none
-        cell.backgroundColor = .clear
-        cell.contentView.backgroundColor = .potiWhite
+
+        cell.configure(with: items[indexPath.row])
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        onSelectIndex?(indexPath.row)
+        let item = items[indexPath.row]
+        guard item.isEnabled else { return }
+        onSelect?(item.id)
         close()
     }
 }

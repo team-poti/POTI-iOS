@@ -2,7 +2,7 @@
 //  PotListView.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/21/26.
+//  Created by soomin on 1/21/26.
 //
 
 import UIKit

@@ -2,10 +2,10 @@
 //  MemberInterface.swift
 //  POTI-iOS
 //
-//  Created by mandoo on 1/18/26.
+//  Created by soomin on 1/18/26.
 //
 
 protocol ArtistsInterface {
-    func fetchArtistMembers(artistId: Int) async throws -> [ArtistsEntity]
+    func fetchArtistMembers(artistId: Int) async throws -> [ArtistMemberEntity]
     func fetchOnboardingArtists() async throws -> OnboardingArtistsEntity
 }

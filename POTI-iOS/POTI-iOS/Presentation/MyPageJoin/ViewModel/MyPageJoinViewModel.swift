@@ -34,9 +34,9 @@ final class MyPageJoinViewModel: BaseViewModelType {
     
     private(set) var joinModel: MyPageJoinModel?
     private(set) var yourPageModel: YourPageModel?
-    private let participationsDetailUseCase: ParticipationsDetailUseCase
+    private let participationsDetailUseCase: ParticipationDetailUseCase
     private let postPaymentsUseCase: PostPaymentsUseCase
-    private let participationsDeliveredUseCase: ParticipationsDeliveredUseCase
+    private let participationsDeliveredUseCase: ParticipationDeliveredUseCase
     private let createReviewUseCase: ReviewUseCase
     private let viewStateMapper = JoinDetailViewStateMapper()
     
@@ -61,9 +61,9 @@ final class MyPageJoinViewModel: BaseViewModelType {
     
     init(
         participationId: Int,
-        participationsDetailUsecase: ParticipationsDetailUseCase,
+        participationsDetailUsecase: ParticipationDetailUseCase,
         postPaymentsUseCase: PostPaymentsUseCase,
-        participationsDeliveredUseCase: ParticipationsDeliveredUseCase,
+        participationsDeliveredUseCase: ParticipationDeliveredUseCase,
         createReviewUseCase: ReviewUseCase
     ) {
         self.participationId = participationId
