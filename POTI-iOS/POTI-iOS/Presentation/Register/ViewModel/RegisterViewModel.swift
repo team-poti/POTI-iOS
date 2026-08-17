@@ -303,8 +303,8 @@ final class RegisterViewModel: BaseViewModelType {
         Task { [weak self] in
             guard let self else { return }
             do {
-                let imageFileNames = try await uploadImages()
-                let entity = makeRegisterPostEntity(artistId: artistId, imageFileNames: imageFileNames)
+                let imagePaths = try await uploadImages()
+                let entity = makeRegisterPostEntity(artistId: artistId, imagePaths: imagePaths)
                 let response = try await registerPostUseCase.execute(entity)
                 await MainActor.run { self.registrationCompletedSubject.send(response.postId) }
             } catch {
@@ -349,11 +349,11 @@ final class RegisterViewModel: BaseViewModelType {
         try await uploadPostImagesUseCase.execute(images: optimizedImagesSubject.value.map { $0.toUploadImageEntity() })
     }
 
-    private func makeRegisterPostEntity(artistId: Int, imageFileNames: [String]) -> RegisterPostEntity {
+    private func makeRegisterPostEntity(artistId: Int, imagePaths: [String]) -> RegisterPostEntity {
         RegisterPostEntity(
             artistId: artistId, title: formState.productType, content: formState.description,
             deadline: formState.deadline?.toYMDString() ?? "", bankName: formState.bank, accountNumber: formState.accountNumber,
-            imageUrls: imageFileNames, options: makeMemberOptions(), shippings: makeShippingEntities()
+            imageUrls: imagePaths, options: makeMemberOptions(), shippings: makeShippingEntities()
         )
     }
 

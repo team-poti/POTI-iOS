@@ -8,6 +8,6 @@
 import Foundation
 
 struct PresignedUploadEntity {
-    let fileName: String
+    let filePath: String
     let uploadURL: URL
 }

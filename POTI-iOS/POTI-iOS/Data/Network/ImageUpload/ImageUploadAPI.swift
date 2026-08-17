@@ -1,5 +1,5 @@
 //
-//  ImageAPI.swift
+//  ImageUploadAPI.swift
 //  POTI-iOS
 //
 //  Created by soomin on 8/12/26.
@@ -7,8 +7,8 @@
 
 import Alamofire
 
-enum ImageAPI: BaseTargetType {
-    case fetchPresignedURLs(type: String, fileExtensions: [String])
+enum ImageUploadAPI: BaseTargetType {
+    case fetchPostPresignedUploads(fileExtensions: [String])
 
     var path: String {
         "/api/v1/images/presigned-url"
@@ -20,8 +20,8 @@ enum ImageAPI: BaseTargetType {
 
     var queryParameters: [String: String]? {
         switch self {
-        case let .fetchPresignedURLs(type, fileExtensions):
-            return ["type": type, "extensions": fileExtensions.joined(separator: ",")]
+        case let .fetchPostPresignedUploads(fileExtensions):
+            return ["type": "POST", "extensions": fileExtensions.joined(separator: ",")]
         }
     }
 }

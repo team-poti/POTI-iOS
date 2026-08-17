@@ -10,7 +10,7 @@ import Foundation
 import Alamofire
 
 protocol ImageUploadService {
-    func fetchPresignedURLs(type: String, fileExtensions: [String]) async throws -> PresignedUploadsDTO
+    func fetchPostPresignedUploads(fileExtensions: [String]) async throws -> PresignedUploadsDTO
     func uploadImage(data: Data, to url: URL, mimeType: String) async throws
 }
 
@@ -21,9 +21,9 @@ final class DefaultImageUploadService: ImageUploadService {
         self.networkService = networkService
     }
 
-    func fetchPresignedURLs(type: String, fileExtensions: [String]) async throws -> PresignedUploadsDTO {
+    func fetchPostPresignedUploads(fileExtensions: [String]) async throws -> PresignedUploadsDTO {
         try await networkService.request(
-            target: ImageAPI.fetchPresignedURLs(type: type, fileExtensions: fileExtensions),
+            target: ImageUploadAPI.fetchPostPresignedUploads(fileExtensions: fileExtensions),
             type: PresignedUploadsDTO.self
         )
     }

@@ -14,8 +14,8 @@ final class DefaultImageUploadRepository: ImageUploadInterface {
         self.imageUploadService = imageUploadService
     }
 
-    func fetchPresignedURLs(fileExtensions: [String]) async throws -> [PresignedUploadEntity] {
-        let response = try await imageUploadService.fetchPresignedURLs(type: "POST", fileExtensions: fileExtensions)
+    func fetchPresignedUploads(fileExtensions: [String]) async throws -> [PresignedUploadEntity] {
+        let response = try await imageUploadService.fetchPostPresignedUploads(fileExtensions: fileExtensions)
         return try response.toEntity()
     }
 

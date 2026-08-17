@@ -21,6 +21,6 @@ struct PresignedUploadDTO: Decodable {
 
     func toEntity() throws -> PresignedUploadEntity {
         guard let uploadURL = URL(string: url) else { throw PotiError.invalidPresignedUrl }
-        return PresignedUploadEntity(fileName: fileName, uploadURL: uploadURL)
+        return PresignedUploadEntity(filePath: fileName, uploadURL: uploadURL)
     }
 }
