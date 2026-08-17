@@ -35,7 +35,6 @@ final class PotOrderView: BaseView {
         
         bottomButton.do {
             $0.color = .primaryMain
-            $0.isDisabled = true
             $0.text = "참여하기"
         }
         
