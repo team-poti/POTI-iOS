@@ -369,7 +369,11 @@ extension RegisterViewController: PHPickerViewControllerDelegate {
                 }
                 let imageOptimizer = imageOptimizer
                 let optimizedImages = try await Task.detached {
-                    try imageFileURLs.map { try imageOptimizer.optimize(fileURL: $0) }
+                    try imageFileURLs.map { fileURL in
+                        try autoreleasepool {
+                            try imageOptimizer.optimize(fileURL: fileURL)
+                        }
+                    }
                 }.value
                 await MainActor.run {
                     self.viewModel.action(.addOptimizedImages(optimizedImages))
