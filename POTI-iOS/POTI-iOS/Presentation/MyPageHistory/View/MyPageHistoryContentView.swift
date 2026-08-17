@@ -26,12 +26,15 @@ final class MyPageHistoryContentView: BaseView {
             $0.isPagingEnabled = true
             $0.showsHorizontalScrollIndicator = false
             $0.bounces = false
+            $0.isDirectionalLockEnabled = true
+            $0.backgroundColor = .potiWhite
         }
         
         [ongoingTableView, completedTableView].forEach {
             $0.separatorStyle = .none
             $0.rowHeight = .dynamicH(97)
             $0.showsVerticalScrollIndicator = false
+            $0.backgroundColor = .potiWhite
             $0.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0)
             $0.register(MyPageHistoryCell.self, forCellReuseIdentifier: "MyPageHistoryCell")
         }

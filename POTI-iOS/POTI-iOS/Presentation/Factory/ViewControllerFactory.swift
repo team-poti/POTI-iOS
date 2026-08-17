@@ -14,6 +14,7 @@ protocol ViewControllerFactory {
     func makePotOptionsViewController(postId: Int) -> PotOptionsViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
+    func makeMyPageFavoriteIdolGroupViewController(nickname: String) -> MyPageFavoriteIdolGroupViewController
     func makeOnboardingViewController() -> OnboardingViewController
     func makeValidNicknameViewController(viewModel: OnboardingViewModel) -> ValidNicknameViewController
     func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController
@@ -80,6 +81,13 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makeMyPageViewController() -> MyPageViewController {
         MyPageViewController(
             viewModel: diContainer.makeMyPageViewModel(), factory: self
+        )
+    }
+
+    func makeMyPageFavoriteIdolGroupViewController(nickname: String) -> MyPageFavoriteIdolGroupViewController {
+        MyPageFavoriteIdolGroupViewController(
+            nickname: nickname,
+            viewModel: diContainer.makeOnboardingViewModel()
         )
     }
     

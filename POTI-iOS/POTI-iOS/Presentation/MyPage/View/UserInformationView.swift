@@ -12,10 +12,10 @@ import Then
 
 final class UserInformationView: BaseView {
     
-    private let firstBulletImage = UIImageView()
     private let recentActivityLabel = UILabel()
-    private let secondBulletImage = UIImageView()
+    private let bulletImage = UIImageView()
     private let signUpDateLabel = UILabel()
+    private let userInformationStackView = UIStackView()
     
     private let recentActivity: String
     private let signUpDate: String
@@ -31,58 +31,42 @@ final class UserInformationView: BaseView {
     }
     
     override func setStyle() {
-        backgroundColor = .gray100
+        backgroundColor = .potiWhite
         layer.cornerRadius = 12
         
-        firstBulletImage.do {
-            $0.image = .icnBullet
-            $0.tintColor = .gray800
-            $0.contentMode = .scaleAspectFit
-        }
-        
         recentActivityLabel.do {
-            $0.textColor = .potiBlack
-            $0.font = PotiFontManager.caption12m.font
+            $0.textColor = .gray800
+            $0.font = PotiFontManager.body14m.font
             $0.text = recentActivity
         }
         
-        secondBulletImage.do {
+        bulletImage.do {
             $0.image = .icnBullet
             $0.tintColor = .gray800
             $0.contentMode = .scaleAspectFit
         }
         
         signUpDateLabel.do {
-            $0.textColor = .potiBlack
-            $0.font = PotiFontManager.caption12m.font
+            $0.textColor = .gray800
+            $0.font = PotiFontManager.body14m.font
+        }
+        
+        userInformationStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 0
+            $0.alignment = .center
         }
     }
     
     override func setUI() {
-        addSubviews(firstBulletImage, recentActivityLabel, secondBulletImage, signUpDateLabel)
+        addSubviews(userInformationStackView)
+        userInformationStackView.addArrangedSubviews(recentActivityLabel, bulletImage, signUpDateLabel)
     }
     
     override func setLayout() {
-        firstBulletImage.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.top.leading.equalToSuperview().inset(12)
-        }
-        
-        recentActivityLabel.snp.makeConstraints {
-            $0.leading.equalTo(firstBulletImage.snp.trailing)
-            $0.centerY.equalTo(firstBulletImage)
-        }
-        
-        secondBulletImage.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.top.equalTo(firstBulletImage.snp.bottom)
-            $0.leading.bottom.equalToSuperview().inset(12)
-        }
-        
-        signUpDateLabel.snp.makeConstraints {
-            $0.leading.equalTo(secondBulletImage.snp.trailing)
-            $0.top.equalTo(recentActivityLabel.snp.bottom)
-            $0.centerY.equalTo(secondBulletImage)
+        userInformationStackView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.verticalEdges.equalToSuperview().inset(17.5)
         }
     }
 }

@@ -67,7 +67,7 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
         tabView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(70)
+            $0.height.equalTo(44)
         }
         
         contentView.snp.makeConstraints {
@@ -136,11 +136,7 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
         guard currentTab != tab || !animated else { return }
         
         currentTab = tab
-        
         tabView.updateTabSelection(tab: tab)
-        
-        let targetButton = tab == .ongoing ? tabView.ongoingTabButton : tabView.completedTabButton
-        tabView.updateTabIndicator(to: targetButton, animated: animated)
         
         isScrollingByUser = false
         let offsetX = CGFloat(tab.rawValue) * view.bounds.width
@@ -195,9 +191,6 @@ extension MyPageHistoryViewController: UIScrollViewDelegate {
         if let tab = HistoryTab(rawValue: currentPage), tab != currentTab {
             currentTab = tab
             tabView.updateTabSelection(tab: tab)
-            
-            let targetButton = tab == .ongoing ? tabView.ongoingTabButton : tabView.completedTabButton
-            tabView.updateTabIndicator(to: targetButton, animated: false)
         }
     }
     
@@ -269,7 +262,6 @@ extension MyPageHistoryViewController {
             let vc = factory.makeRecruitDetailViewController(postId: item.id)
             navigationController?.pushViewController(vc, animated: true)
             
-            // 악귀 뷰 이동
         case .participation:
             let vc = factory.makeMyPageJoinDetailViewController(
                 participationId: item.id
