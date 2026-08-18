@@ -59,6 +59,11 @@ final class TextInputContainerView: BaseView {
         minimumHeightConstraint?.update(offset: height)
     }
 
+    func setAppearance(backgroundColor: UIColor, borderWidth: CGFloat) {
+        contentView.backgroundColor = backgroundColor
+        contentView.layer.borderWidth = borderWidth
+    }
+
     func render(isFocused: Bool, validationState: TextFieldValidationState) {
         switch validationState {
         case .normal:
