@@ -47,15 +47,15 @@ final class AppDIContainer {
     }
 
     private func makePostRepository() -> PostInterface {
-        MockPostRepository()
+        DefaultPostRepository(networkService: makeNetworkService())
     }
 
     private func makeSearchRepository() -> SearchRepository {
-        MockSearchRepository()
+        DefaultSearchRepository(networkService: makeNetworkService())
     }
 
     private func makeArtistsRepository() -> ArtistsInterface {
-        MockArtistRepository()
+        DefaultArtistsRepository(networkService: makeNetworkService())
     }
 
     private func makeParticipationRepository() -> ParticipationInterface {
@@ -75,7 +75,7 @@ final class AppDIContainer {
     }
 
     private func makeRegisterRepository() -> RegisterInterface {
-        MockRegisterRepository()
+        DefaultRegisterRepository(networkService: makeNetworkService())
     }
 
     private func makePaymentsRepository() -> PaymentsInterface {
