@@ -36,14 +36,14 @@ final class MockPostRepository: PostInterface {
 
     func fetchFeedsData(artistId: Int?, sort: FeedsSortOption, page: Int) async throws -> FeedsEntity {
         if page > 0 {
-            return FeedsEntity(nickname: "수민", mainArtist: "아이브", mainArtistId: 1, groupItems: [])
+            return FeedsEntity(nickname: "수민", mainArtist: "아이브", mainArtistId: 1, hasNext: false, groupItems: [])
         }
 
         let totalItems = [
             GroupItem(title: "아이브앨범", artist: "아이브", artistId: 1, postImage: "https://www.news1.kr/_next/image?url=https%3A%2F%2Fi3n.news1.kr%2Fsystem%2Fphotos%2F2025%2F7%2F31%2F7423083%2Fhigh.jpg&w=1920&q=75", postCount: 12, tag: "인기")
         ]
 
-        return FeedsEntity(nickname: "수민", mainArtist: "아이브", mainArtistId: 1, groupItems: totalItems)
+        return FeedsEntity(nickname: "수민", mainArtist: "아이브", mainArtistId: 1, hasNext: false, groupItems: totalItems)
     }
 
     func fetchPotListData(title: String, artistId: Int, memberIds: [Int]?, sort: String, page: Int) async throws -> PotListEntity {
@@ -137,7 +137,7 @@ final class MockPostRepository: PostInterface {
         var filterResult = artistFilteredPots
         if let selectedIds = memberIds, !selectedIds.isEmpty {
             filterResult = artistFilteredPots.filter { item in
-                item.memberIds.contains { selectedIds.contains($0) }
+                selectedIds.allSatisfy { item.memberIds.contains($0) }
             }
         }
 
