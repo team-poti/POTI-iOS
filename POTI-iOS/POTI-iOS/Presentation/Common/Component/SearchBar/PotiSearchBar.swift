@@ -32,6 +32,7 @@ final class PotiSearchBar: BaseView {
         set {
             textField.text = newValue
             updateAccessoryImage()
+            textSubject.send(newValue)
         }
     }
 
@@ -199,7 +200,6 @@ final class PotiSearchBar: BaseView {
     @objc private func accessoryButtonTapped() {
         guard appearance == .filled, !text.isEmpty else { return }
         text = ""
-        textSubject.send("")
         onClear?()
     }
 }

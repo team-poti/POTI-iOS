@@ -138,17 +138,16 @@ final class SearchViewModel: BaseViewModelType {
         let requestedPage = currentPage
         searchRequestID = UUID()
         let requestID = searchRequestID
-        searchTask = Task { [weak self] in
-            guard let self else { return }
+        searchTask = Task { [weak self, searchPostsUseCase] in
             defer {
-                if searchRequestID == requestID {
-                    isFetching = false
+                if self?.searchRequestID == requestID {
+                    self?.isFetching = false
                 }
             }
 
             do {
                 let page = try await searchPostsUseCase.execute(keyword: trimmedKeyword, page: requestedPage)
-                guard !Task.isCancelled, currentKeyword == trimmedKeyword else { return }
+                guard !Task.isCancelled, let self, currentKeyword == trimmedKeyword else { return }
                 let newResults = page.results.map { $0.toGoodsListItemModel() }
 
                 if resetsResults {
@@ -164,7 +163,7 @@ final class SearchViewModel: BaseViewModelType {
             } catch is CancellationError {
                 return
             } catch {
-                guard !Task.isCancelled else { return }
+                guard !Task.isCancelled, let self else { return }
                 let phase: Phase = results.isEmpty ? .error : .results
                 renderSubject.send(State(phase: phase))
             }
