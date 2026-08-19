@@ -29,7 +29,7 @@ final class FeedsView: BaseView {
             $0.isScrollEnabled = true
             $0.showsVerticalScrollIndicator = false
             
-            $0.register(FeedsCell.self)
+            $0.register(GoodsListCell.self)
             $0.registerHeader(FeedsHeaderCell.self)
         }
     }

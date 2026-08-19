@@ -122,12 +122,12 @@ extension FeedsViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedsCell.identifier, for: indexPath) as? FeedsCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GoodsListCell.identifier, for: indexPath) as? GoodsListCell else {
             return UICollectionViewCell()
         }
         
         let groupItem = viewModel.groupItems[indexPath.item]
-        cell.configure(groupItem: groupItem)
+        cell.configure(with: groupItem)
         
         return cell
     }

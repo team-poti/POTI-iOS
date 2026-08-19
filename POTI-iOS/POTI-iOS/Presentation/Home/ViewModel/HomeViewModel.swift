@@ -19,25 +19,21 @@ final class HomeViewModel: BaseViewModelType {
     
     enum Input {
         case viewDidLoad
-        case searchButtonTapped
     }
     
     // MARK: - Output
     
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
-        let withdrawCompleted: AnyPublisher<Void, Never>
     }
     
     // MARK: - Subjects
     
-    private let withdrawCompletedSubject = PassthroughSubject<Void, Never>()
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
     
     // MARK: - Properties
     
     private let useCase: HomeUseCase
-    private let withDrawUseCase: WithdrawUseCase
     private var cancellables = Set<AnyCancellable>()
     
     let output: Output
@@ -51,17 +47,9 @@ final class HomeViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(
-        useCase: HomeUseCase,
-        withDrawUseCase: WithdrawUseCase
-    ) {
+    init(useCase: HomeUseCase) {
         self.useCase = useCase
-        self.withDrawUseCase = withDrawUseCase
-        
-        self.output = Output(
-            reloadData: reloadDataSubject.eraseToAnyPublisher(),
-            withdrawCompleted: withdrawCompletedSubject.eraseToAnyPublisher()
-        )
+        self.output = Output(reloadData: reloadDataSubject.eraseToAnyPublisher())
     }
     
     // MARK: - Action
@@ -70,9 +58,6 @@ final class HomeViewModel: BaseViewModelType {
         switch trigger {
         case .viewDidLoad:
             fetchHomeData()
-        case .searchButtonTapped:
-            // TODO: - 검색 View로 이동으로 변경하기
-            withdraw()
         }
     }
     
@@ -105,18 +90,4 @@ final class HomeViewModel: BaseViewModelType {
         }
     }
     
-    private func withdraw() {
-        Task {
-            do {
-                try await withDrawUseCase.execute()
-                
-                await MainActor.run {
-                    KeychainManager.deleteAllTokens()
-                    withdrawCompletedSubject.send(())
-                }
-            } catch {
-                print("탈퇴 실패: \(error)")
-            }
-        }
-    }
 }

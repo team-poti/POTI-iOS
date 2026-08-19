@@ -94,12 +94,6 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
             }
             .store(in: &cancellables)
         
-        viewModel.output.withdrawCompleted
-            .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.switchToLoginRoot()
-            }
-            .store(in: &cancellables)
     }
     
     // MARK: - Action
@@ -117,13 +111,11 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     }
     
     override func searchButtonTapped() {
-        viewModel.action(.searchButtonTapped)
+        let searchViewController = factory.makeSearchViewController()
+        searchViewController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(searchViewController, animated: true)
     }
     
-    private func switchToLoginRoot() {
-        let loginVC = factory.makeLoginViewController()
-        switchRootViewController(to: loginVC)
-    }
 }
 
 // MARK: - UICollectionViewDataSource

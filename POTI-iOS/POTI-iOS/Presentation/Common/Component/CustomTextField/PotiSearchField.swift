@@ -11,7 +11,7 @@ import Combine
 import SnapKit
 import Then
 
-final class PotiSearchField<Item>: BaseView, UITextFieldDelegate {
+final class PotiSearchField<Item>: BaseView {
 
     // MARK: - Properties
 
@@ -19,44 +19,29 @@ final class PotiSearchField<Item>: BaseView, UITextFieldDelegate {
     var onBeginEditing: ((UIView) -> Void)?
 
     var text: String {
-        get { textField.text ?? "" }
-        set { textField.text = newValue }
+        get { searchBar.text }
+        set { searchBar.text = newValue }
     }
 
     var textPublisher: AnyPublisher<String, Never> {
-        textSubject.removeDuplicates().eraseToAnyPublisher()
+        searchBar.textPublisher
     }
 
-    private var validationState: TextFieldValidationState = .normal
     private var isInputFocused = false
     private var isListVisible = false
     private let titleProvider: (Item) -> String
-    private let textSubject = CurrentValueSubject<String, Never>("")
 
     private let rootStackView = UIStackView()
-    private let inputContainer = TextInputContainerView()
-    private let textField = UITextField()
-    private let accessoryContainer = UIView()
-    private let accessoryImageView = UIImageView()
+    private let searchBar: PotiSearchBar
     private let searchListView: SearchListView<Item>
-    private var trailingToAccessory: Constraint?
-    private var trailingToSuperview: Constraint?
 
     // MARK: - Initializers
 
     init(placeholder: String? = nil, maxVisibleRows: Int = 3, showsSearchIcon: Bool = true, titleProvider: @escaping (Item) -> String) {
         self.titleProvider = titleProvider
+        searchBar = PotiSearchBar(placeholder: placeholder, showsSearchIcon: showsSearchIcon)
         searchListView = SearchListView(titleProvider: titleProvider, maxVisibleRows: maxVisibleRows)
         super.init(frame: .zero)
-        configurePlaceholder(placeholder)
-        accessoryContainer.isHidden = !showsSearchIcon
-        if showsSearchIcon {
-            trailingToSuperview?.deactivate()
-            trailingToAccessory?.activate()
-        } else {
-            trailingToAccessory?.deactivate()
-            trailingToSuperview?.activate()
-        }
     }
 
     required init?(coder: NSCoder) {
@@ -71,22 +56,6 @@ final class PotiSearchField<Item>: BaseView, UITextFieldDelegate {
             $0.spacing = 8
         }
 
-        textField.do {
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
-            $0.clearButtonMode = .never
-            $0.delegate = self
-            $0.autocorrectionType = .no
-            $0.autocapitalizationType = .none
-            $0.returnKeyType = .search
-        }
-
-        accessoryImageView.do {
-            $0.contentMode = .scaleAspectFit
-            $0.tintColor = .gray700
-            $0.image = .icnSearch
-        }
-
         searchListView.do {
             $0.isHidden = true
             $0.alpha = 0
@@ -95,34 +64,28 @@ final class PotiSearchField<Item>: BaseView, UITextFieldDelegate {
                 guard let self else { return }
                 self.text = self.titleProvider(item)
                 self.onSelectItem?(item)
-                self.textField.resignFirstResponder()
+                self.searchBar.dismissKeyboard()
             }
         }
     }
 
     override func setUI() {
         addSubview(rootStackView)
-        rootStackView.addArrangedSubviews(inputContainer, searchListView)
-        inputContainer.contentView.addSubviews(textField, accessoryContainer)
-        accessoryContainer.addSubview(accessoryImageView)
-        textField.addTarget(self, action: #selector(editingChanged), for: .editingChanged)
+        rootStackView.addArrangedSubviews(searchBar, searchListView)
+        searchBar.onBeginEditing = { [weak self] inputView in
+            guard let self else { return }
+            self.isInputFocused = true
+            self.onBeginEditing?(inputView)
+            self.updateListVisibility(animated: true)
+        }
+        searchBar.onEndEditing = { [weak self] in
+            self?.isInputFocused = false
+            self?.updateListVisibility(animated: true)
+        }
     }
 
     override func setLayout() {
         rootStackView.snp.makeConstraints { $0.edges.equalToSuperview() }
-        accessoryContainer.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(16)
-            $0.centerY.equalToSuperview()
-            $0.size.equalTo(24)
-        }
-        accessoryImageView.snp.makeConstraints { $0.edges.equalToSuperview() }
-        textField.snp.makeConstraints {
-            $0.verticalEdges.equalToSuperview().inset(14)
-            $0.leading.equalToSuperview().inset(16)
-            trailingToAccessory = $0.trailing.equalTo(accessoryContainer.snp.leading).offset(-8).constraint
-            trailingToSuperview = $0.trailing.equalToSuperview().inset(16).constraint
-        }
-        trailingToSuperview?.deactivate()
     }
 
     // MARK: - Public Methods
@@ -133,20 +96,10 @@ final class PotiSearchField<Item>: BaseView, UITextFieldDelegate {
     }
 
     func setValidationState(_ state: TextFieldValidationState) {
-        validationState = state
-        render()
+        searchBar.setValidationState(state)
     }
 
     // MARK: - Private Methods
-
-    private func configurePlaceholder(_ placeholder: String?) {
-        guard let placeholder else { return }
-        textField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.font: PotiFontManager.body16m.font, .foregroundColor: UIColor.gray700])
-    }
-
-    private func render() {
-        inputContainer.render(isFocused: isInputFocused, validationState: validationState)
-    }
 
     private func updateListVisibility(animated: Bool) {
         setListVisible(isInputFocused && searchListView.itemsCount > 0, animated: animated)
@@ -179,30 +132,4 @@ final class PotiSearchField<Item>: BaseView, UITextFieldDelegate {
         }
     }
 
-    // MARK: - Action
-
-    @objc private func editingChanged() {
-        guard textField.markedTextRange == nil else { return }
-        textSubject.send(text)
-    }
-
-    // MARK: - UITextFieldDelegate
-
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        isInputFocused = true
-        render()
-        onBeginEditing?(textField)
-        updateListVisibility(animated: true)
-    }
-
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        isInputFocused = false
-        render()
-        updateListVisibility(animated: true)
-    }
 }

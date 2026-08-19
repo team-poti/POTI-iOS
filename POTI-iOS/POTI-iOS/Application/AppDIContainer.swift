@@ -50,6 +50,10 @@ final class AppDIContainer {
         MockPostRepository()
     }
 
+    private func makeSearchRepository() -> SearchRepository {
+        MockSearchRepository()
+    }
+
     private func makeArtistsRepository() -> ArtistsInterface {
         MockArtistRepository()
     }
@@ -124,6 +128,10 @@ final class AppDIContainer {
 
     private func makePotOptionUseCase() -> FetchPotOptionsUseCase {
         DefaultFetchPotOptionsUseCase(repository: makePostRepository())
+    }
+
+    private func makeSearchPostsUseCase() -> SearchPostsUseCase {
+        DefaultSearchPostsUseCase(repository: makeSearchRepository())
     }
 
     private func makeApplyParticipationUseCase() -> ApplyParticipationUseCase {
@@ -210,10 +218,6 @@ final class AppDIContainer {
         DefaultReviewUseCase(repository: makeCreateReviewsRepository())
     }
 
-    @MainActor private func makeWithdrawUseCase() -> WithdrawUseCase {
-        DefaultWithdrawUseCase(repository: makeAuthRepository())
-    }
-
     // MARK: - ViewModel
 
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -225,11 +229,15 @@ final class AppDIContainer {
     }
 
     @MainActor func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(useCase: makeHomeUseCase(), withDrawUseCase: makeWithdrawUseCase())
+        HomeViewModel(useCase: makeHomeUseCase())
     }
 
     func makeFeedsViewModel(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewModel {
         FeedsViewModel(useCase: makeFeedsUseCase(), sectionType: sectionType, artistId: artistId, nickname: nickname)
+    }
+
+    func makeSearchViewModel() -> SearchViewModel {
+        SearchViewModel(searchPostsUseCase: makeSearchPostsUseCase())
     }
 
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
