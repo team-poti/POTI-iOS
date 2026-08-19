@@ -7,10 +7,9 @@
 
 struct SearchResponseDTO: Decodable {
     let content: [SearchResultDTO]
-    let number: Int
-    let last: Bool
+    let hasNext: Bool
 
-    func toEntity() -> SearchResultPageEntity {
-        return SearchResultPageEntity(results: content.map { $0.toEntity() }, currentPage: number, hasNext: !last)
+    func toEntity(currentPage: Int) -> SearchResultPageEntity {
+        return SearchResultPageEntity(results: content.map { $0.toEntity() }, currentPage: currentPage, hasNext: hasNext)
     }
 }
