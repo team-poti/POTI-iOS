@@ -183,7 +183,9 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
         }
 
         if kind == UICollectionView.elementKindSectionHeader {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailParticipantsHeaderView.identifier, for: indexPath) as! DetailParticipantsHeaderView
+            guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailParticipantsHeaderView.identifier, for: indexPath) as? DetailParticipantsHeaderView else {
+                return UICollectionReusableView()
+            }
             let currentCount = viewModel.potDetailModel?.currentCount ?? 0
             let totalCount = viewModel.potDetailModel?.totalCount ?? 0
             header.configure(currentCount: currentCount, totalCount: totalCount)
