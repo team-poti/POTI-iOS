@@ -18,12 +18,12 @@ final class ArtistSearchView: BaseView {
     var queryPublisher: AnyPublisher<String, Never> {
         searchField.textPublisher
     }
-    var onSelectArtist: ((ArtistSearchResultEntity) -> Void)?
+    var onSelectArtist: ((ArtistSearchItem) -> Void)?
     var onTapConfirm: (() -> Void)?
     
     // MARK: - UI Components
     
-    private let searchField = PotiSearchField<ArtistSearchResultEntity>(placeholder: "분철할 그룹을 검색해보세요", maxVisibleRows: 3, showsSearchIcon: true, titleProvider: { $0.name })
+    private let searchField = PotiSearchField<ArtistSearchItem>(placeholder: "분철할 그룹을 검색해보세요", maxVisibleRows: 3, showsSearchIcon: true, titleProvider: { $0.name })
     private let searchStatusLabel = UILabel()
     private let confirmButton = PotiBottomButton()
     

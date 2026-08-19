@@ -15,6 +15,7 @@ final class ShippingRowView: BaseView {
     // MARK: - Properties
 
     var onAction: ((ShippingSettingAction) -> Void)?
+    var onInputFocus: ((UIView) -> Void)?
     private let deliveryMethodID: Int
 
     // MARK: - UI Components
@@ -147,7 +148,7 @@ final class ShippingRowView: BaseView {
     }
 
     @objc private func priceTextFieldDidBeginEditing() {
-        onAction?(.inputFocused(priceTextField))
+        onInputFocus?(priceTextField)
     }
 
     @objc private func priceTextFieldDidEndEditing() {

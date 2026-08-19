@@ -2,7 +2,7 @@
 //  RegisterPostResultEntity.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/21/26.
+//  Created by soomin on 8/11/26.
 //
 
 struct RegisterPostResultEntity {

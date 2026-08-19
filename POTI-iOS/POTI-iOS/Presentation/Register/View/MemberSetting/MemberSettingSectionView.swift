@@ -15,6 +15,7 @@ final class MemberSettingSectionView: BaseView {
     // MARK: - Properties
 
     var onAction: ((MemberSettingAction) -> Void)?
+    var onInputFocus: ((UIView) -> Void)?
 
     private var renderedMemberIDs: [Int] = []
     private var bottomSpacingConstraint: Constraint?
@@ -195,6 +196,7 @@ final class MemberSettingSectionView: BaseView {
             let rowView = MemberPriceRowView(memberID: member.id)
             rowView.configure(name: member.name, price: member.price)
             rowView.onAction = { [weak self] in self?.onAction?($0) }
+            rowView.onInputFocus = { [weak self] in self?.onInputFocus?($0) }
             memberRowsStackView.addArrangedSubview(rowView)
         }
     }

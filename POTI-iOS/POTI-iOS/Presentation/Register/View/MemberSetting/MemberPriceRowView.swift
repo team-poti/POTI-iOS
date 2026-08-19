@@ -15,6 +15,7 @@ final class MemberPriceRowView: BaseView {
     // MARK: - Properties
 
     var onAction: ((MemberSettingAction) -> Void)?
+    var onInputFocus: ((UIView) -> Void)?
     private let memberID: Int
 
     // MARK: - UI Components
@@ -122,7 +123,7 @@ final class MemberPriceRowView: BaseView {
     }
 
     @objc private func priceTextFieldDidBeginEditing() {
-        onAction?(.inputFocused(priceTextField))
+        onInputFocus?(priceTextField)
     }
 
     @objc private func priceTextFieldDidEndEditing() {

@@ -18,7 +18,7 @@ final class DefaultArtistsRepository: ArtistsInterface {
             target: ArtistsAPI.fetchArtistMembers(artistId: artistId),
             type: ArtistsDTO.self
         )
-        return response.members.map { $0.toEntity() }
+        return response.toEntities()
     }
     
     func fetchOnboardingArtists() async throws -> OnboardingArtistsEntity {

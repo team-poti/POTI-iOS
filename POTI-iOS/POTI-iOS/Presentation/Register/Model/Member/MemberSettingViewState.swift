@@ -5,8 +5,6 @@
 //  Created by soomin on 8/11/26.
 //
 
-import UIKit
-
 struct MemberSettingViewState: Equatable {
     enum Content: Equatable {
         case artistNotSelected
@@ -22,7 +20,6 @@ struct MemberSettingViewState: Equatable {
 enum MemberSettingAction {
     case priceChanged(memberID: Int, price: Int?)
     case editButtonTapped
-    case inputFocused(UIView)
 }
 
 struct RegisterMemberSelectionRequest {

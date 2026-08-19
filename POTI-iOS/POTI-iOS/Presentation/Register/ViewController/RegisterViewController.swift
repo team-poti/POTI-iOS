@@ -16,13 +16,17 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
 
     private let rootView = ProductRegisterView()
     private let factory: ViewControllerFactory
+    private let imagePickerResultLoader: ImagePickerResultLoading
+    private let imageOptimizer: ImageOptimizing
     private weak var focusedInputView: UIView?
     private var keyboardHeight: CGFloat = 0
 
     // MARK: - Initializer
 
-    init(viewModel: RegisterViewModel, factory: ViewControllerFactory) {
+    init(viewModel: RegisterViewModel, factory: ViewControllerFactory, imagePickerResultLoader: ImagePickerResultLoading = ImagePickerResultLoader(), imageOptimizer: ImageOptimizing = ImageOptimizer()) {
         self.factory = factory
+        self.imagePickerResultLoader = imagePickerResultLoader
+        self.imageOptimizer = imageOptimizer
         super.init(viewModel: viewModel)
         hidesBottomBarWhenPushed = true
     }
@@ -65,6 +69,7 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
 
     private func bindViewActions() {
         rootView.onAction = { [weak self] in self?.handleProductRegisterAction($0) }
+        rootView.onInputFocus = { [weak self] in self?.handleInputFocus($0) }
     }
 
     private func handleProductRegisterAction(_ action: ProductRegisterAction) {
@@ -75,8 +80,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             viewModel.action(.deleteImageButtonTapped(index))
         case let .form(action):
             handleProductFormAction(action)
-        case let .inputFocused(inputView):
-            handleInputFocus(inputView)
         case let .memberSetting(action):
             handleMemberSettingAction(action)
         case let .shippingSetting(action):
@@ -92,8 +95,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             showArtistSearch()
         case .deadlineFieldTapped:
             showDeadlinePicker()
-        case let .inputFocused(inputView):
-            handleInputFocus(inputView)
         case let .productTypeChanged(productType):
             viewModel.action(.updateProductType(productType))
         case let .descriptionChanged(description):
@@ -111,8 +112,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             viewModel.action(.updateMemberPrice(memberID: memberID, price: price))
         case .editButtonTapped:
             viewModel.action(.editMembersButtonTapped)
-        case let .inputFocused(inputView):
-            handleInputFocus(inputView)
         }
     }
 
@@ -122,8 +121,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             viewModel.action(.toggleShippingSelection(deliveryMethodID: deliveryMethodID))
         case let .priceChanged(deliveryMethodID, price):
             viewModel.action(.updateShippingPrice(deliveryMethodID: deliveryMethodID, price: price))
-        case let .inputFocused(inputView):
-            handleInputFocus(inputView)
         }
     }
 
@@ -151,10 +148,10 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     }
 
     private func bindImages() {
-        viewModel.output.imageData
+        viewModel.output.optimizedImages
             .receive(on: RunLoop.main)
-            .sink { [weak self] imageData in
-                self?.rootView.setImages(imageData.compactMap { UIImage(data: $0) })
+            .sink { [weak self] images in
+                self?.rootView.setImages(images.compactMap { UIImage(data: $0.data) })
             }
             .store(in: &cancellables)
 
@@ -213,11 +210,8 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     }
 
     private func showMemberEditor(_ request: RegisterMemberSelectionRequest) {
-        let members = request.members.map { ArtistMemberEntity(memberId: $0.id, name: $0.name) }
-        let selectedMemberIDs = Set(request.members.filter(\.isSelected).map(\.id))
-        let memberSelectionViewModel = ArtistMembersFilterViewModel(
-            members: members, selectedMemberIDs: selectedMemberIDs
-        )
+        let members = request.members.map { SelectableArtistMember(id: $0.id, name: $0.name, isSelected: $0.isSelected) }
+        let memberSelectionViewModel = ArtistMembersFilterViewModel(members: members)
         let bottomSheet = ArtistMembersFilterBottomSheet(viewModel: memberSelectionViewModel)
         bottomSheet.onComplete = { [weak self] members in
             self?.viewModel.action(.updateSelectedMemberIDs(Set(members.ids)))
@@ -280,6 +274,7 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
         var configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
         configuration.filter = .images
         configuration.selectionLimit = max(0, selectionLimit)
+        configuration.selection = .ordered
 
         let picker = PHPickerViewController(configuration: configuration)
         picker.delegate = self
@@ -316,7 +311,7 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
         }
     }
 
-    private func handleSelectedArtist(_ artist: ArtistSearchResultEntity) {
+    private func handleSelectedArtist(_ artist: ArtistSearchItem) {
         view.endEditing(true)
         rootView.clearFieldFocus()
         rootView.setArtist(name: artist.name)
@@ -363,33 +358,30 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
 extension RegisterViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
+        guard !results.isEmpty else { return }
+
         Task { [weak self] in
-            let imageData = await Self.loadImageData(from: results)
-            self?.viewModel.action(.addSelectedImageData(imageData))
-        }
-    }
-
-    private static func loadImageData(from results: [PHPickerResult]) async -> [Data] {
-        await withTaskGroup(of: (Int, Data?).self) { group in
-            for (index, result) in results.enumerated() {
-                group.addTask {
-                    let image = await loadImage(from: result)
-                    return (index, image?.jpegData(compressionQuality: 0.8))
+            guard let self else { return }
+            do {
+                let imageFileURLs = try await imagePickerResultLoader.loadFiles(from: results)
+                defer {
+                    imageFileURLs.forEach { try? FileManager.default.removeItem(at: $0) }
                 }
-            }
-
-            var loadedImageData: [(Int, Data)] = []
-            for await (index, data) in group {
-                if let data { loadedImageData.append((index, data)) }
-            }
-            return loadedImageData.sorted { $0.0 < $1.0 }.map(\.1)
-        }
-    }
-
-    private static func loadImage(from result: PHPickerResult) async -> UIImage? {
-        await withCheckedContinuation { continuation in
-            result.itemProvider.loadObject(ofClass: UIImage.self) { object, _ in
-                continuation.resume(returning: object as? UIImage)
+                let imageOptimizer = imageOptimizer
+                let optimizedImages = try await Task.detached {
+                    try imageFileURLs.map { fileURL in
+                        try autoreleasepool {
+                            try imageOptimizer.optimize(fileURL: fileURL)
+                        }
+                    }
+                }.value
+                await MainActor.run {
+                    self.viewModel.action(.addOptimizedImages(optimizedImages))
+                }
+            } catch {
+                await MainActor.run {
+                    self.rootView.setImageValidationError("이미지를 불러오지 못했어요. 다시 선택해주세요")
+                }
             }
         }
     }

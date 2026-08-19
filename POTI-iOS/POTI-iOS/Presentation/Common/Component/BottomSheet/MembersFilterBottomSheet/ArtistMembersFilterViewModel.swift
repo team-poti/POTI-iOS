@@ -59,7 +59,7 @@ final class ArtistMembersFilterViewModel: BaseViewModelType {
     private let useCase: ArtistMembersUseCase?
     private let artistId: Int?
     private let initialSelectedIDs: Set<Int>
-    private let prefetchedMembers: [ArtistMemberEntity]?
+    private let prefetchedMembers: [SelectableArtistMember]?
     // MARK: - Subjects
 
     private let membersSubject = CurrentValueSubject<[SelectableArtistMember], Never>([])
@@ -81,10 +81,10 @@ final class ArtistMembersFilterViewModel: BaseViewModelType {
         )
     }
 
-    init(members: [ArtistMemberEntity], selectedMemberIDs: Set<Int>) {
+    init(members: [SelectableArtistMember]) {
         self.useCase = nil
         self.artistId = nil
-        self.initialSelectedIDs = selectedMemberIDs
+        self.initialSelectedIDs = Set(members.filter(\.isSelected).map(\.id))
         self.prefetchedMembers = members
         self.mode = .registration
         self.output = Output(
@@ -113,7 +113,8 @@ final class ArtistMembersFilterViewModel: BaseViewModelType {
 private extension ArtistMembersFilterViewModel {
     func loadMembers() {
         if let prefetchedMembers {
-            updateMembers(prefetchedMembers)
+            membersSubject.send(prefetchedMembers)
+            isCompleteEnabledSubject.send(false)
             return
         }
 

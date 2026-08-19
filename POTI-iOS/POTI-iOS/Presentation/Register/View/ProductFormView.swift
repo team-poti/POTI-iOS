@@ -17,6 +17,7 @@ final class ProductFormView: BaseView {
 
     var productTypeTextPublisher: AnyPublisher<String, Never> { productTypeField.textPublisher }
     var onAction: ((ProductFormAction) -> Void)?
+    var onInputFocus: ((UIView) -> Void)?
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -86,10 +87,10 @@ final class ProductFormView: BaseView {
             self?.productTypeField.updateSuggestions([])
             self?.onAction?(.productTypeChanged(productType))
         }
-        productTypeField.onBeginEditing = { [weak self] in self?.onAction?(.inputFocused($0)) }
-        descriptionField.onBeginEditing = { [weak self] in self?.onAction?(.inputFocused($0)) }
-        accountField.onBeginEditing = { [weak self] in self?.onAction?(.inputFocused($0)) }
-        bankField.onBeginEditing = { [weak self] in self?.onAction?(.inputFocused($0)) }
+        productTypeField.onBeginEditing = { [weak self] in self?.onInputFocus?($0) }
+        descriptionField.onBeginEditing = { [weak self] in self?.onInputFocus?($0) }
+        accountField.onBeginEditing = { [weak self] in self?.onInputFocus?($0) }
+        bankField.onBeginEditing = { [weak self] in self?.onInputFocus?($0) }
 
         productTypeField.textPublisher.dropFirst().sink { [weak self] in self?.onAction?(.productTypeChanged($0)) }.store(in: &cancellables)
         descriptionField.textPublisher.dropFirst().sink { [weak self] in self?.onAction?(.descriptionChanged($0)) }.store(in: &cancellables)
