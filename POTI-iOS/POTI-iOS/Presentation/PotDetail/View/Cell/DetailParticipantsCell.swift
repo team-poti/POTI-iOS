@@ -15,9 +15,6 @@ final class DetailParticipantsCell: UICollectionViewCell {
 
     // MARK: - UI Components
 
-    private let titleLabel = UILabel()
-    private let countLabel = UILabel()
-
     private let profileImageView = UIImageView()
     private let nickNameLabel = UILabel()
     private let starImageView = UIImageView()
@@ -40,17 +37,6 @@ final class DetailParticipantsCell: UICollectionViewCell {
     // MARK: - Custom Methods
 
     private func setStyle() {
-        titleLabel.do {
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
-            $0.text = "참여자"
-        }
-
-        countLabel.do {
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .poti600
-        }
-
         nickNameLabel.do {
             $0.font = PotiFontManager.body14sb.font
             $0.textColor = .potiBlack
@@ -76,25 +62,13 @@ final class DetailParticipantsCell: UICollectionViewCell {
 
     private func setUI() {
         contentView.addSubviews(
-            titleLabel, countLabel,
             nickNameLabel, profileImageView, starImageView, starRatingLabel, memberTagView
         )
     }
 
     private func setLayout() {
-        titleLabel.snp.makeConstraints {
-            $0.top.leading.equalToSuperview()
-            $0.height.equalTo(24)
-        }
-
-        countLabel.snp.makeConstraints {
-            $0.top.trailing.equalToSuperview()
-            $0.height.equalTo(24)
-        }
-
         profileImageView.snp.makeConstraints {
-            $0.leading.bottom.equalToSuperview()
-            $0.top.equalTo(titleLabel.snp.bottom).offset(20)
+            $0.verticalEdges.leading.equalToSuperview()
             $0.size.equalTo(52)
         }
 
@@ -123,33 +97,62 @@ final class DetailParticipantsCell: UICollectionViewCell {
 
     // MARK: - Public Method
 
-    func configure(model: ParticipantModel, index: Int, currentCount: Int, totalCount: Int) {
-        if index == 0 {
-            titleLabel.isHidden = false
-            countLabel.isHidden = false
-            countLabel.text = "\(currentCount)/\(totalCount)"
-
-            profileImageView.snp.remakeConstraints {
-                $0.leading.bottom.equalToSuperview()
-                $0.top.equalTo(titleLabel.snp.bottom).offset(20)
-                $0.size.equalTo(52)
-            }
-        } else {
-            titleLabel.isHidden = true
-            countLabel.isHidden = true
-
-            profileImageView.snp.remakeConstraints {
-                $0.leading.bottom.equalToSuperview()
-                $0.top.equalToSuperview()
-                $0.size.equalTo(52)
-            }
-        }
-
+    func configure(model: ParticipantModel) {
         let user = model.userInfo
         nickNameLabel.text = user.nickname
         starRatingLabel.text = "\(user.rating)"
         profileImageView.kf.setImage(with: URL(string: user.profileImage))
 
         memberTagView.setTagText(model.selectedMember)
+    }
+}
+
+final class DetailParticipantsHeaderView: UICollectionReusableView {
+
+    private let titleLabel = UILabel()
+    private let countLabel = UILabel()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setStyle()
+        setUI()
+        setLayout()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setStyle() {
+        titleLabel.do {
+            $0.text = "참여자"
+            $0.textColor = .potiBlack
+            $0.font = PotiFontManager.body16sb.font
+        }
+
+        countLabel.do {
+            $0.textColor = .poti600
+            $0.font = PotiFontManager.body16sb.font
+        }
+    }
+
+    private func setUI() {
+        addSubviews(titleLabel, countLabel)
+    }
+
+    private func setLayout() {
+        titleLabel.snp.makeConstraints {
+            $0.top.leading.equalToSuperview()
+            $0.height.equalTo(24)
+        }
+
+        countLabel.snp.makeConstraints {
+            $0.top.trailing.equalToSuperview()
+            $0.height.equalTo(24)
+        }
+    }
+
+    func configure(currentCount: Int, totalCount: Int) {
+        countLabel.text = "\(currentCount)/\(totalCount)"
     }
 }

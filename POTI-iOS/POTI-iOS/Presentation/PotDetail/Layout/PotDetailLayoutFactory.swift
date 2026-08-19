@@ -95,6 +95,13 @@ private extension PotDetailLayoutFactory {
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 20
         section.contentInsets = .init(top: 0, leading: 16, bottom: 0, trailing: 16)
+
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(44))
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: headerSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
         
         let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100))
         let footer = NSCollectionLayoutBoundarySupplementaryItem(
@@ -103,7 +110,7 @@ private extension PotDetailLayoutFactory {
             alignment: .bottom
         )
         
-        section.boundarySupplementaryItems = [footer]
+        section.boundarySupplementaryItems = [header, footer]
         return section
     }
 }
