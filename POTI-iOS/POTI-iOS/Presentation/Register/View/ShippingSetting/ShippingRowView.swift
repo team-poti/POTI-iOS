@@ -2,7 +2,7 @@
 //  ShippingRowView.swift
 //  POTI-iOS
 //
-//  Created by 박정환 on 1/17/26.
+//  Created by soomin on 8/11/26.
 //
 
 import UIKit
@@ -11,17 +11,13 @@ import SnapKit
 import Then
 
 final class ShippingRowView: BaseView {
-    
-    var onTap: (() -> Void)?
 
-    override init(frame: CGRect = .zero) {
-        super.init(frame: frame)
-        addTarget()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Properties
+
+    var onAction: ((ShippingSettingAction) -> Void)?
+    private let deliveryMethodID: Int
+
+    // MARK: - UI Components
 
     private let checkButton = UIButton()
     private let nameLabel = UILabel()
@@ -29,27 +25,30 @@ final class ShippingRowView: BaseView {
     private let underlineView = UIView()
     private let wonLabel = UILabel()
 
-    // MARK: - Custom Method
+    // MARK: - Initializerd
 
-    private func formatNumberWithCommas(_ number: NSNumber) -> String? {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = .decimal
-        return numberFormatter.string(from: number)
+    init(deliveryMethodID: Int) {
+        self.deliveryMethodID = deliveryMethodID
+        super.init(frame: .zero)
     }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Custom Methods
 
     override func setStyle() {
         backgroundColor = .clear
 
         checkButton.do {
-            $0.setImage(UIImage(named: "btn-checkbox-default"), for: .normal)
-            $0.setImage(UIImage(named: "btn-checkbox-selected"), for: .selected)
+            $0.setImage(.btnCheckboxDefault, for: .normal)
+            $0.setImage(.btnCheckboxSelected, for: .selected)
         }
 
         nameLabel.do {
-            $0.text = ""
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
-            $0.numberOfLines = 1
         }
 
         priceTextField.do {
@@ -70,10 +69,6 @@ final class ShippingRowView: BaseView {
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
         }
-
-        priceTextField.isEnabled = false
-        priceTextField.textColor = .potiBlack
-        underlineView.backgroundColor = .gray300
     }
 
     override func setUI() {
@@ -115,39 +110,48 @@ final class ShippingRowView: BaseView {
         snp.makeConstraints {
             $0.height.equalTo(28)
         }
-        priceTextField.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        priceTextField.setContentCompressionResistancePriority(.required, for: .horizontal)
-        nameLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
 
-    private func addTarget() {
+    override func addTarget() {
         checkButton.addTarget(self, action: #selector(didTapCheck), for: .touchUpInside)
+        priceTextField.addTarget(self, action: #selector(priceTextFieldDidChange), for: .editingChanged)
+        priceTextField.addTarget(self, action: #selector(priceTextFieldDidBeginEditing), for: .editingDidBegin)
+        priceTextField.addTarget(self, action: #selector(priceTextFieldDidEndEditing), for: .editingDidEnd)
     }
 
-    // MARK: - Public
+    // MARK: - Public Method
 
-    func setName(_ name: String) {
-        nameLabel.text = name
+    func render(_ option: RegisterShippingOptionItem) {
+        nameLabel.text = option.name
+        checkButton.isSelected = option.isSelected
+        guard !priceTextField.isFirstResponder else { return }
+        priceTextField.text = option.price?.formattedWithComma
     }
 
-    func setPrice(_ price: Int) {
-        priceTextField.text = formatNumberWithCommas(NSNumber(value: price))
-    }
-    
+    // MARK: - Actions
+
     @objc private func didTapCheck() {
-        onTap?()
+        onAction?(.selectionToggled(deliveryMethodID: deliveryMethodID))
     }
 
-    func setSelected(_ isSelected: Bool) {
-        checkButton.isSelected = isSelected
+    @objc private func priceTextFieldDidChange() {
+        let digits = priceTextField.text?.filter(\.isNumber) ?? ""
+        guard let price = Int(digits) else {
+            priceTextField.text = ""
+            onAction?(.priceChanged(deliveryMethodID: deliveryMethodID, price: nil))
+            return
+        }
+
+        priceTextField.text = price.formattedWithComma
+        onAction?(.priceChanged(deliveryMethodID: deliveryMethodID, price: price))
     }
-    
-    func configure(
-        name: String,
-        price: Int
-    ) {
-        setName(name)
-        setPrice(price)
+
+    @objc private func priceTextFieldDidBeginEditing() {
+        onAction?(.inputFocused(priceTextField))
+    }
+
+    @objc private func priceTextFieldDidEndEditing() {
+        let digits = priceTextField.text?.filter(\.isNumber) ?? ""
+        priceTextField.text = Int(digits)?.formattedWithComma
     }
 }

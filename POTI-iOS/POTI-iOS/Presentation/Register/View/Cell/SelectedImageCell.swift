@@ -30,7 +30,7 @@ final class SelectedImageCell: UICollectionViewCell {
         setUI()
         setLayout()
         setStyle()
-        setAddTarget()
+        addTarget()
     }
 
     required init?(coder: NSCoder) {
@@ -83,7 +83,7 @@ final class SelectedImageCell: UICollectionViewCell {
         }
     }
     
-    private func setAddTarget() {
+    private func addTarget() {
         deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
     }
 

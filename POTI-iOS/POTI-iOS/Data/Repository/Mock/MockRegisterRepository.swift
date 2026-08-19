@@ -49,10 +49,8 @@ final class MockRegisterRepository: RegisterInterface {
         self.productTitlesByArtistId = productTitlesByArtistId
     }
 
-    // MARK: - RegisterInterface
-
-    func registerPosts(_ entity: RegisterRequestEntity) async throws -> RegisterResponseEntity {
-        RegisterResponseEntity(postId: registeredPostId)
+    func registerPost(_ entity: RegisterPostEntity) async throws -> RegisterPostResultEntity {
+        RegisterPostResultEntity(postId: registeredPostId)
     }
 
     func fetchProductTitles(artistId: Int, keyword: String) async throws -> [String] {

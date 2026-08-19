@@ -1,0 +1,30 @@
+//
+//  MemberSettingViewState.swift
+//  POTI-iOS
+//
+//  Created by soomin on 8/11/26.
+//
+
+import UIKit
+
+struct MemberSettingViewState: Equatable {
+    enum Content: Equatable {
+        case artistNotSelected
+        case members([RegisterMemberItem])
+        case noSelectedMembers
+    }
+
+    let content: Content
+    let error: MemberSettingValidationError?
+    let showsGuide: Bool
+}
+
+enum MemberSettingAction {
+    case priceChanged(memberID: Int, price: Int?)
+    case editButtonTapped
+    case inputFocused(UIView)
+}
+
+struct RegisterMemberSelectionRequest {
+    let members: [RegisterMemberItem]
+}

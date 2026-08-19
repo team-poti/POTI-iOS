@@ -28,7 +28,7 @@ final class ImageAddCell: UICollectionViewCell {
         setUI()
         setLayout()
         setStyle()
-        setAddTarget()
+        addTarget()
     }
 
     required init?(coder: NSCoder) {
@@ -59,7 +59,7 @@ final class ImageAddCell: UICollectionViewCell {
         }
     }
 
-    private func setAddTarget() {
+    private func addTarget() {
         uploadButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
     }
 

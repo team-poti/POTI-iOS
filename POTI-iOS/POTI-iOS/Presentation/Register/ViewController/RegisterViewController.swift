@@ -18,7 +18,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     private let factory: ViewControllerFactory
     private weak var focusedInputView: UIView?
     private var keyboardHeight: CGFloat = 0
-    private var memberPrices: [Int: Int] = [:]
 
     // MARK: - Initializer
 
@@ -46,10 +45,6 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
 
     // MARK: - Custom Methods
 
-    override func setUI() {
-        rootView.configureShippingOptions([(name: "일반택배", price: 4000), (name: "준등기", price: 1800)])
-    }
-
     override func addTarget() {
         bindViewActions()
     }
@@ -60,6 +55,8 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
         bindProductType()
         bindValidationErrors()
         bindArtistMembers()
+        bindShippingSetting()
+        bindDeadlinePicker()
         bindRegistrationResult()
         bindKeyboardNotifications()
     }
@@ -67,26 +64,71 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     // MARK: - Private Methods
 
     private func bindViewActions() {
-        rootView.onPriceChanged = { [weak self] index, price in self?.updateMemberPrice(price, at: index) }
-        rootView.onTapArtistField = { [weak self] in self?.showArtistSearch() }
-        rootView.onTapDeadlineField = { [weak self] in self?.showDeadlinePicker() }
-        rootView.onInputViewDidBeginEditing = { [weak self] in self?.handleInputFocus($0) }
-        rootView.onTapAddImage = { [weak self] in self?.viewModel.action(.addImageButtonTapped) }
-        rootView.onTapDeleteImage = { [weak self] in self?.viewModel.action(.deleteImageButtonTapped($0)) }
-        rootView.onTapSubmit = { [weak self] in self?.requestProductRegistration() }
+        rootView.onAction = { [weak self] in self?.handleProductRegisterAction($0) }
     }
 
-    private func updateMemberPrice(_ price: Int?, at index: Int) {
-        if let price {
-            memberPrices[index] = price
-        } else {
-            memberPrices.removeValue(forKey: index)
+    private func handleProductRegisterAction(_ action: ProductRegisterAction) {
+        switch action {
+        case .addImage:
+            viewModel.action(.addImageButtonTapped)
+        case let .deleteImage(index):
+            viewModel.action(.deleteImageButtonTapped(index))
+        case let .form(action):
+            handleProductFormAction(action)
+        case let .inputFocused(inputView):
+            handleInputFocus(inputView)
+        case let .memberSetting(action):
+            handleMemberSettingAction(action)
+        case let .shippingSetting(action):
+            handleShippingSettingAction(action)
+        case .submit:
+            requestProductRegistration()
+        }
+    }
+
+    private func handleProductFormAction(_ action: ProductFormAction) {
+        switch action {
+        case .artistFieldTapped:
+            showArtistSearch()
+        case .deadlineFieldTapped:
+            showDeadlinePicker()
+        case let .inputFocused(inputView):
+            handleInputFocus(inputView)
+        case let .productTypeChanged(productType):
+            viewModel.action(.updateProductType(productType))
+        case let .descriptionChanged(description):
+            viewModel.action(.updateDescription(description))
+        case let .accountNumberChanged(accountNumber):
+            viewModel.action(.updateAccountNumber(accountNumber))
+        case let .bankChanged(bank):
+            viewModel.action(.updateBank(bank))
+        }
+    }
+
+    private func handleMemberSettingAction(_ action: MemberSettingAction) {
+        switch action {
+        case let .priceChanged(memberID, price):
+            viewModel.action(.updateMemberPrice(memberID: memberID, price: price))
+        case .editButtonTapped:
+            viewModel.action(.editMembersButtonTapped)
+        case let .inputFocused(inputView):
+            handleInputFocus(inputView)
+        }
+    }
+
+    private func handleShippingSettingAction(_ action: ShippingSettingAction) {
+        switch action {
+        case let .selectionToggled(deliveryMethodID):
+            viewModel.action(.toggleShippingSelection(deliveryMethodID: deliveryMethodID))
+        case let .priceChanged(deliveryMethodID, price):
+            viewModel.action(.updateShippingPrice(deliveryMethodID: deliveryMethodID, price: price))
+        case let .inputFocused(inputView):
+            handleInputFocus(inputView)
         }
     }
 
     private func showDeadlinePicker() {
-        rootView.scrollToDeadlineField(coveredHeight: 465)
-        presentDeadlineBottomSheet()
+        viewModel.action(.requestDeadlinePicker)
     }
 
     private func handleInputFocus(_ inputView: UIView) {
@@ -97,12 +139,7 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
 
     private func requestProductRegistration() {
         view.endEditing(true)
-        viewModel.action(
-            .requestProductRegistration(
-                info: rootView.makeDraft(), memberPrices: memberPrices,
-                shippingRequests: rootView.collectSelectedShippings()
-            )
-        )
+        viewModel.action(.requestProductRegistration)
     }
 
     private func bindProductTypeQuery() {
@@ -114,9 +151,11 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     }
 
     private func bindImages() {
-        viewModel.output.images
+        viewModel.output.imageData
             .receive(on: RunLoop.main)
-            .sink { [weak self] in self?.rootView.setImages($0) }
+            .sink { [weak self] imageData in
+                self?.rootView.setImages(imageData.compactMap { UIImage(data: $0) })
+            }
             .store(in: &cancellables)
 
         viewModel.output.imagePickerRequest
@@ -138,25 +177,58 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             .sink { [weak self] errors in
                 self?.rootView.setImageValidationError(errors.images)
                 self?.rootView.renderProductFormValidation(errors.productForm)
-                self?.rootView.renderMemberError(errors.members)
             }
             .store(in: &cancellables)
     }
 
     private func bindArtistMembers() {
-        viewModel.output.artistMembers
+        viewModel.output.memberSetting
             .receive(on: RunLoop.main)
-            .sink { [weak self] memberNames in
-                self?.memberPrices.removeAll()
-                self?.rootView.showMembers(memberNames)
-            }
+            .sink { [weak self] in self?.rootView.renderMemberSetting($0) }
             .store(in: &cancellables)
+
+        viewModel.output.memberSelectionRequest
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.showMemberEditor($0) }
+            .store(in: &cancellables)
+    }
+
+    private func bindShippingSetting() {
+        viewModel.output.shippingSetting
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.rootView.renderShippingSetting($0) }
+            .store(in: &cancellables)
+    }
+
+    private func bindDeadlinePicker() {
+        viewModel.output.deadlinePickerRequest
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.presentDeadlineBottomSheet(initialDate: $0) }
+            .store(in: &cancellables)
+
+        viewModel.output.deadline
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.rootView.setDeadline($0.toYMDString()) }
+            .store(in: &cancellables)
+    }
+
+    private func showMemberEditor(_ request: RegisterMemberSelectionRequest) {
+        let members = request.members.map { ArtistMemberEntity(memberId: $0.id, name: $0.name) }
+        let selectedMemberIDs = Set(request.members.filter(\.isSelected).map(\.id))
+        let memberSelectionViewModel = ArtistMembersFilterViewModel(
+            members: members, selectedMemberIDs: selectedMemberIDs
+        )
+        let bottomSheet = ArtistMembersFilterBottomSheet(viewModel: memberSelectionViewModel)
+        bottomSheet.onComplete = { [weak self] members in
+            self?.viewModel.action(.updateSelectedMemberIDs(Set(members.ids)))
+        }
+        bottomSheet.show(in: navigationController?.view ?? view)
     }
 
     private func bindRegistrationResult() {
         viewModel.output.registrationCompleted
             .receive(on: RunLoop.main)
-            .sink { [weak self] in self?.replaceWithProductDetail(postId: $0) }
+            .sink { [weak self] in self?.showRegistrationNotice(postId: $0) }
             .store(in: &cancellables)
 
         viewModel.output.registrationFailed
@@ -191,10 +263,8 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     }
 
     private func showLeaveConfirmationAlert() {
-        let alert = CustomAlertView(
-            title: "지금 나가면 내용이 저장되지 않아요", message: "계속 작성할까요?", cancelTitle: "나가기",
-            confirmTitle: "계속 작성하기", onLeftButton: { [weak self] in self?.exitProductRegistration() }, onRightButton: {}
-        )
+        let alert = CustomAlertView(title: "지금 나가면 내용이 저장되지 않아요", message: "계속 작성할까요?", cancelTitle: "나가기",
+                                    confirmTitle: "계속 작성하기", rightButtonBackgroundColor: .potiBlack, onLeftButton: { [weak self] in self?.exitProductRegistration() }, onRightButton: {})
         alert.show(on: navigationController?.view ?? view)
     }
 
@@ -216,13 +286,12 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
         present(picker, animated: true)
     }
 
-    private func presentDeadlineBottomSheet() {
+    private func presentDeadlineBottomSheet(initialDate: Date) {
         let sheetViewController = DeadlinePickerSheetViewController(
-            initialDate: Date(),
+            initialDate: initialDate,
             onConfirm: { [weak self] date in
-                guard let self else { return }
-                rootView.setDeadline(date.toYMDString())
-                rootView.clearFieldFocus()
+                self?.viewModel.action(.setDeadline(date))
+                self?.rootView.clearFieldFocus()
             },
             onCancel: { [weak self] in self?.rootView.clearFieldFocus() }
         )
@@ -250,9 +319,14 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     private func handleSelectedArtist(_ artist: ArtistSearchResultEntity) {
         view.endEditing(true)
         rootView.clearFieldFocus()
-        rootView.setArtist(id: artist.artistId, name: artist.name)
+        rootView.setArtist(name: artist.name)
         viewModel.action(.setArtist(artist))
-        viewModel.action(.fetchArtistMembers(artistId: artist.artistId))
+    }
+
+    private func showRegistrationNotice(postId: Int) {
+        let noticeView = NoticeModalView(type: .register)
+        noticeView.onTapConfirm = { [weak self] in self?.replaceWithProductDetail(postId: postId) }
+        noticeView.show(in: navigationController?.view ?? view)
     }
 
     private func replaceWithProductDetail(postId: Int) {
@@ -289,6 +363,34 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
 extension RegisterViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
-        viewModel.action(.didFinishPicking(results))
+        Task { [weak self] in
+            let imageData = await Self.loadImageData(from: results)
+            self?.viewModel.action(.addSelectedImageData(imageData))
+        }
+    }
+
+    private static func loadImageData(from results: [PHPickerResult]) async -> [Data] {
+        await withTaskGroup(of: (Int, Data?).self) { group in
+            for (index, result) in results.enumerated() {
+                group.addTask {
+                    let image = await loadImage(from: result)
+                    return (index, image?.jpegData(compressionQuality: 0.8))
+                }
+            }
+
+            var loadedImageData: [(Int, Data)] = []
+            for await (index, data) in group {
+                if let data { loadedImageData.append((index, data)) }
+            }
+            return loadedImageData.sorted { $0.0 < $1.0 }.map(\.1)
+        }
+    }
+
+    private static func loadImage(from result: PHPickerResult) async -> UIImage? {
+        await withCheckedContinuation { continuation in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { object, _ in
+                continuation.resume(returning: object as? UIImage)
+            }
+        }
     }
 }
