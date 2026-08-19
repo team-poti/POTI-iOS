@@ -32,8 +32,6 @@ final class SearchView: BaseView {
     // MARK: - Custom Methods
     
     override func setStyle() {
-        // TODO: - merge 후 수정
-        addTarget()
         backgroundColor = .potiWhite
         
         backButton.do {
@@ -92,7 +90,7 @@ final class SearchView: BaseView {
         }
     }
     
-    private func addTarget() {
+    override func addTarget() {
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         searchBar.onSubmit = { [weak self] in self?.onSubmitSearch?($0) }
     }

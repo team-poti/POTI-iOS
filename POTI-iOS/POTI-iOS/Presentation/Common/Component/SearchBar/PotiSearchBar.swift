@@ -62,7 +62,6 @@ final class PotiSearchBar: BaseView {
         self.showsSearchIcon = showsSearchIcon
         super.init(frame: .zero)
         configurePlaceholder(placeholder)
-        addTarget()
     }
 
     required init?(coder: NSCoder) {
@@ -118,7 +117,7 @@ final class PotiSearchBar: BaseView {
         updateAccessoryLayout()
     }
     
-    private func addTarget() {
+    override func addTarget() {
         textField.addTarget(self, action: #selector(editingChanged), for: .editingChanged)
         accessoryButton.addTarget(self, action: #selector(accessoryButtonTapped), for: .touchUpInside)
     }
