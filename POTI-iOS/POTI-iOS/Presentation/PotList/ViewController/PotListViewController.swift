@@ -85,7 +85,7 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
     override func addTarget() {
         rootView.floatingButton.addTarget(
             self,
-            action: #selector(didTapFloatingButton),
+            action: #selector(floatingButtonTapped),
             for: .touchUpInside
         )
     }
@@ -133,7 +133,7 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
         }
     }
     
-    @objc private func didTapFloatingButton() {
+    @objc private func floatingButtonTapped() {
         let vc = factory.makeProductRegisterViewController()
         self.navigationController?.pushViewController(vc, animated: true)
     }
@@ -208,7 +208,7 @@ extension PotListViewController: PotListHeaderCellDelegate {
             self?.viewModel.action(.filterByMembers(members: data.ids, names: data.names))
         }
         
-        memberFilterBottomSheet.onDismissCompletion = { [weak self] in
+        memberFilterBottomSheet.onDismiss = { [weak self] in
             self?.setHeaderButtonState(isMemberFilter: true, isSelected: false)
         }
         
@@ -219,16 +219,14 @@ extension PotListViewController: PotListHeaderCellDelegate {
         let initialIndex = viewModel.currentSort.rawValue
         let sortBottomSheet = factory.makeSortBottomSheet(type: .pot, initialIndex: initialIndex)
         
-        sortBottomSheet.onSelectCompletion = { [weak self] index in
+        sortBottomSheet.onSelect = { [weak self] index in
             self?.viewModel.action(.didTapSortOption(index: index))
         }
         
-        sortBottomSheet.onDismissCompletion = { [weak self] in
+        sortBottomSheet.onDismiss = { [weak self] in
             self?.setHeaderButtonState(isMemberFilter: false, isSelected: false)
         }
         
         sortBottomSheet.show(on: self.navigationController?.view ?? self.view)
     }
 }
-
-

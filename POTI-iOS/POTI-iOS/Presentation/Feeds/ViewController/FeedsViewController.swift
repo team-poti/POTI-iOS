@@ -91,7 +91,7 @@ final class FeedsViewController: BaseViewController<FeedsViewModel>, NavigationC
     }
     
     override func addTarget() {
-        rootView.floatingButton.addTarget(self, action: #selector(floatingButtonDidTap), for: .touchUpInside)
+        rootView.floatingButton.addTarget(self, action: #selector(floatingButtonTapped), for: .touchUpInside)
     }
     
     // MARK: - Method
@@ -103,7 +103,7 @@ final class FeedsViewController: BaseViewController<FeedsViewModel>, NavigationC
     
     // MARK: - Action
     
-    @objc private func floatingButtonDidTap() {
+    @objc private func floatingButtonTapped() {
         let registerViewContorller = factory.makeProductRegisterViewController()
         self.navigationController?.pushViewController(registerViewContorller, animated: true)
     }
@@ -188,13 +188,13 @@ extension FeedsViewController: FeedsHeaderCellDelegate {
         let initialIndex = (viewModel.currentSort == .latest) ? 0 : 1
         let bottomSheet = factory.makeSortBottomSheet(type: .feeds, initialIndex: initialIndex)
         
-        bottomSheet.onSelectCompletion = { [weak self] index in
+        bottomSheet.onSelect = { [weak self] index in
             let selectedOption: FeedsSortOption = (index == 0) ? .latest : .hot
             
             self?.viewModel.action(.didTapSortOption(option: selectedOption))
         }
         
-        bottomSheet.onDismissCompletion = { [weak self] in
+        bottomSheet.onDismiss = { [weak self] in
             if let header = self?.rootView.feedsCollectionView.supplementaryView(
                 forElementKind: UICollectionView.elementKindSectionHeader,
                 at: IndexPath(item: 0, section: 0)

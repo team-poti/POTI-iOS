@@ -43,7 +43,7 @@ final class PotiTextView: BaseView {
     convenience init(placeholder: String, maxLength: Int? = nil, minimumHeight: CGFloat = 160) {
         self.init(frame: .zero)
         self.maxLength = maxLength
-        placeholderLabel.text = placeholder
+        placeholderLabel.setText(placeholder, lineSpacing: 4, alignment: .left)
         inputContainer.setMinimumHeight(minimumHeight)
         updatePlaceholder()
         render()
@@ -76,7 +76,10 @@ final class PotiTextView: BaseView {
     }
 
     override func setLayout() {
-        inputContainer.snp.makeConstraints { $0.edges.equalToSuperview() }
+        inputContainer.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
         textView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview().inset(14)
             $0.horizontalEdges.equalToSuperview().inset(16)

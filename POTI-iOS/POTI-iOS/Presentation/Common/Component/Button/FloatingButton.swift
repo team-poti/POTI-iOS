@@ -13,7 +13,7 @@ final class FloatingButton: UIButton {
     
     // MARK: - Property
     
-    var action: (() -> Void)?
+    var onTap: (() -> Void)?
     
     // MARK: - Initializer
     
@@ -35,12 +35,12 @@ final class FloatingButton: UIButton {
     }
     
     private func addTarget() {
-        self.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
+        self.addTarget(self, action: #selector(floatingButtonTapped), for: .touchUpInside)
     }
     
     // MARK: - Action Method
     
-    @objc private func didTapButton() {
-        action?()
+    @objc private func floatingButtonTapped() {
+        onTap?()
     }
 }

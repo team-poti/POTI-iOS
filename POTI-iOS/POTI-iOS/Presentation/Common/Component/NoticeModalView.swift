@@ -47,8 +47,8 @@ final class NoticeModalView: BaseView {
     private let bottomPointLabel = UILabel()
     private let bottomPointBackgroundView = UIView()
     
-    var confirmAction: (() -> Void)?
-    var closeAction: (() -> Void)?
+    var onTapConfirm: (() -> Void)?
+    var onTapClose: (() -> Void)?
     
     // MARK: - Initializer
     
@@ -251,10 +251,10 @@ final class NoticeModalView: BaseView {
     // MARK: - Actions
     
     @objc private func closeButtonTapped() {
-        dismiss(completion: closeAction)
+        dismiss(completion: onTapClose)
     }
     
     @objc private func confirmButtonTapped() {
-        dismiss(completion: confirmAction)
+        dismiss(completion: onTapConfirm)
     }
 }

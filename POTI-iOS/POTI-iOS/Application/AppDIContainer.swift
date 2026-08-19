@@ -271,13 +271,9 @@ final class AppDIContainer {
         return ArtistMembersFilterViewModel(useCase: makeArtistMembersUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
 
-    func makeProductRegisterViewModel() -> ProductRegisterViewModel {
-        ProductRegisterViewModel(
-            fetchProductTitlesUseCase: makeFetchProductTitlesUseCase(),
-            registerPostsUseCase: makeRegisterPostsUseCase(),
-            imagesRepository: makeImagesRepository(),
-            artistsUseCase: makeArtistMembersUseCase()
-        )
+    func makeProductRegisterViewModel() -> RegisterViewModel {
+        RegisterViewModel(fetchProductTitlesUseCase: makeFetchProductTitlesUseCase(), registerPostsUseCase: makeRegisterPostsUseCase(),
+                          imagesRepository: makeImagesRepository(), artistMembersUseCase: makeArtistMembersUseCase())
     }
 
     func makeArtistSearchViewModel() -> ArtistSearchViewModel {

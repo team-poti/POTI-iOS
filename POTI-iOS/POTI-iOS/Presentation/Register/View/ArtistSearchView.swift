@@ -50,7 +50,7 @@ final class ArtistSearchView: BaseView {
     override func setUI() {
         addSubviews(searchField, searchStatusLabel, confirmButton)
         searchField.onSelectItem = { [weak self] in self?.onSelectArtist?($0) }
-        confirmButton.addTarget(self, action: #selector(didTapConfirm), for: .touchUpInside)
+        confirmButton.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
     }
     
     override func setLayout() {
@@ -89,7 +89,7 @@ final class ArtistSearchView: BaseView {
     
     // MARK: - Action
     
-    @objc private func didTapConfirm() {
+    @objc private func confirmButtonTapped() {
         onTapConfirm?()
     }
 }
