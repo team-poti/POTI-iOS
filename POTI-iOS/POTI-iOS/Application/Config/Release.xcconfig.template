@@ -1,0 +1,9 @@
+//
+//  Release.xcconfig.template
+//  POTI-iOS
+//
+//  Created by soomin on 8/19/26.
+//
+
+BASE_URL = BASE_URL_RELEASE
+KAKAO_APP_KEY = KAKAO_APP_KEY

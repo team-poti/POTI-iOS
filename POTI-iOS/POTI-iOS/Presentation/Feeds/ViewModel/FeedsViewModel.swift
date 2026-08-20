@@ -116,7 +116,7 @@ final class FeedsViewModel: BaseViewModelType {
                     self.currentPage += 1
                 }
                 
-                self.hasNextPage = (newItems.count == 10)
+                self.hasNextPage = data.hasNext
                 
                 reloadDataSubject.send(())
             } catch {

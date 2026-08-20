@@ -17,7 +17,7 @@ final class DefaultSearchRepository: SearchRepository {
             target: SearchAPI.searchPosts(keyword: keyword, page: page),
             type: SearchResponseDTO.self
         )
-        return response.toEntity()
+        return response.toEntity(currentPage: page)
     }
 
     func fetchSuggestions(keyword: String) async throws -> [SearchSuggestionEntity] {

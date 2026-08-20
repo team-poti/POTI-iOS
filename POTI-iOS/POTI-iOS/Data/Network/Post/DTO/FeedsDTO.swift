@@ -9,6 +9,7 @@ struct FeedsDTO: Decodable {
     let nickname: String
     let mainArtist: String?
     let mainArtistId: Int?
+    let hasNext: Bool
     let groupItems: [GroupItemDTO]?
     
     func toEntity() -> FeedsEntity {
@@ -16,13 +17,14 @@ struct FeedsDTO: Decodable {
             nickname: nickname,
             mainArtist: mainArtist,
             mainArtistId: mainArtistId,
+            hasNext: hasNext,
             groupItems: groupItems?.map { $0.toEntity() } ?? []
         )
     }
 }
 
 struct GroupItemDTO: Decodable {
-    let title: String?
+    let postTitle: String?
     let artist: String?
     let artistId: Int?
     let postImage: String?
@@ -31,7 +33,7 @@ struct GroupItemDTO: Decodable {
     
     func toEntity() -> GroupItem {
         GroupItem(
-            title: title ?? "",
+            title: postTitle ?? "",
             artist: artist ?? "",
             artistId: artistId ?? -1,
             postImage: postImage,

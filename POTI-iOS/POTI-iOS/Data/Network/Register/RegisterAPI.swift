@@ -48,10 +48,26 @@ enum RegisterAPI: BaseTargetType {
         }
     }
     
-    var body: Encodable? {
+    var bodyParameters: Parameters? {
         switch self {
         case .registerPost(let dto):
-            return dto
+            return [
+                "artistId": dto.artistId,
+                "title": dto.title,
+                "content": dto.content,
+                "deadline": dto.deadline,
+                "bankName": dto.bankName,
+                "accountNumber": dto.accountNumber,
+                "imageUrls": dto.imageUrls,
+                "options": dto.options.map { [
+                    "memberId": $0.memberId,
+                    "price": $0.price
+                ]},
+                "shippings": dto.shippings.map { [
+                    "deliveryMethodId": $0.deliveryMethodId,
+                    "price": $0.price
+                ]}
+            ]
         default:
             return nil
         }

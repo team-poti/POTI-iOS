@@ -123,7 +123,8 @@ struct PotiLogger {
         case .data:
             logger.info("[📊 Data] [Date: \(timestamp)] [\(fileName) -> \(function)]: \(logMessage)")
         case .error(let error):
-            logger.error("[❌ Error] [Date: \(timestamp)] [\(fileName) -> \(function)]: \(error.localizedDescription)")
+            let errorDescription = isDebugMode ? error.localizedDescription : "오류가 발생했습니다."
+            logger.error("[❌ Error] [Date: \(timestamp)] [\(fileName) -> \(function)]: \(errorDescription)")
         }
     }
         
