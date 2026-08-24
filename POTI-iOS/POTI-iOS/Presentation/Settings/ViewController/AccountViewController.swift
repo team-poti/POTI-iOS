@@ -11,6 +11,17 @@ import Combine
 
 final class AccountViewController: BaseViewController<SettingsViewModel>, NavigationConfigurable {
     private let rootView = AccountView()
+    private let factory: ViewControllerFactory
+
+    init(viewModel: SettingsViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     func navigationStyle() -> PotiNavigationStyle { .backDefault("내 계정") }
 
@@ -31,6 +42,7 @@ final class AccountViewController: BaseViewController<SettingsViewModel>, Naviga
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in self?.handleWithdrawalAvailability(state) }
             .store(in: &cancellables)
+
     }
 
     override func addTarget() {
@@ -44,7 +56,10 @@ final class AccountViewController: BaseViewController<SettingsViewModel>, Naviga
     private func handleWithdrawalAvailability(_ state: WithdrawalAvailabilityEntity) {
         switch state {
         case .available:
-            navigationController?.pushViewController(WithdrawalViewController(viewModel: viewModel), animated: true)
+            navigationController?.pushViewController(
+                factory.makeWithdrawalViewController(viewModel: viewModel),
+                animated: true
+            )
         case .unavailable:
             let alert = UIAlertController(
                 title: "회원탈퇴를 할 수 없어요",

@@ -11,6 +11,17 @@ import Combine
 
 final class AddressManagementViewController: BaseViewController<SettingsViewModel>, NavigationConfigurable {
     private let rootView = AddressManagementView()
+    private let factory: ViewControllerFactory
+
+    init(viewModel: SettingsViewModel, factory: ViewControllerFactory) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     func navigationStyle() -> PotiNavigationStyle { .backDefault("내 주소 관리") }
 
@@ -47,7 +58,7 @@ final class AddressManagementViewController: BaseViewController<SettingsViewMode
     @objc private func saveTapped() { viewModel.action(.updateAddress(rootView.address)) }
 
     @objc private func searchPostalCodeTapped() {
-        let viewController = PostcodeSearchViewController { [weak self] postalCode, address in
+        let viewController = factory.makePostcodeSearchViewController { [weak self] postalCode, address in
             self?.rootView.applySearchResult(postalCode: postalCode, address: address)
         }
         navigationController?.pushViewController(viewController, animated: true)

@@ -5,6 +5,7 @@
 //  Created by neon on 1/15/26.
 //
 
+@MainActor
 protocol ViewControllerFactory {
     func makeLaunchScreenViewController() -> LaunchScreenViewController
     @MainActor func makeLoginViewController() -> LoginViewController
@@ -33,10 +34,18 @@ protocol ViewControllerFactory {
     func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
     func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
     func makeYourPageViewController(userId: Int) -> YourPageViewController
-    func makeSettingsViewController() -> SettingsViewController
+    @MainActor func makeSettingsViewController() -> SettingsViewController
+    @MainActor func makeAccountViewController(viewModel: SettingsViewModel) -> AccountViewController
+    @MainActor func makeProfileManagementViewController(viewModel: SettingsViewModel) -> ProfileManagementViewController
+    @MainActor func makeAddressManagementViewController(viewModel: SettingsViewModel) -> AddressManagementViewController
+    @MainActor func makePostcodeSearchViewController(
+        onSelect: @escaping (String, String) -> Void
+    ) -> PostcodeSearchViewController
+    @MainActor func makeWithdrawalViewController(viewModel: SettingsViewModel) -> WithdrawalViewController
     func makeReviewUseCase() -> ReviewUseCase
 }
 
+@MainActor
 final class DefaultViewControllerFactory: ViewControllerFactory {
     private let diContainer: AppDIContainer
     
@@ -164,8 +173,39 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         YourPageViewController(viewModel: diContainer.makeYourPageViewModel(userId: userId))
     }
 
-    func makeSettingsViewController() -> SettingsViewController {
-        SettingsViewController(viewModel: diContainer.makeSettingsViewModel())
+    @MainActor func makeSettingsViewController() -> SettingsViewController {
+        SettingsViewController(
+            viewModel: diContainer.makeSettingsViewModel(),
+            factory: self
+        )
+    }
+
+    @MainActor func makeAccountViewController(viewModel: SettingsViewModel) -> AccountViewController {
+        AccountViewController(viewModel: viewModel, factory: self)
+    }
+
+    @MainActor func makeProfileManagementViewController(
+        viewModel: SettingsViewModel
+    ) -> ProfileManagementViewController {
+        ProfileManagementViewController(viewModel: viewModel)
+    }
+
+    @MainActor func makeAddressManagementViewController(
+        viewModel: SettingsViewModel
+    ) -> AddressManagementViewController {
+        AddressManagementViewController(viewModel: viewModel, factory: self)
+    }
+
+    @MainActor func makePostcodeSearchViewController(
+        onSelect: @escaping (String, String) -> Void
+    ) -> PostcodeSearchViewController {
+        PostcodeSearchViewController(onSelect: onSelect)
+    }
+
+    @MainActor func makeWithdrawalViewController(
+        viewModel: SettingsViewModel
+    ) -> WithdrawalViewController {
+        WithdrawalViewController(viewModel: viewModel, factory: self)
     }
     
     func makeReviewUseCase() -> ReviewUseCase {
