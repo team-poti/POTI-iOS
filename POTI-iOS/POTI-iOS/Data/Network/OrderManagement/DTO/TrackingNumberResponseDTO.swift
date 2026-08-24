@@ -7,18 +7,18 @@
 
 struct TrackingNumberResponseDTO: Decodable {
     let orderId: Int
-    let status: String
-    let trackingNumber: String
-    let shippedAt: String
+    let status: String?
+    let trackingNumber: String?
+    let shippedAt: String?
 }
 
 extension TrackingNumberResponseDTO {
     func toEntity() -> TrackingNumberResponseEntity {
         TrackingNumberResponseEntity(
             orderId: orderId,
-            status: status,
-            trackingNumber: trackingNumber,
-            shippedAt: shippedAt
+            status: status ?? "",
+            trackingNumber: trackingNumber ?? "",
+            shippedAt: shippedAt ?? ""
         )
     }
 }

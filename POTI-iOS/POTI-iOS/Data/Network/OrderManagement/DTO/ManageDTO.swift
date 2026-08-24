@@ -62,7 +62,7 @@ extension ManageParticipantDTO {
             profileImage: profileImage,
             nickname: nickname,
             memberNames: memberNames,
-            status: ParticipantStatus(rawValue: status) ?? .recruiting,
+            status: ParticipantStatus(rawValue: status) ?? .waitPay,
             priceInfo: priceInfo.toEntity(),
             depositInfo: depositInfo?.toEntity(),
             shippingInfo: shippingInfo?.toEntity()
