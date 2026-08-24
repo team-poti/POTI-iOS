@@ -170,10 +170,7 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailParticipantsCell.identifier, for: indexPath) as! DetailParticipantsCell
 
                 let participantData = viewModel.participants[indexPath.item]
-                let current = viewModel.potDetailModel?.currentCount ?? 0
-                let total = viewModel.potDetailModel?.totalCount ?? 0
-
-                cell.configure(model: participantData, index: indexPath.item, currentCount: current, totalCount: total)
+                cell.configure(model: participantData)
                 return cell
             }
         }
@@ -181,12 +178,21 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
-        if kind == UICollectionView.elementKindSectionFooter {
-            guard let sectionType = PotDetailSection(rawValue: indexPath.section),
-                  sectionType == .participants else {
+        guard let sectionType = PotDetailSection(rawValue: indexPath.section), sectionType == .participants else {
+            return UICollectionReusableView()
+        }
+
+        if kind == UICollectionView.elementKindSectionHeader {
+            guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailParticipantsHeaderView.identifier, for: indexPath) as? DetailParticipantsHeaderView else {
                 return UICollectionReusableView()
             }
+            let currentCount = viewModel.potDetailModel?.currentCount ?? 0
+            let totalCount = viewModel.potDetailModel?.totalCount ?? 0
+            header.configure(currentCount: currentCount, totalCount: totalCount)
+            return header
+        }
 
+        if kind == UICollectionView.elementKindSectionFooter {
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailSubContentFooterView.identifier, for: indexPath) as! DetailSubContentFooterView
             return footer
         }

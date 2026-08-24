@@ -14,7 +14,7 @@ final class ArtistSearchViewController: BaseViewController<ArtistSearchViewModel
     // MARK: - Properties
 
     private let rootView = ArtistSearchView()
-    var onSelectArtist: ((ArtistSearchResultEntity) -> Void)?
+    var onSelectArtist: ((ArtistSearchItem) -> Void)?
 
     // MARK: - Life Cycles
 

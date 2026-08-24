@@ -26,6 +26,7 @@ struct FeedsEntity {
     let nickname: String
     let mainArtist: String?
     let mainArtistId: Int?
+    let hasNext: Bool
     let groupItems: [GroupItem]
 }
 

@@ -47,11 +47,15 @@ final class AppDIContainer {
     }
 
     private func makePostRepository() -> PostInterface {
-        MockPostRepository()
+        DefaultPostRepository(networkService: makeNetworkService())
+    }
+
+    private func makeSearchRepository() -> SearchRepository {
+        DefaultSearchRepository(networkService: makeNetworkService())
     }
 
     private func makeArtistsRepository() -> ArtistsInterface {
-        MockArtistRepository()
+        DefaultArtistsRepository(networkService: makeNetworkService())
     }
 
     private func makeParticipationRepository() -> ParticipationInterface {
@@ -66,12 +70,12 @@ final class AppDIContainer {
         DefaultUsersRepository(networkService: makeNetworkService())
     }
 
-    private func makeImagesRepository() -> ImagesInterface {
-        DefaultImagesRepository(imageUploadService: makeImageUploadService())
+    private func makeImageUploadRepository() -> ImageUploadInterface {
+        DefaultImageUploadRepository(imageUploadService: makeImageUploadService())
     }
 
     private func makeRegisterRepository() -> RegisterInterface {
-        MockRegisterRepository()
+        DefaultRegisterRepository(networkService: makeNetworkService())
     }
 
     private func makePaymentsRepository() -> PaymentsInterface {
@@ -130,6 +134,10 @@ final class AppDIContainer {
         DefaultFetchPotOptionsUseCase(repository: makePostRepository())
     }
 
+    private func makeSearchPostsUseCase() -> SearchPostsUseCase {
+        DefaultSearchPostsUseCase(repository: makeSearchRepository())
+    }
+
     private func makeApplyParticipationUseCase() -> ApplyParticipationUseCase {
         DefaultApplyParticipationUseCase(repository: makeParticipationRepository())
     }
@@ -146,8 +154,12 @@ final class AppDIContainer {
         DefaultFetchProductTitlesUseCase(repository: makeRegisterRepository())
     }
 
-    private func makeRegisterPostsUseCase() -> RegisterPostsUseCase {
-        DefaultRegisterPostsUseCase(repository: makeRegisterRepository())
+    private func makeRegisterPostUseCase() -> RegisterPostUseCase {
+        DefaultRegisterPostUseCase(repository: makeRegisterRepository())
+    }
+
+    private func makeUploadPostImagesUseCase() -> UploadPostImagesUseCase {
+        DefaultUploadPostImagesUseCase(repository: makeImageUploadRepository())
     }
 
     private func makePostsSaleUseCase() -> PostsSaleUseCase {
@@ -237,11 +249,15 @@ final class AppDIContainer {
     }
 
     @MainActor func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(useCase: makeHomeUseCase(), withDrawUseCase: makeWithdrawUseCase())
+        HomeViewModel(useCase: makeHomeUseCase())
     }
 
     func makeFeedsViewModel(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewModel {
         FeedsViewModel(useCase: makeFeedsUseCase(), sectionType: sectionType, artistId: artistId, nickname: nickname)
+    }
+
+    func makeSearchViewModel() -> SearchViewModel {
+        SearchViewModel(searchPostsUseCase: makeSearchPostsUseCase())
     }
 
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
@@ -287,13 +303,9 @@ final class AppDIContainer {
         return ArtistMembersFilterViewModel(useCase: makeArtistMembersUseCase(), artistId: artistId, selectedIds: selectedIds)
     }
 
-    func makeProductRegisterViewModel() -> ProductRegisterViewModel {
-        ProductRegisterViewModel(
-            fetchProductTitlesUseCase: makeFetchProductTitlesUseCase(),
-            registerPostsUseCase: makeRegisterPostsUseCase(),
-            imagesRepository: makeImagesRepository(),
-            artistsUseCase: makeArtistMembersUseCase()
-        )
+    func makeProductRegisterViewModel() -> RegisterViewModel {
+        RegisterViewModel(fetchProductTitlesUseCase: makeFetchProductTitlesUseCase(), registerPostUseCase: makeRegisterPostUseCase(),
+                          uploadPostImagesUseCase: makeUploadPostImagesUseCase(), artistMembersUseCase: makeArtistMembersUseCase())
     }
 
     func makeArtistSearchViewModel() -> ArtistSearchViewModel {

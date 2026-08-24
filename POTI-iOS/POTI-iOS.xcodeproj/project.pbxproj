@@ -21,7 +21,6 @@
 
 /* Begin PBXFileReference section */
 		335F0F2F2F0D72A500E13B6F /* POTI-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "POTI-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		336E4CB82F16B94000D1D916 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -40,6 +39,10 @@
 			exceptions = (
 				335F0F412F0D72A700E13B6F /* Exceptions for "POTI-iOS" folder in "POTI-iOS" target */,
 			);
+			explicitFileTypes = {
+				Application/Config/Debug.xcconfig.template = text;
+				Application/Config/Release.xcconfig.template = text;
+			};
 			path = "POTI-iOS";
 			sourceTree = "<group>";
 		};
@@ -69,7 +72,6 @@
 		335F0F262F0D72A400E13B6F = {
 			isa = PBXGroup;
 			children = (
-				336E4CB82F16B94000D1D916 /* Config.xcconfig */,
 				335F0F312F0D72A500E13B6F /* POTI-iOS */,
 				335F0F302F0D72A500E13B6F /* Products */,
 			);
@@ -184,10 +186,12 @@
 /* Begin XCBuildConfiguration section */
 		335F0F432F0D72A700E13B6F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 336E4CB82F16B94000D1D916 /* Config.xcconfig */;
+			baseConfigurationReferenceAnchor = 335F0F312F0D72A500E13B6F /* POTI-iOS */;
+			baseConfigurationReferenceRelativePath = Application/Config/Debug.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "POTI-iOS/POTI-iOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P64LJZB7SK;
@@ -213,10 +217,12 @@
 		};
 		335F0F442F0D72A700E13B6F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 336E4CB82F16B94000D1D916 /* Config.xcconfig */;
+			baseConfigurationReferenceAnchor = 335F0F312F0D72A500E13B6F /* POTI-iOS */;
+			baseConfigurationReferenceRelativePath = Application/Config/Release.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "POTI-iOS/POTI-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -244,7 +250,8 @@
 		};
 		335F0F452F0D72A700E13B6F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 336E4CB82F16B94000D1D916 /* Config.xcconfig */;
+			baseConfigurationReferenceAnchor = 335F0F312F0D72A500E13B6F /* POTI-iOS */;
+			baseConfigurationReferenceRelativePath = Application/Config/Debug.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -309,7 +316,8 @@
 		};
 		335F0F462F0D72A700E13B6F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 336E4CB82F16B94000D1D916 /* Config.xcconfig */;
+			baseConfigurationReferenceAnchor = 335F0F312F0D72A500E13B6F /* POTI-iOS */;
+			baseConfigurationReferenceRelativePath = Application/Config/Release.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

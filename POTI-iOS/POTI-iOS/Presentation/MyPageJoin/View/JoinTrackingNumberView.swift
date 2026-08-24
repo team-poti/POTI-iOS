@@ -102,7 +102,7 @@ final class JoinTrackingNumberView: BaseView {
         statusLabel.textColor = model.shippingInfo.shippingStatus.badgeColor
     }
     
-    private func addTarget() {
+    override func addTarget() {
         copyButton.addTarget(self, action: #selector(didTapCopy), for: .touchUpInside)
     }
     

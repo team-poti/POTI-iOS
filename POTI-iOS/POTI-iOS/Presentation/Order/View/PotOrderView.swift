@@ -22,7 +22,7 @@ final class PotOrderView: BaseView {
     private let contentView = UIView()
     private let dividerUpperView = UIView()
     private let dividerBottomView = UIView()
-    private let noticeView = joinNoticeView()
+    private let noticeView = NoticeView(type: .participate)
     
     // MARK: - Custom Methods
     
@@ -35,7 +35,6 @@ final class PotOrderView: BaseView {
         
         bottomButton.do {
             $0.color = .primaryMain
-            $0.isDisabled = true
             $0.text = "참여하기"
         }
         

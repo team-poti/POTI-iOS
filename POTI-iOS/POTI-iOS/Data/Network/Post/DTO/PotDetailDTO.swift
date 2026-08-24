@@ -33,7 +33,7 @@ struct PotDetailDTO: Decodable {
             price: price,
             uploadTime: uploadTime,
             deadline: deadline,
-            images: images.map { $0.url },
+            images: images.sorted { $0.order < $1.order }.map(\.url),
             content: content,
             shippingOptions: shippingOptions.map { $0.toEntity() },
             uploader: uploader.toEntity(),

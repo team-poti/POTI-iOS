@@ -15,14 +15,14 @@ final class FeedsViewModel: BaseViewModelType {
         case viewDidLoad
         case didTapSortOption(option: FeedsSortOption)
         case loadNextPage
-        case didTapItem(item: GroupItemModel)
+        case didTapItem(item: GoodsListItemModel)
     }
     
     // MARK: - Output
     
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
-        let showPotList: AnyPublisher<GroupItemModel, Never>
+        let showPotList: AnyPublisher<GoodsListItemModel, Never>
     }
     
     // MARK: - Properties
@@ -35,7 +35,7 @@ final class FeedsViewModel: BaseViewModelType {
     private var cancellables = Set<AnyCancellable>()
     let output: Output
     
-    private(set) var groupItems: [GroupItemModel] = []
+    private(set) var groupItems: [GoodsListItemModel] = []
     private var currentPage: Int = 0
     private var isFetching: Bool = false
     private var hasNextPage: Bool = true
@@ -48,7 +48,7 @@ final class FeedsViewModel: BaseViewModelType {
     // MARK: - Subject
     
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
-    private let showPotListSubject = PassthroughSubject<GroupItemModel, Never>()
+    private let showPotListSubject = PassthroughSubject<GoodsListItemModel, Never>()
     
     // MARK: - Initializer
     
@@ -106,7 +106,7 @@ final class FeedsViewModel: BaseViewModelType {
                     page: currentPage
                 )
                 
-                let newItems = data.groupItems.map { $0.toGroupItemModel() }
+                let newItems = data.groupItems.map { $0.toGoodsListItemModel() }
                 
                 if isFirstPage {
                     self.groupItems = newItems
@@ -116,7 +116,7 @@ final class FeedsViewModel: BaseViewModelType {
                     self.currentPage += 1
                 }
                 
-                self.hasNextPage = (newItems.count == 10)
+                self.hasNextPage = data.hasNext
                 
                 reloadDataSubject.send(())
             } catch {

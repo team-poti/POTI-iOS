@@ -8,13 +8,13 @@
 import Alamofire
 
 enum RegisterAPI: BaseTargetType {
-    case registerPosts(CreatePostRequestDTO)
+    case registerPost(RegisterPostRequestDTO)
     case fetchProductTitles(artistId: Int, keyword: String)
     case searchArtists(keyword: String)
 
     var path: String {
         switch self {
-        case .registerPosts:
+        case .registerPost:
             return "/api/v1/posts"
         case .fetchProductTitles:
             return "/api/v1/posts/titles"
@@ -25,7 +25,7 @@ enum RegisterAPI: BaseTargetType {
 
     var method: HTTPMethod {
         switch self {
-        case .registerPosts:
+        case .registerPost:
             return .post
         case .fetchProductTitles, .searchArtists:
             return .get
@@ -43,15 +43,31 @@ enum RegisterAPI: BaseTargetType {
         case .searchArtists(let keyword):
             return ["keyword": keyword]
 
-        case .registerPosts:
+        case .registerPost:
             return nil
         }
     }
     
-    var body: Encodable? {
+    var bodyParameters: Parameters? {
         switch self {
-        case .registerPosts(let dto):
-            return dto
+        case .registerPost(let dto):
+            return [
+                "artistId": dto.artistId,
+                "title": dto.title,
+                "content": dto.content,
+                "deadline": dto.deadline,
+                "bankName": dto.bankName,
+                "accountNumber": dto.accountNumber,
+                "imageUrls": dto.imageUrls,
+                "options": dto.options.map { [
+                    "memberId": $0.memberId,
+                    "price": $0.price
+                ]},
+                "shippings": dto.shippings.map { [
+                    "deliveryMethodId": $0.deliveryMethodId,
+                    "price": $0.price
+                ]}
+            ]
         default:
             return nil
         }

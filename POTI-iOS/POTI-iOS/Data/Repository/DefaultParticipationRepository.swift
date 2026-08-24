@@ -13,17 +13,7 @@ final class DefaultParticipationRepository: ParticipationInterface {
     }
 
     func applyParticipation(entity: ParticipationEntity) async throws -> ParticipationResponseEntity {
-        let requestDTO = ParticipationRequestDTO(
-            groupBuyPostId: entity.postId,
-            shippingId: entity.shippingId,
-            deliveryInfo: .init(
-                receiverName: entity.receiverName,
-                zipcode: entity.zipcode,
-                addressLine: entity.addressLine,
-                phone: entity.phone
-            ),
-            items: entity.items.map { .init(groupBuyOptionId: $0.optionId, count: $0.count) }
-        )
+        let requestDTO = ParticipationRequestDTO(from: entity)
         let result = try await networkService.request(
             target: ParticipationAPI.applyParticipation(request: requestDTO),
             type: ParticipationResponseDTO.self

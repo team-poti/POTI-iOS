@@ -72,12 +72,12 @@ final class GoodsHeaderCell: UICollectionReusableView {
     }
     
     private func addTarget() {
-        moreButton.addTarget(self, action: #selector(moreButtonDidTap), for: .touchUpInside)
+        moreButton.addTarget(self, action: #selector(moreButtonTapped), for: .touchUpInside)
     }
     
     // MARK: - Action
     
-    @objc private func moreButtonDidTap() {
+    @objc private func moreButtonTapped() {
         delegate?.moreButtonDidTap(in: sectionIndex)
     }
 }

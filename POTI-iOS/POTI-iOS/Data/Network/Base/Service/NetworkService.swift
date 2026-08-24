@@ -101,7 +101,7 @@ final class NetworkService: Sendable {
                 throw error
             }
     
-        case .failure:
+        case .failure(let underlyingError):
             guard let http = response.response else {
                 let error = PotiError.networkFail
                 PotiLogger.error(error)
@@ -130,6 +130,12 @@ final class NetworkService: Sendable {
             PotiLogger.network("STATUS : \(statusCode)")
             PotiLogger.network("PATH : \(target.path)")
             PotiLogger.network("DESCRIPTION : \(http.debugDescription)")
+
+            if let data = response.data,
+               let jsonString = String(data: data, encoding: .utf8) {
+                PotiLogger.network("BODY : \(jsonString)")
+            }
+            PotiLogger.network("UNDERLYING ERROR : \(underlyingError)")
             
             throw error
         }

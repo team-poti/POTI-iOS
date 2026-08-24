@@ -11,24 +11,24 @@ import SnapKit
 import Then
 
 final class DetailTextFieldView: BaseView {
-    
+
     // MARK: - UI Components
-    
+
     private let containerView = UIView()
     private let titleLabel = UILabel()
     private let customTextField = UITextField()
-    
+
     // MARK: - Public
-    
+
     var text: String {
         customTextField.text ?? ""
     }
     var onTextChanged: ((String) -> Void)?
-    
+
     // MARK: - Custom Method
-    
+
     override func setStyle() {
-        
+
         titleLabel.do {
             $0.textColor = .potiBlack
             $0.font = PotiFontManager.body14sb.font
@@ -43,7 +43,7 @@ final class DetailTextFieldView: BaseView {
         }
         setTextFieldInset(16)
     }
-    
+
     override func setUI() {
         self.addSubviews(
             containerView,
@@ -52,7 +52,7 @@ final class DetailTextFieldView: BaseView {
         )
         addTarget()
     }
-    
+
     override func setLayout() {
         containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
@@ -66,22 +66,22 @@ final class DetailTextFieldView: BaseView {
             $0.height.equalTo(52)
         }
     }
-    
-    private func addTarget() {
+
+    override func addTarget() {
         customTextField.addTarget(self, action: #selector(textFieldEditingChanged), for: .editingChanged)
     }
-    
+
     private func setTextFieldInset(_ inset: CGFloat) {
         let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: inset, height: 1))
         let rightPadding = UIView(frame: CGRect(x: 0, y: 0, width: inset, height: 1))
-        
+
         customTextField.leftView = leftPadding
         customTextField.leftViewMode = .always
-        
+
         customTextField.rightView = rightPadding
         customTextField.rightViewMode = .always
     }
-    
+
     func configure(
         title: String,
         placeholder: String,
@@ -96,11 +96,11 @@ final class DetailTextFieldView: BaseView {
             ]
         )
     }
-    
+
     @objc private func textFieldEditingChanged() {
         onTextChanged?(text)
     }
-    
+
     func reset() {
         customTextField.text = ""
         onTextChanged = nil

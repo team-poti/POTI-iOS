@@ -17,7 +17,7 @@ final class TextInputContainerView: BaseView {
     let contentView = UIView()
 
     private let stackView = UIStackView()
-    private let errorView = TextFieldErrorView()
+    private let errorView = ValidationErrorView()
     private var minimumHeightConstraint: Constraint?
 
     // MARK: - Custom Methods
@@ -59,14 +59,19 @@ final class TextInputContainerView: BaseView {
         minimumHeightConstraint?.update(offset: height)
     }
 
+    func setAppearance(backgroundColor: UIColor, borderWidth: CGFloat) {
+        contentView.backgroundColor = backgroundColor
+        contentView.layer.borderWidth = borderWidth
+    }
+
     func render(isFocused: Bool, validationState: TextFieldValidationState) {
         switch validationState {
         case .normal:
             contentView.layer.borderColor = isFocused ? UIColor.potiBlack.cgColor : UIColor.gray300.cgColor
-            errorView.hide()
+            errorView.setMessage(nil)
         case .error(let message):
             contentView.layer.borderColor = UIColor.sementicRed.cgColor
-            errorView.show(message: message)
+            errorView.setMessage(message)
         }
     }
 }

@@ -12,12 +12,12 @@ final class DefaultRegisterRepository: RegisterInterface {
         self.networkService = networkService
     }
 
-    func registerPosts(_ entity: RegisterRequestEntity) async throws -> RegisterResponseEntity {
-        let dto = CreatePostRequestDTO(from: entity)
+    func registerPost(_ entity: RegisterPostEntity) async throws -> RegisterPostResultEntity {
+        let dto = RegisterPostRequestDTO(from: entity)
 
         let result = try await networkService.request(
-            target: RegisterAPI.registerPosts(dto),
-            type: CreatePostResponseDTO.self
+            target: RegisterAPI.registerPost(dto),
+            type: RegisterPostResponseDTO.self
         )
         return result.toEntity()
     }

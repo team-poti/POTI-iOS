@@ -18,7 +18,6 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     private let rootView = PotOrderView()
     private let factory: ViewControllerFactory
     var onSuccess: (() -> Void)?
-    var onAddressSearch: (() -> Void)?
     
     // MARK: - Initializer
     
@@ -50,11 +49,11 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .store(in: &cancellables)
         
         rootView.orderContentView.zipcodeField.onTap = { [weak self] in
-            self?.onAddressSearch?()
+            self?.showAddressSearch()
         }
         
         rootView.orderContentView.addressField.onTap = { [weak self] in
-            self?.onAddressSearch?()
+            self?.showAddressSearch()
         }
 
         rootView.orderContentView.detailAddressField.textPublisher
@@ -65,7 +64,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] in self?.viewModel.action(.phoneDidChange($0)) }
             .store(in: &cancellables)
         
-        rootView.bottomButton.addTarget(self, action: #selector(joinButtonDidTap), for: .touchUpInside)
+        rootView.bottomButton.addTarget(self, action: #selector(joinButtonTapped), for: .touchUpInside)
     }
     
     override func bindViewModel() {
@@ -87,12 +86,6 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .sink { [weak self] data in
                 self?.rootView.headerView.configure(items: data.items, totalAmount: data.total)
             }
-            .store(in: &cancellables)
-        
-        viewModel.output.isButtonEnabled
-            .receive(on: RunLoop.main)
-            .map { !$0 }
-            .assign(to: \.isDisabled, on: rootView.bottomButton)
             .store(in: &cancellables)
         
         viewModel.output.nameError
@@ -131,18 +124,6 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             }
             .store(in: &cancellables)
         
-        viewModel.output.detailAddressError
-            .receive(on: RunLoop.main)
-            .sink { [weak self] message in
-                guard let self = self else { return }
-                if let message = message {
-                    self.rootView.orderContentView.detailAddressField.setValidationState(.error(message: message))
-                } else {
-                    self.rootView.orderContentView.detailAddressField.setValidationState(.normal)
-                }
-            }
-            .store(in: &cancellables)
-        
         viewModel.output.phoneError
             .receive(on: RunLoop.main)
             .sink { [weak self] message in
@@ -169,10 +150,12 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             }
             .store(in: &cancellables)
     }
+    
+    // MARK: - Private Methods
 
     private func showParticipationNotice() {
         let noticeView = NoticeModalView(type: .participate)
-        noticeView.confirmAction = { [weak self] in
+        noticeView.onTapConfirm = { [weak self] in
             self?.showOrderCompleteView()
         }
         
@@ -180,9 +163,19 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
         noticeView.show(in: targetView)
     }
 
+    private func showAddressSearch() {
+        view.endEditing(true)
+        let addressSearchViewController = KakaoAddressSearchViewController()
+        addressSearchViewController.onSelectAddress = { [weak self, weak addressSearchViewController] address in
+            self?.applySelectedAddress(address)
+            addressSearchViewController?.navigationController?.popViewController(animated: true)
+        }
+        navigationController?.pushViewController(addressSearchViewController, animated: true)
+    }
+
     private func showOrderCompleteView() {
         let completeView = OrderCompleteView()
-        completeView.confirmAction = { [weak self] in
+        completeView.onTapConfirm = { [weak self] in
             guard let self = self else { return }
             
             self.onSuccess?()
@@ -202,14 +195,15 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
         completeView.show(in: targetView)
     }
     
-    // MARK: - Public Method
-
-    func applySelectedAddress(zipcode: String, address: String) {
-        rootView.orderContentView.zipcodeField.text = zipcode
-        rootView.orderContentView.addressField.text = address
-        viewModel.action(.zipcodeDidChange(zipcode))
-        viewModel.action(.addressDidChange(address))
+    private func applySelectedAddress(_ address: KakaoAddress) {
+        rootView.orderContentView.zipcodeField.text = address.zipcode
+        rootView.orderContentView.addressField.text = address.address
+        rootView.orderContentView.detailAddressField.text = ""
+        viewModel.action(.addressSelected(zipcode: address.zipcode, address: address.address))
+        viewModel.action(.detailAddressDidChange(""))
     }
+    
+    // MARK: - Public Method
     
     func navigationStyle() -> PotiNavigationStyle {
         return .backDefault("팟")
@@ -217,7 +211,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     
     // MARK: - Action
     
-    @objc private func joinButtonDidTap() {
+    @objc private func joinButtonTapped() {
         viewModel.action(.joinButtonDidTap)
     }
 }

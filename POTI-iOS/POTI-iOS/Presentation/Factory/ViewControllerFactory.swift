@@ -10,6 +10,7 @@ protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
     func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
+    func makeSearchViewController() -> SearchViewController
     func makeFeedsViewController(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewController
     func makePotOptionsViewController(postId: Int) -> PotOptionsViewController
     func makePotDetailViewController(postId: Int) -> PotDetailViewController
@@ -26,7 +27,7 @@ protocol ViewControllerFactory {
     ) -> MyPageHistoryContainerViewController
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistSearchViewController() -> ArtistSearchViewController
-    func makeProductRegisterViewController() -> ProductRegisterViewController
+    func makeProductRegisterViewController() -> RegisterViewController
     func makeArtistMembersFilterBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
     func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
@@ -63,6 +64,10 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         HomeViewController(
             viewModel: diContainer.makeHomeViewModel(),factory: self
         )
+    }
+
+    func makeSearchViewController() -> SearchViewController {
+        SearchViewController(viewModel: diContainer.makeSearchViewModel(), factory: self)
     }
     
     func makeFeedsViewController(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewController {
@@ -109,9 +114,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makePotDetailViewController(postId: Int) -> PotDetailViewController {
-        PotDetailViewController(
-            viewModel: diContainer.makePotDetailViewModel(postId: postId), factory: self
-        )
+        PotDetailViewController(viewModel: diContainer.makePotDetailViewModel(postId: postId), factory: self)
     }
     
     func makeOnboardingViewController() -> OnboardingViewController {
@@ -150,16 +153,11 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeArtistSearchViewController() -> ArtistSearchViewController {
-        ArtistSearchViewController(
-            viewModel: diContainer.makeArtistSearchViewModel()
-        )
+        ArtistSearchViewController(viewModel: diContainer.makeArtistSearchViewModel())
     }
     
-    func makeProductRegisterViewController() -> ProductRegisterViewController {
-        ProductRegisterViewController(
-            viewModel: diContainer.makeProductRegisterViewModel(),
-            factory: self
-        )
+    func makeProductRegisterViewController() -> RegisterViewController {
+        RegisterViewController(viewModel: diContainer.makeProductRegisterViewModel(), factory: self)
     }
     
     func makeYourPageViewController(userId: Int) -> YourPageViewController {
