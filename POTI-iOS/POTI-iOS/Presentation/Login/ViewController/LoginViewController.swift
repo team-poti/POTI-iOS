@@ -33,7 +33,7 @@ final class LoginViewController: BaseViewController<LoginViewModel> {
     override func addTarget() {
         rootView.kakaoLoginButton.addTarget(self, action: #selector(kakaoLoginButtonTapped), for: .touchUpInside)
         
-        rootView.appleLoginButton.addTarget(self, action: #selector(devLoginButtonTapped), for: .touchUpInside)
+        rootView.appleLoginButton.addTarget(self, action: #selector(appleLoginButtonTapped), for: .touchUpInside)
     }
     
     override func bindViewModel() {
@@ -54,6 +54,7 @@ final class LoginViewController: BaseViewController<LoginViewModel> {
         viewModel.output.loginFailure
             .receive(on: DispatchQueue.main)
             .sink { [weak self] error in
+                self?.presentLoginError(error)
             }
             .store(in: &cancellables)
     }
@@ -64,8 +65,8 @@ extension LoginViewController {
         viewModel.action(.kakaoLoginTap)
     }
     
-    @objc private func devLoginButtonTapped() {
-        viewModel.action(.devLoginTap)
+    @objc private func appleLoginButtonTapped() {
+        viewModel.action(.appleLoginTap)
     }
 }
 
@@ -89,5 +90,14 @@ private extension LoginViewController {
         PotiLogger.debug("홈화면으로 이동")
         let tabBar = factory.makePotiTabBar()
         switchRootViewController(to: tabBar)
+    }
+
+    private func presentLoginError(_ error: Error) {
+        guard presentedViewController == nil else { return }
+        let message = (error as? LocalizedError)?.errorDescription
+        ?? "로그인에 실패했습니다. 잠시 후 다시 시도해주세요."
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }

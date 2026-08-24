@@ -249,7 +249,7 @@ final class AppDIContainer {
     }
 
     @MainActor func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())
+        LoginViewModel(loginUseCase: makeLoginUseCase())
     }
 
     @MainActor func makeHomeViewModel() -> HomeViewModel {
