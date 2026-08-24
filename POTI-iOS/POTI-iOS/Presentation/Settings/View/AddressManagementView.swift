@@ -11,6 +11,7 @@ import SnapKit
 import Then
 
 final class AddressManagementView: BaseView {
+    let scrollView = UIScrollView()
     let nameField = SettingsFieldView(title: "이름", placeholder: "이름을 입력하세요")
     let postalCodeField = SettingsFieldView(
         title: "우편번호",
@@ -29,6 +30,10 @@ final class AddressManagementView: BaseView {
             $0.axis = .vertical
             $0.spacing = 28
         }
+        scrollView.do {
+            $0.keyboardDismissMode = .interactive
+            $0.showsVerticalScrollIndicator = false
+        }
         postalCodeField.setReadOnly(true)
         addressField.setReadOnly(true)
         phoneField.textField.keyboardType = .phonePad
@@ -36,18 +41,45 @@ final class AddressManagementView: BaseView {
 
     override func setUI() {
         fieldStackView.addArrangedSubviews(nameField, postalCodeField, addressField, detailAddressField, phoneField)
-        addSubviews(fieldStackView, saveButton)
+        scrollView.addSubview(fieldStackView)
+        addSubviews(scrollView, saveButton)
     }
 
     override func setLayout() {
-        fieldStackView.snp.makeConstraints {
+        scrollView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(12)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalTo(saveButton.snp.top).offset(-8)
+        }
+        fieldStackView.snp.makeConstraints {
+            $0.top.equalTo(scrollView.contentLayoutGuide)
+            $0.horizontalEdges.equalTo(scrollView.contentLayoutGuide).inset(16)
+            $0.bottom.equalTo(scrollView.contentLayoutGuide).inset(16)
+            $0.width.equalTo(scrollView.frameLayoutGuide).offset(-32)
         }
         saveButton.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)
         }
+    }
+
+    func updateKeyboardFrame(_ keyboardEndFrame: CGRect) {
+        layoutIfNeeded()
+        let keyboardFrame = convert(keyboardEndFrame, from: nil)
+        let overlap = max(0, scrollView.frame.maxY - keyboardFrame.minY)
+        let bottomInset = overlap > 0 ? overlap + 12 : 0
+
+        scrollView.contentInset.bottom = bottomInset
+        scrollView.verticalScrollIndicatorInsets.bottom = bottomInset
+
+        guard overlap > 0,
+              let focusedField = editableFields.first(where: { $0.textField.isFirstResponder }) else { return }
+        scrollToVisible(focusedField)
+    }
+
+    func scrollToVisible(_ field: SettingsFieldView) {
+        let rect = field.convert(field.bounds, to: scrollView).insetBy(dx: 0, dy: -12)
+        scrollView.scrollRectToVisible(rect, animated: true)
     }
 
     func configure(_ address: AddressEntity) {
@@ -74,5 +106,9 @@ final class AddressManagementView: BaseView {
             detailAddress: detailAddressField.textField.text ?? "",
             phoneNumber: phoneField.textField.text ?? ""
         )
+    }
+
+    var editableFields: [SettingsFieldView] {
+        [nameField, detailAddressField, phoneField]
     }
 }

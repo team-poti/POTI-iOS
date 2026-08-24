@@ -18,6 +18,7 @@ final class AddressManagementViewController: BaseViewController<SettingsViewMode
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        bindKeyboard()
         viewModel.action(.fetchAddress)
     }
 
@@ -36,6 +37,11 @@ final class AddressManagementViewController: BaseViewController<SettingsViewMode
     override func addTarget() {
         rootView.saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         rootView.postalCodeField.searchButton.addTarget(self, action: #selector(searchPostalCodeTapped), for: .touchUpInside)
+        rootView.editableFields.forEach { field in
+            field.onBeginEditing = { [weak self] field in
+                self?.rootView.scrollToVisible(field)
+            }
+        }
     }
 
     @objc private func saveTapped() { viewModel.action(.updateAddress(rootView.address)) }
@@ -45,5 +51,17 @@ final class AddressManagementViewController: BaseViewController<SettingsViewMode
             self?.rootView.applySearchResult(postalCode: postalCode, address: address)
         }
         navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    private func bindKeyboard() {
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)
+            .compactMap { notification in
+                notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] keyboardEndFrame in
+                self?.rootView.updateKeyboardFrame(keyboardEndFrame)
+            }
+            .store(in: &cancellables)
     }
 }

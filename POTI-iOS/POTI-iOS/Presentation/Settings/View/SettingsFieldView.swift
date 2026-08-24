@@ -13,6 +13,7 @@ import Then
 final class SettingsFieldView: UIView {
     let textField = UITextField()
     let searchButton = UIButton(type: .system)
+    var onBeginEditing: ((SettingsFieldView) -> Void)?
     private let titleLabel = UILabel()
     private let showsSearchButton: Bool
 
@@ -42,6 +43,7 @@ final class SettingsFieldView: UIView {
             $0.layer.cornerRadius = 8
             $0.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 1))
             $0.leftViewMode = .always
+            $0.delegate = self
         }
         searchButton.do {
             var configuration = UIButton.Configuration.plain()
@@ -76,5 +78,25 @@ final class SettingsFieldView: UIView {
 
     func setReadOnly(_ readOnly: Bool) {
         textField.isUserInteractionEnabled = !readOnly
+    }
+
+    private func setFocused(_ focused: Bool) {
+        textField.layer.borderColor = focused ? UIColor.potiBlack.cgColor : UIColor.gray300.cgColor
+    }
+}
+
+extension SettingsFieldView: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        setFocused(true)
+        onBeginEditing?(self)
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        setFocused(false)
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
