@@ -6,7 +6,7 @@
 //
 
 protocol LogoutUseCase {
-    func execute()
+    func execute() async throws
 }
 
 final class DefaultLogoutUseCase: LogoutUseCase {
@@ -16,7 +16,7 @@ final class DefaultLogoutUseCase: LogoutUseCase {
         self.repository = repository
     }
 
-    func execute() {
-        repository.logout()
+    func execute() async throws {
+        try await repository.logout()
     }
 }

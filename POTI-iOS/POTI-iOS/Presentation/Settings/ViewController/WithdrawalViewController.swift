@@ -39,9 +39,9 @@ final class WithdrawalViewController: BaseViewController<SettingsViewModel>, Nav
     }
 
     @objc private func withdrawTapped() {
-        guard let reason = rootView.selectedReason else { return }
+        guard let reasonCode = rootView.selectedReasonCode else { return }
         let confirmationView = WithdrawalConfirmationView { [weak self] in
-            self?.viewModel.action(.withdraw(reason))
+            self?.viewModel.action(.withdraw(reasonCode))
         }
         confirmationView.show(on: navigationController?.view ?? view)
     }

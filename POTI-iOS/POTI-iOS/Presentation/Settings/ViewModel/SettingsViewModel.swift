@@ -126,11 +126,11 @@ final class SettingsViewModel: BaseViewModelType {
                     )
                 case .checkWithdrawal:
                     withdrawalSubject.send(try await accountActionUseCase.withdrawalAvailability())
-                case .withdraw:
-                    try await withdrawUseCase.execute()
+                case .withdraw(let reason):
+                    try await withdrawUseCase.execute(reason: reason)
                     withdrawalCompletedSubject.send(())
                 case .logout:
-                    logoutUseCase.execute()
+                    try await logoutUseCase.execute()
                     logoutCompletedSubject.send(())
                 }
             } catch {

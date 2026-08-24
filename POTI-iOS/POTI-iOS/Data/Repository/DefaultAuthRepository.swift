@@ -63,13 +63,19 @@ final class DefaultAuthRepository: AuthInterface {
         PotiLogger.debug("Keychain 저장 및 검증 완료")
     }
     
-    func withDraw() async throws {
-        _ = try await networkService.request(target: AuthAPI.withdrawalUser, type: EmptyResponse.self
+    func withdraw(reason: String) async throws {
+        _ = try await networkService.request(
+            target: AuthAPI.withdrawalUser(reason: reason),
+            type: EmptyResponse.self
         )
-        logout()
+        KeychainManager.deleteAllTokens()
     }
 
-    func logout() {
+    func logout() async throws {
+        _ = try await networkService.request(
+            target: AuthAPI.logout(fcmToken: nil),
+            type: EmptyResponse.self
+        )
         KeychainManager.deleteAllTokens()
     }
 }
