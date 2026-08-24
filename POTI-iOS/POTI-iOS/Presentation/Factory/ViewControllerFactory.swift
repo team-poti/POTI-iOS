@@ -111,7 +111,10 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController {
-        RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel(postId: postId))
+        RecruitDetailViewController(
+            viewModel: diContainer.makeRecruitDetailViewModel(postId: postId),
+            factory: self
+        )
     }
     
     func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController {

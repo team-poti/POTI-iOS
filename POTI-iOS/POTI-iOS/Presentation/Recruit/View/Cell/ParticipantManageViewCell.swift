@@ -162,15 +162,11 @@ final class ParticipantManageViewCell: UITableViewCell {
         .filter { !$0.isEmpty }
         .joined(separator: "\n")
 
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 6   // TODO: 디자인 확정 시 조정 0120
-
         let attributedText = NSAttributedString(
             string: text,
             attributes: [
                 .font: PotiFontManager.body14m.font,
-                .foregroundColor: UIColor.gray800,
-                .paragraphStyle: paragraphStyle
+                .foregroundColor: UIColor.gray800
             ]
         )
         depositorInfoLabel.attributedText = attributedText

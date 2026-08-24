@@ -26,19 +26,30 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
     }
     
     private var viewState: RecruitDetailViewState?
-    let factory = DefaultViewControllerFactory()
+    private let factory: ViewControllerFactory
     private let tableView = UITableView()
-    private let backgroundView = UIView()
+
+    init(
+        viewModel: RecruitDetailViewModel,
+        factory: ViewControllerFactory
+    ) {
+        self.factory = factory
+        super.init(viewModel: viewModel)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     //MARK: - LifeCycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.action(.viewDidLoad)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        viewModel.action(.viewDidLoad)
         if let tabBarController = self.tabBarController as? PotiTabBar {
             tabBarController.tabBar.isHidden = true
         }
@@ -53,7 +64,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
     
     override func setUI() {
         setTableView()
-        view.addSubviews(tableView, backgroundView)
+        view.addSubview(tableView)
     }
     
     override func setLayout() {
@@ -74,9 +85,6 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
             $0.sectionHeaderTopPadding = 0
             $0.backgroundColor = .potiWhite
         }
-        backgroundView.do {
-            $0.backgroundColor = .potiWhite
-        }
     }
     
     override func bindViewModel() {
@@ -85,6 +93,12 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
             .sink { [weak self] state in
                 guard let self else { return }
                 self.viewState = state
+                PotiNavigationBar.configure(
+                    navigationItem: self.navigationItem,
+                    navigationController: self.navigationController,
+                    style: .backDefault(state.navigationTitle),
+                    target: self
+                )
                 self.tableView.reloadData()
             }
             .store(in: &cancellables)
@@ -92,20 +106,27 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
         viewModel.output.naviPotInfo
             .receive(on: DispatchQueue.main)
             .sink { [weak self] id in
-                let factory = DefaultViewControllerFactory()
-                let containerVC = factory.makePotDetailViewController(postId: id)
+                guard let self else { return }
+                let containerVC = self.factory.makePotDetailViewController(postId: id)
                 containerVC.hidesBottomBarWhenPushed = true
-                self?.navigationController?.pushViewController(containerVC, animated: true)
+                self.navigationController?.pushViewController(containerVC, animated: true)
             }
             .store(in: &cancellables)
         
         viewModel.output.naviManageInfo
             .receive(on: DispatchQueue.main)
             .sink { [weak self] id in
-                let factory = DefaultViewControllerFactory()
-                let containerVC = factory.makeParticipantManageViewController(postId: id)
+                guard let self else { return }
+                let containerVC = self.factory.makeParticipantManageViewController(postId: id)
                 containerVC.hidesBottomBarWhenPushed = true
-                self?.navigationController?.pushViewController(containerVC, animated: true)
+                self.navigationController?.pushViewController(containerVC, animated: true)
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.showError
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                self?.presentErrorAlert(message: message)
             }
             .store(in: &cancellables)
     }
@@ -113,6 +134,13 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
     override func setDelegate() {
         tableView.dataSource = self
         tableView.delegate = self
+    }
+
+    private func presentErrorAlert(message: String) {
+        guard presentedViewController == nil else { return }
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }
 
@@ -148,9 +176,9 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         case .recruitInfo:
             return 153
         case .progress:
-            return 216
+            return 210
         case .participantInfo:
-            return 165
+            return viewState?.participants.isEmpty == false ? 164 : 125
         }
     }
     
@@ -227,7 +255,7 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         switch section {
         case .participantInfo:
             let headerView = ParticipantManageHeaderView()
-            let count = viewState?.participants.count ?? 0
+            let count = viewState?.participantCount ?? 0
             headerView.configure(count: count)
             headerView.onTapHeaderButton = { [weak self] in
                 self?.viewModel.action(.tapManageInfo)
@@ -244,7 +272,7 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         
         switch section {
         case .participantInfo:
-            return 60
+            return 64
         default:
             return 0
         }

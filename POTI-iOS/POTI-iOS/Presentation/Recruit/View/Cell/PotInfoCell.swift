@@ -99,8 +99,8 @@ final class PotInfoCell: UITableViewCell {
         
         potButton.snp.makeConstraints {
             $0.centerY.equalTo(thumbnailView)
-            $0.trailing.equalToSuperview().inset(16)
-            $0.size.equalTo(24)
+            $0.trailing.equalToSuperview().inset(4)
+            $0.size.equalTo(48)
         }
         
         artistLabel.snp.makeConstraints {
@@ -129,7 +129,11 @@ final class PotInfoCell: UITableViewCell {
     }
     
     func configure(model: PotInfoViewState) {
-        potIdLabel.text = "모집번호 poti-\(model.postId)"
+        let orderNumber = model.orderNumber.isEmpty ? String(model.postId) : model.orderNumber
+        let normalizedOrderNumber = orderNumber.hasPrefix("poti-")
+        ? orderNumber
+        : "poti-\(orderNumber)"
+        potIdLabel.text = "모집번호 \(normalizedOrderNumber)"
 
         if let url = URL(string: model.imageUrl) {
             thumbnailView.kf.setImage(

@@ -48,8 +48,8 @@ final class ParticipantManageHeaderView: BaseView {
         }
         participantHeaderButton.snp.makeConstraints {
             $0.centerY.equalTo(titleLabel)
-            $0.trailing.equalToSuperview().inset(16)
-            $0.size.equalTo(24)
+            $0.trailing.equalToSuperview().inset(4)
+            $0.size.equalTo(48)
         }
     }
 
