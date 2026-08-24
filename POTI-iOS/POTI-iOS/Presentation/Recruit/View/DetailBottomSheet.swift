@@ -17,6 +17,7 @@ final class DetailBottomSheet: BaseView {
     // MARK: - Properties
     
     private let viewModel: BottomSheetViewModel
+    private let dismissesOnSubmit: Bool
     private var cancellables = Set<AnyCancellable>()
     
     var onSubmit: ((String, String) -> Void)?
@@ -39,9 +40,11 @@ final class DetailBottomSheet: BaseView {
         firstPlaceholder: String,
         secondTitle: String,
         secondPlaceholder: String,
-        confirmButtonText: String
+        confirmButtonText: String,
+        dismissesOnSubmit: Bool = true
     ) {
         self.viewModel = viewModel
+        self.dismissesOnSubmit = dismissesOnSubmit
         super.init(frame: .zero)
         
         firstTextFieldView.configure(
@@ -135,7 +138,9 @@ final class DetailBottomSheet: BaseView {
             .sink { [weak self] payload in
                 guard let self else { return }
                 self.onSubmit?(payload.depositor, payload.depositTime)
-                self.dismiss()
+                if self.dismissesOnSubmit {
+                    self.dismiss()
+                }
             }
             .store(in: &cancellables)
     }

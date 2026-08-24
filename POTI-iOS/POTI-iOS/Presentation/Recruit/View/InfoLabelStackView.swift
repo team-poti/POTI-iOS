@@ -30,7 +30,9 @@ final class InfoLabelStackView: BaseView {
     }
     
     override func setLayout() {
-        infoStackView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        infoStackView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
 }
 

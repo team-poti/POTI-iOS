@@ -10,6 +10,85 @@ import UIKit
 import SnapKit
 import Then
 
+private protocol ParticipantManagementState {
+    var isDetailVisible: Bool { get }
+    var actionTitle: String? { get }
+    func informationItems(for model: ParticipantManageModel) -> [(title: String, infos: [String])]
+}
+
+private struct WaitingParticipantState: ParticipantManagementState {
+    let isDetailVisible = false
+    let actionTitle: String? = nil
+
+    func informationItems(
+        for model: ParticipantManageModel
+    ) -> [(title: String, infos: [String])] {
+        []
+    }
+}
+
+private struct DepositCheckingParticipantState: ParticipantManagementState {
+    let isDetailVisible = true
+    let actionTitle: String? = "입금 확인"
+
+    func informationItems(
+        for model: ParticipantManageModel
+    ) -> [(title: String, infos: [String])] {
+        [
+            (
+                title: "입금 정보",
+                infos: [
+                    model.waitPayCheckInfo?.depositorName ?? "",
+                    model.waitPayCheckInfo?.depositTimeText ?? ""
+                ]
+            )
+        ]
+    }
+}
+
+private struct PaidParticipantState: ParticipantManagementState {
+    let isDetailVisible = true
+    let actionTitle: String? = "송장 번호 입력"
+
+    func informationItems(
+        for model: ParticipantManageModel
+    ) -> [(title: String, infos: [String])] {
+        [
+            (title: "이름", infos: [model.shipInfo?.receiverName ?? ""]),
+            (title: "배송 정보", infos: [model.shipInfo?.addressText ?? ""]),
+            (title: "연락처", infos: [model.shipInfo?.phoneText ?? ""])
+        ]
+    }
+}
+
+private struct TrackingParticipantState: ParticipantManagementState {
+    let isDetailVisible = true
+    let actionTitle: String? = nil
+
+    func informationItems(
+        for model: ParticipantManageModel
+    ) -> [(title: String, infos: [String])] {
+        [
+            (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
+        ]
+    }
+}
+
+private enum ParticipantManagementStateFactory {
+    static func make(status: ParticipantStatus) -> any ParticipantManagementState {
+        switch status {
+        case .recruiting, .waitPay:
+            return WaitingParticipantState()
+        case .waitPayCheck:
+            return DepositCheckingParticipantState()
+        case .paid:
+            return PaidParticipantState()
+        case .shipped, .delivered:
+            return TrackingParticipantState()
+        }
+    }
+}
+
 final class ParticipantStatusCaseView: BaseView {
 
     private let containerStackView = UIStackView()
@@ -30,10 +109,10 @@ final class ParticipantStatusCaseView: BaseView {
         }
 
         actionButton.do {
-            $0.setTitleColor(.potiWhite, for: .normal)
+            $0.setTitleColor(.gray300, for: .normal)
             $0.backgroundColor = .potiBlack
-            $0.layer.cornerRadius = 12
-            $0.titleLabel?.font = PotiFontManager.body16sb.font
+            $0.layer.cornerRadius = 8
+            $0.titleLabel?.font = PotiFontManager.body14sb.font
             $0.isHidden = true
         }
     }
@@ -86,56 +165,16 @@ extension ParticipantStatusCaseView {
     ) {
         reset()
 
-        var items: [(title: String, infos: [String])] = []
+        let state = ParticipantManagementStateFactory.make(status: status)
+        isHidden = !state.isDetailVisible
 
-        var buttonTitle: String = ""
+        guard state.isDetailVisible else { return }
 
-        switch status {
-        case .recruiting, .waitPay:
-            self.isHidden = true
-            return
+        infoLabelStackView.configure(items: state.informationItems(for: model))
 
-        case .waitPayCheck:
-            self.isHidden = false
-            items = [
-                (title: "입금 정보",
-                 infos: [
-                    model.paidInfo?.depositorName ?? "",
-                    model.paidInfo?.depositTimeText ?? ""
-                 ])
-            ]
-            buttonTitle = "입금 확인"
-
-        case .paid:
-            self.isHidden = false
-            items = [
-                (title: "이름", infos: [model.paidInfo?.depositorName ?? ""]),
-                (title: "배송 정보", infos: [model.shipInfo?.addressText ?? ""]),
-                (title: "연락처", infos: [model.shipInfo?.phoneText ?? ""])
-            ]
-            buttonTitle = "송장 번호 입력"
-
-        case .shipped:
-            self.isHidden = false
-            items = [
-                (title: "이름", infos: [model.shipInfo?.receiverName ?? ""]),
-                (title: "배송 정보", infos: [model.shipInfo?.addressText ?? ""]),
-                (title: "연락처", infos: [model.shipInfo?.phoneText ?? ""]),
-                (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
-            ]
-
-        case .delivered:
-            self.isHidden = false
-            items = [
-                (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
-            ]
-        }
-
-        infoLabelStackView.configure(items: items)
-
-        if !buttonTitle.isEmpty {
+        if let actionTitle = state.actionTitle {
             actionButton.isHidden = false
-            actionButton.setTitle(buttonTitle, for: .normal)
+            actionButton.setTitle(actionTitle, for: .normal)
             self.onTapAction = onTapAction
         } else {
             actionButton.isHidden = true

@@ -106,7 +106,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
                 self.fetchDataSubject.send()
                 
             } catch {
-                print("Error : \(error)")
+                self?.errorSubject.send("참여자 정보를 불러오지 못했어요")
             }
         }
     }
@@ -160,11 +160,10 @@ final class ParticipantManageViewModel: BaseViewModelType {
 
                 _ = try await ordersDeliveriesUseCase.execute(orderId: orderId, entity: requestEntity)
                 
-                trackingNumberPatchedSubject.send(())
-
                 let entity = try await postsParticipantsUseCase.execute(postId: postId)
                 self.participants = entity.toParticipantManageModels()
                 fetchDataSubject.send(())
+                trackingNumberPatchedSubject.send(())
 
             } catch {
                 self.errorSubject.send("송장번호 등록에 실패했어요")
