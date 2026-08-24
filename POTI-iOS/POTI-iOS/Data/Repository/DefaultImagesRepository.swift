@@ -24,6 +24,19 @@ final class DefaultImagesRepository: ImagesInterface {
         
         return try response.data.urls.map { try $0.toEntity() }
     }
+
+    func fetchProfilePresignedUrl(fileExtension: String) async throws -> PresignedUrlEntity {
+        let response = try await imageUploadService.getPresignedUrls(
+            type: "PROFILE",
+            extensions: [fileExtension]
+        )
+
+        guard let dto = response.data.urls.first else {
+            throw PotiError.invalidPresignedUrl
+        }
+
+        return try dto.toEntity()
+    }
     
     func uploadImage(data: Data, to url: URL) async throws {
         try await imageUploadService.uploadImage(data: data, to: url)

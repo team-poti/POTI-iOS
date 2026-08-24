@@ -69,4 +69,4 @@ final class DefaultAuthRepository: AuthInterface {
     }
 }
 
-struct EmptyResponse: Decodable {}
+struct EmptyResponse: Decodable, EmptyResponseInitializable {}
