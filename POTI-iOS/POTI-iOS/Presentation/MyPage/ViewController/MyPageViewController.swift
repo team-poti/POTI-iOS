@@ -93,6 +93,12 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         }
         navigationController?.pushViewController(viewController, animated: true)
     }
+
+    override func settingButtonTapped() {
+        let viewController = factory.makeSettingsViewController()
+        viewController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(viewController, animated: true)
+    }
 }
 
 enum MyPageFilterType {
