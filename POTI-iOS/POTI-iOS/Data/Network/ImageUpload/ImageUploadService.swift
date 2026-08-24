@@ -11,6 +11,7 @@ import Alamofire
 
 protocol ImageUploadService {
     func fetchPostPresignedUploads(fileExtensions: [String]) async throws -> PresignedUploadsDTO
+    func fetchProfilePresignedUpload(fileExtension: String) async throws -> PresignedUploadsDTO
     func uploadImage(data: Data, to url: URL, mimeType: String) async throws
 }
 
@@ -24,6 +25,13 @@ final class DefaultImageUploadService: ImageUploadService {
     func fetchPostPresignedUploads(fileExtensions: [String]) async throws -> PresignedUploadsDTO {
         try await networkService.request(
             target: ImageUploadAPI.fetchPostPresignedUploads(fileExtensions: fileExtensions),
+            type: PresignedUploadsDTO.self
+        )
+    }
+
+    func fetchProfilePresignedUpload(fileExtension: String) async throws -> PresignedUploadsDTO {
+        try await networkService.request(
+            target: ImageUploadAPI.fetchProfilePresignedUpload(fileExtension: fileExtension),
             type: PresignedUploadsDTO.self
         )
     }

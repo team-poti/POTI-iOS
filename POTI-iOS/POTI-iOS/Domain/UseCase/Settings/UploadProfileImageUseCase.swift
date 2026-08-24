@@ -12,15 +12,19 @@ protocol UploadProfileImageUseCase {
 }
 
 final class DefaultUploadProfileImageUseCase: UploadProfileImageUseCase {
-    private let repository: ImagesInterface
+    private let repository: ImageUploadInterface
 
-    init(repository: ImagesInterface) {
+    init(repository: ImageUploadInterface) {
         self.repository = repository
     }
 
     func execute(imageData: Data) async throws -> String {
-        let presignedUrl = try await repository.fetchProfilePresignedUrl(fileExtension: "jpg")
-        try await repository.uploadImage(data: imageData, to: presignedUrl.uploadUrl)
-        return presignedUrl.fileName
+        let presignedUpload = try await repository.fetchProfilePresignedUpload(fileExtension: "jpg")
+        try await repository.uploadImage(
+            data: imageData,
+            to: presignedUpload.uploadURL,
+            mimeType: "image/jpeg"
+        )
+        return presignedUpload.filePath
     }
 }

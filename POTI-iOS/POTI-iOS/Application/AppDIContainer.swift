@@ -230,7 +230,7 @@ final class AppDIContainer {
     private func makeGetProfileUseCase(repository: SettingsInterface) -> GetProfileUseCase { DefaultGetProfileUseCase(repository: repository) }
     private func makeUpdateProfileUseCase(repository: SettingsInterface) -> UpdateProfileUseCase { DefaultUpdateProfileUseCase(repository: repository) }
     private func makeUploadProfileImageUseCase() -> UploadProfileImageUseCase {
-        DefaultUploadProfileImageUseCase(repository: makeImagesRepository())
+        DefaultUploadProfileImageUseCase(repository: makeImageUploadRepository())
     }
     private func makeGetAddressUseCase(repository: SettingsInterface) -> GetAddressUseCase { DefaultGetAddressUseCase(repository: repository) }
     private func makeUpdateAddressUseCase(repository: SettingsInterface) -> UpdateAddressUseCase { DefaultUpdateAddressUseCase(repository: repository) }
