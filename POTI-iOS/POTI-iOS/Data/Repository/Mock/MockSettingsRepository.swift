@@ -56,7 +56,4 @@ final class MockSettingsRepository: SettingsInterface {
     func withdrawalAvailability() async throws -> WithdrawalAvailabilityEntity {
         withdrawalState
     }
-
-    func withdraw(reason: String) async throws {}
-    func logout() async throws {}
 }

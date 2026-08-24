@@ -226,6 +226,10 @@ final class AppDIContainer {
         DefaultWithdrawUseCase(repository: makeAuthRepository())
     }
 
+    @MainActor private func makeLogoutUseCase() -> LogoutUseCase {
+        DefaultLogoutUseCase(repository: makeAuthRepository())
+    }
+
     private func makeGetAccountUseCase(repository: SettingsInterface) -> GetAccountUseCase { DefaultGetAccountUseCase(repository: repository) }
     private func makeGetProfileUseCase(repository: SettingsInterface) -> GetProfileUseCase { DefaultGetProfileUseCase(repository: repository) }
     private func makeUpdateProfileUseCase(repository: SettingsInterface) -> UpdateProfileUseCase { DefaultUpdateProfileUseCase(repository: repository) }
@@ -340,7 +344,7 @@ final class AppDIContainer {
         )
     }
 
-    func makeSettingsViewModel() -> SettingsViewModel {
+    @MainActor func makeSettingsViewModel() -> SettingsViewModel {
         let repository = makeSettingsRepository()
         return SettingsViewModel(
             getAccountUseCase: makeGetAccountUseCase(repository: repository),
@@ -351,7 +355,9 @@ final class AppDIContainer {
             updateAddressUseCase: makeUpdateAddressUseCase(repository: repository),
             getNotificationSettingsUseCase: makeGetNotificationSettingsUseCase(repository: repository),
             updateNotificationSettingsUseCase: makeUpdateNotificationSettingsUseCase(repository: repository),
-            accountActionUseCase: makeSettingsAccountActionUseCase(repository: repository)
+            accountActionUseCase: makeSettingsAccountActionUseCase(repository: repository),
+            withdrawUseCase: makeWithdrawUseCase(),
+            logoutUseCase: makeLogoutUseCase()
         )
     }
 }

@@ -64,8 +64,13 @@ final class DefaultAuthRepository: AuthInterface {
     }
     
     func withDraw() async throws {
-        try await networkService.request(target: AuthAPI.withdrawalUser, type: EmptyResponse.self
+        _ = try await networkService.request(target: AuthAPI.withdrawalUser, type: EmptyResponse.self
         )
+        logout()
+    }
+
+    func logout() {
+        KeychainManager.deleteAllTokens()
     }
 }
 

@@ -43,6 +43,11 @@ final class AccountViewController: BaseViewController<SettingsViewModel>, Naviga
             .sink { [weak self] state in self?.handleWithdrawalAvailability(state) }
             .store(in: &cancellables)
 
+        viewModel.output.logoutCompleted
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.navigateToLogin() }
+            .store(in: &cancellables)
+
     }
 
     override func addTarget() {
@@ -69,5 +74,9 @@ final class AccountViewController: BaseViewController<SettingsViewModel>, Naviga
             alert.addAction(UIAlertAction(title: "확인", style: .default))
             present(alert, animated: true)
         }
+    }
+
+    private func navigateToLogin() {
+        switchRootViewController(to: factory.makeLoginViewController())
     }
 }

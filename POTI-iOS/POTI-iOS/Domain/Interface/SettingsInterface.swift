@@ -14,6 +14,4 @@ protocol SettingsInterface {
     func fetchNotificationSettings() async throws -> NotificationSettingsEntity
     func updateNotificationSettings(tradeEnabled: Bool, eventEnabled: Bool) async throws -> NotificationSettingsEntity
     func withdrawalAvailability() async throws -> WithdrawalAvailabilityEntity
-    func withdraw(reason: String) async throws
-    func logout() async throws
 }

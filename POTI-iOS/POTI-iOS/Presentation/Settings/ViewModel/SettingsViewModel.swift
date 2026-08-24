@@ -30,6 +30,8 @@ final class SettingsViewModel: BaseViewModelType {
         let withdrawalAvailability: AnyPublisher<WithdrawalAvailabilityEntity, Never>
         let notificationSettings: AnyPublisher<NotificationSettingsEntity, Never>
         let completed: AnyPublisher<Void, Never>
+        let logoutCompleted: AnyPublisher<Void, Never>
+        let withdrawalCompleted: AnyPublisher<Void, Never>
         let error: AnyPublisher<String, Never>
     }
 
@@ -41,6 +43,8 @@ final class SettingsViewModel: BaseViewModelType {
     private let withdrawalSubject = PassthroughSubject<WithdrawalAvailabilityEntity, Never>()
     private let notificationSettingsSubject = PassthroughSubject<NotificationSettingsEntity, Never>()
     private let completedSubject = PassthroughSubject<Void, Never>()
+    private let logoutCompletedSubject = PassthroughSubject<Void, Never>()
+    private let withdrawalCompletedSubject = PassthroughSubject<Void, Never>()
     private let errorSubject = PassthroughSubject<String, Never>()
     private let getAccountUseCase: GetAccountUseCase
     private let getProfileUseCase: GetProfileUseCase
@@ -51,6 +55,8 @@ final class SettingsViewModel: BaseViewModelType {
     private let getNotificationSettingsUseCase: GetNotificationSettingsUseCase
     private let updateNotificationSettingsUseCase: UpdateNotificationSettingsUseCase
     private let accountActionUseCase: SettingsAccountActionUseCase
+    private let withdrawUseCase: WithdrawUseCase
+    private let logoutUseCase: LogoutUseCase
 
     init(
         getAccountUseCase: GetAccountUseCase,
@@ -61,7 +67,9 @@ final class SettingsViewModel: BaseViewModelType {
         updateAddressUseCase: UpdateAddressUseCase,
         getNotificationSettingsUseCase: GetNotificationSettingsUseCase,
         updateNotificationSettingsUseCase: UpdateNotificationSettingsUseCase,
-        accountActionUseCase: SettingsAccountActionUseCase
+        accountActionUseCase: SettingsAccountActionUseCase,
+        withdrawUseCase: WithdrawUseCase,
+        logoutUseCase: LogoutUseCase
     ) {
         self.getAccountUseCase = getAccountUseCase
         self.getProfileUseCase = getProfileUseCase
@@ -72,6 +80,8 @@ final class SettingsViewModel: BaseViewModelType {
         self.getNotificationSettingsUseCase = getNotificationSettingsUseCase
         self.updateNotificationSettingsUseCase = updateNotificationSettingsUseCase
         self.accountActionUseCase = accountActionUseCase
+        self.withdrawUseCase = withdrawUseCase
+        self.logoutUseCase = logoutUseCase
         output = Output(
             account: accountSubject.eraseToAnyPublisher(),
             profile: profileSubject.eraseToAnyPublisher(),
@@ -79,6 +89,8 @@ final class SettingsViewModel: BaseViewModelType {
             withdrawalAvailability: withdrawalSubject.eraseToAnyPublisher(),
             notificationSettings: notificationSettingsSubject.eraseToAnyPublisher(),
             completed: completedSubject.eraseToAnyPublisher(),
+            logoutCompleted: logoutCompletedSubject.eraseToAnyPublisher(),
+            withdrawalCompleted: withdrawalCompletedSubject.eraseToAnyPublisher(),
             error: errorSubject.eraseToAnyPublisher()
         )
     }
@@ -114,12 +126,12 @@ final class SettingsViewModel: BaseViewModelType {
                     )
                 case .checkWithdrawal:
                     withdrawalSubject.send(try await accountActionUseCase.withdrawalAvailability())
-                case .withdraw(let reason):
-                    try await accountActionUseCase.withdraw(reason: reason)
-                    completedSubject.send(())
+                case .withdraw:
+                    try await withdrawUseCase.execute()
+                    withdrawalCompletedSubject.send(())
                 case .logout:
-                    try await accountActionUseCase.logout()
-                    completedSubject.send(())
+                    logoutUseCase.execute()
+                    logoutCompletedSubject.send(())
                 }
             } catch {
                 errorSubject.send("요청을 처리하지 못했습니다.")

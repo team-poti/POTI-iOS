@@ -7,6 +7,8 @@
 
 import UIKit
 
+import Combine
+
 final class WithdrawalViewController: BaseViewController<SettingsViewModel>, NavigationConfigurable {
     private let rootView = WithdrawalView()
     private let factory: ViewControllerFactory
@@ -25,6 +27,13 @@ final class WithdrawalViewController: BaseViewController<SettingsViewModel>, Nav
 
     override func loadView() { view = rootView }
 
+    override func bindViewModel() {
+        viewModel.output.withdrawalCompleted
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.navigateToLogin() }
+            .store(in: &cancellables)
+    }
+
     override func addTarget() {
         rootView.withdrawButton.addTarget(self, action: #selector(withdrawTapped), for: .touchUpInside)
     }
@@ -35,5 +44,9 @@ final class WithdrawalViewController: BaseViewController<SettingsViewModel>, Nav
             self?.viewModel.action(.withdraw(reason))
         }
         confirmationView.show(on: navigationController?.view ?? view)
+    }
+
+    private func navigateToLogin() {
+        switchRootViewController(to: factory.makeLoginViewController())
     }
 }
