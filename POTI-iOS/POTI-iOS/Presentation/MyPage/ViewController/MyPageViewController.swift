@@ -33,6 +33,10 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .gray100
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         viewModel.action(.viewDidLoad)
     }
     
@@ -47,8 +51,8 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         
         viewModel.output.error
             .receive(on: DispatchQueue.main)
-            .sink { message in
-                print(message)
+            .sink { [weak self] message in
+                self?.presentLoadFailureAlert(message: message)
             }
             .store(in: &cancellables)
     }
@@ -98,6 +102,21 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         let viewController = factory.makeSettingsViewController()
         viewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    private func presentLoadFailureAlert(message: String) {
+        guard presentedViewController == nil else { return }
+
+        let alert = UIAlertController(
+            title: "마이페이지를 불러오지 못했어요",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "다시 시도", style: .default) { [weak self] _ in
+            self?.viewModel.action(.viewDidLoad)
+        })
+        present(alert, animated: true)
     }
 }
 

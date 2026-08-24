@@ -36,13 +36,12 @@ struct MyPageResponseDTO: Decodable {
 }
 
 struct ParticipationSummaryDTO: Decodable {
-    let total: Int
     let inProgress: Int
     let completed: Int
     
     func toEntity() -> MyPageParticipationSummaryEntity {
         return .init(
-            total: total,
+            total: inProgress + completed,
             inProgress: inProgress,
             completed: completed
         )
@@ -50,13 +49,12 @@ struct ParticipationSummaryDTO: Decodable {
 }
 
 struct RecruitSummaryDTO: Decodable {
-    let total: Int
     let inProgress: Int
     let completed: Int
     
     func toEntity() -> MyPageRecruitSummaryEntity {
         return .init(
-            total: total,
+            total: inProgress + completed,
             inProgress: inProgress,
             completed: completed
         )
