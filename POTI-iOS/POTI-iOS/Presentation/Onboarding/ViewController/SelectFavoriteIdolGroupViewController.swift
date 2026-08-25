@@ -98,8 +98,7 @@ extension SelectFavoriteIdolGroupViewController {
             return
         }
         
-        sceneDelegate.window?.rootViewController = tabBar
-        sceneDelegate.window?.makeKeyAndVisible()
+        sceneDelegate.switchRootViewController(to: tabBar)
     }
 }
 

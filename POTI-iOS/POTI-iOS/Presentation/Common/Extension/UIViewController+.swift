@@ -27,29 +27,8 @@ extension UIViewController {
     }
     
     func switchRootViewController(to viewController: UIViewController, animated: Bool = true) {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {
-            PotiLogger.error(NSError(domain: "윈도우를 찾을 수 없습니다", code: -1))
-            return
-        }
-        
-        viewController.view.frame = window.bounds
-        viewController.view.layoutIfNeeded()
-        
-        if animated {
-            UIView.transition(
-                with: window,
-                duration: 0.3,
-                options: [.transitionCrossDissolve],
-                animations: {
-                    window.rootViewController = viewController
-                },
-                completion: nil
-            )
-        } else {
-            window.rootViewController = viewController
-        }
-        
-        window.makeKeyAndVisible()
+        guard let windowScene = view.window?.windowScene ?? UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let sceneDelegate = windowScene.delegate as? SceneDelegate else { return }
+        sceneDelegate.switchRootViewController(to: viewController, animated: animated)
     }
 }
