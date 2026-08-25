@@ -54,7 +54,7 @@ final class AccountView: BaseView {
 
     func configure(_ account: AccountEntity) {
         nameRow.updateValue(account.nickname)
-        emailRow.updateValue(account.email)
+        emailRow.updateValue(account.email ?? "이메일 정보 없음")
         socialRow.updateValue(account.socialAccount)
     }
 }

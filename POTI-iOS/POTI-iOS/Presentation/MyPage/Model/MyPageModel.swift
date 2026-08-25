@@ -10,7 +10,7 @@ import Foundation
 struct MyPageModel {
     let userId: Int
     let nickname: String
-    let email: String
+    let email: String?
     let profileImage: String?
     let ratingAverage: Double
     let activityMessage: String

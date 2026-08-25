@@ -7,7 +7,7 @@
 
 struct AccountEntity {
     let nickname: String
-    let email: String
+    let email: String?
     let socialAccount: String
 }
 
