@@ -8,6 +8,9 @@
 final class AppDIContainer {
 
     static let shared = AppDIContainer()
+
+    private lazy var fcmTokenSyncService: FCMTokenSyncService = DefaultFCMTokenSyncService(registerFCMTokenUseCase: makeRegisterFCMTokenUseCase(), deleteFCMTokenUseCase: makeDeleteFCMTokenUseCase(), tokenStore: UserDefaultsFCMTokenStore())
+
     private init() {}
 
     // MARK: - Service
@@ -38,6 +41,10 @@ final class AppDIContainer {
 
     private func makeImageUploadService() -> ImageUploadService {
         DefaultImageUploadService(networkService: makeNetworkService())
+    }
+
+    func makeFCMTokenSyncService() -> FCMTokenSyncService {
+        fcmTokenSyncService
     }
 
     // MARK: - Repository
@@ -90,6 +97,10 @@ final class AppDIContainer {
         DefaultReviewsRepository(networkService: makeNetworkService())
     }
 
+    private func makePushNotificationRepository() -> PushNotificationRepository {
+        DefaultPushNotificationRepository(networkService: makeNetworkService())
+    }
+
     // MARK: - UseCase
 
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -108,6 +119,14 @@ final class AppDIContainer {
         DefaultRefreshTokenUseCase(
             repository: makeAuthRepository()
         )
+    }
+
+    func makeRegisterFCMTokenUseCase() -> RegisterFCMTokenUseCase {
+        DefaultRegisterFCMTokenUseCase(repository: makePushNotificationRepository())
+    }
+
+    func makeDeleteFCMTokenUseCase() -> DeleteFCMTokenUseCase {
+        DefaultDeleteFCMTokenUseCase(repository: makePushNotificationRepository())
     }
 
     private func makeHomeUseCase() -> HomeUseCase {
@@ -221,11 +240,11 @@ final class AppDIContainer {
     // MARK: - ViewModel
 
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
-        LaunchScreenViewModel(refreshTokenUseCase: makeRefreshTokenUseCase())
+        LaunchScreenViewModel(refreshTokenUseCase: makeRefreshTokenUseCase(), fcmTokenSyncService: makeFCMTokenSyncService())
     }
 
     @MainActor func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())
+        LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase(), fcmTokenSyncService: makeFCMTokenSyncService())
     }
 
     @MainActor func makeHomeViewModel() -> HomeViewModel {

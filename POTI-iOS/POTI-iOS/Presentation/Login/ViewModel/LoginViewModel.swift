@@ -40,13 +40,12 @@ final class LoginViewModel: BaseViewModelType {
     
     private let loginUseCase: LoginUseCase
     private let devLoginUseCase: DevLoginUseCase
+    private let fcmTokenSyncService: FCMTokenSyncService
 
-    init(
-        loginUseCase: LoginUseCase,
-        devLoginUseCase: DevLoginUseCase
-    ) {
+    init(loginUseCase: LoginUseCase, devLoginUseCase: DevLoginUseCase, fcmTokenSyncService: FCMTokenSyncService) {
         self.loginUseCase = loginUseCase
         self.devLoginUseCase = devLoginUseCase
+        self.fcmTokenSyncService = fcmTokenSyncService
         self.output = Output(
             navigateToOnboarding: navigateToOnboardingSubject.eraseToAnyPublisher(),
             navigateToHome: navigateToHomeSubject.eraseToAnyPublisher(),
@@ -67,6 +66,7 @@ final class LoginViewModel: BaseViewModelType {
         Task {
             do {
                 let result = try await loginUseCase.execute(socialType: "KAKAO")
+                await fcmTokenSyncService.synchronize(token: nil)
                 if result.isNewUser {
                     navigateToOnboardingSubject.send(())
                 } else {
@@ -83,6 +83,7 @@ final class LoginViewModel: BaseViewModelType {
         Task {
             do {
                 _ = try await devLoginUseCase.execute()
+                await fcmTokenSyncService.synchronize(token: nil)
                 navigateToHomeSubject.send(())
             } catch {
                 PotiLogger.error(error)
@@ -90,4 +91,5 @@ final class LoginViewModel: BaseViewModelType {
             }
         }
     }
+
 }
