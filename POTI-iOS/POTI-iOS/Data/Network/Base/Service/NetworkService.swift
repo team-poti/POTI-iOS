@@ -5,6 +5,7 @@
 //  Created by neon on 1/14/26.
 //
 
+import Foundation
 import Alamofire
 
 final class NetworkService: Sendable {
@@ -42,11 +43,11 @@ final class NetworkService: Sendable {
         : JSONEncoding.default
         
         PotiLogger.network("🌐 [REQUEST]")
-        PotiLogger.network("URL: \(url)")
+        PotiLogger.network("URL: \(NetworkLogSanitizer.url(url))")
         PotiLogger.network("METHOD: \(target.method.rawValue)")
-        PotiLogger.network("HEADER: \(target.headers)")
+        PotiLogger.network("HEADER: \(NetworkLogSanitizer.headers(target.headers))")
         PotiLogger.network("PARAMS: \(parameterType)")
-        PotiLogger.network("DETAIL: \(parameters ?? [:])")
+        PotiLogger.network("DETAIL: \(NetworkLogSanitizer.parameters(parameters))")
         
         let response = await AF.request(
             url,
@@ -72,11 +73,10 @@ final class NetworkService: Sendable {
             }
 
             PotiLogger.network("STATUS : \(http.statusCode)")
-            PotiLogger.network("HEADER : \(http.headers)")
+            PotiLogger.network("HEADER : \(NetworkLogSanitizer.headers(http.headers))")
             
-            if let data = response.data,
-               let jsonString = String(data: data, encoding: .utf8) {
-                PotiLogger.network("BODY : \(jsonString)")
+            if let data = response.data {
+                PotiLogger.network("BODY : \(NetworkLogSanitizer.body(data))")
             }
             
             if (200...299).contains(baseResponse.code) {
@@ -128,8 +128,8 @@ final class NetworkService: Sendable {
             PotiLogger.network("DESCRIPTION : \(http.debugDescription)")
 
             if let data = response.data,
-               let jsonString = String(data: data, encoding: .utf8) {
-                PotiLogger.network("BODY : \(jsonString)")
+               !data.isEmpty {
+                PotiLogger.network("BODY : \(NetworkLogSanitizer.body(data))")
             }
             PotiLogger.network("UNDERLYING ERROR : \(underlyingError)")
             
@@ -154,5 +154,59 @@ final class NetworkService: Sendable {
         default:
             return .apiError(message: message)
         }
+    }
+}
+
+// MARK: - Network Log Sanitizer
+
+private enum NetworkLogSanitizer {
+    private static let maskedValue = "***"
+    private static let sensitiveHeaderNames = ["authorization", "cookie", "set-cookie"]
+
+    static func url(_ url: URL) -> String {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return url.absoluteString }
+
+        components.queryItems = components.queryItems?.map { item in
+            isSensitive(item.name) ? URLQueryItem(name: item.name, value: maskedValue) : item
+        }
+        return components.url?.absoluteString ?? url.absoluteString
+    }
+
+    static func headers(_ headers: HTTPHeaders) -> [String: String] {
+        Dictionary(uniqueKeysWithValues: headers.map { header in
+            let value = sensitiveHeaderNames.contains(header.name.lowercased()) ? maskedValue : header.value
+            return (header.name, value)
+        })
+    }
+
+    static func parameters(_ parameters: Parameters?) -> Any {
+        sanitize(parameters ?? [:])
+    }
+
+    static func body(_ data: Data) -> String {
+        guard let jsonObject = try? JSONSerialization.jsonObject(with: data),
+              let sanitizedData = try? JSONSerialization.data(withJSONObject: sanitize(jsonObject)),
+              let sanitizedBody = String(data: sanitizedData, encoding: .utf8) else {
+            return "<non-JSON body: \(data.count) bytes>"
+        }
+        return sanitizedBody
+    }
+
+    private static func sanitize(_ value: Any) -> Any {
+        if let dictionary = value as? [String: Any] {
+            return dictionary.reduce(into: [String: Any]()) { result, element in
+                result[element.key] = isSensitive(element.key) ? maskedValue : sanitize(element.value)
+            }
+        }
+
+        if let array = value as? [Any] {
+            return array.map(sanitize)
+        }
+
+        return value
+    }
+
+    private static func isSensitive(_ key: String) -> Bool {
+        key.lowercased().contains("token")
     }
 }
