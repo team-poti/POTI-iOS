@@ -12,6 +12,7 @@ import Combine
 
 final class ProfileManagementViewController: BaseViewController<SettingsViewModel>, NavigationConfigurable {
     private let rootView = ProfileManagementView()
+    private var selectedImageData: Data?
 
     func navigationStyle() -> PotiNavigationStyle { .backDefault("내 프로필 관리") }
 
@@ -31,13 +32,49 @@ final class ProfileManagementViewController: BaseViewController<SettingsViewMode
         viewModel.output.error
             .receive(on: DispatchQueue.main)
             .sink { [weak self] message in
-                self?.presentUploadFailureAlert(message: message)
+                self?.rootView.updateSaveButtonState()
+                self?.presentSaveFailureAlert(message: message)
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.completed
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
             }
             .store(in: &cancellables)
     }
 
     override func addTarget() {
         rootView.editImageButton.addTarget(self, action: #selector(editImageTapped), for: .touchUpInside)
+        rootView.saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+        rootView.nicknameField.textField.addTarget(self, action: #selector(nicknameDidChange), for: .editingChanged)
+    }
+
+    @objc private func nicknameDidChange() {
+        rootView.updateSaveButtonState()
+    }
+
+    @objc private func saveTapped() {
+        guard rootView.canSave else { return }
+        rootView.saveButton.setEnabled(false)
+
+        let nickname = rootView.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let selectedImageData {
+            viewModel.action(
+                .updateProfileImage(
+                    nickname: nickname,
+                    imageData: selectedImageData
+                )
+            )
+        } else {
+            viewModel.action(
+                .updateProfile(
+                    nickname: nickname,
+                    profileImageURL: nil
+                )
+            )
+        }
     }
 
     @objc private func editImageTapped() {
@@ -51,10 +88,10 @@ final class ProfileManagementViewController: BaseViewController<SettingsViewMode
         present(picker, animated: true)
     }
 
-    private func presentUploadFailureAlert(message: String) {
+    private func presentSaveFailureAlert(message: String) {
         guard presentedViewController == nil else { return }
         let alert = UIAlertController(
-            title: "프로필 사진을 변경하지 못했어요",
+            title: "프로필을 저장하지 못했어요",
             message: message,
             preferredStyle: .alert
         )
@@ -73,14 +110,9 @@ extension ProfileManagementViewController: PHPickerViewControllerDelegate {
             guard let self, let image = object as? UIImage else { return }
 
             DispatchQueue.main.async {
-                self.rootView.setProfileImage(image)
                 guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
-                self.viewModel.action(
-                    .updateProfileImage(
-                        nickname: self.rootView.nickname,
-                        imageData: imageData
-                    )
-                )
+                self.selectedImageData = imageData
+                self.rootView.setProfileImage(image)
             }
         }
     }

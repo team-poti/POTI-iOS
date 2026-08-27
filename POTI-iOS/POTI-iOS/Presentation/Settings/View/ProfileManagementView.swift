@@ -14,6 +14,7 @@ import Then
 final class ProfileManagementView: BaseView {
     let nicknameField = SettingsFieldView(title: "닉네임", placeholder: "닉네임을 입력하세요")
     let editImageButton = UIButton(type: .system)
+    let saveButton = SettingsActionButton(title: "저장")
     private let profileImageView = UIImageView(image: UIImage(resource: .profilepic))
 
     override func setStyle() {
@@ -29,7 +30,14 @@ final class ProfileManagementView: BaseView {
         }
     }
 
-    override func setUI() { addSubviews(profileImageView, editImageButton, nicknameField) }
+    override func setUI() {
+        addSubviews(
+            profileImageView,
+            editImageButton,
+            nicknameField,
+            saveButton
+        )
+    }
 
     override func setLayout() {
         profileImageView.snp.makeConstraints {
@@ -46,6 +54,10 @@ final class ProfileManagementView: BaseView {
             $0.top.equalTo(profileImageView.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
+        saveButton.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)
+        }
     }
 
     override func layoutSubviews() {
@@ -55,6 +67,7 @@ final class ProfileManagementView: BaseView {
 
     func configure(_ profile: ProfileManagementEntity) {
         nicknameField.textField.text = profile.nickname
+        updateSaveButtonState()
 
         guard let profileImageURL = profile.profileImageURL,
               let url = URL(string: profileImageURL),
@@ -77,5 +90,13 @@ final class ProfileManagementView: BaseView {
 
     var nickname: String {
         nicknameField.textField.text ?? ""
+    }
+
+    var canSave: Bool {
+        !nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    func updateSaveButtonState() {
+        saveButton.setEnabled(canSave)
     }
 }
