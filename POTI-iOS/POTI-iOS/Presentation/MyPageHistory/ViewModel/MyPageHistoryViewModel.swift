@@ -47,6 +47,7 @@ final class MyPageHistoryViewModel: BaseViewModelType {
     enum Input {
         case viewDidLoad
         case switchButtonTapped
+        case typeSelected(MyPageHistoryType)
         case refreshRequested
     }
     
@@ -108,6 +109,11 @@ final class MyPageHistoryViewModel: BaseViewModelType {
         case .switchButtonTapped:
             let newType = currentTypeSubject.value.opposite
             currentTypeSubject.send(newType)
+            fetchData()
+
+        case .typeSelected(let type):
+            guard currentTypeSubject.value != type else { return }
+            currentTypeSubject.send(type)
             fetchData()
             
         case .refreshRequested:

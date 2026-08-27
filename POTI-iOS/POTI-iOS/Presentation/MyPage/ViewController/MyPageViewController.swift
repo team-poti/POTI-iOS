@@ -83,7 +83,11 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
             initialTab = .completed
         }
         
-        let containerVC = factory.makeMyPageHistoryContainerViewController(initialType: historyType, initialTab: initialTab)
+        let containerVC = factory.makeMyPageHistoryContainerViewController(
+            initialType: historyType,
+            initialTab: initialTab,
+            entryPoint: .myPage
+        )
         navigationController?.pushViewController(containerVC, animated: true)
     }
 

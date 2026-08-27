@@ -32,7 +32,11 @@ final class PotiTabBar: UITabBarController {
         let vc1 = UINavigationController(rootViewController: homeVC)
         vc1.tabBarItem = UITabBarItem(title: "홈", image: .icnHome, tag: 1)
         
-        let historyVC = factory.makeMyPageHistoryContainerViewController(initialType: .participation, initialTab: .ongoing)
+        let historyVC = factory.makeMyPageHistoryContainerViewController(
+            initialType: .recruitment,
+            initialTab: .ongoing,
+            entryPoint: .tabBar
+        )
         let vc2 = UINavigationController(rootViewController: historyVC)
         vc2.tabBarItem = UITabBarItem(title: "분철 내역", image: .icnHistory, tag: 2)
         

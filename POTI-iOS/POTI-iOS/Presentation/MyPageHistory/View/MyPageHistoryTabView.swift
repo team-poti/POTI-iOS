@@ -45,11 +45,13 @@ final class MyPageHistoryTabView: BaseView {
         
         ongoingTabButton.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(16)
+            $0.centerY.equalToSuperview()
             $0.height.equalTo(CGFloat.dynamicH(36))
         }
         
         completedTabButton.snp.makeConstraints {
             $0.leading.equalTo(ongoingTabButton.snp.trailing).offset(8)
+            $0.centerY.equalToSuperview()
             $0.height.equalTo(CGFloat.dynamicH(36))
         }
     }

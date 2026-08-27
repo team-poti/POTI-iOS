@@ -24,7 +24,8 @@ protocol ViewControllerFactory {
     func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController
     func makeMyPageHistoryContainerViewController(
         initialType: MyPageHistoryType,
-        initialTab: MyPageHistoryViewController.HistoryTab
+        initialTab: MyPageHistoryViewController.HistoryTab,
+        entryPoint: MyPageHistoryEntryPoint
     ) -> MyPageHistoryContainerViewController
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistSearchViewController() -> ArtistSearchViewController
@@ -152,12 +153,15 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeMyPageHistoryContainerViewController(
         initialType: MyPageHistoryType,
-        initialTab: MyPageHistoryViewController.HistoryTab = .ongoing
+        initialTab: MyPageHistoryViewController.HistoryTab = .ongoing,
+        entryPoint: MyPageHistoryEntryPoint
     ) -> MyPageHistoryContainerViewController {
         MyPageHistoryContainerViewController(
             initialType: initialType,
             initialTab: initialTab,
-            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType), factory: self
+            entryPoint: entryPoint,
+            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType),
+            factory: self
         )
     }
     
