@@ -13,6 +13,10 @@ enum AppConfig {
         try url(forKey: "BASE_URL")
     }
 
+    static func deepLinkHost() throws -> String {
+        try string(forKey: "DEEP_LINK_HOST")
+    }
+
     static func kakaoAppKey() throws -> String {
         try string(forKey: "KAKAO_APP_KEY")
     }

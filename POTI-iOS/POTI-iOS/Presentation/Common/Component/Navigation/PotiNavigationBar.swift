@@ -17,6 +17,7 @@ public enum PotiNavigationStyle {
     case backDefault(String)
     case backSubtitle(title: String, subtitle: String)
     case backWithButton(title: String)
+    case notification
 }
 
 public enum PotiNavigationAction: Int {
@@ -29,9 +30,12 @@ public enum PotiNavigationAction: Int {
 }
 
 struct PotiNavigationBar {
+    private enum IconAlignment {
+        case leading
+        case trailing
+    }
     
     private enum Spacing {
-        static let leftBack: CGFloat = -16
         static let leftLogo: CGFloat = 12
         static let rightButton: CGFloat = 12
         static let leftTitle: CGFloat = 12
@@ -50,82 +54,54 @@ struct PotiNavigationBar {
         
         switch style {
         case .home:
-            navigationItem.leftBarButtonItems = [
-                makeFixedSpace(Spacing.leftLogo),
-                makeHomeLogoTitleView()
-            ]
+            navigationItem.leftBarButtonItems = [makeFixedSpace(Spacing.leftLogo), makeHomeLogoTitleView()]
             
             let searchButton = makeIconButtonView(image: .icnSearch, action: .search, target: target)
             let alarmButton = makeIconButtonView(image: .icnAlarm, action: .alarm, target: target)
                 
-            navigationItem.rightBarButtonItem = makeButtonGroupWithPadding(
-                buttons: [searchButton, alarmButton],
-                spacing: 0,
-                rightPadding: Spacing.rightButton
-            )
+            navigationItem.rightBarButtonItem = makeButtonGroupWithPadding(buttons: [searchButton, alarmButton],
+                                                                           spacing: 0, rightPadding: Spacing.rightButton)
             
         case .mypage:
-            navigationItem.leftBarButtonItems = [
-                makeFixedSpace(Spacing.leftTitle),
-                makeMypageTitleLabel()
-            ]
+            navigationItem.leftBarButtonItems = [makeFixedSpace(Spacing.leftTitle), makeMypageTitleLabel()]
             
             let settingButton = makeIconButtonView(image: .icnSetting, action: .setting, target: target)
             let alarmButton = makeIconButtonView(image: .icnAlarm, action: .alarm, target: target)
                 
-            navigationItem.rightBarButtonItem = makeButtonGroupWithPadding(
-                buttons: [settingButton, alarmButton],
-                spacing: 0,
-                rightPadding: Spacing.rightButton
-            )
+            navigationItem.rightBarButtonItem = makeButtonGroupWithPadding(buttons: [settingButton, alarmButton],
+                                                                           spacing: 0, rightPadding: Spacing.rightButton)
             
         case .xButton:
-            navigationItem.leftBarButtonItem = makeIconButtonWithPadding(
-                image: .icnX,
-                action: .xButton,
-                target: target,
-                leftPadding: Spacing.leftBack
-            )
+            navigationItem.leftBarButtonItem = makeAlignedIconButton(image: .icnX, action: .xButton,
+                                                                     target: target, alignment: .leading)
             
         case .backButton:
-            navigationItem.leftBarButtonItem = makeIconButtonWithPadding(
-                image: .icnArrowLeftLg,
-                action: .back,
-                target: target,
-                leftPadding: Spacing.leftBack
-            )
+            navigationItem.leftBarButtonItem = makeAlignedIconButton(image: .icnArrowLeftLg, action: .back,
+                                                                     target: target, alignment: .leading)
             
         case .backDefault(let title):
             navigationItem.titleView = makeTitleLabel(title)
-            navigationItem.leftBarButtonItem = makeIconButtonWithPadding(
-                image: .icnArrowLeftLg,
-                action: .back,
-                target: target,
-                leftPadding: Spacing.leftBack
-            )
+            navigationItem.leftBarButtonItem = makeAlignedIconButton(image: .icnArrowLeftLg, action: .back,
+                                                                     target: target, alignment: .leading)
             
         case .backSubtitle(title: let title, subtitle: let subtitle):
             navigationItem.titleView = makeTitleSubtitleView(title: title, subtitle: subtitle)
-            navigationItem.leftBarButtonItem = makeIconButtonWithPadding(
-                image: .icnArrowLeftLg,
-                action: .back,
-                target: target,
-                leftPadding: Spacing.leftBack
-            )
+            navigationItem.leftBarButtonItem = makeAlignedIconButton(image: .icnArrowLeftLg, action: .back,
+                                                                     target: target, alignment: .leading)
             
         case .backWithButton(title: let title):
             navigationItem.titleView = makeTitleLabel(title)
-            navigationItem.leftBarButtonItem = makeIconButtonWithPadding(
-                image: .icnArrowLeftLg,
-                action: .back,
-                target: target,
-                leftPadding: Spacing.leftBack
-            )
-            navigationItem.rightBarButtonItem = makeIconButton(
-                image: .icnSwtich,
-                action: .change,
-                target: target
-            )
+            navigationItem.leftBarButtonItem = makeAlignedIconButton(image: .icnArrowLeftLg, action: .back,
+                                                                     target: target, alignment: .leading)
+            navigationItem.rightBarButtonItem = makeAlignedIconButton(image: .icnSwtich,action: .change,
+                                                                      target: target, alignment: .trailing)
+
+        case .notification:
+            navigationItem.titleView = makeTitleLabel("알림")
+            navigationItem.leftBarButtonItem = makeAlignedIconButton(image: .icnArrowLeftLg, action: .back,
+                                                                     target: target, alignment: .leading)
+            navigationItem.rightBarButtonItem = makeAlignedIconButton(image: .icnSetting, action: .setting,
+                                                                      target: target, alignment: .trailing)
         }
         
         let appearance = UINavigationBarAppearance()
@@ -134,6 +110,7 @@ struct PotiNavigationBar {
         appearance.shadowColor = .clear
         
         navigationController?.navigationBar.isTranslucent = false
+        navigationController?.navigationBar.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
         
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.compactAppearance = appearance
@@ -161,11 +138,7 @@ extension PotiNavigationBar {
         return UIBarButtonItem(customView: stackView)
     }
     
-    private static func makeButtonGroupWithPadding(
-        buttons: [UIButton],
-        spacing: CGFloat = 0,
-        rightPadding: CGFloat = 0
-    ) -> UIBarButtonItem {
+    private static func makeButtonGroupWithPadding(buttons: [UIButton], spacing: CGFloat = 0, rightPadding: CGFloat = 0) -> UIBarButtonItem {
         let stackView = UIStackView(arrangedSubviews: buttons)
         stackView.axis = .horizontal
         stackView.spacing = spacing
@@ -237,11 +210,7 @@ extension PotiNavigationBar {
     
     // MARK: - Button
     
-    private static func makeIconButtonView(
-        image: UIImage?,
-        action: PotiNavigationAction,
-        target: (UIViewController & NavigationActionHandling)
-    ) -> UIButton {
+    private static func makeIconButtonView(image: UIImage?, action: PotiNavigationAction, target: (UIViewController & NavigationActionHandling)) -> UIButton {
         let button = UIButton(type: .system)
         button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
         button.imageView?.contentMode = .scaleAspectFit
@@ -255,48 +224,33 @@ extension PotiNavigationBar {
         return button
     }
     
-    private static func makeIconButtonWithPadding(
-        image: UIImage?,
-        action: PotiNavigationAction,
-        target: (UIViewController & NavigationActionHandling),
-        leftPadding: CGFloat = 0
-    ) -> UIBarButtonItem {
+    private static func makeAlignedIconButton(image: UIImage?, action: PotiNavigationAction, target: (UIViewController & NavigationActionHandling), alignment: IconAlignment) -> UIBarButtonItem {
+        let containerView = UIView()
+        let imageView = UIImageView(image: image?.withRenderingMode(.alwaysOriginal))
         let button = UIButton(type: .system)
-        button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
-        button.imageView?.contentMode = .scaleAspectFit
+
+        imageView.contentMode = .scaleAspectFit
         button.tag = action.rawValue
         button.addTarget(target, action: #selector(NavigationActionHandling.navigationButtonTapped(_:)), for: .touchUpInside)
 
-        let containerView = UIView()
-        containerView.clipsToBounds = false
-        containerView.addSubview(button)
-        
-        button.snp.makeConstraints {
-            $0.width.height.equalTo(48)
-            $0.top.bottom.equalToSuperview()
-            
-            if leftPadding < 0 {
-                $0.leading.equalToSuperview().offset(leftPadding)
-                $0.trailing.equalToSuperview().offset(leftPadding)
+        containerView.addSubviews(imageView, button)
+        containerView.snp.makeConstraints {
+            $0.size.equalTo(48)
+        }
+        imageView.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(48)
+
+            if alignment == .leading {
+                $0.leading.equalToSuperview().offset(-12)
             } else {
-                $0.leading.equalToSuperview().offset(leftPadding)
-                $0.trailing.equalToSuperview().offset(leftPadding)
+                $0.trailing.equalToSuperview().offset(12)
             }
         }
-        
-        containerView.snp.makeConstraints {
-            $0.width.equalTo(48)
-            $0.height.equalTo(48)
+        button.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
-        
+
         return UIBarButtonItem(customView: containerView)
-    }
-    
-    private static func makeIconButton(
-        image: UIImage?,
-        action: PotiNavigationAction,
-        target: (UIViewController & NavigationActionHandling)
-    ) -> UIBarButtonItem {
-        return UIBarButtonItem(customView: makeIconButtonView(image: image, action: action, target: target))
     }
 }

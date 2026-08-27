@@ -9,20 +9,34 @@ import UIKit
 
 import KakaoSDKAuth
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    private var deepLinkHandler: DeepLinkHandler?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
-        
+
         let factory = DefaultViewControllerFactory()
-        let splashVC = factory.makeLaunchScreenViewController()
-        window.rootViewController = splashVC
+        configureDeepLinkHandler(with: factory)
+
+        let splashViewController = factory.makeLaunchScreenViewController()
+        window.rootViewController = splashViewController
         self.window = window
         window.makeKeyAndVisible()
+
+        guard let url = connectionOptions.userActivities
+            .first(where: { $0.activityType == NSUserActivityTypeBrowsingWeb })?
+            .webpageURL else { return }
+        handleDeepLink(url)
+    }
+
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let url = userActivity.webpageURL else { return }
+        handleDeepLink(url)
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
@@ -60,7 +74,53 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
-
-
 }
 
+// MARK: - Root Navigation
+
+extension SceneDelegate {
+    func handleDeepLink(_ url: URL) {
+        deepLinkHandler?.handle(url, from: window?.rootViewController)
+    }
+
+    func switchRootViewController(to viewController: UIViewController, animated: Bool = true) {
+        guard let window else {
+            PotiLogger.error(NSError(domain: "윈도우를 찾을 수 없습니다", code: -1))
+            return
+        }
+
+        deepLinkHandler?.executePendingRouteIfNeeded(from: viewController)
+
+        viewController.view.frame = window.bounds
+        viewController.view.layoutIfNeeded()
+
+        let completion: (Bool) -> Void = { [weak self] _ in
+            self?.deepLinkHandler?.executePendingRouteIfNeeded(from: viewController)
+        }
+
+        if animated {
+            UIView.transition(with: window, duration: 0.3, options: [.transitionCrossDissolve], animations: {
+                window.rootViewController = viewController
+            }, completion: completion)
+        } else {
+            window.rootViewController = viewController
+            completion(true)
+        }
+
+        window.makeKeyAndVisible()
+    }
+}
+
+// MARK: - Deep Link
+
+private extension SceneDelegate {
+    func configureDeepLinkHandler(with factory: ViewControllerFactory) {
+        do {
+            let parser = DeepLinkParser(allowedHost: try AppConfig.deepLinkHost())
+            let router = DeepLinkRouter(factory: factory)
+            deepLinkHandler = DeepLinkHandler(parser: parser, router: router)
+        } catch {
+            PotiLogger.error(error)
+        }
+    }
+}

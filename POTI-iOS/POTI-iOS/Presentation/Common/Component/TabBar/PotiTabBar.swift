@@ -29,7 +29,7 @@ final class PotiTabBar: UITabBarController {
     func setTabBar() {
         
         let homeVC = factory.makeHomeViewController()
-        let vc1 = UINavigationController(rootViewController: homeVC)
+        let vc1 = PotiNavigationController(rootViewController: homeVC)
         vc1.tabBarItem = UITabBarItem(title: "홈", image: .icnHome, tag: 1)
         
         let historyVC = factory.makeMyPageHistoryContainerViewController(
@@ -41,7 +41,7 @@ final class PotiTabBar: UITabBarController {
         vc2.tabBarItem = UITabBarItem(title: "분철 내역", image: .icnHistory, tag: 2)
         
         let myPageVC = factory.makeMyPageViewController()
-        let vc3 = UINavigationController(rootViewController: myPageVC)
+        let vc3 = PotiNavigationController(rootViewController: myPageVC)
         vc3.tabBarItem = UITabBarItem(title: "마이페이지", image: .icnMypage, tag: 3)
         
         self.viewControllers = [vc1, vc2, vc3]

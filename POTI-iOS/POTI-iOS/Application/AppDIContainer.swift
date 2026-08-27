@@ -264,6 +264,14 @@ final class AppDIContainer {
         SearchViewModel(searchPostsUseCase: makeSearchPostsUseCase())
     }
 
+    func makeNotificationViewModel() -> NotificationViewModel {
+        NotificationViewModel(notifications: NotificationItem.mockData)
+    }
+
+    func makeNotificationSettingViewModel() -> NotificationSettingViewModel {
+        NotificationSettingViewModel()
+    }
+
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
         PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
     }

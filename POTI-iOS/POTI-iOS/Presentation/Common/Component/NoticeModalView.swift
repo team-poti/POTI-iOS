@@ -65,7 +65,7 @@ final class NoticeModalView: BaseView {
 
     override func setStyle() {
         backgroundView.do {
-            $0.backgroundColor = .black.withAlphaComponent(0.4)
+            $0.backgroundColor = .black.withAlphaComponent(0.6)
         }
 
         containerView.do {
