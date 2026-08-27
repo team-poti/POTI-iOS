@@ -115,7 +115,12 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
         searchViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(searchViewController, animated: true)
     }
-    
+
+    override func alarmButtonTapped() {
+        let notificationViewController = factory.makeNotificationViewController()
+        notificationViewController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(notificationViewController, animated: true)
+    }
 }
 
 // MARK: - UICollectionViewDataSource
