@@ -10,6 +10,8 @@ protocol ViewControllerFactory {
     @MainActor func makeLoginViewController() -> LoginViewController
     func makePotiTabBar() -> PotiTabBar
     func makeHomeViewController() -> HomeViewController
+    func makeNotificationViewController() -> NotificationViewController
+    func makeNotificationSettingViewController() -> NotificationSettingViewController
     func makeSearchViewController() -> SearchViewController
     func makeFeedsViewController(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewController
     func makePotOptionsViewController(postId: Int) -> PotOptionsViewController
@@ -63,6 +65,14 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         HomeViewController(
             viewModel: diContainer.makeHomeViewModel(),factory: self
         )
+    }
+
+    func makeNotificationViewController() -> NotificationViewController {
+        NotificationViewController(viewModel: diContainer.makeNotificationViewModel(), factory: self)
+    }
+
+    func makeNotificationSettingViewController() -> NotificationSettingViewController {
+        NotificationSettingViewController(viewModel: diContainer.makeNotificationSettingViewModel())
     }
 
     func makeSearchViewController() -> SearchViewController {
