@@ -12,7 +12,7 @@ import Combine
 
 final class ProfileManagementViewController: BaseViewController<SettingsViewModel>, NavigationConfigurable {
     private let rootView = ProfileManagementView()
-    private var selectedImageData: Data?
+    private var selectedImage: UploadImageEntity?
 
     func navigationStyle() -> PotiNavigationStyle { .backDefault("내 프로필 관리") }
 
@@ -60,11 +60,11 @@ final class ProfileManagementViewController: BaseViewController<SettingsViewMode
         rootView.saveButton.setEnabled(false)
 
         let nickname = rootView.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let selectedImageData {
+        if let selectedImage {
             viewModel.action(
                 .updateProfileImage(
                     nickname: nickname,
-                    imageData: selectedImageData
+                    image: selectedImage
                 )
             )
         } else {
@@ -111,7 +111,11 @@ extension ProfileManagementViewController: PHPickerViewControllerDelegate {
 
             DispatchQueue.main.async {
                 guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
-                self.selectedImageData = imageData
+                self.selectedImage = UploadImageEntity(
+                    data: imageData,
+                    fileExtension: "jpg",
+                    mimeType: "image/jpeg"
+                )
                 self.rootView.setProfileImage(image)
             }
         }

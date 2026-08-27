@@ -14,7 +14,7 @@ final class SettingsViewModel: BaseViewModelType {
         case fetchProfile
         case fetchAddress
         case updateProfile(nickname: String, profileImageURL: String?)
-        case updateProfileImage(nickname: String, imageData: Data)
+        case updateProfileImage(nickname: String, image: UploadImageEntity)
         case updateAddress(AddressEntity)
         case fetchNotificationSettings
         case updateNotificationSettings(tradeEnabled: Bool, eventEnabled: Bool)
@@ -108,8 +108,8 @@ final class SettingsViewModel: BaseViewModelType {
                 case .updateProfile(let nickname, let profileImageURL):
                     profileSubject.send(try await updateProfileUseCase.execute(nickname: nickname, profileImageURL: profileImageURL))
                     completedSubject.send(())
-                case .updateProfileImage(let nickname, let imageData):
-                    let fileName = try await uploadProfileImageUseCase.execute(imageData: imageData)
+                case .updateProfileImage(let nickname, let image):
+                    let fileName = try await uploadProfileImageUseCase.execute(image: image)
                     _ = try await updateProfileUseCase.execute(nickname: nickname, profileImageURL: fileName)
                     completedSubject.send(())
                 case .updateAddress(let address):
