@@ -9,6 +9,11 @@ import UIKit
 
 import Combine
 
+enum MyPageHistoryEntryPoint {
+    case tabBar
+    case myPage
+}
+
 final class MyPageHistoryContainerViewController: BaseViewController<MyPageHistoryViewModel>, NavigationConfigurable {
     
     func navigationStyle() -> PotiNavigationStyle {
@@ -20,14 +25,24 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
     private var currentChildVC: MyPageHistoryViewController?
     private var currentType: MyPageHistoryType = .participation
     private var initialTab: MyPageHistoryViewController.HistoryTab = .ongoing
-    
+    private let headerView = MyPageHistoryHeaderView()
+    private let entryPoint: MyPageHistoryEntryPoint
     private let factory: ViewControllerFactory
     
-    init(initialType: MyPageHistoryType, initialTab: MyPageHistoryViewController.HistoryTab = .ongoing, viewModel: MyPageHistoryViewModel, factory: ViewControllerFactory) {
+    init(
+        initialType: MyPageHistoryType,
+        initialTab: MyPageHistoryViewController.HistoryTab = .ongoing,
+        entryPoint: MyPageHistoryEntryPoint,
+        viewModel: MyPageHistoryViewModel,
+        factory: ViewControllerFactory
+    ) {
         self.currentType = initialType
         self.initialTab = initialTab
+        self.entryPoint = entryPoint
         self.factory = factory
         super.init(viewModel: viewModel)
+        hidesBottomBarWhenPushed = entryPoint == .myPage
+        headerView.updateSelection(initialType)
     }
         
     required init?(coder: NSCoder) {
@@ -43,15 +58,36 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if let tabBarController = self.tabBarController as? PotiTabBar {
-            tabBarController.tabBar.isHidden = true
-        }
+        navigationController?.setNavigationBarHidden(
+            entryPoint == .tabBar,
+            animated: false
+        )
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if let tabBarController = self.tabBarController as? PotiTabBar {
-            tabBarController.tabBar.isHidden = false
+        if entryPoint == .tabBar {
+            navigationController?.setNavigationBarHidden(false, animated: false)
+        }
+    }
+
+    override func setUI() {
+        guard entryPoint == .tabBar else { return }
+        view.addSubview(headerView)
+    }
+
+    override func setLayout() {
+        guard entryPoint == .tabBar else { return }
+        headerView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(56)
+        }
+    }
+
+    override func addTarget() {
+        headerView.onTypeSelected = { [weak self] type in
+            self?.viewModel.action(.typeSelected(type))
         }
     }
     
@@ -60,6 +96,7 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
             .dropFirst()
             .sink { [weak self] type in
                 self?.currentType = type
+                self?.headerView.updateSelection(type)
                 self?.switchChildViewController()
                 self?.updateNavigationBar()
             }
@@ -67,6 +104,7 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
     }
     
     private func updateNavigationBar() {
+        guard entryPoint == .myPage else { return }
         PotiNavigationBar.configure(
             navigationItem: navigationItem,
             navigationController: navigationController,
@@ -85,8 +123,14 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
         let childVC = MyPageHistoryViewController(viewModel: viewModel, initialTab: initialTab, factory: factory)
         addChild(childVC)
         view.addSubview(childVC.view)
-        childVC.view.frame = view.bounds
-        childVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        childVC.view.snp.makeConstraints {
+            $0.horizontalEdges.bottom.equalToSuperview()
+            if entryPoint == .tabBar {
+                $0.top.equalTo(headerView.snp.bottom)
+            } else {
+                $0.top.equalToSuperview()
+            }
+        }
         childVC.didMove(toParent: self)
         
         currentChildVC = childVC
