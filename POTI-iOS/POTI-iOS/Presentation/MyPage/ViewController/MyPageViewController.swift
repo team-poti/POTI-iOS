@@ -29,6 +29,12 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     override func loadView() {
         self.view = rootView
     }
+
+    override func alarmButtonTapped() {
+        let notificationViewController = factory.makeNotificationViewController()
+        notificationViewController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(notificationViewController, animated: true)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -83,7 +89,11 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
             initialTab = .completed
         }
         
-        let containerVC = factory.makeMyPageHistoryContainerViewController(initialType: historyType, initialTab: initialTab)
+        let containerVC = factory.makeMyPageHistoryContainerViewController(
+            initialType: historyType,
+            initialTab: initialTab,
+            entryPoint: .myPage
+        )
         navigationController?.pushViewController(containerVC, animated: true)
     }
 

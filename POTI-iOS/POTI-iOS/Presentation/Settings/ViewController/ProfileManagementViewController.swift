@@ -12,6 +12,7 @@ import Combine
 
 final class ProfileManagementViewController: BaseViewController<SettingsViewModel>, NavigationConfigurable {
     private let rootView = ProfileManagementView()
+    private var selectedImage: UploadImageEntity?
 
     func navigationStyle() -> PotiNavigationStyle { .backDefault("내 프로필 관리") }
 
@@ -28,16 +29,52 @@ final class ProfileManagementViewController: BaseViewController<SettingsViewMode
             .sink { [weak self] in self?.rootView.configure($0) }
             .store(in: &cancellables)
 
-        viewModel.output.error
+        viewModel.output.profileError
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] message in
-                self?.presentUploadFailureAlert(message: message)
+            .sink { [weak self] error in
+                self?.rootView.updateSaveButtonState()
+                self?.presentProfileErrorAlert(error)
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.completed
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
             }
             .store(in: &cancellables)
     }
 
     override func addTarget() {
         rootView.editImageButton.addTarget(self, action: #selector(editImageTapped), for: .touchUpInside)
+        rootView.saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+        rootView.nicknameField.textField.addTarget(self, action: #selector(nicknameDidChange), for: .editingChanged)
+    }
+
+    @objc private func nicknameDidChange() {
+        rootView.updateSaveButtonState()
+    }
+
+    @objc private func saveTapped() {
+        guard rootView.canSave else { return }
+        rootView.saveButton.setEnabled(false)
+
+        let nickname = rootView.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let selectedImage {
+            viewModel.action(
+                .updateProfileImage(
+                    nickname: nickname,
+                    image: selectedImage
+                )
+            )
+        } else {
+            viewModel.action(
+                .updateProfile(
+                    nickname: nickname,
+                    profileImageURL: nil
+                )
+            )
+        }
     }
 
     @objc private func editImageTapped() {
@@ -51,10 +88,23 @@ final class ProfileManagementViewController: BaseViewController<SettingsViewMode
         present(picker, animated: true)
     }
 
-    private func presentUploadFailureAlert(message: String) {
+    private func presentProfileErrorAlert(_ error: SettingsViewModel.ProfileError) {
         guard presentedViewController == nil else { return }
+
+        let title: String
+        let message: String
+
+        switch error {
+        case .fetch(let errorMessage):
+            title = "프로필 정보를 불러오지 못했어요"
+            message = errorMessage
+        case .update(let errorMessage):
+            title = "프로필을 저장하지 못했어요"
+            message = errorMessage
+        }
+
         let alert = UIAlertController(
-            title: "프로필 사진을 변경하지 못했어요",
+            title: title,
             message: message,
             preferredStyle: .alert
         )
@@ -73,14 +123,13 @@ extension ProfileManagementViewController: PHPickerViewControllerDelegate {
             guard let self, let image = object as? UIImage else { return }
 
             DispatchQueue.main.async {
-                self.rootView.setProfileImage(image)
                 guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
-                self.viewModel.action(
-                    .updateProfileImage(
-                        nickname: self.rootView.nickname,
-                        imageData: imageData
-                    )
+                self.selectedImage = UploadImageEntity(
+                    data: imageData,
+                    fileExtension: "jpg",
+                    mimeType: "image/jpeg"
                 )
+                self.rootView.setProfileImage(image)
             }
         }
     }

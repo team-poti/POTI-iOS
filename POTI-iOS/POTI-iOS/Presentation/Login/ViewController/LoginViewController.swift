@@ -78,7 +78,7 @@ private extension LoginViewController {
         let onboardingVC = factory.makeOnboardingViewController()
         
         if navigationController == nil {
-            let navController = UINavigationController(rootViewController: onboardingVC)
+            let navController = PotiNavigationController(rootViewController: onboardingVC)
             navController.modalPresentationStyle = .fullScreen
             present(navController, animated: true)
         } else {

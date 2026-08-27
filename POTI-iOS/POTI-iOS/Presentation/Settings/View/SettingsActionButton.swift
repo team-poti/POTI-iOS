@@ -30,6 +30,6 @@ final class SettingsActionButton: UIButton {
 
     func setEnabled(_ enabled: Bool) {
         isEnabled = enabled
-        backgroundColor = enabled ? .gray900 : .gray700
+        backgroundColor = enabled ? .potiBlack : .gray700
     }
 }

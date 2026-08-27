@@ -8,7 +8,7 @@
 import Foundation
 
 protocol UploadProfileImageUseCase {
-    func execute(imageData: Data) async throws -> String
+    func execute(image: UploadImageEntity) async throws -> String
 }
 
 final class DefaultUploadProfileImageUseCase: UploadProfileImageUseCase {
@@ -18,12 +18,14 @@ final class DefaultUploadProfileImageUseCase: UploadProfileImageUseCase {
         self.repository = repository
     }
 
-    func execute(imageData: Data) async throws -> String {
-        let presignedUpload = try await repository.fetchProfilePresignedUpload(fileExtension: "jpg")
+    func execute(image: UploadImageEntity) async throws -> String {
+        let presignedUpload = try await repository.fetchProfilePresignedUpload(
+            fileExtension: image.fileExtension
+        )
         try await repository.uploadImage(
-            data: imageData,
+            data: image.data,
             to: presignedUpload.uploadURL,
-            mimeType: "image/jpeg"
+            mimeType: image.mimeType
         )
         return presignedUpload.filePath
     }

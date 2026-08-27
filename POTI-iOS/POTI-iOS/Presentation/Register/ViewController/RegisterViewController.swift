@@ -307,7 +307,7 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
             searchViewController.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(searchViewController, animated: true)
         } else {
-            present(UINavigationController(rootViewController: searchViewController), animated: true)
+            present(PotiNavigationController(rootViewController: searchViewController), animated: true)
         }
     }
 
