@@ -15,6 +15,7 @@ final class LoginViewController: BaseViewController<LoginViewModel> {
     
     private let rootView = LoginView()
     private let factory: ViewControllerFactory
+    private weak var loginErrorAlert: UIAlertController?
     
     init(viewModel: LoginViewModel, factory: ViewControllerFactory) {
         self.factory = factory
@@ -93,11 +94,37 @@ private extension LoginViewController {
     }
 
     private func presentLoginError(_ error: Error) {
-        guard presentedViewController == nil else { return }
+        guard loginErrorAlert == nil else { return }
+
         let message = (error as? LocalizedError)?.errorDescription
         ?? "로그인에 실패했습니다. 잠시 후 다시 시도해주세요."
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
-        present(alert, animated: true)
+        loginErrorAlert = alert
+        presentLoginErrorAlert(alert)
+    }
+
+    private func presentLoginErrorAlert(_ alert: UIAlertController) {
+        guard loginErrorAlert === alert else { return }
+
+        let presenter = topMostPresentedViewController(from: self)
+        guard let transitionCoordinator = presenter.transitionCoordinator else {
+            presenter.present(alert, animated: true)
+            return
+        }
+
+        transitionCoordinator.animate(alongsideTransition: nil) { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.presentLoginErrorAlert(alert)
+            }
+        }
+    }
+
+    private func topMostPresentedViewController(from viewController: UIViewController) -> UIViewController {
+        guard let presentedViewController = viewController.presentedViewController else {
+            return viewController
+        }
+
+        return topMostPresentedViewController(from: presentedViewController)
     }
 }
