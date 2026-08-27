@@ -5,8 +5,13 @@
 //  Created by 김나연 on 1/10/26.
 //
 
+enum SocialLoginType {
+    case kakao
+    case apple
+}
+
 protocol LoginUseCase {
-    func execute(socialType: String) async throws -> LoginResponseEntity
+    func execute(type: SocialLoginType) async throws -> LoginResponseEntity
 }
 
 final class DefaultLoginUseCase: LoginUseCase {
@@ -17,7 +22,12 @@ final class DefaultLoginUseCase: LoginUseCase {
         self.repository = repository
     }
 
-    func execute(socialType: String) async throws -> LoginResponseEntity {
-        return try await repository.kakaoLogin()
+    func execute(type: SocialLoginType) async throws -> LoginResponseEntity {
+        switch type {
+        case .kakao:
+            return try await repository.kakaoLogin()
+        case .apple:
+            return try await repository.appleLogin()
+        }
     }
 }

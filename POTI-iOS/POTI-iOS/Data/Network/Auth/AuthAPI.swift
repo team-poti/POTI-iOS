@@ -8,7 +8,7 @@
 import Alamofire
 
 enum AuthAPI: BaseTargetType {
-    case login(socialType: String, token: String)
+    case login(socialType: String, token: String, name: String?)
     case reissue(refreshToken: String)
     case devLogin
     case logout(fcmToken: String?)
@@ -42,11 +42,15 @@ enum AuthAPI: BaseTargetType {
 
     var bodyParameters: Parameters? {
         switch self {
-        case .login(let socialType, let provider):
-            return [
+        case .login(let socialType, let token, let name):
+            var parameters: Parameters = [
                 "socialType": socialType,
-                "token": provider
+                "token": token
             ]
+            if let name, !name.isEmpty {
+                parameters["name"] = name
+            }
+            return parameters
         case .reissue(let refreshToken):
             return [
                 "refreshToken": refreshToken

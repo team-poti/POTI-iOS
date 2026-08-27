@@ -7,7 +7,7 @@
 
 struct AccountResponseDTO: Decodable {
     let nickname: String
-    let email: String
+    let email: String?
     let socialType: String
 
     func toEntity() -> AccountEntity {
