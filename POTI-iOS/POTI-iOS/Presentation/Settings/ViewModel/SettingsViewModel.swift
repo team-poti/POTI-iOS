@@ -9,6 +9,11 @@ import Combine
 import Foundation
 
 final class SettingsViewModel: BaseViewModelType {
+    enum ProfileError {
+        case fetch(String)
+        case update(String)
+    }
+
     enum Input {
         case fetchAccount
         case fetchProfile
@@ -32,6 +37,7 @@ final class SettingsViewModel: BaseViewModelType {
         let completed: AnyPublisher<Void, Never>
         let logoutCompleted: AnyPublisher<Void, Never>
         let withdrawalCompleted: AnyPublisher<Void, Never>
+        let profileError: AnyPublisher<ProfileError, Never>
         let error: AnyPublisher<String, Never>
     }
 
@@ -45,6 +51,7 @@ final class SettingsViewModel: BaseViewModelType {
     private let completedSubject = PassthroughSubject<Void, Never>()
     private let logoutCompletedSubject = PassthroughSubject<Void, Never>()
     private let withdrawalCompletedSubject = PassthroughSubject<Void, Never>()
+    private let profileErrorSubject = PassthroughSubject<ProfileError, Never>()
     private let errorSubject = PassthroughSubject<String, Never>()
     private let getAccountUseCase: GetAccountUseCase
     private let getProfileUseCase: GetProfileUseCase
@@ -91,6 +98,7 @@ final class SettingsViewModel: BaseViewModelType {
             completed: completedSubject.eraseToAnyPublisher(),
             logoutCompleted: logoutCompletedSubject.eraseToAnyPublisher(),
             withdrawalCompleted: withdrawalCompletedSubject.eraseToAnyPublisher(),
+            profileError: profileErrorSubject.eraseToAnyPublisher(),
             error: errorSubject.eraseToAnyPublisher()
         )
     }
@@ -134,7 +142,16 @@ final class SettingsViewModel: BaseViewModelType {
                     logoutCompletedSubject.send(())
                 }
             } catch {
-                errorSubject.send("요청을 처리하지 못했습니다.")
+                let message = "요청을 처리하지 못했습니다."
+
+                switch trigger {
+                case .fetchProfile:
+                    profileErrorSubject.send(.fetch(message))
+                case .updateProfile, .updateProfileImage:
+                    profileErrorSubject.send(.update(message))
+                default:
+                    errorSubject.send(message)
+                }
             }
         }
     }

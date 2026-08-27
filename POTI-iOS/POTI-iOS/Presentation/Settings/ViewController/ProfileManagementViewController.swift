@@ -29,11 +29,11 @@ final class ProfileManagementViewController: BaseViewController<SettingsViewMode
             .sink { [weak self] in self?.rootView.configure($0) }
             .store(in: &cancellables)
 
-        viewModel.output.error
+        viewModel.output.profileError
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] message in
+            .sink { [weak self] error in
                 self?.rootView.updateSaveButtonState()
-                self?.presentSaveFailureAlert(message: message)
+                self?.presentProfileErrorAlert(error)
             }
             .store(in: &cancellables)
 
@@ -88,10 +88,23 @@ final class ProfileManagementViewController: BaseViewController<SettingsViewMode
         present(picker, animated: true)
     }
 
-    private func presentSaveFailureAlert(message: String) {
+    private func presentProfileErrorAlert(_ error: SettingsViewModel.ProfileError) {
         guard presentedViewController == nil else { return }
+
+        let title: String
+        let message: String
+
+        switch error {
+        case .fetch(let errorMessage):
+            title = "프로필 정보를 불러오지 못했어요"
+            message = errorMessage
+        case .update(let errorMessage):
+            title = "프로필을 저장하지 못했어요"
+            message = errorMessage
+        }
+
         let alert = UIAlertController(
-            title: "프로필을 저장하지 못했어요",
+            title: title,
             message: message,
             preferredStyle: .alert
         )
