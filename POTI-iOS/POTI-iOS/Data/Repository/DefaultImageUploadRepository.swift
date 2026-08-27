@@ -22,7 +22,9 @@ final class DefaultImageUploadRepository: ImageUploadInterface {
     func fetchProfilePresignedUpload(fileExtension: String) async throws -> PresignedUploadEntity {
         let response = try await imageUploadService.fetchProfilePresignedUpload(fileExtension: fileExtension)
         guard let presignedUpload = try response.toEntity().first else {
-            throw PotiError.invalidPresignedUrl
+            let error = PotiError.invalidPresignedUrl
+            PotiLogger.error(error)
+            throw error
         }
         return presignedUpload
     }
