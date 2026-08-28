@@ -26,11 +26,35 @@ final class DefaultAuthRepository: AuthInterface {
     func kakaoLogin() async throws -> LoginResponseEntity {
         let kakaoToken = try await authService.kakaoRequest()
         let result = try await tokenRefreshNetworkService.request(
-            target: AuthAPI.login(socialType: "KAKAO", token: kakaoToken), type: LoginResponseDTO.self
-            )
+            target: AuthAPI.login(
+                socialType: "KAKAO",
+                token: kakaoToken,
+                name: nil
+            ),
+            type: LoginResponseDTO.self
+        )
         
         KeychainManager.saveTokens(accessToken: result.accessToken, refreshToken: result.refreshToken)
         
+        return result.toLoginResponseEntity()
+    }
+
+    func appleLogin() async throws -> LoginResponseEntity {
+        let credential = try await authService.appleRequest()
+        let result = try await tokenRefreshNetworkService.request(
+            target: AuthAPI.login(
+                socialType: "APPLE",
+                token: credential.identityToken,
+                name: credential.name
+            ),
+            type: LoginResponseDTO.self
+        )
+
+        KeychainManager.saveTokens(
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken
+        )
+
         return result.toLoginResponseEntity()
     }
     
@@ -63,10 +87,21 @@ final class DefaultAuthRepository: AuthInterface {
         PotiLogger.debug("Keychain 저장 및 검증 완료")
     }
     
-    func withDraw() async throws {
-        try await networkService.request(target: AuthAPI.withdrawalUser, type: EmptyResponse.self
+    func withdraw(reason: String) async throws {
+        _ = try await networkService.request(
+            target: AuthAPI.withdrawalUser(reason: reason),
+            type: EmptyResponse.self
         )
+        KeychainManager.deleteAllTokens()
+    }
+
+    func logout() async throws {
+        _ = try await networkService.request(
+            target: AuthAPI.logout(fcmToken: nil),
+            type: EmptyResponse.self
+        )
+        KeychainManager.deleteAllTokens()
     }
 }
 
-struct EmptyResponse: Decodable {}
+struct EmptyResponse: Decodable, EmptyResponseInitializable {}

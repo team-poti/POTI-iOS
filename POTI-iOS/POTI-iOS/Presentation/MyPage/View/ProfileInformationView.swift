@@ -22,7 +22,7 @@ final class ProfileInformationView: BaseView {
     let idolButton = ChooseFavoriteIdolButton()
     
     private let nickname: String
-    private let email: String
+    private let email: String?
     private let profileImageURL: String?
     
     private let ratingAverage: Double
@@ -30,7 +30,7 @@ final class ProfileInformationView: BaseView {
     private let hasFavoriteArtist: Bool
     private let favoriteArtistName: String?
     
-    init(nickname: String, email: String, profileImageURL: String?, ratingAverage: Double, hasFavoriteArtist: Bool, favoriteArtistName: String?) {
+    init(nickname: String, email: String?, profileImageURL: String?, ratingAverage: Double, hasFavoriteArtist: Bool, favoriteArtistName: String?) {
         self.nickname = nickname
         self.email = email
         self.profileImageURL = profileImageURL
@@ -111,9 +111,10 @@ final class ProfileInformationView: BaseView {
 }
 
 extension ProfileInformationView {
-    func configure(nickname: String, email: String, profileImageURL: String?, ratingAverage: Double, hasFavoriteArtist: Bool, favoriteArtistName: String?) {
+    func configure(nickname: String, email: String?, profileImageURL: String?, ratingAverage: Double, hasFavoriteArtist: Bool, favoriteArtistName: String?) {
         nickNameLabel.text = nickname
         emailLabel.text = email
+        emailLabel.isHidden = email?.isEmpty != false
         if let imageURL = profileImageURL,
            let url = URL(string: imageURL) {
             
