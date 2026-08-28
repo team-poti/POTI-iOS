@@ -8,7 +8,7 @@
 struct YourPageResponseDTO: Decodable {
     let userId: Int
     let nickname: String
-    let email: String
+    let email: String?
     let profileImageUrl: String?
     let ratingAvg: Double
     let activityMessage: String

@@ -39,9 +39,9 @@ final class RowView: UIView {
         }
 
         valueStackView.do {
-            $0.axis = .horizontal
+            $0.axis = .vertical
             $0.spacing = 8
-            $0.alignment = .center
+            $0.alignment = .leading
         }
     }
 
@@ -51,14 +51,15 @@ final class RowView: UIView {
 
     private func setLayout() {
         titleLabel.snp.makeConstraints {
-            $0.leading.top.bottom.equalToSuperview()
+            $0.leading.top.equalToSuperview()
+            $0.bottom.lessThanOrEqualToSuperview()
             $0.width.equalTo(77)
         }
 
         valueStackView.snp.makeConstraints {
             $0.leading.equalTo(titleLabel.snp.trailing).offset(12)
             $0.trailing.lessThanOrEqualToSuperview()
-            $0.centerY.equalTo(titleLabel)
+            $0.verticalEdges.equalToSuperview()
         }
     }
 
@@ -75,14 +76,18 @@ final class RowView: UIView {
         titleLabel.text = title
         valueStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
-        for (index, value) in values.enumerated() {
-            let label = createValueLabel(with: value)
-            valueStackView.addArrangedSubview(label)
+        values.chunked(into: 2).forEach { rowValues in
+            let rowStackView = createRowStackView()
 
-            if index < values.count - 1 {
-                let divider = createVerticalDivider()
-                valueStackView.addArrangedSubview(divider)
+            for (index, value) in rowValues.enumerated() {
+                rowStackView.addArrangedSubview(createValueLabel(with: value))
+
+                if index < rowValues.count - 1 {
+                    rowStackView.addArrangedSubview(createVerticalDivider())
+                }
             }
+
+            valueStackView.addArrangedSubview(rowStackView)
         }
     }
 
@@ -101,6 +106,20 @@ final class RowView: UIView {
         }
     }
 
+    private func createRowStackView() -> UIStackView {
+        let stackView = UIStackView().then {
+            $0.axis = .horizontal
+            $0.spacing = 8
+            $0.alignment = .center
+        }
+
+        stackView.snp.makeConstraints {
+            $0.height.equalTo(21)
+        }
+
+        return stackView
+    }
+
     private func createVerticalDivider() -> UIView {
         return UIView().then {
             $0.backgroundColor = .gray800
@@ -110,6 +129,14 @@ final class RowView: UIView {
                 make.width.equalTo(1)
                 make.height.equalTo(21)
             }
+        }
+    }
+}
+
+private extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        stride(from: 0, to: count, by: size).map {
+            Array(self[$0..<Swift.min($0 + size, count)])
         }
     }
 }

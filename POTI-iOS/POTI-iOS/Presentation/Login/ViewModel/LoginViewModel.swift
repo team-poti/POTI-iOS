@@ -13,7 +13,7 @@ final class LoginViewModel: BaseViewModelType {
     
     enum Input {
         case kakaoLoginTap
-        case devLoginTap
+        case appleLoginTap
     }
 
     // MARK: - Output
@@ -24,11 +24,6 @@ final class LoginViewModel: BaseViewModelType {
         let loginFailure: AnyPublisher<Error, Never>
     }
     
-    enum LoginSuccessType {
-        case kakao
-        case dev
-    }
-
     private(set) var output: Output
     
     // MARK: - Subjects
@@ -56,13 +51,13 @@ final class LoginViewModel: BaseViewModelType {
     func action(_ trigger: Input) {
         switch trigger {
         case .kakaoLoginTap:
-            kakaoLogin()
-        case .devLoginTap:
-            devLogin()
+            login(type: .kakao)
+        case .appleLoginTap:
+            login(type: .apple)
         }
     }
     
-    private func kakaoLogin() {
+    private func login(type: SocialLoginType) {
         Task {
             do {
                 let result = try await loginUseCase.execute(socialType: "KAKAO")
@@ -73,6 +68,7 @@ final class LoginViewModel: BaseViewModelType {
                     navigateToHomeSubject.send(())
                 }
             } catch {
+                guard !(error is CancellationError) else { return }
                 PotiLogger.error(error)
                 loginFailureSubject.send(error)
             }

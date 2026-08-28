@@ -9,5 +9,6 @@ import Foundation
 
 protocol ImageUploadInterface {
     func fetchPresignedUploads(fileExtensions: [String]) async throws -> [PresignedUploadEntity]
+    func fetchProfilePresignedUpload(fileExtension: String) async throws -> PresignedUploadEntity
     func uploadImage(data: Data, to url: URL, mimeType: String) async throws
 }

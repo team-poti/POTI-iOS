@@ -8,6 +8,10 @@
 import Foundation
 import Alamofire
 
+protocol EmptyResponseInitializable {
+    init()
+}
+
 final class NetworkService: Sendable {
     
     private let interceptor: AuthInterceptor?
@@ -83,8 +87,8 @@ final class NetworkService: Sendable {
                 if let data = baseResponse.data {
                     return data
                 } else {
-                    if T.self == EmptyResponse.self {
-                        return EmptyResponse() as! T
+                    if let emptyType = T.self as? EmptyResponseInitializable.Type {
+                        return emptyType.init() as! T
                     } else {
                         let error = PotiError.decodingError
                         PotiLogger.error(error)

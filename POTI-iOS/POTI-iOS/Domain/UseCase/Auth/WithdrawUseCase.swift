@@ -6,7 +6,7 @@
 //
 
 protocol WithdrawUseCase {
-    func execute() async throws -> Void
+    func execute(reason: String) async throws
 }
 
 final class DefaultWithdrawUseCase: WithdrawUseCase {
@@ -16,7 +16,7 @@ final class DefaultWithdrawUseCase: WithdrawUseCase {
         self.repository = repository
     }
     
-    func execute() async throws {
-        try await repository.withDraw()
+    func execute(reason: String) async throws {
+        try await repository.withdraw(reason: reason)
     }
 }

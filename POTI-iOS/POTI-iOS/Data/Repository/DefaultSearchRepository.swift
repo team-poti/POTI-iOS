@@ -5,7 +5,7 @@
 //  Created by soomin on 8/17/26.
 //
 
-final class DefaultSearchRepository: SearchRepository {
+final class DefaultSearchRepository: SearchInterface {
     private let networkService: NetworkService
 
     init(networkService: NetworkService) {

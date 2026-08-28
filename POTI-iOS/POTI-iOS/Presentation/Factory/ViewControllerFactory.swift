@@ -5,11 +5,15 @@
 //  Created by neon on 1/15/26.
 //
 
+@MainActor
 protocol ViewControllerFactory {
     func makeLaunchScreenViewController() -> LaunchScreenViewController
     @MainActor func makeLoginViewController() -> LoginViewController
     func makePotiTabBar() -> PotiTabBar
+    func makePushNotificationPermissionCoordinator() -> PushNotificationPermissionCoordinator
     func makeHomeViewController() -> HomeViewController
+    func makeNotificationViewController() -> NotificationViewController
+    func makeNotificationSettingViewController() -> NotificationSettingViewController
     func makeSearchViewController() -> SearchViewController
     func makeFeedsViewController(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewController
     func makePotOptionsViewController(postId: Int) -> PotOptionsViewController
@@ -23,7 +27,8 @@ protocol ViewControllerFactory {
     func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController
     func makeMyPageHistoryContainerViewController(
         initialType: MyPageHistoryType,
-        initialTab: MyPageHistoryViewController.HistoryTab
+        initialTab: MyPageHistoryViewController.HistoryTab,
+        entryPoint: MyPageHistoryEntryPoint
     ) -> MyPageHistoryContainerViewController
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistSearchViewController() -> ArtistSearchViewController
@@ -33,11 +38,24 @@ protocol ViewControllerFactory {
     func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
     func makePotOrderViewController(postId: Int, shippingId: Int, orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int),memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewController
     func makeYourPageViewController(userId: Int) -> YourPageViewController
+    @MainActor func makeSettingsViewController() -> SettingsViewController
+    @MainActor func makeAccountViewController(viewModel: SettingsViewModel) -> AccountViewController
+    @MainActor func makeProfileManagementViewController(viewModel: SettingsViewModel) -> ProfileManagementViewController
+    @MainActor func makeAddressManagementViewController(viewModel: SettingsViewModel) -> AddressManagementViewController
+    @MainActor func makePostcodeSearchViewController(
+        onSelect: @escaping (String, String) -> Void
+    ) -> PostcodeSearchViewController
+    @MainActor func makeWithdrawalViewController(viewModel: SettingsViewModel) -> WithdrawalViewController
     func makeReviewUseCase() -> ReviewUseCase
 }
 
+@MainActor
 final class DefaultViewControllerFactory: ViewControllerFactory {
     private let diContainer: AppDIContainer
+    private let pushNotificationPermissionService: PushNotificationPermissionService = DefaultPushNotificationPermissionService()
+    private lazy var notificationSettingViewModel = diContainer.makeNotificationSettingViewModel()
+    private lazy var pushNotificationPermissionCoordinator = PushNotificationPermissionCoordinator(viewModel: notificationSettingViewModel,
+                                                                                                    permissionService: pushNotificationPermissionService)
     
     init(diContainer: AppDIContainer = .shared) {
         self.diContainer = diContainer
@@ -58,11 +76,24 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makePotiTabBar() -> PotiTabBar {
         PotiTabBar(factory: self)
     }
+
+    func makePushNotificationPermissionCoordinator() -> PushNotificationPermissionCoordinator {
+        pushNotificationPermissionCoordinator
+    }
     
     @MainActor func makeHomeViewController() -> HomeViewController {
         HomeViewController(
             viewModel: diContainer.makeHomeViewModel(),factory: self
         )
+    }
+
+    func makeNotificationViewController() -> NotificationViewController {
+        NotificationViewController(viewModel: diContainer.makeNotificationViewModel(), factory: self)
+    }
+
+    func makeNotificationSettingViewController() -> NotificationSettingViewController {
+        NotificationSettingViewController(viewModel: notificationSettingViewModel,
+                                          pushNotificationPermissionCoordinator: makePushNotificationPermissionCoordinator())
     }
 
     func makeSearchViewController() -> SearchViewController {
@@ -142,12 +173,15 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeMyPageHistoryContainerViewController(
         initialType: MyPageHistoryType,
-        initialTab: MyPageHistoryViewController.HistoryTab = .ongoing
+        initialTab: MyPageHistoryViewController.HistoryTab = .ongoing,
+        entryPoint: MyPageHistoryEntryPoint
     ) -> MyPageHistoryContainerViewController {
         MyPageHistoryContainerViewController(
             initialType: initialType,
             initialTab: initialTab,
-            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType), factory: self
+            entryPoint: entryPoint,
+            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType),
+            factory: self
         )
     }
     
@@ -161,6 +195,41 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     
     func makeYourPageViewController(userId: Int) -> YourPageViewController {
         YourPageViewController(viewModel: diContainer.makeYourPageViewModel(userId: userId))
+    }
+
+    @MainActor func makeSettingsViewController() -> SettingsViewController {
+        SettingsViewController(
+            viewModel: diContainer.makeSettingsViewModel(),
+            factory: self
+        )
+    }
+
+    @MainActor func makeAccountViewController(viewModel: SettingsViewModel) -> AccountViewController {
+        AccountViewController(viewModel: viewModel, factory: self)
+    }
+
+    @MainActor func makeProfileManagementViewController(
+        viewModel: SettingsViewModel
+    ) -> ProfileManagementViewController {
+        ProfileManagementViewController(viewModel: viewModel)
+    }
+
+    @MainActor func makeAddressManagementViewController(
+        viewModel: SettingsViewModel
+    ) -> AddressManagementViewController {
+        AddressManagementViewController(viewModel: viewModel, factory: self)
+    }
+
+    @MainActor func makePostcodeSearchViewController(
+        onSelect: @escaping (String, String) -> Void
+    ) -> PostcodeSearchViewController {
+        PostcodeSearchViewController(onSelect: onSelect)
+    }
+
+    @MainActor func makeWithdrawalViewController(
+        viewModel: SettingsViewModel
+    ) -> WithdrawalViewController {
+        WithdrawalViewController(viewModel: viewModel, factory: self)
     }
     
     func makeReviewUseCase() -> ReviewUseCase {

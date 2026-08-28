@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class MockSearchRepository: SearchRepository {
+final class MockSearchRepository: SearchInterface {
     private let results: [SearchResultEntity]
     private let suggestions: [SearchSuggestionEntity]
 

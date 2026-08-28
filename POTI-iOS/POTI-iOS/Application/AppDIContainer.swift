@@ -6,7 +6,6 @@
 //
 
 final class AppDIContainer {
-
     static let shared = AppDIContainer()
 
     private lazy var fcmTokenSyncService: FCMTokenSyncService = DefaultFCMTokenSyncService(registerFCMTokenUseCase: makeRegisterFCMTokenUseCase(), deleteFCMTokenUseCase: makeDeleteFCMTokenUseCase(), tokenStore: UserDefaultsFCMTokenStore())
@@ -57,8 +56,12 @@ final class AppDIContainer {
         DefaultPostRepository(networkService: makeNetworkService())
     }
 
-    private func makeSearchRepository() -> SearchRepository {
+    private func makeSearchRepository() -> SearchInterface {
         DefaultSearchRepository(networkService: makeNetworkService())
+    }
+
+    private func makeNotificationRepository() -> NotificationInterface {
+        DefaultNotificationRepository(networkService: makeNetworkService())
     }
 
     private func makeArtistsRepository() -> ArtistsInterface {
@@ -95,6 +98,10 @@ final class AppDIContainer {
 
     private func makeCreateReviewsRepository() -> ReviewsInterface {
         DefaultReviewsRepository(networkService: makeNetworkService())
+    }
+
+    private func makeSettingsRepository() -> SettingsInterface {
+        DefaultSettingsRepository(networkService: makeNetworkService())
     }
 
     private func makePushNotificationRepository() -> PushNotificationRepository {
@@ -151,6 +158,26 @@ final class AppDIContainer {
 
     private func makeSearchPostsUseCase() -> SearchPostsUseCase {
         DefaultSearchPostsUseCase(repository: makeSearchRepository())
+    }
+
+    private func makeFetchNotificationsUseCase() -> FetchNotificationsUseCase {
+        DefaultFetchNotificationsUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeReadNotificationUseCase() -> ReadNotificationUseCase {
+        DefaultReadNotificationUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeReadAllNotificationsUseCase() -> ReadAllNotificationsUseCase {
+        DefaultReadAllNotificationsUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeFetchNotificationSettingsUseCase() -> FetchNotificationSettingsUseCase {
+        DefaultFetchNotificationSettingsUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeUpdateNotificationSettingsUseCase() -> UpdateNotificationSettingsUseCase {
+        DefaultUpdateNotificationSettingsUseCase(repository: makeNotificationRepository())
     }
 
     private func makeApplyParticipationUseCase() -> ApplyParticipationUseCase {
@@ -237,6 +264,26 @@ final class AppDIContainer {
         DefaultReviewUseCase(repository: makeCreateReviewsRepository())
     }
 
+    @MainActor private func makeWithdrawUseCase() -> WithdrawUseCase {
+        DefaultWithdrawUseCase(repository: makeAuthRepository())
+    }
+
+    @MainActor private func makeLogoutUseCase() -> LogoutUseCase {
+        DefaultLogoutUseCase(repository: makeAuthRepository())
+    }
+
+    private func makeGetAccountUseCase(repository: SettingsInterface) -> GetAccountUseCase { DefaultGetAccountUseCase(repository: repository) }
+    private func makeGetProfileUseCase(repository: SettingsInterface) -> GetProfileUseCase { DefaultGetProfileUseCase(repository: repository) }
+    private func makeUpdateProfileUseCase(repository: SettingsInterface) -> UpdateProfileUseCase { DefaultUpdateProfileUseCase(repository: repository) }
+    private func makeUploadProfileImageUseCase() -> UploadProfileImageUseCase {
+        DefaultUploadProfileImageUseCase(repository: makeImageUploadRepository())
+    }
+    private func makeGetAddressUseCase(repository: SettingsInterface) -> GetAddressUseCase { DefaultGetAddressUseCase(repository: repository) }
+    private func makeUpdateAddressUseCase(repository: SettingsInterface) -> UpdateAddressUseCase { DefaultUpdateAddressUseCase(repository: repository) }
+    private func makeGetNotificationSettingsUseCase(repository: SettingsInterface) -> GetNotificationSettingsUseCase { DefaultGetNotificationSettingsUseCase(repository: repository) }
+    private func makeUpdateNotificationSettingsUseCase(repository: SettingsInterface) -> UpdateNotificationSettingsUseCase { DefaultUpdateNotificationSettingsUseCase(repository: repository) }
+    private func makeSettingsAccountActionUseCase(repository: SettingsInterface) -> SettingsAccountActionUseCase { DefaultSettingsAccountActionUseCase(repository: repository) }
+
     // MARK: - ViewModel
 
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
@@ -257,6 +304,17 @@ final class AppDIContainer {
 
     func makeSearchViewModel() -> SearchViewModel {
         SearchViewModel(searchPostsUseCase: makeSearchPostsUseCase())
+    }
+
+    func makeNotificationViewModel() -> NotificationViewModel {
+        NotificationViewModel(fetchNotificationsUseCase: makeFetchNotificationsUseCase(),
+                              readNotificationUseCase: makeReadNotificationUseCase(),
+                              readAllNotificationsUseCase: makeReadAllNotificationsUseCase())
+    }
+
+    func makeNotificationSettingViewModel() -> NotificationSettingViewModel {
+        NotificationSettingViewModel(fetchNotificationSettingsUseCase: makeFetchNotificationSettingsUseCase(),
+                                     updateNotificationSettingsUseCase: makeUpdateNotificationSettingsUseCase())
     }
 
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
@@ -336,6 +394,23 @@ final class AppDIContainer {
     func makeYourPageViewModel(userId: Int) -> YourPageViewModel {
         YourPageViewModel(
             userId: userId, getYourPageInformationUseCase: makeGetYourPageInformationUseCase()
+        )
+    }
+
+    @MainActor func makeSettingsViewModel() -> SettingsViewModel {
+        let repository = makeSettingsRepository()
+        return SettingsViewModel(
+            getAccountUseCase: makeGetAccountUseCase(repository: repository),
+            getProfileUseCase: makeGetProfileUseCase(repository: repository),
+            updateProfileUseCase: makeUpdateProfileUseCase(repository: repository),
+            uploadProfileImageUseCase: makeUploadProfileImageUseCase(),
+            getAddressUseCase: makeGetAddressUseCase(repository: repository),
+            updateAddressUseCase: makeUpdateAddressUseCase(repository: repository),
+            getNotificationSettingsUseCase: makeGetNotificationSettingsUseCase(repository: repository),
+            updateNotificationSettingsUseCase: makeUpdateNotificationSettingsUseCase(repository: repository),
+            accountActionUseCase: makeSettingsAccountActionUseCase(repository: repository),
+            withdrawUseCase: makeWithdrawUseCase(),
+            logoutUseCase: makeLogoutUseCase()
         )
     }
 }

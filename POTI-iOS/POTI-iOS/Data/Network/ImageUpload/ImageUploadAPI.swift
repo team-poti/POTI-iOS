@@ -9,6 +9,7 @@ import Alamofire
 
 enum ImageUploadAPI: BaseTargetType {
     case fetchPostPresignedUploads(fileExtensions: [String])
+    case fetchProfilePresignedUpload(fileExtension: String)
 
     var path: String {
         "/api/v1/images/presigned-url"
@@ -22,6 +23,8 @@ enum ImageUploadAPI: BaseTargetType {
         switch self {
         case let .fetchPostPresignedUploads(fileExtensions):
             return ["type": "POST", "extensions": fileExtensions.joined(separator: ",")]
+        case let .fetchProfilePresignedUpload(fileExtension):
+            return ["type": "PROFILE", "extensions": fileExtension]
         }
     }
 }

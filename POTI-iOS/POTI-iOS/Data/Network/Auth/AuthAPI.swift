@@ -8,10 +8,11 @@
 import Alamofire
 
 enum AuthAPI: BaseTargetType {
-    case login(socialType: String, token: String)
+    case login(socialType: String, token: String, name: String?)
     case reissue(refreshToken: String)
     case devLogin
-    case withdrawalUser
+    case logout(fcmToken: String?)
+    case withdrawalUser(reason: String)
 
     var path: String {
         switch self {
@@ -21,6 +22,8 @@ enum AuthAPI: BaseTargetType {
             return "/api/v1/auth/reissue"
         case .devLogin:
             return "/dev/login"
+        case .logout:
+            return "/api/v1/auth/logout"
         case .withdrawalUser:
             return "/api/v1/auth/withdrawal"
         }
@@ -28,7 +31,7 @@ enum AuthAPI: BaseTargetType {
 
     var method: HTTPMethod {
         switch self {
-        case .login, .reissue:
+        case .login, .reissue, .logout:
             return .post
         case .devLogin:
             return .get
@@ -39,16 +42,25 @@ enum AuthAPI: BaseTargetType {
 
     var bodyParameters: Parameters? {
         switch self {
-        case .login(let socialType, let provider):
-            return [
+        case .login(let socialType, let token, let name):
+            var parameters: Parameters = [
                 "socialType": socialType,
-                "token": provider
+                "token": token
             ]
+            if let name, !name.isEmpty {
+                parameters["name"] = name
+            }
+            return parameters
         case .reissue(let refreshToken):
             return [
                 "refreshToken": refreshToken
             ]
-        case .devLogin, .withdrawalUser:
+        case .logout(let fcmToken):
+            guard let fcmToken else { return [:] }
+            return ["fcmToken": fcmToken]
+        case .withdrawalUser(let reason):
+            return ["reason": reason]
+        case .devLogin:
             return nil
         }
     }

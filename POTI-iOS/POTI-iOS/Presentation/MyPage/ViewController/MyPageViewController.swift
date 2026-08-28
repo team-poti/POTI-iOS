@@ -29,10 +29,20 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     override func loadView() {
         self.view = rootView
     }
+
+    override func alarmButtonTapped() {
+        let notificationViewController = factory.makeNotificationViewController()
+        notificationViewController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(notificationViewController, animated: true)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .gray100
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         viewModel.action(.viewDidLoad)
     }
     
@@ -47,8 +57,8 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         
         viewModel.output.error
             .receive(on: DispatchQueue.main)
-            .sink { message in
-                print(message)
+            .sink { [weak self] message in
+                self?.presentLoadFailureAlert(message: message)
             }
             .store(in: &cancellables)
     }
@@ -79,7 +89,11 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
             initialTab = .completed
         }
         
-        let containerVC = factory.makeMyPageHistoryContainerViewController(initialType: historyType, initialTab: initialTab)
+        let containerVC = factory.makeMyPageHistoryContainerViewController(
+            initialType: historyType,
+            initialTab: initialTab,
+            entryPoint: .myPage
+        )
         navigationController?.pushViewController(containerVC, animated: true)
     }
 
@@ -92,6 +106,27 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
             self?.viewModel.action(.viewDidLoad)
         }
         navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    override func settingButtonTapped() {
+        let viewController = factory.makeSettingsViewController()
+        viewController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    private func presentLoadFailureAlert(message: String) {
+        guard presentedViewController == nil else { return }
+
+        let alert = UIAlertController(
+            title: "마이페이지를 불러오지 못했어요",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "다시 시도", style: .default) { [weak self] _ in
+            self?.viewModel.action(.viewDidLoad)
+        })
+        present(alert, animated: true)
     }
 }
 
