@@ -164,7 +164,7 @@ final class AppDIContainer {
         DefaultFetchNotificationsUseCase(repository: makeNotificationRepository())
     }
 
-    private func makeReadNotificationUseCase() -> ReadNotificationUseCase {
+    func makeReadNotificationUseCase() -> ReadNotificationUseCase {
         DefaultReadNotificationUseCase(repository: makeNotificationRepository())
     }
 
@@ -280,8 +280,6 @@ final class AppDIContainer {
     }
     private func makeGetAddressUseCase(repository: SettingsInterface) -> GetAddressUseCase { DefaultGetAddressUseCase(repository: repository) }
     private func makeUpdateAddressUseCase(repository: SettingsInterface) -> UpdateAddressUseCase { DefaultUpdateAddressUseCase(repository: repository) }
-    private func makeGetNotificationSettingsUseCase(repository: SettingsInterface) -> GetNotificationSettingsUseCase { DefaultGetNotificationSettingsUseCase(repository: repository) }
-    private func makeUpdateNotificationSettingsUseCase(repository: SettingsInterface) -> UpdateNotificationSettingsUseCase { DefaultUpdateNotificationSettingsUseCase(repository: repository) }
     private func makeSettingsAccountActionUseCase(repository: SettingsInterface) -> SettingsAccountActionUseCase { DefaultSettingsAccountActionUseCase(repository: repository) }
 
     // MARK: - ViewModel
@@ -406,11 +404,10 @@ final class AppDIContainer {
             uploadProfileImageUseCase: makeUploadProfileImageUseCase(),
             getAddressUseCase: makeGetAddressUseCase(repository: repository),
             updateAddressUseCase: makeUpdateAddressUseCase(repository: repository),
-            getNotificationSettingsUseCase: makeGetNotificationSettingsUseCase(repository: repository),
-            updateNotificationSettingsUseCase: makeUpdateNotificationSettingsUseCase(repository: repository),
             accountActionUseCase: makeSettingsAccountActionUseCase(repository: repository),
             withdrawUseCase: makeWithdrawUseCase(),
-            logoutUseCase: makeLogoutUseCase()
+            logoutUseCase: makeLogoutUseCase(),
+            fcmTokenSyncService: makeFCMTokenSyncService()
         )
     }
 }

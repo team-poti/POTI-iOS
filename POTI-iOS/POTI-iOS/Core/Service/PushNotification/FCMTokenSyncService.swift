@@ -43,7 +43,6 @@ final class DefaultFCMTokenSyncService: FCMTokenSyncService {
         }
     }
 
-    // TODO: 로그아웃/회원탈퇴 기능 구현 시 인증 정보 삭제 전에 호출하기
     func deleteToken() async {
         guard let token = tokenStore.token else { return }
 
