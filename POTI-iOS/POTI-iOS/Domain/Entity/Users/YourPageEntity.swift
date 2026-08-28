@@ -8,36 +8,33 @@
 struct YourPageEntity: Decodable {
     let userId: Int
     let nickname: String
-    let email: String?
     let profileImageUrl: String?
     let ratingAvg: Double
     let activityMessage: String
     let joinedAt: String
-    let hasFavoriteArtist: Bool
-    let recruitSummary: YourPageRecruitSummaryEntity
+    let participationSummary: YourPageSummaryEntity
+    let recruitSummary: YourPageSummaryEntity
     
     func toModel() -> YourPageModel {
         return .init(
             userId: userId,
             nickname: nickname,
-            email: email,
             profileImage: profileImageUrl,
             ratingAverage: ratingAvg,
             activityMessage: activityMessage,
             joinedDate: joinedAt,
+            participationSummary: participationSummary.toModel(),
             recruitSummary: recruitSummary.toModel()
         )
     }
 }
 
-struct YourPageRecruitSummaryEntity: Decodable {
-    let total: Int
+struct YourPageSummaryEntity: Decodable {
     let inProgress: Int
     let completed: Int
     
-    func toModel() -> RecruitSummary {
-        return RecruitSummary(
-            totalCount: total,
+    func toModel() -> YourPageSummary {
+        return YourPageSummary(
             inProgressCount: inProgress,
             completedCount: completed
         )
