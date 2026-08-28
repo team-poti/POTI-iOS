@@ -60,7 +60,7 @@ final class LoginViewModel: BaseViewModelType {
     private func login(type: SocialLoginType) {
         Task {
             do {
-                let result = try await loginUseCase.execute(socialType: "KAKAO")
+                let result = try await loginUseCase.execute(type: type)
                 await fcmTokenSyncService.synchronize(token: nil)
                 if result.isNewUser {
                     navigateToOnboardingSubject.send(())
