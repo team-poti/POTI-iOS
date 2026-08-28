@@ -52,4 +52,29 @@ extension String {
         formatter.dateFormat = "yyyy-MM-dd H:mm"
         return formatter.string(from: date)
     }
+
+    func toRelativeTime(now: Date = Date()) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        guard let date = formatter.date(from: self) else { return "" }
+        let elapsedSeconds = max(0, Int(now.timeIntervalSince(date)))
+
+        switch elapsedSeconds {
+        case ..<60:
+            return "방금 전"
+        case ..<3600:
+            return "\(elapsedSeconds / 60)분 전"
+        case ..<86400:
+            return "\(elapsedSeconds / 3600)시간 전"
+        case ..<604800:
+            return "\(elapsedSeconds / 86400)일 전"
+        default:
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MM.dd"
+            dateFormatter.locale = Locale(identifier: "ko_KR")
+            dateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+            return dateFormatter.string(from: date)
+        }
+    }
 }
