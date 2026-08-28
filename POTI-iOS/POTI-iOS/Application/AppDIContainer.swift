@@ -6,7 +6,6 @@
 //
 
 final class AppDIContainer {
-
     static let shared = AppDIContainer()
     private init() {}
 
@@ -50,8 +49,12 @@ final class AppDIContainer {
         DefaultPostRepository(networkService: makeNetworkService())
     }
 
-    private func makeSearchRepository() -> SearchRepository {
+    private func makeSearchRepository() -> SearchInterface {
         DefaultSearchRepository(networkService: makeNetworkService())
+    }
+
+    private func makeNotificationRepository() -> NotificationInterface {
+        DefaultNotificationRepository(networkService: makeNetworkService())
     }
 
     private func makeArtistsRepository() -> ArtistsInterface {
@@ -132,6 +135,26 @@ final class AppDIContainer {
 
     private func makeSearchPostsUseCase() -> SearchPostsUseCase {
         DefaultSearchPostsUseCase(repository: makeSearchRepository())
+    }
+
+    private func makeFetchNotificationsUseCase() -> FetchNotificationsUseCase {
+        DefaultFetchNotificationsUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeReadNotificationUseCase() -> ReadNotificationUseCase {
+        DefaultReadNotificationUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeReadAllNotificationsUseCase() -> ReadAllNotificationsUseCase {
+        DefaultReadAllNotificationsUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeFetchNotificationSettingsUseCase() -> FetchNotificationSettingsUseCase {
+        DefaultFetchNotificationSettingsUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeUpdateNotificationSettingsUseCase() -> UpdateNotificationSettingsUseCase {
+        DefaultUpdateNotificationSettingsUseCase(repository: makeNotificationRepository())
     }
 
     private func makeApplyParticipationUseCase() -> ApplyParticipationUseCase {
@@ -241,11 +264,14 @@ final class AppDIContainer {
     }
 
     func makeNotificationViewModel() -> NotificationViewModel {
-        NotificationViewModel(notifications: NotificationItem.mockData)
+        NotificationViewModel(fetchNotificationsUseCase: makeFetchNotificationsUseCase(),
+                              readNotificationUseCase: makeReadNotificationUseCase(),
+                              readAllNotificationsUseCase: makeReadAllNotificationsUseCase())
     }
 
     func makeNotificationSettingViewModel() -> NotificationSettingViewModel {
-        NotificationSettingViewModel()
+        NotificationSettingViewModel(fetchNotificationSettingsUseCase: makeFetchNotificationSettingsUseCase(),
+                                     updateNotificationSettingsUseCase: makeUpdateNotificationSettingsUseCase())
     }
 
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {

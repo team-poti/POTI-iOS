@@ -9,6 +9,7 @@ protocol ViewControllerFactory {
     func makeLaunchScreenViewController() -> LaunchScreenViewController
     @MainActor func makeLoginViewController() -> LoginViewController
     func makePotiTabBar() -> PotiTabBar
+    func makePushNotificationPermissionCoordinator() -> PushNotificationPermissionCoordinator
     func makeHomeViewController() -> HomeViewController
     func makeNotificationViewController() -> NotificationViewController
     func makeNotificationSettingViewController() -> NotificationSettingViewController
@@ -40,6 +41,10 @@ protocol ViewControllerFactory {
 
 final class DefaultViewControllerFactory: ViewControllerFactory {
     private let diContainer: AppDIContainer
+    private let pushNotificationPermissionService: PushNotificationPermissionService = DefaultPushNotificationPermissionService()
+    private lazy var notificationSettingViewModel = diContainer.makeNotificationSettingViewModel()
+    private lazy var pushNotificationPermissionCoordinator = PushNotificationPermissionCoordinator(viewModel: notificationSettingViewModel,
+                                                                                                    permissionService: pushNotificationPermissionService)
     
     init(diContainer: AppDIContainer = .shared) {
         self.diContainer = diContainer
@@ -60,6 +65,10 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     func makePotiTabBar() -> PotiTabBar {
         PotiTabBar(factory: self)
     }
+
+    func makePushNotificationPermissionCoordinator() -> PushNotificationPermissionCoordinator {
+        pushNotificationPermissionCoordinator
+    }
     
     @MainActor func makeHomeViewController() -> HomeViewController {
         HomeViewController(
@@ -72,7 +81,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
 
     func makeNotificationSettingViewController() -> NotificationSettingViewController {
-        NotificationSettingViewController(viewModel: diContainer.makeNotificationSettingViewModel())
+        NotificationSettingViewController(viewModel: notificationSettingViewModel,
+                                          pushNotificationPermissionCoordinator: makePushNotificationPermissionCoordinator())
     }
 
     func makeSearchViewController() -> SearchViewController {
