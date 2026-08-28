@@ -11,16 +11,14 @@ struct PushNotificationPayload {
 
     // MARK: - Properties
 
-    let title: String?
-    let body: String?
     let deepLink: URL?
+    let notificationId: Int?
 
     // MARK: - Initializer
 
     init(userInfo: [AnyHashable: Any]) {
-        title = Self.nonEmptyString(userInfo["title"])
-        body = Self.nonEmptyString(userInfo["body"])
         deepLink = Self.nonEmptyString(userInfo["deeplink"]).flatMap(URL.init(string:))
+        notificationId = Self.intValue(userInfo["notificationId"])
     }
 
     // MARK: - Private Methods
@@ -30,5 +28,13 @@ struct PushNotificationPayload {
 
         let trimmedString = string.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedString.isEmpty ? nil : trimmedString
+    }
+
+    private static func intValue(_ value: Any?) -> Int? {
+        if let number = value as? NSNumber {
+            return number.intValue
+        }
+
+        return nonEmptyString(value).flatMap(Int.init)
     }
 }

@@ -15,21 +15,19 @@ final class PushNotificationService: NSObject {
     // MARK: - Properties
 
     var onFCMTokenUpdated: ((String) -> Void)?
-    var onDeepLinkReceived: ((URL) -> Void)?
+    var onNotificationOpened: ((PushNotificationPayload) -> Void)?
 
     // MARK: - Public Methods
 
     func configure(_ application: UIApplication) {
-        UNUserNotificationCenter.current().delegate = self
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.delegate = self
         Messaging.messaging().delegate = self
 
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { isGranted, error in
-            if let error {
-                PotiLogger.error(error)
-                return
-            }
-
-            guard isGranted else { return }
+        notificationCenter.getNotificationSettings { settings in
+            guard settings.authorizationStatus == .authorized ||
+                    settings.authorizationStatus == .provisional ||
+                    settings.authorizationStatus == .ephemeral else { return }
             DispatchQueue.main.async {
                 application.registerForRemoteNotifications()
             }
@@ -42,35 +40,6 @@ final class PushNotificationService: NSObject {
 
     func handleAPNsRegistrationFailure(_ error: Error) {
         PotiLogger.error(error)
-    }
-
-    // TODO: 서버에서 APNs alert 페이로드로 반영해주면 로컬 알림 생성 로직과 함께 제거
-    func handleRemoteNotification(_ userInfo: [AnyHashable: Any], completion: @escaping (UIBackgroundFetchResult) -> Void) {
-        let payload = PushNotificationPayload(userInfo: userInfo)
-        
-        guard let title = payload.title,
-              let body = payload.body else {
-            completion(.noData)
-            return
-        }
-
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = body
-        content.sound = .default
-        content.userInfo = userInfo
-
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
-
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error {
-                PotiLogger.error(error)
-                completion(.failed)
-                return
-            }
-
-            completion(.newData)
-        }
     }
 }
 
@@ -94,7 +63,6 @@ extension PushNotificationService: UNUserNotificationCenterDelegate {
         defer { completionHandler() }
 
         let payload = PushNotificationPayload(userInfo: response.notification.request.content.userInfo)
-        guard let deepLink = payload.deepLink else { return }
-        onDeepLinkReceived?(deepLink)
+        onNotificationOpened?(payload)
     }
 }

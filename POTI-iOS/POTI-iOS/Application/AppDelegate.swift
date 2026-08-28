@@ -55,11 +55,11 @@ private extension AppDelegate {
             }
         }
 
-        pushNotificationService.onDeepLinkReceived = { [weak application] url in
+        pushNotificationService.onNotificationOpened = { [weak application] payload in
             let sceneDelegate = application?.connectedScenes
                 .compactMap { $0.delegate as? SceneDelegate }
                 .first
-            sceneDelegate?.handleDeepLink(url)
+            sceneDelegate?.handlePushNotification(payload)
         }
 
         pushNotificationService.configure(application)
@@ -75,11 +75,5 @@ extension AppDelegate {
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         pushNotificationService.handleAPNsRegistrationFailure(error)
-    }
-
-    // TODO: 서버가 APNs alert 페이로드 반영해주면 data-only 수신 처리와 함께 제거
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        pushNotificationService.handleRemoteNotification(userInfo, completion: completionHandler)
     }
 }
