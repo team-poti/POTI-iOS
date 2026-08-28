@@ -15,6 +15,7 @@ final class NotificationViewController: BaseViewController<NotificationViewModel
 
     private let rootView = NotificationView()
     private let factory: ViewControllerFactory
+    private lazy var deepLinkRouter = DeepLinkRouter(factory: factory)
 
     // MARK: - Initializer
 
@@ -59,11 +60,29 @@ final class NotificationViewController: BaseViewController<NotificationViewModel
                 rootView.notificationTableView.reloadData()
             }
             .store(in: &cancellables)
+
+        viewModel.output.deepLink
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.openDeepLink($0) }
+            .store(in: &cancellables)
     }
 
     override func settingButtonTapped() {
         let notificationSettingViewController = factory.makeNotificationSettingViewController()
         navigationController?.pushViewController(notificationSettingViewController, animated: true)
+    }
+
+    // MARK: - Private Method
+
+    private func openDeepLink(_ deepLink: String) {
+        do {
+            guard let url = URL(string: deepLink) else { return }
+            let parser = DeepLinkParser(allowedHost: try AppConfig.deepLinkHost())
+            guard let route = parser.parse(url) else { return }
+            deepLinkRouter.route(to: route, from: view.window?.rootViewController)
+        } catch {
+            PotiLogger.error(error)
+        }
     }
     
     // MARK: - Public Method
@@ -102,5 +121,11 @@ extension NotificationViewController: UITableViewDataSource {
 extension NotificationViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.action(.didTapNotification(index: indexPath.row))
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let threshold = scrollView.contentSize.height - scrollView.bounds.height - 100
+        guard scrollView.contentOffset.y > threshold else { return }
+        viewModel.action(.loadNextPage)
     }
 }
