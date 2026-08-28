@@ -304,13 +304,13 @@ final class AppDIContainer {
         SearchViewModel(searchPostsUseCase: makeSearchPostsUseCase())
     }
 
-    func makeNotificationViewModel() -> NotificationViewModel {
+    @MainActor func makeNotificationViewModel() -> NotificationViewModel {
         NotificationViewModel(fetchNotificationsUseCase: makeFetchNotificationsUseCase(),
                               readNotificationUseCase: makeReadNotificationUseCase(),
                               readAllNotificationsUseCase: makeReadAllNotificationsUseCase())
     }
 
-    func makeNotificationSettingViewModel() -> NotificationSettingViewModel {
+    @MainActor func makeNotificationSettingViewModel() -> NotificationSettingViewModel {
         NotificationSettingViewModel(fetchNotificationSettingsUseCase: makeFetchNotificationSettingsUseCase(),
                                      updateNotificationSettingsUseCase: makeUpdateNotificationSettingsUseCase())
     }

@@ -60,7 +60,9 @@ final class PushNotificationPermissionCoordinator {
             self?.requestSystemPermission()
         }
         modalView.onTapLater = { [weak self] in
-            self?.viewModel.action(.setAllNotifications(isEnabled: false))
+            Task { @MainActor in
+                self?.viewModel.action(.setAllNotifications(isEnabled: false))
+            }
         }
         modalView.show(in: view)
     }

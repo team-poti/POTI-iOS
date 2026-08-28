@@ -54,10 +54,26 @@ extension String {
     }
 
     func toRelativeTime(now: Date = Date()) -> String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let fractionalSecondsFormatter = ISO8601DateFormatter()
+        fractionalSecondsFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
-        guard let date = formatter.date(from: self) else { return "" }
+        let defaultFormatter = ISO8601DateFormatter()
+        defaultFormatter.formatOptions = [.withInternetDateTime]
+
+        let localDateFormatter = DateFormatter()
+        localDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        localDateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        localDateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+
+        let localDateWithoutFractionalSecondsFormatter = DateFormatter()
+        localDateWithoutFractionalSecondsFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        localDateWithoutFractionalSecondsFormatter.locale = Locale(identifier: "en_US_POSIX")
+        localDateWithoutFractionalSecondsFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+
+        guard let date = fractionalSecondsFormatter.date(from: self)
+                ?? defaultFormatter.date(from: self)
+                ?? localDateFormatter.date(from: self)
+                ?? localDateWithoutFractionalSecondsFormatter.date(from: self) else { return "" }
         let elapsedSeconds = max(0, Int(now.timeIntervalSince(date)))
 
         switch elapsedSeconds {

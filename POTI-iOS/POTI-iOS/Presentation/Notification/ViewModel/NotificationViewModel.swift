@@ -7,7 +7,8 @@
 
 import Combine
 
-final class NotificationViewModel: BaseViewModelType {
+@MainActor
+final class NotificationViewModel: @MainActor BaseViewModelType {
 
     // MARK: - Input
 

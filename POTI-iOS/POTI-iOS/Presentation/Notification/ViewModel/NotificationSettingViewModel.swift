@@ -7,7 +7,8 @@
 
 import Combine
 
-final class NotificationSettingViewModel: BaseViewModelType {
+@MainActor
+final class NotificationSettingViewModel: @MainActor BaseViewModelType {
 
     // MARK: - Input
 
@@ -29,6 +30,7 @@ final class NotificationSettingViewModel: BaseViewModelType {
     private let fetchNotificationSettingsUseCase: FetchNotificationSettingsUseCase
     private let updateNotificationSettingsUseCase: UpdateNotificationSettingsUseCase
     private var isUpdating = false
+    private var latestRequestID = 0
 
     private(set) var isTradeNotificationOn = false
     private(set) var isEventNotificationOn = false
@@ -65,11 +67,14 @@ final class NotificationSettingViewModel: BaseViewModelType {
     // MARK: - Private Methods
 
     private func fetchSettings() {
+        let requestID = makeRequestID()
+
         Task { [weak self] in
             guard let self else { return }
 
             do {
                 let settings = try await fetchNotificationSettingsUseCase.execute()
+                guard requestID == latestRequestID else { return }
                 apply(settings)
             } catch {
                 PotiLogger.error(error)
@@ -83,6 +88,7 @@ final class NotificationSettingViewModel: BaseViewModelType {
             return
         }
         isUpdating = true
+        let requestID = makeRequestID()
 
         Task { [weak self] in
             guard let self else { return }
@@ -91,12 +97,20 @@ final class NotificationSettingViewModel: BaseViewModelType {
             do {
                 let settings = try await updateNotificationSettingsUseCase.execute(tradeNotificationEnabled: tradeNotificationEnabled,
                                                                                    eventNotificationEnabled: eventNotificationEnabled)
+                guard requestID == latestRequestID else { return }
                 apply(settings)
             } catch {
-                reloadDataSubject.send(())
+                if requestID == latestRequestID {
+                    reloadDataSubject.send(())
+                }
                 PotiLogger.error(error)
             }
         }
+    }
+
+    private func makeRequestID() -> Int {
+        latestRequestID += 1
+        return latestRequestID
     }
 
     private func apply(_ settings: NotificationSettingsEntity) {

@@ -299,14 +299,15 @@ final class RegisterViewModel: BaseViewModelType {
         sendMemberSettingState()
         sendShippingSettingState()
         guard !errors.hasError, let selectedArtist else { return }
+        let productTitle = formState.productType
 
         Task { [weak self] in
             guard let self else { return }
             do {
                 let imagePaths = try await uploadImages()
-                let entity = makeRegisterPostEntity(artistId: selectedArtist.id, imagePaths: imagePaths)
+                let entity = makeRegisterPostEntity(artistId: selectedArtist.id, productTitle: productTitle, imagePaths: imagePaths)
                 let response = try await registerPostUseCase.execute(entity)
-                let completion = ProductRegistrationCompletion(postId: response.postId, productTitle: self.formState.productType,
+                let completion = ProductRegistrationCompletion(postId: response.postId, productTitle: productTitle,
                                                                artistId: selectedArtist.id, artistName: selectedArtist.name)
                 await MainActor.run { self.registrationCompletedSubject.send(completion) }
             } catch {
@@ -351,9 +352,9 @@ final class RegisterViewModel: BaseViewModelType {
         try await uploadPostImagesUseCase.execute(images: optimizedImagesSubject.value.map { $0.toUploadImageEntity() })
     }
 
-    private func makeRegisterPostEntity(artistId: Int, imagePaths: [String]) -> RegisterPostEntity {
+    private func makeRegisterPostEntity(artistId: Int, productTitle: String, imagePaths: [String]) -> RegisterPostEntity {
         RegisterPostEntity(
-            artistId: artistId, title: formState.productType, content: formState.description,
+            artistId: artistId, title: productTitle, content: formState.description,
             deadline: formState.deadline?.toYMDString() ?? "", bankName: formState.bank, accountNumber: formState.accountNumber,
             imageUrls: imagePaths, options: makeMemberOptions(), shippings: makeShippingEntities()
         )
