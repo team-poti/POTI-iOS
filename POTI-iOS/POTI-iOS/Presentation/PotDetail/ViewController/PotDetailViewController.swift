@@ -125,6 +125,34 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
         let yourProfileViewController = factory.makeYourPageViewController(userId: viewModel.potDetailModel?.uploader.userId ?? -1)
         self.navigationController?.pushViewController(yourProfileViewController, animated: true)
     }
+
+    private func showShareBottomSheet() {
+        guard let model = viewModel.potDetailModel,
+              let host = try? AppConfig.deepLinkHost(),
+              let shareURL = makeShareURL(host: host) else { return }
+
+        let content = ShareBottomSheetContent(image: model.images.first ?? "", artist: model.artist, title: model.title,
+                                              description: model.content, participantCount: model.currentCount, totalCount: model.totalCount,
+                                              availableMembers: viewModel.availableMembers, unavailableMembers: orderedUniqueMembers(from: model),
+                                              host: "https://\(host)", potID: viewModel.postId, deepLink: shareURL)
+        let viewController = ShareBottomSheetViewController(content: content)
+        present(viewController, animated: false)
+    }
+
+    private func makeShareURL(host: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = host
+        components.path = "/pot/\(viewModel.postId)"
+        return components.url
+    }
+
+    private func orderedUniqueMembers(from model: PotDetailModel) -> [String] {
+        var seenMembers = Set<String>()
+        return model.participants
+            .flatMap(\.selectedMembers)
+            .filter { seenMembers.insert($0).inserted }
+    }
 }
 
 // MARK: - UICollectionViewDataSource, UICollectionViewDelegate
@@ -194,6 +222,9 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
 
         if kind == UICollectionView.elementKindSectionFooter {
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailSubContentFooterView.identifier, for: indexPath) as! DetailSubContentFooterView
+            footer.onShare = { [weak self] in
+                self?.showShareBottomSheet()
+            }
             return footer
         }
 

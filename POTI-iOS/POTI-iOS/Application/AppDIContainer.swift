@@ -273,7 +273,7 @@ final class AppDIContainer {
     }
 
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
-        PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
+        PotDetailViewModel(useCase: makePotDetailUseCase(), fetchPotOptionsUseCase: makePotOptionUseCase(), postId: postId)
     }
 
     func makePotOrderViewModel(postId: Int, shippingId: Int,orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int), memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewModel {

@@ -25,6 +25,7 @@ final class PotDetailViewModel: BaseViewModelType {
     // MARK: - Properties
     
     private let useCase: PotDetailUseCase
+    private let fetchPotOptionsUseCase: FetchPotOptionsUseCase
     let postId: Int
     private var cancellables = Set<AnyCancellable>()
     
@@ -32,6 +33,7 @@ final class PotDetailViewModel: BaseViewModelType {
     
     private(set) var participants: [ParticipantModel] = []
     private(set) var potDetailModel: PotDetailModel?
+    private(set) var availableMembers: [String] = []
     
     // MARK: - Subject
     
@@ -39,8 +41,9 @@ final class PotDetailViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: PotDetailUseCase, postId: Int) {
+    init(useCase: PotDetailUseCase, fetchPotOptionsUseCase: FetchPotOptionsUseCase, postId: Int) {
         self.useCase = useCase
+        self.fetchPotOptionsUseCase = fetchPotOptionsUseCase
         self.postId = postId
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher()
@@ -53,6 +56,7 @@ final class PotDetailViewModel: BaseViewModelType {
         switch trigger {
         case .viewDidLoad:
             fetchPotDetail()
+            fetchPotOptions()
         }
     }
     
@@ -80,6 +84,17 @@ final class PotDetailViewModel: BaseViewModelType {
             } catch {
                 print("PotDetail fetch Error: \(error)")
                 output.isJoinButtonEnabled.send(false)
+            }
+        }
+    }
+
+    private func fetchPotOptions() {
+        Task {
+            do {
+                let options = try await fetchPotOptionsUseCase.execute(postId: postId)
+                availableMembers = options.members.map(\.name)
+            } catch {
+                PotiLogger.error(error)
             }
         }
     }
