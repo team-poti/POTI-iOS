@@ -27,10 +27,13 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
         window.makeKeyAndVisible()
 
-        guard let url = connectionOptions.userActivities
+        if let url = connectionOptions.userActivities
             .first(where: { $0.activityType == NSUserActivityTypeBrowsingWeb })?
-            .webpageURL else { return }
-        handleDeepLink(url)
+            .webpageURL {
+            handleDeepLink(url)
+        } else if let url = connectionOptions.urlContexts.first?.url {
+            handleOpenURL(url)
+        }
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
@@ -40,11 +43,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        if let url = URLContexts.first?.url {
-            if (AuthApi.isKakaoTalkLoginUrl(url)) {
-                _ = AuthController.handleOpenUrl(url: url)
-            }
-        }
+        guard let url = URLContexts.first?.url else { return }
+        handleOpenURL(url)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -114,6 +114,18 @@ extension SceneDelegate {
 // MARK: - Deep Link
 
 private extension SceneDelegate {
+    func handleOpenURL(_ url: URL) {
+        if AuthApi.isKakaoTalkLoginUrl(url) {
+            _ = AuthController.handleOpenUrl(url: url)
+            return
+        }
+
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let deepLinkValue = components.queryItems?.first(where: { $0.name == "deepLink" })?.value,
+              let deepLinkURL = URL(string: deepLinkValue) else { return }
+        handleDeepLink(deepLinkURL)
+    }
+
     func configureDeepLinkHandler(with factory: ViewControllerFactory) {
         do {
             let parser = DeepLinkParser(allowedHost: try AppConfig.deepLinkHost())
