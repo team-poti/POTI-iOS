@@ -7,13 +7,18 @@
 
 import UIKit
 
+import FirebaseCore
 import KakaoSDKCommon
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    private let pushNotificationService = PushNotificationService()
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        FirebaseApp.configure()
+        configurePushNotifications(application)
+
         do {
             let appKey = try AppConfig.kakaoAppKey()
             KakaoSDK.initSDK(appKey: appKey)
@@ -36,7 +41,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
-
 }
 
+// MARK: - Push Notification
+
+private extension AppDelegate {
+    func configurePushNotifications(_ application: UIApplication) {
+        let fcmTokenSyncService = AppDIContainer.shared.makeFCMTokenSyncService()
+
+        pushNotificationService.onFCMTokenUpdated = { token in
+            Task {
+                await fcmTokenSyncService.synchronize(token: token)
+            }
+        }
+
+        pushNotificationService.onNotificationOpened = { [weak application] payload in
+            let sceneDelegate = application?.connectedScenes
+                .compactMap { $0.delegate as? SceneDelegate }
+                .first
+            sceneDelegate?.handlePushNotification(payload)
+        }
+
+        pushNotificationService.configure(application)
+    }
+}
+
+// MARK: - Remote Notification
+
+extension AppDelegate {
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        pushNotificationService.registerAPNsToken(deviceToken)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        pushNotificationService.handleAPNsRegistrationFailure(error)
+    }
+}

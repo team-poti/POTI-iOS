@@ -17,6 +17,7 @@
 		336E4F392F16E49000D1D916 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F382F16E49000D1D916 /* KakaoSDKCommon */; };
 		336E4F3B2F16E49000D1D916 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 336E4F3A2F16E49000D1D916 /* KakaoSDKUser */; };
 		61FE56012F2006B300E036AD /* Cosmos in Frameworks */ = {isa = PBXBuildFile; productRef = 61FE56002F2006B300E036AD /* Cosmos */; };
+		77B362A8303D7944008DB336 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 77B362A7303D7944008DB336 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +63,7 @@
 				335F17A02F1261EA00E13B6F /* Lottie in Frameworks */,
 				335F17A32F1262AF00E13B6F /* Kingfisher in Frameworks */,
 				336E4F352F16E49000D1D916 /* KakaoSDK in Frameworks */,
+				77B362A8303D7944008DB336 /* FirebaseMessaging in Frameworks */,
 				336E4F3B2F16E49000D1D916 /* KakaoSDKUser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -115,6 +117,7 @@
 				336E4F382F16E49000D1D916 /* KakaoSDKCommon */,
 				336E4F3A2F16E49000D1D916 /* KakaoSDKUser */,
 				61FE56002F2006B300E036AD /* Cosmos */,
+				77B362A7303D7944008DB336 /* FirebaseMessaging */,
 			);
 			productName = "POTI-iOS";
 			productReference = 335F0F2F2F0D72A500E13B6F /* POTI-iOS.app */;
@@ -157,6 +160,7 @@
 				335F17A12F1262AF00E13B6F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 				61FE55FF2F2006B300E036AD /* XCRemoteSwiftPackageReference "Cosmos" */,
+				77B362A6303D7944008DB336 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 335F0F302F0D72A500E13B6F /* Products */;
@@ -196,7 +200,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "POTI-iOS/Application/Config/POTI-iOS.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "POTI-iOS/Resource/POTI-iOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P64LJZB7SK;
@@ -227,7 +231,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "POTI-iOS/Application/Config/POTI-iOS.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "POTI-iOS/Resource/POTI-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -458,6 +462,14 @@
 				minimumVersion = 25.0.1;
 			};
 		};
+		77B362A6303D7944008DB336 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.18.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -510,6 +522,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 61FE55FF2F2006B300E036AD /* XCRemoteSwiftPackageReference "Cosmos" */;
 			productName = Cosmos;
+		};
+		77B362A7303D7944008DB336 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 77B362A6303D7944008DB336 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

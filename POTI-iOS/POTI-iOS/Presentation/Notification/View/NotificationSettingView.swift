@@ -19,8 +19,10 @@ final class NotificationSettingView: BaseView {
 
     private let tradeTitleLabel = UILabel()
     private let tradeDescriptionLabel = UILabel()
+    private let tradeStackView = UIStackView()
     private let eventTitleLabel = UILabel()
     private let eventDescriptionLabel = UILabel()
+    private let eventStackView = UIStackView()
 
     // MARK: - Custom Methods
 
@@ -39,6 +41,12 @@ final class NotificationSettingView: BaseView {
             $0.text = "분철 모집/참여 거래 알림"
         }
 
+        tradeStackView.do {
+            $0.axis = .vertical
+            $0.spacing = 4
+            $0.alignment = .leading
+        }
+
         eventTitleLabel.do {
             $0.font = PotiFontManager.body16sb.font
             $0.textColor = .potiBlack
@@ -50,45 +58,45 @@ final class NotificationSettingView: BaseView {
             $0.textColor = .gray800
             $0.text = "광고성 정보 수신 및 마케팅 알림"
         }
+
+        eventStackView.do {
+            $0.axis = .vertical
+            $0.spacing = 4
+            $0.alignment = .leading
+        }
     }
 
     override func setUI() {
-        addSubviews(tradeTitleLabel, tradeDescriptionLabel, tradeToggle, eventTitleLabel, eventDescriptionLabel, eventToggle)
+        tradeStackView.addArrangedSubviews(tradeTitleLabel, tradeDescriptionLabel)
+        eventStackView.addArrangedSubviews(eventTitleLabel, eventDescriptionLabel)
+        addSubviews(tradeStackView, tradeToggle, eventStackView, eventToggle)
     }
 
     override func setLayout() {
-        tradeTitleLabel.snp.makeConstraints {
+        tradeStackView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(15)
             $0.leading.equalToSuperview().inset(16)
-        }
-
-        tradeDescriptionLabel.snp.makeConstraints {
-            $0.top.equalTo(tradeTitleLabel.snp.bottom).offset(4)
-            $0.leading.equalTo(tradeTitleLabel)
+            $0.trailing.lessThanOrEqualTo(tradeToggle.snp.leading).offset(-16)
         }
 
         tradeToggle.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
-            $0.centerY.equalTo(tradeTitleLabel.snp.bottom).offset(11.5)
+            $0.centerY.equalTo(tradeStackView)
         }
 
-        eventTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(tradeDescriptionLabel.snp.bottom).offset(31)
-            $0.leading.equalTo(tradeTitleLabel)
-        }
-
-        eventDescriptionLabel.snp.makeConstraints {
-            $0.top.equalTo(eventTitleLabel.snp.bottom).offset(4)
-            $0.leading.equalTo(eventTitleLabel)
+        eventStackView.snp.makeConstraints {
+            $0.top.equalTo(tradeStackView.snp.bottom).offset(31)
+            $0.leading.equalTo(tradeStackView)
+            $0.trailing.lessThanOrEqualTo(eventToggle.snp.leading).offset(-16)
         }
 
         eventToggle.snp.makeConstraints {
             $0.trailing.equalTo(tradeToggle)
-            $0.centerY.equalTo(eventTitleLabel.snp.bottom).offset(11.5)
+            $0.centerY.equalTo(eventStackView)
         }
     }
 
-    // MARK: - Public Methods
+    // MARK: - Public Method
 
     func configure(isTradeNotificationOn: Bool, isEventNotificationOn: Bool) {
         tradeToggle.setOn(isTradeNotificationOn, animated: false)

@@ -27,6 +27,11 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
         window.makeKeyAndVisible()
 
+        if let notificationResponse = connectionOptions.notificationResponse {
+            let payload = PushNotificationPayload(userInfo: notificationResponse.notification.request.content.userInfo)
+            handlePushNotification(payload)
+        }
+
         if let url = connectionOptions.userActivities
             .first(where: { $0.activityType == NSUserActivityTypeBrowsingWeb })?
             .webpageURL {
@@ -79,6 +84,22 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 // MARK: - Root Navigation
 
 extension SceneDelegate {
+    func handlePushNotification(_ payload: PushNotificationPayload) {
+        if let notificationId = payload.notificationId {
+            let readNotificationUseCase = AppDIContainer.shared.makeReadNotificationUseCase()
+            Task {
+                do {
+                    try await readNotificationUseCase.execute(notificationId: notificationId)
+                } catch {
+                    PotiLogger.error(error)
+                }
+            }
+        }
+
+        guard let deepLink = payload.deepLink else { return }
+        handleDeepLink(deepLink)
+    }
+
     func handleDeepLink(_ url: URL) {
         deepLinkHandler?.handle(url, from: window?.rootViewController)
     }

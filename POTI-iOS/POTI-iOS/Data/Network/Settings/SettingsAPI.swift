@@ -12,22 +12,19 @@ enum SettingsAPI: BaseTargetType {
     case updateProfile(nickname: String, profileImageURL: String?)
     case address
     case updateAddress(AddressEntity)
-    case notificationSettings
-    case updateNotificationSettings(tradeEnabled: Bool, eventEnabled: Bool)
 
     var path: String {
         switch self {
         case .account: return "/api/v1/users/me/account"
         case .updateProfile: return "/api/v1/users/me/profile"
         case .address, .updateAddress: return "/api/v1/users/me/address"
-        case .notificationSettings, .updateNotificationSettings: return "/api/v1/notifications/settings"
         }
     }
 
     var method: HTTPMethod {
         switch self {
-        case .account, .address, .notificationSettings: return .get
-        case .updateProfile, .updateAddress, .updateNotificationSettings: return .patch
+        case .account, .address: return .get
+        case .updateProfile, .updateAddress: return .patch
         }
     }
 
@@ -47,12 +44,7 @@ enum SettingsAPI: BaseTargetType {
                 "addressLine": addressLine,
                 "phone": address.phoneNumber
             ]
-        case .updateNotificationSettings(let tradeEnabled, let eventEnabled):
-            return [
-                "tradeNotificationEnabled": tradeEnabled,
-                "eventNotificationEnabled": eventEnabled
-            ]
-        case .account, .address, .notificationSettings:
+        case .account, .address:
             return nil
         }
     }

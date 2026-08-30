@@ -28,8 +28,3 @@ enum WithdrawalAvailabilityEntity {
     case available
     case unavailable
 }
-
-struct NotificationSettingsEntity {
-    let tradeNotificationEnabled: Bool
-    let eventNotificationEnabled: Bool
-}
