@@ -20,7 +20,6 @@ final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewMod
     private let completeButton = PotiBottomButton()
     private var tableViewBottomConstraint: Constraint?
     private var viewState: JoinDetailViewState?
-    private var pendingDeliveryCompletionId: Int?
     
     // MARK: - Lifecycle
     
@@ -146,23 +145,7 @@ final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewMod
             },
             onRightButton: { [weak self] in
                 guard let self else { return }
-
-                let starRating = StarRatingPopupView(
-                    onCompleteButton: { [weak self] rating in
-                        guard let self else { return }
-                        self.pendingDeliveryCompletionId = participantId
-                        self.viewModel.action(
-                            .completeReview(transactionId: participantId, rating: rating)
-                        )
-                    },
-                    onSkipButton: { [weak self] in
-                        guard let self else { return }
-                        self.viewModel.action(.completeDelivery(participantId: participantId))
-                    }
-                )
-
-                starRating.configure(nickname: "모집자", avgRating: nil)
-                starRating.show(on: self.navigationController?.view ?? self.view)
+                self.viewModel.action(.completeDelivery(participantId: participantId))
             }
         )
         alert.show(on: navigationController?.view ?? view)
@@ -208,22 +191,48 @@ final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewMod
         
         viewModel.output.completeDeliveryResult
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] reviewTarget in
                 guard let self else { return }
                 self.updateCompleteButton()
                 self.tableView.reloadData()
+                self.presentStarRating(reviewTarget: reviewTarget)
             }
             .store(in: &cancellables)
-        
-        viewModel.output.completeReviewResult
+
+        viewModel.output.deliveryError
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self else { return }
-                guard let participantId = self.pendingDeliveryCompletionId else { return }
-                self.pendingDeliveryCompletionId = nil
-                self.viewModel.action(.completeDelivery(participantId: participantId))
+            .sink { [weak self] message in
+                self?.presentDeliveryError(message: message)
             }
             .store(in: &cancellables)
+    }
+
+    private func presentStarRating(reviewTarget: MyPageJoinViewModel.ReviewTarget) {
+        guard let participationId = viewModel.joinModel?.participationId else { return }
+        let starRating = StarRatingPopupView(
+            onCompleteButton: { [weak self] rating in
+                self?.viewModel.action(
+                    .completeReview(transactionId: participationId, rating: rating)
+                )
+            },
+            onSkipButton: {}
+        )
+        starRating.configure(
+            nickname: reviewTarget.nickname,
+            profileImageURL: reviewTarget.profileImageURL,
+            avgRating: reviewTarget.averageRating
+        )
+        starRating.show(on: navigationController?.view ?? view)
+    }
+
+    private func presentDeliveryError(message: String) {
+        let alert = UIAlertController(
+            title: "배송 완료를 처리할 수 없어요",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }
 

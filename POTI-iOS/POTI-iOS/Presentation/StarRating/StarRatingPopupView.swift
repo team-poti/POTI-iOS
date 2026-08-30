@@ -7,6 +7,7 @@
 
 import UIKit
 
+import Kingfisher
 import SnapKit
 import Then
 
@@ -107,8 +108,8 @@ final class StarRatingPopupView: BaseView {
         
         avgRatingLabel.do {
             $0.text = ""
-            $0.font = .systemFont(ofSize: 12, weight: .regular)
-            $0.textColor = .gray700
+            $0.font = PotiFontManager.body14m.font
+            $0.textColor = .gray800
         }
         avgRatingStarImageView.do {
             $0.image = UIImage(resource: .icnStar)
@@ -125,7 +126,7 @@ final class StarRatingPopupView: BaseView {
         
         textStackView.do {
             $0.axis = .vertical
-            $0.alignment = .trailing
+            $0.alignment = .leading
             $0.distribution = .fill
             $0.spacing = 0
         }
@@ -194,8 +195,10 @@ final class StarRatingPopupView: BaseView {
         }
         
         containerView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(42)
+            $0.width.equalTo(291)
+            $0.height.equalTo(382)
             $0.centerY.equalToSuperview()
+            $0.centerX.equalToSuperview()
             $0.top.greaterThanOrEqualToSuperview().offset(80)
             $0.bottom.lessThanOrEqualToSuperview().inset(80)
         }
@@ -235,8 +238,8 @@ final class StarRatingPopupView: BaseView {
         }
         
         skipButton.snp.makeConstraints {
-            $0.top.equalTo(confirmButton.snp.bottom).offset(12)
-            $0.centerX.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(48)
             $0.bottom.equalToSuperview().inset(12)
         }
         
@@ -246,8 +249,6 @@ final class StarRatingPopupView: BaseView {
         }
         
         profileImageView.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(10)
-            $0.centerY.equalToSuperview()
             $0.size.equalTo(36)
         }
         
@@ -278,6 +279,13 @@ final class StarRatingPopupView: BaseView {
         dismiss()
         onSkipButton?()
     }
+
+    func configure(nickname: String, profileImageURL: String?, avgRating: Double?) {
+        nicknameLabel.text = nickname
+        avgRatingStackView.isHidden = avgRating == nil
+        avgRatingLabel.text = avgRating.map { String(format: "%.1f", $0) }
+        profileImageView.kf.setImage(with: profileImageURL.flatMap(URL.init(string:)))
+    }
     
     // MARK: - Public Methods
     
@@ -289,12 +297,6 @@ final class StarRatingPopupView: BaseView {
         UIView.animate(withDuration: 0.3) {
             self.alpha = 1
         }
-    }
-    
-    func configure(nickname: String, avgRating: Double?) {
-        nicknameLabel.text = nickname
-        avgRatingStackView.isHidden = avgRating == nil
-        avgRatingLabel.text = avgRating.map { String(format: "%.1f", $0) }
     }
     
     private func dismiss() {

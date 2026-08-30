@@ -303,7 +303,8 @@ final class AppDIContainer {
             participationsDetailUsecase: makeParticipationDetailUseCase(),
             postPaymentsUseCase: makePostPaymentsUseCase(),
             participationsDeliveredUseCase: makeParticipationDeliveredUseCase(),
-            createReviewUseCase: makeCreateReviewUseCase()
+            createReviewUseCase: makeCreateReviewUseCase(),
+            getYourPageInformationUseCase: makeGetYourPageInformationUseCase()
         )
     }
 

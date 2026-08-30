@@ -8,6 +8,12 @@
 import Combine
 
 final class MyPageJoinViewModel: BaseViewModelType {
+    struct ReviewTarget {
+        let nickname: String
+        let profileImageURL: String?
+        let averageRating: Double?
+    }
+
     private let participationId: Int
     
     // MARK: - Input
@@ -26,8 +32,9 @@ final class MyPageJoinViewModel: BaseViewModelType {
         let naviPotInfo: AnyPublisher<Int, Never>
         let viewState: AnyPublisher<JoinDetailViewState, Never>
         let submitDepositResult: AnyPublisher<Void, Never>
-        let completeDeliveryResult: AnyPublisher<Void, Never>
+        let completeDeliveryResult: AnyPublisher<ReviewTarget, Never>
         let completeReviewResult: AnyPublisher<Void, Never>
+        let deliveryError: AnyPublisher<String, Never>
     }
     
     private(set) var joinModel: MyPageJoinModel?
@@ -35,6 +42,7 @@ final class MyPageJoinViewModel: BaseViewModelType {
     private let postPaymentsUseCase: PostPaymentsUseCase
     private let participationsDeliveredUseCase: ParticipationDeliveredUseCase
     private let createReviewUseCase: ReviewUseCase
+    private let getYourPageInformationUseCase: GetYourPageInformationUseCase
     private let viewStateMapper = JoinDetailViewStateMapper()
     
     // MARK: - Subject
@@ -42,8 +50,9 @@ final class MyPageJoinViewModel: BaseViewModelType {
     private let naviPotInfoSubject = PassthroughSubject<Int, Never>()
     private let viewStateSubject = CurrentValueSubject<JoinDetailViewState?, Never>(nil)
     private let submitDepositResultSubject = PassthroughSubject<Void, Never>()
-    private let completeDeliveryResultSubject = PassthroughSubject<Void, Never>()
+    private let completeDeliveryResultSubject = PassthroughSubject<ReviewTarget, Never>()
     private let completeReviewResultSubject = PassthroughSubject<Void, Never>()
+    private let deliveryErrorSubject = PassthroughSubject<String, Never>()
     
     let output: Output
     
@@ -54,13 +63,15 @@ final class MyPageJoinViewModel: BaseViewModelType {
         participationsDetailUsecase: ParticipationDetailUseCase,
         postPaymentsUseCase: PostPaymentsUseCase,
         participationsDeliveredUseCase: ParticipationDeliveredUseCase,
-        createReviewUseCase: ReviewUseCase
+        createReviewUseCase: ReviewUseCase,
+        getYourPageInformationUseCase: GetYourPageInformationUseCase
     ) {
         self.participationId = participationId
         self.participationsDeliveredUseCase = participationsDeliveredUseCase
         self.participationsDetailUseCase = participationsDetailUsecase
         self.postPaymentsUseCase = postPaymentsUseCase
         self.createReviewUseCase = createReviewUseCase
+        self.getYourPageInformationUseCase = getYourPageInformationUseCase
         self.output = Output(
             naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher(),
             viewState: viewStateSubject
@@ -68,7 +79,8 @@ final class MyPageJoinViewModel: BaseViewModelType {
                 .eraseToAnyPublisher(),
             submitDepositResult: submitDepositResultSubject.eraseToAnyPublisher(),
             completeDeliveryResult: completeDeliveryResultSubject.eraseToAnyPublisher(),
-            completeReviewResult: completeReviewResultSubject.eraseToAnyPublisher()
+            completeReviewResult: completeReviewResultSubject.eraseToAnyPublisher(),
+            deliveryError: deliveryErrorSubject.eraseToAnyPublisher()
             
         )
     }
@@ -113,11 +125,34 @@ final class MyPageJoinViewModel: BaseViewModelType {
             Task { [weak self] in
                 guard let self else { return }
                 do {
-                    try await participationsDeliveredUseCase.execute(participationId: participantId)
+                    let delivery = try await participationsDeliveredUseCase.execute(
+                        participationId: participantId
+                    )
                     await self.fetchParticipationsDetail(participationId: self.participationId)
-                    self.completeDeliveryResultSubject.send()
+                    do {
+                        let user = try await getYourPageInformationUseCase.execute(
+                            userId: delivery.leaderUserId
+                        )
+                        self.completeDeliveryResultSubject.send(
+                            ReviewTarget(
+                                nickname: user.nickname,
+                                profileImageURL: user.profileImageUrl,
+                                averageRating: user.ratingAvg
+                            )
+                        )
+                    } catch {
+                        PotiLogger.error(error)
+                        self.completeDeliveryResultSubject.send(
+                            ReviewTarget(
+                                nickname: "사용자",
+                                profileImageURL: nil,
+                                averageRating: nil
+                            )
+                        )
+                    }
                 } catch {
                     PotiLogger.error(error)
+                    self.deliveryErrorSubject.send(error.localizedDescription)
                 }
             }
         case .completeReview(let transactionId, let rating):
