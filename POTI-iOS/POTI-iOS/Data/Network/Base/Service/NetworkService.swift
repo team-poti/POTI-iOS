@@ -166,6 +166,15 @@ final class NetworkService: Sendable {
 private enum NetworkLogSanitizer {
     private static let maskedValue = "***"
     private static let sensitiveHeaderNames = ["authorization", "cookie", "set-cookie"]
+    private static let sensitiveKeyFragments = [
+        "token",
+        "password",
+        "email",
+        "phone",
+        "address",
+        "zipcode",
+        "postalcode"
+    ]
 
     static func url(_ url: URL) -> String {
         guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return url.absoluteString }
@@ -211,6 +220,7 @@ private enum NetworkLogSanitizer {
     }
 
     private static func isSensitive(_ key: String) -> Bool {
-        key.lowercased().contains("token")
+        let normalizedKey = key.lowercased().filter(\.isLetter)
+        return sensitiveKeyFragments.contains { normalizedKey.contains($0) }
     }
 }
