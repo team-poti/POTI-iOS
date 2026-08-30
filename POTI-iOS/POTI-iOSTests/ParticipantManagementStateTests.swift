@@ -10,7 +10,7 @@ import XCTest
 
 final class ParticipantManagementStateTests: XCTestCase {
     func testWaitingStatesHideDetailsAndActions() {
-        for status in [ParticipantStatus.recruiting, .waitPay] {
+        for status in [ParticipantStatus.recruiting, .waitPay, .unknown] {
             let state = ParticipantManagementStateFactory.make(status: status)
 
             XCTAssertFalse(state.isDetailVisible)
@@ -77,12 +77,19 @@ final class ParticipantManagementStateTests: XCTestCase {
             (.paid, .paid),
             (.shipped, .shipped),
             (.delivered, .delivered),
-            (.unknown, .waitPay)
+            (.unknown, .unknown)
         ]
 
         for (domain, presentation) in cases {
             XCTAssertEqual(ParticipantStatus(domainStatus: domain), presentation)
         }
+    }
+
+    func testUnknownDomainStatusRemainsUnknownInMyPagePresentationModels() {
+        XCTAssertEqual(MyPageJoinModel.DepositStatus.from(.unknown), .unknown)
+        XCTAssertEqual(MyPageJoinModel.ShippingStatus.from(.unknown), .unknown)
+        XCTAssertEqual(MyPageJoinModel.DepositStatus.unknown.text, "상태 확인")
+        XCTAssertEqual(MyPageJoinModel.ShippingStatus.unknown.text, "상태 확인")
     }
 
     private func makeModel(status: ParticipantStatus) -> ParticipantManageModel {

@@ -47,6 +47,13 @@ final class RecruitDetailViewStateTests: XCTestCase {
         XCTAssertEqual(state.progress.message, "서버 진행 메시지")
     }
 
+    func testUnknownParticipantStatusIsNotDisplayedAsPaymentWaiting() {
+        let state = makeState(postStatus: .closed, participantStatuses: [.unknown])
+
+        XCTAssertEqual(state.progress.message, "참여자 상태를 확인해주세요")
+        XCTAssertEqual(state.participants.first?.depositState, .unknown)
+    }
+
     func testParticipantDataMapsWithoutDroppingOrderInformation() throws {
         let state = makeState(postStatus: .closed, participantStatuses: [.waitPayCheck])
         let participant = try XCTUnwrap(state.participants.first)

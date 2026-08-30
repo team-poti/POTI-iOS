@@ -106,6 +106,7 @@ final class PotInfoCell: UITableViewCell {
         artistLabel.snp.makeConstraints {
             $0.top.equalTo(thumbnailView).inset(4)
             $0.leading.equalTo(thumbnailView.snp.trailing).offset(12)
+            $0.trailing.lessThanOrEqualTo(potButton.snp.leading)
         }
         
         potTitleLabel.snp.makeConstraints {

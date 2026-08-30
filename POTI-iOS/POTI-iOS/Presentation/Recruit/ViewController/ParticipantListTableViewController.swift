@@ -25,6 +25,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         $0.font = PotiFontManager.body14m.font
         $0.textColor = .gray700
         $0.textAlignment = .center
+        $0.isHidden = true
     }
     private var lastSectionCount: Int = 0
     
@@ -117,6 +118,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         viewModel.output.showError
             .receive(on: DispatchQueue.main)
             .sink { [weak self] message in
+                self?.trackingNumberSheet?.submissionDidFail()
                 self?.presentErrorAlert(message: message)
             }
             .store(in: &cancellables)

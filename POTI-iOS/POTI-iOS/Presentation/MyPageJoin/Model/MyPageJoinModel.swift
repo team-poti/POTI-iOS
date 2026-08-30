@@ -99,6 +99,7 @@ extension MyPageJoinModel {
         case waiting = "WAITING"
         case shipped = "SHIPPED"
         case completed = "COMPLETED"
+        case unknown = "UNKNOWN"
         
         var text: String {
             switch self {
@@ -108,6 +109,8 @@ extension MyPageJoinModel {
                 return "입금 확인중"
             case .completed:
                 return "입금 완료"
+            case .unknown:
+                return "상태 확인"
             }
         }
         
@@ -119,6 +122,8 @@ extension MyPageJoinModel {
                     return .poti600
                 case .completed:
                     return .gray700
+                case .unknown:
+                    return .gray700
                 }
             }
     }
@@ -127,6 +132,7 @@ extension MyPageJoinModel {
         case preparing = "PREPARING"
         case shipped = "SHIPPED"
         case delivered = "DELIVERED"
+        case unknown = "UNKNOWN"
         
         var text: String {
             switch self {
@@ -136,6 +142,8 @@ extension MyPageJoinModel {
                 return "배송 시작"
             case .delivered:
                 return "배송 완료"
+            case .unknown:
+                return "상태 확인"
             }
         }
         
@@ -146,6 +154,8 @@ extension MyPageJoinModel {
             case .shipped:
                 return .poti600
             case .delivered:
+                return .gray700
+            case .unknown:
                 return .gray700
             }
         }
@@ -195,12 +205,14 @@ extension MyPageJoinModel {
 extension MyPageJoinModel.DepositStatus {
     static func from(_ status: ParticipantOrderStatus) -> MyPageJoinModel.DepositStatus {
         switch status {
-        case .waitPay, .unknown:
+        case .waitPay:
             return .waiting
         case .waitPayCheck:
             return .shipped
         case .paid, .shipped, .delivered:
             return .completed
+        case .unknown:
+            return .unknown
         }
     }
 }
@@ -216,9 +228,11 @@ extension MyPageJoinModel.ShippingStatus {
             return .shipped
         case .delivered:
             return .delivered
-        case .waitPay, .waitPayCheck, .unknown:
+        case .waitPay, .waitPayCheck:
             // 배송 단계 이전 상태들은 '배송 대기'로 표시
             return .preparing
+        case .unknown:
+            return .unknown
         }
     }
 }

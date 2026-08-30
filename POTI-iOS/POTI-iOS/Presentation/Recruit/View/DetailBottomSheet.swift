@@ -18,6 +18,7 @@ final class DetailBottomSheet: BaseView {
     
     private let viewModel: BottomSheetViewModel
     private let dismissesOnSubmit: Bool
+    private var isSubmitting = false
     private var cancellables = Set<AnyCancellable>()
     
     var onSubmit: ((String, String) -> Void)?
@@ -164,7 +165,7 @@ final class DetailBottomSheet: BaseView {
     private func updateConfirmButtonState() {
         let first = firstTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let second = secondTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let shouldDisable = first.isEmpty || second.isEmpty
+        let shouldDisable = isSubmitting || first.isEmpty || second.isEmpty
         
         confirmButton.isDisabled = shouldDisable
         confirmButton.color = shouldDisable ? .deactiveMain : .secondaryMain
@@ -185,6 +186,11 @@ final class DetailBottomSheet: BaseView {
             self.backgroundView.alpha = 1
         }
     }
+
+    func submissionDidFail() {
+        isSubmitting = false
+        updateConfirmButtonState()
+    }
     
     @objc func dismiss() {
         UIView.animate(withDuration: 0.3, animations: {
@@ -196,8 +202,12 @@ final class DetailBottomSheet: BaseView {
     }
     
     @objc private func didTapConfirmButton() {
+        guard !isSubmitting else { return }
+
         let depositor = firstTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let depositTime = secondTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        isSubmitting = true
+        updateConfirmButtonState()
         viewModel.action(.tapComplete(depositor: depositor, depositTime: depositTime))
     }
 }

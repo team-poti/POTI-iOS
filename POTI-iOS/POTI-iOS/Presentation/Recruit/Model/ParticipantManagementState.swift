@@ -103,7 +103,7 @@ struct TrackingParticipantState: ParticipantManagementState {
 enum ParticipantManagementStateFactory {
     static func make(status: ParticipantStatus) -> any ParticipantManagementState {
         switch status {
-        case .recruiting, .waitPay:
+        case .recruiting, .waitPay, .unknown:
             return WaitingParticipantState()
         case .waitPayCheck:
             return DepositCheckingParticipantState()

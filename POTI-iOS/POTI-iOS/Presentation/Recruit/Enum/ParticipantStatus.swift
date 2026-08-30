@@ -14,6 +14,7 @@ enum ParticipantStatus: String {
     case paid = "PAID"
     case shipped = "SHIPPED"
     case delivered = "DELIVERED"
+    case unknown = "UNKNOWN"
     
     func statusText(role: UserRole) -> String {
         switch self {
@@ -34,6 +35,9 @@ enum ParticipantStatus: String {
             
         case .delivered:
             return "거래가 종료되었어요!"
+
+        case .unknown:
+            return "참여자 상태를 확인해주세요"
         }
     }
     
@@ -45,6 +49,7 @@ enum ParticipantStatus: String {
         case .paid: return "입금 완료"
         case .shipped: return "배송 시작"
         case .delivered: return "배송 완료"
+        case .unknown: return "상태 확인"
         }
     }
     
@@ -56,6 +61,8 @@ enum ParticipantStatus: String {
             return .gray700
         case .paid, .shipped:
             return .poti600
+        case .unknown:
+            return .gray700
         }
     }
 }
@@ -74,7 +81,7 @@ extension ParticipantStatus {
         case .delivered:
             self = .delivered
         case .unknown:
-            self = .waitPay
+            self = .unknown
         }
     }
 }
@@ -114,6 +121,8 @@ extension ParticipantStatus {
             return .imgStep3
         case .delivered:
             return .imgStep4
+        case .unknown:
+            return nil
         }
     }
 }

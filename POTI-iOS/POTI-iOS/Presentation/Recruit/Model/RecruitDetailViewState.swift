@@ -58,9 +58,14 @@ private struct DepositWaitingProgressState: RecruitProgressState {
     let progressImage: UIImage? = .imgStep1
 
     var defaultMessage: String {
-        participantStatus == .waitPayCheck
-        ? "입금 확인을 기다리는 참여자가 있어요"
-        : "입금을 기다리는 중이에요"
+        switch participantStatus {
+        case .waitPayCheck:
+            return "입금 확인을 기다리는 참여자가 있어요"
+        case .unknown:
+            return "참여자 상태를 확인해주세요"
+        default:
+            return "입금을 기다리는 중이에요"
+        }
     }
 }
 
@@ -127,6 +132,10 @@ struct RecruitDetailViewStateMapper {
 
         if statuses.contains(.shipped) {
             return .shipped
+        }
+
+        if statuses.contains(.unknown) {
+            return .unknown
         }
 
         return statuses.first ?? .recruiting
