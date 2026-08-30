@@ -109,24 +109,27 @@ struct RecruitDetailViewStateMapper {
     private func resolveParticipantStatus(
         participants: [RecruitParticipantEntity]
     ) -> ParticipantStatus {
+        let statuses = participants.map {
+            ParticipantStatus(domainStatus: $0.status)
+        }
 
-        if participants.contains(where: { $0.status == .waitPayCheck }) {
+        if statuses.contains(.waitPayCheck) {
             return .waitPayCheck
         }
 
-        if participants.contains(where: { $0.status == .waitPay }) {
+        if statuses.contains(.waitPay) {
             return .waitPay
         }
 
-        if participants.contains(where: { $0.status == .paid }) {
+        if statuses.contains(.paid) {
             return .paid
         }
 
-        if participants.contains(where: { $0.status == .shipped }) {
+        if statuses.contains(.shipped) {
             return .shipped
         }
 
-        return participants.first?.status ?? .recruiting
+        return statuses.first ?? .recruiting
     }
     
     func map(entity: RecruitDetailEntity) -> RecruitDetailViewState {
@@ -163,7 +166,7 @@ struct RecruitDetailViewStateMapper {
                 phoneText: participant.shippingInfo.phone,
                 shippingText: participant.priceInfo.shippingName,
                 totalPrice: participant.priceInfo.totalPrice,
-                depositState: participant.status
+                depositState: ParticipantStatus(domainStatus: participant.status)
             )
         }
         

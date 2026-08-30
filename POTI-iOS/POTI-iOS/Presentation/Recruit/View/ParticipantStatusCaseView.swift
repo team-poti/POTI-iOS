@@ -10,92 +10,14 @@ import UIKit
 import SnapKit
 import Then
 
-private protocol ParticipantManagementState {
-    var isDetailVisible: Bool { get }
-    var actionTitle: String? { get }
-    func informationItems(for model: ParticipantManageModel) -> [(title: String, infos: [String])]
-}
-
-private struct WaitingParticipantState: ParticipantManagementState {
-    let isDetailVisible = false
-    let actionTitle: String? = nil
-
-    func informationItems(
-        for model: ParticipantManageModel
-    ) -> [(title: String, infos: [String])] {
-        []
-    }
-}
-
-private struct DepositCheckingParticipantState: ParticipantManagementState {
-    let isDetailVisible = true
-    let actionTitle: String? = "입금 확인"
-
-    func informationItems(
-        for model: ParticipantManageModel
-    ) -> [(title: String, infos: [String])] {
-        [
-            (
-                title: "입금 정보",
-                infos: [
-                    model.waitPayCheckInfo?.depositorName ?? "",
-                    model.waitPayCheckInfo?.depositTimeText ?? ""
-                ]
-            )
-        ]
-    }
-}
-
-private struct PaidParticipantState: ParticipantManagementState {
-    let isDetailVisible = true
-    let actionTitle: String? = "송장 번호 입력"
-
-    func informationItems(
-        for model: ParticipantManageModel
-    ) -> [(title: String, infos: [String])] {
-        [
-            (title: "이름", infos: [model.shipInfo?.receiverName ?? ""]),
-            (title: "배송 정보", infos: [model.shipInfo?.addressText ?? ""]),
-            (title: "연락처", infos: [model.shipInfo?.phoneText ?? ""])
-        ]
-    }
-}
-
-private struct TrackingParticipantState: ParticipantManagementState {
-    let isDetailVisible = true
-    let actionTitle: String? = nil
-
-    func informationItems(
-        for model: ParticipantManageModel
-    ) -> [(title: String, infos: [String])] {
-        [
-            (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
-        ]
-    }
-}
-
-private enum ParticipantManagementStateFactory {
-    static func make(status: ParticipantStatus) -> any ParticipantManagementState {
-        switch status {
-        case .recruiting, .waitPay:
-            return WaitingParticipantState()
-        case .waitPayCheck:
-            return DepositCheckingParticipantState()
-        case .paid:
-            return PaidParticipantState()
-        case .shipped, .delivered:
-            return TrackingParticipantState()
-        }
-    }
-}
-
 final class ParticipantStatusCaseView: BaseView {
 
     private let containerStackView = UIStackView()
     private let infoLabelStackView = InfoLabelStackView()
     private let actionButton = UIButton()
 
-    private var onTapAction : (() -> Void)?
+    private var action: ParticipantManagementAction?
+    private var onTapAction: ((ParticipantManagementAction) -> Void)?
 
     // MARK: - Custom Method
 
@@ -142,10 +64,10 @@ final class ParticipantStatusCaseView: BaseView {
 
     //MARK: - Action
 
-    //TODO: - Input output
     @objc
     private func actionButtonDidTap() {
-        onTapAction?()
+        guard let action else { return }
+        onTapAction?(action)
     }
 }
 
@@ -155,13 +77,14 @@ extension ParticipantStatusCaseView {
         infoLabelStackView.reset()
         actionButton.isHidden = true
         actionButton.setTitle("", for: .normal)
+        action = nil
         onTapAction = nil
     }
 
     func configure(
         status: ParticipantStatus,
         model: ParticipantManageModel,
-        onTapAction: (() -> Void)? = nil
+        onTapAction: ((ParticipantManagementAction) -> Void)? = nil
     ) {
         reset()
 
@@ -170,11 +93,16 @@ extension ParticipantStatusCaseView {
 
         guard state.isDetailVisible else { return }
 
-        infoLabelStackView.configure(items: state.informationItems(for: model))
+        infoLabelStackView.configure(
+            items: state.informationItems(for: model).map {
+                (title: $0.title, infos: $0.infos)
+            }
+        )
 
-        if let actionTitle = state.actionTitle {
+        if let action = state.action {
             actionButton.isHidden = false
-            actionButton.setTitle(actionTitle, for: .normal)
+            actionButton.setTitle(action.title, for: .normal)
+            self.action = action
             self.onTapAction = onTapAction
         } else {
             actionButton.isHidden = true

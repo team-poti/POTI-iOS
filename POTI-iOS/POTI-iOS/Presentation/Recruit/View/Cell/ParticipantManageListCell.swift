@@ -144,7 +144,6 @@ final class ParticipantManageListCell: UITableViewCell {
             participantCaseView
         )
         
-        // 기본은 접힘
         detailContainerView.isHidden = true
         bottomDivideView.isHidden = true
     }
@@ -247,13 +246,11 @@ final class ParticipantManageListCell: UITableViewCell {
 
 extension ParticipantManageListCell {
     func configure(model: ParticipantManageModel, isExpanded: Bool, isLast: Bool) {
-        /// header
         participantMemberLabel.text = model.memberTitle.joined(separator: ", ")
         statusLabel.text = model.participantstatus.badgeText
         statusLabel.textColor = model.participantstatus.badgeColor
         updateToggleButton(isExpanded: isExpanded)
         
-        /// gray content
         nicknameLabel.text = model.nickname
         profileImageView.kf.cancelDownloadTask()
         if let url = URL(string: model.profileImage), !model.profileImage.isEmpty {
@@ -269,18 +266,15 @@ extension ParticipantManageListCell {
         participantCaseView.configure(
             status: model.participantstatus,
             model: model,
-            onTapAction: { [weak self] in
+            onTapAction: { [weak self] action in
                 guard let self else { return }
 
-                switch model.participantstatus {
-                case .waitPayCheck:
+                switch action {
+                case .confirmDeposit:
                     self.onTapConfirmDeposit?(model.purchaseId)
 
-                case .paid:
+                case .enterTrackingNumber:
                     self.onTapConfirmShip?(model.purchaseId)
-
-                default:
-                    break
                 }
             }
         )
