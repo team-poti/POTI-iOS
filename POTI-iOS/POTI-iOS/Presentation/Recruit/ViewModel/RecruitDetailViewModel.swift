@@ -2,7 +2,7 @@
 //  RecruitDetailViewModel.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/13/26.
+//  Created by Neon on 1/13/26.
 //
 
 import UIKit

@@ -2,7 +2,7 @@
 //  RecruitPaymentsConfirmDTO.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/22/26.
+//  Created by Neon on 1/22/26.
 //
 
 /// 모집자 - 입금 확인 버튼

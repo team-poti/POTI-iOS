@@ -2,7 +2,7 @@
 //  ParticipantManageViewModel.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/16/26.
+//  Created by Neon on 1/16/26.
 //
 
 import Combine
