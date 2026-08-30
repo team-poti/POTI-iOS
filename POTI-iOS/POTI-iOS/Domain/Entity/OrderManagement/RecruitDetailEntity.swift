@@ -2,7 +2,7 @@
 //  RecruitDetailEntity.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/22/26.
+//  Created by Neon on 1/22/26.
 //
 
 import UIKit
@@ -23,7 +23,7 @@ struct RecruitParticipantEntity {
     let orderId: Int
     let userId: Int
     let memberNames: [String]
-    let status: ParticipantStatus
+    let status: ParticipantOrderStatus
     let priceInfo: RecruitPriceInfoEntity
     let shippingInfo: RecruitShippingInfoEntity
 }
@@ -38,14 +38,6 @@ struct RecruitShippingInfoEntity {
     let address: String
     let phone: String
 }
-
-/*
- RECRUITING, //모집중
- CLOSED, //모집 완료
- PAYMENT_DONE,//입금완료
- SHIPPING,//배송시작
- DELIVERED //배송완료
- */
 
 enum PostStatus: String {
     case recruiting = "RECRUITING"
@@ -66,17 +58,17 @@ enum PostStatus: String {
             ? "입금을 기다리는 중이에요. 입금 확인을 기다리는 참여자가 있어요"
             : "지금 입금해주세요!"
 
-        case .paymentDone: //입금완료
+        case .paymentDone:
             return role == .host
             ? "배송을 기다리는 참여자가 있어요"
             : "모집자가 배송을 준비 중이에요"
 
-        case .shipping: //배송시작
+        case .shipping:
             return role == .host
             ? "배송을 시작했어요"
             : "모집자가 배송을 시작했어요"
 
-        case .delivered: //배송완료
+        case .delivered:
             return "거래가 종료되었어요!"
         }
     }

@@ -2,34 +2,10 @@
 //  ParticipantStatus.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/15/26.
+//  Created by Neon on 1/15/26.
 //
 
 import UIKit
-
-/*
- WAIT_PAY, // 입금 대기
- WAIT_PAY_CHECK, //입금 확인 대기
- PAID, //입금 완료
- READY, //배송 대기
- SHIPPED, //배송 시작
- DELIVERED //배송 완료
- case .waitRecruit: return "모집 대기"
- case .waitPay: return "입금 대기"
- case .waitPayCheck: return "입금 확인중"
- case .paid: return "입금 완료"
- case .startShip: return "배송 시작"
- case .completed: return "배송 완료"
- }
- 
- case .waitPay: return "모집 대기"
- case .waitPayCheck: return "입금 대기"
- case .paid: return "입금 확인중"
- case .ready: return "입금 완료"
- case .shipped: return "배송 시작"
- case .delivered: return "배송 완료"
- }
- */
 
 enum ParticipantStatus: String {
     case recruiting = "RECRUITING"
@@ -80,6 +56,25 @@ enum ParticipantStatus: String {
             return .gray700
         case .paid, .shipped:
             return .poti600
+        }
+    }
+}
+
+extension ParticipantStatus {
+    init(domainStatus: ParticipantOrderStatus) {
+        switch domainStatus {
+        case .waitPay:
+            self = .waitPay
+        case .waitPayCheck:
+            self = .waitPayCheck
+        case .paid:
+            self = .paid
+        case .shipped:
+            self = .shipped
+        case .delivered:
+            self = .delivered
+        case .unknown:
+            self = .waitPay
         }
     }
 }
