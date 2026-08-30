@@ -326,8 +326,22 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
 
     private func replaceWithProductDetail(postId: Int) {
         let productDetailViewController = factory.makePotDetailViewController(postId: postId)
-        if let navigationController {
-            navigationController.setViewControllers([productDetailViewController], animated: true)
+        productDetailViewController.hidesBottomBarWhenPushed = true
+
+        if let tabBarController,
+           let homeNavigationController = tabBarController.viewControllers?.first as? UINavigationController,
+           let homeViewController = homeNavigationController.viewControllers.first {
+            homeNavigationController.setViewControllers(
+                [homeViewController, productDetailViewController],
+                animated: false
+            )
+            tabBarController.selectedIndex = 0
+        } else if let navigationController,
+                  let rootViewController = navigationController.viewControllers.first {
+            navigationController.setViewControllers(
+                [rootViewController, productDetailViewController],
+                animated: true
+            )
         } else {
             present(productDetailViewController, animated: true)
         }
