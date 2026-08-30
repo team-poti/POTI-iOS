@@ -86,7 +86,7 @@ final class PotInfoCell: UITableViewCell {
     
     func setLayout() {
         potIdLabel.snp.makeConstraints {
-            $0.top.equalToSuperview()
+            $0.top.equalToSuperview().offset(12)
             $0.leading.equalToSuperview().inset(16)
             $0.trailing.equalToSuperview()
         }
