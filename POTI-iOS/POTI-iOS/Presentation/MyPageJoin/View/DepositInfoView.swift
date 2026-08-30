@@ -55,6 +55,7 @@ final class DepositInfoView: BaseView {
                 attributes: underlineAttributes
             )
             $0.setAttributedTitle(attributedTitle, for: .normal)
+            $0.accessibilityLabel = "계좌번호 복사"
         }
         
         deadlineContainerView.do {
@@ -91,12 +92,15 @@ final class DepositInfoView: BaseView {
         
         accountLabel.snp.makeConstraints {
             $0.leading.equalTo(accountContainerView.snp.leading).offset(16)
+            $0.trailing.lessThanOrEqualTo(copyButton.snp.leading).offset(-8)
             $0.centerY.equalTo(accountContainerView)
         }
         
         copyButton.snp.makeConstraints {
-            $0.trailing.equalTo(accountContainerView.snp.trailing).inset(16)
+            $0.trailing.equalTo(accountContainerView.snp.trailing).inset(4)
             $0.centerY.equalTo(accountContainerView)
+            $0.width.equalTo(48)
+            $0.height.equalTo(45)
         }
         
         deadlineContainerView.snp.makeConstraints {
