@@ -2,7 +2,7 @@
 //  PaymentsAPI.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/22/26.
+//  Created by Neon on 1/22/26.
 //
 
 import Alamofire
@@ -22,7 +22,7 @@ enum PaymentsAPI: BaseTargetType {
     
     var method: HTTPMethod {
         switch self {
-        case .patchPaymentConfirm: //.patchTrackingNumberConfirm
+        case .patchPaymentConfirm:
             return .patch
         case .postPayment:
             return .post

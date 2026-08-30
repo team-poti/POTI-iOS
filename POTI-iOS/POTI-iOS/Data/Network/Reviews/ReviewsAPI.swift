@@ -13,7 +13,7 @@ enum ReviewsAPI: BaseTargetType {
     var path: String {
         switch self {
         case .createReview:
-            return "api/v1/reviews"
+            return "/api/v1/reviews"
         }
     }
     

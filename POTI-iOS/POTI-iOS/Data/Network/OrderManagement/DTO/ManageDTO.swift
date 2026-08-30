@@ -39,9 +39,9 @@ struct DepositInfoDTO: Decodable {
 }
 
 struct ManageShippingInfoDTO: Decodable {
-    let receiverName: String
-    let address: String
-    let phone: String
+    let receiverName: String?
+    let address: String?
+    let phone: String?
     let trackingNumber: String?
 }
 
@@ -99,9 +99,9 @@ extension DepositInfoDTO {
 extension ManageShippingInfoDTO {
     func toEntity() -> ShippingInfoEntity {
         ShippingInfoEntity(
-            receiverName: receiverName,
-            address: address,
-            phone: phone,
+            receiverName: receiverName ?? "",
+            address: address ?? "",
+            phone: phone ?? "",
             trackingNumber: trackingNumber
         )
     }

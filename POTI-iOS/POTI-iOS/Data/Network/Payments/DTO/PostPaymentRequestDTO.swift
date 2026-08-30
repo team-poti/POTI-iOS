@@ -2,7 +2,7 @@
 //  PostPaymentDTO.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/23/26.
+//  Created by Neon on 1/23/26.
 //
 
 import Alamofire
@@ -12,7 +12,6 @@ struct PostPaymentRequestDTO: Encodable {
     let depositorName: String
     let depositedAt: String
     
-    // 수상하다 요놈 비어있음!!!!!!
     enum CodingKeys: String, CodingKey {
         case participationId = "orderId"
         case depositorName
