@@ -6,8 +6,6 @@
 //
 
 
-// 모집
-
 import UIKit
 
 import Combine
@@ -248,7 +246,6 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         }
     }
     
-    //header
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let section = Section(rawValue: section) else { return nil }
         

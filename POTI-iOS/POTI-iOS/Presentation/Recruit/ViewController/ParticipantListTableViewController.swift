@@ -5,8 +5,6 @@
 //  Created by Neon on 1/13/26.
 //
 
-// 참여자 관리
-
 import UIKit
 
 import Combine
@@ -30,7 +28,6 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     }
     private var lastSectionCount: Int = 0
     
-    // 송장번호 입력 bottom sheet를 잡아두었다가 PATCH 성공 시 닫기
     private var trackingNumberSheet: DetailBottomSheet?
     
     // MARK: - Lifecycle
@@ -197,10 +194,8 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             dismissesOnSubmit: false
         )
         
-        // sheet를 잡아두었다가 PATCH 성공 시 닫기
         self.trackingNumberSheet = sheet
-        
-        // 입력 완료 → PATCH 실행
+
         sheet.onSubmit = { [weak self] carrier, trackingNumber in
             
             self?.viewModel.action(

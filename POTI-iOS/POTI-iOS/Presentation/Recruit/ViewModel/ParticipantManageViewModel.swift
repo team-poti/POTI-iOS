@@ -131,11 +131,9 @@ final class ParticipantManageViewModel: BaseViewModelType {
             do {
                 _ = try await paymentsUseCase.execute(orderId: orderId)
 
-                // PATCH 성공 후 최신 상태 재조회
                 let entity = try await postsParticipantsUseCase.execute(postId: postId)
                 self.participants = entity.toParticipantManageModels()
 
-                // UI 갱신
                 self.fetchDataSubject.send(())
 
             } catch {

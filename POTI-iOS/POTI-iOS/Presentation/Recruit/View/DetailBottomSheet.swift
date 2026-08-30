@@ -98,7 +98,6 @@ final class DetailBottomSheet: BaseView {
         )
         setAddTarget()
         bindViewModel()
-        ///리팩할 때 뷰컨으로 옮길 예정!!!!!! 0120
     }
     
     override func setLayout() {
