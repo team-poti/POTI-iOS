@@ -26,7 +26,8 @@ final class PotOrderViewModel: BaseViewModelType {
     struct Output {
         let nickname = PassthroughSubject<String, Never>()
         let orderHeaderData = PassthroughSubject<(items: [(Kind, String, String)], total: String), Never>()
-        let orderResult = PassthroughSubject<Bool, Never>()
+        let orderCompleted = PassthroughSubject<Void, Never>()
+        let orderError = PassthroughSubject<String, Never>()
         let nameError = PassthroughSubject<String?, Never>()
         let zipcodeError = PassthroughSubject<String?, Never>()
         let addressError = PassthroughSubject<String?, Never>()
@@ -104,28 +105,28 @@ final class PotOrderViewModel: BaseViewModelType {
         var isValid = true
         
         if name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            output.nameError.send("이름을 입력해주세요.")
+            output.nameError.send("이름을 입력해주세요")
             isValid = false
         } else {
             output.nameError.send(nil)
         }
         
         if zipcode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            output.zipcodeError.send("우편번호를 검색해주세요.")
+            output.zipcodeError.send("우편번호를 입력해주세요")
             isValid = false
         } else {
             output.zipcodeError.send(nil)
         }
 
         if address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            output.addressError.send("주소를 검색해주세요.")
+            output.addressError.send("주소를 입력해주세요")
             isValid = false
         } else {
             output.addressError.send(nil)
         }
         
         if phone.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            output.phoneError.send("연락처를 입력해주세요.")
+            output.phoneError.send("연락처를 입력해주세요")
             isValid = false
         } else {
             output.phoneError.send(nil)
@@ -153,17 +154,42 @@ final class PotOrderViewModel: BaseViewModelType {
     private func requestSubmitOrder() {
         Task {
             do {
-                let roadAddress = address.trimmingCharacters(in: .whitespacesAndNewlines)
-                let trimmedDetailAddress = detailAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-                let addressLine = trimmedDetailAddress.isEmpty ? roadAddress : "\(roadAddress) \(trimmedDetailAddress)"
-                let entity = ParticipationEntity(postId: self.postId, shippingId: self.shippingId, receiverName: name,
-                                                 zipcode: zipcode, addressLine: addressLine, phone: phone, items: self.orderItems)
+                let entity = ParticipationEntity(
+                    postId: postId,
+                    shippingId: shippingId,
+                    receiverName: name.trimmingCharacters(in: .whitespacesAndNewlines),
+                    zipcode: zipcode.trimmingCharacters(in: .whitespacesAndNewlines),
+                    address: address.trimmingCharacters(in: .whitespacesAndNewlines),
+                    addressDetail: detailAddress.trimmingCharacters(in: .whitespacesAndNewlines),
+                    phone: phone.trimmingCharacters(in: .whitespacesAndNewlines),
+                    items: orderItems
+                )
                 
                 _ = try await useCase.execute(info: entity)
-                output.orderResult.send(true)
+                output.orderCompleted.send()
             } catch {
-                output.orderResult.send(false)
+                let message = error.localizedDescription
+                if !applyServerValidationError(message) {
+                    output.orderError.send(message)
+                }
             }
         }
+    }
+
+    private func applyServerValidationError(_ message: String) -> Bool {
+        if message.contains("우편번호") {
+            output.zipcodeError.send(message)
+        } else if message.contains("상세주소") {
+            output.addressError.send(message)
+        } else if message.contains("주소") {
+            output.addressError.send(message)
+        } else if message.contains("이름") || message.contains("수령인") {
+            output.nameError.send(message)
+        } else if message.contains("연락처") || message.contains("전화번호") {
+            output.phoneError.send(message)
+        } else {
+            return false
+        }
+        return true
     }
 }
