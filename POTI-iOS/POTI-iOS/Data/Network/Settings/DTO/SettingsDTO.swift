@@ -39,18 +39,6 @@ struct AddressResponseDTO: Decodable, EmptyResponseInitializable {
     }
 }
 
-struct NotificationSettingsResponseDTO: Decodable {
-    let tradeNotificationEnabled: Bool
-    let eventNotificationEnabled: Bool
-
-    func toEntity() -> NotificationSettingsEntity {
-        NotificationSettingsEntity(
-            tradeNotificationEnabled: tradeNotificationEnabled,
-            eventNotificationEnabled: eventNotificationEnabled
-        )
-    }
-}
-
 private extension String {
     var displayName: String {
         switch uppercased() {

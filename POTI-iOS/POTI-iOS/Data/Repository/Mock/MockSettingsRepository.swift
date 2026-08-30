@@ -42,17 +42,6 @@ final class MockSettingsRepository: SettingsInterface {
         return address
     }
 
-    func fetchNotificationSettings() async throws -> NotificationSettingsEntity {
-        NotificationSettingsEntity(tradeNotificationEnabled: true, eventNotificationEnabled: false)
-    }
-
-    func updateNotificationSettings(tradeEnabled: Bool, eventEnabled: Bool) async throws -> NotificationSettingsEntity {
-        NotificationSettingsEntity(
-            tradeNotificationEnabled: tradeEnabled,
-            eventNotificationEnabled: eventEnabled
-        )
-    }
-
     func withdrawalAvailability() async throws -> WithdrawalAvailabilityEntity {
         withdrawalState
     }

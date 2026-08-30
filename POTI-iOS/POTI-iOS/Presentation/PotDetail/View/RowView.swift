@@ -41,7 +41,7 @@ final class RowView: UIView {
         valueStackView.do {
             $0.axis = .vertical
             $0.spacing = 8
-            $0.alignment = .leading
+            $0.alignment = .fill
         }
     }
 
@@ -58,7 +58,7 @@ final class RowView: UIView {
 
         valueStackView.snp.makeConstraints {
             $0.leading.equalTo(titleLabel.snp.trailing).offset(12)
-            $0.trailing.lessThanOrEqualToSuperview()
+            $0.trailing.equalToSuperview()
             $0.verticalEdges.equalToSuperview()
         }
     }
@@ -78,12 +78,19 @@ final class RowView: UIView {
 
         values.chunked(into: 2).forEach { rowValues in
             let rowStackView = createRowStackView()
+            let labels = rowValues.map { createValueLabel(with: $0) }
 
-            for (index, value) in rowValues.enumerated() {
-                rowStackView.addArrangedSubview(createValueLabel(with: value))
+            for (index, label) in labels.enumerated() {
+                rowStackView.addArrangedSubview(label)
 
-                if index < rowValues.count - 1 {
+                if index < labels.count - 1 {
                     rowStackView.addArrangedSubview(createVerticalDivider())
+                }
+            }
+
+            if labels.count == 2 {
+                labels[0].snp.makeConstraints {
+                    $0.width.equalTo(labels[1])
                 }
             }
 
@@ -101,8 +108,8 @@ final class RowView: UIView {
             $0.numberOfLines = 1
             $0.adjustsFontSizeToFitWidth = true
             $0.minimumScaleFactor = 0.8
-            $0.setContentHuggingPriority(.required, for: .horizontal)
-            $0.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+            $0.setContentHuggingPriority(.defaultLow, for: .horizontal)
+            $0.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         }
     }
 

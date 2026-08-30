@@ -34,9 +34,13 @@ final class LoginViewModel: BaseViewModelType {
     private var cancellables = Set<AnyCancellable>()
     
     private let loginUseCase: LoginUseCase
+    private let devLoginUseCase: DevLoginUseCase
+    private let fcmTokenSyncService: FCMTokenSyncService
 
-    init(loginUseCase: LoginUseCase) {
+    init(loginUseCase: LoginUseCase, devLoginUseCase: DevLoginUseCase, fcmTokenSyncService: FCMTokenSyncService) {
         self.loginUseCase = loginUseCase
+        self.devLoginUseCase = devLoginUseCase
+        self.fcmTokenSyncService = fcmTokenSyncService
         self.output = Output(
             navigateToOnboarding: navigateToOnboardingSubject.eraseToAnyPublisher(),
             navigateToHome: navigateToHomeSubject.eraseToAnyPublisher(),
@@ -57,6 +61,7 @@ final class LoginViewModel: BaseViewModelType {
         Task {
             do {
                 let result = try await loginUseCase.execute(type: type)
+                await fcmTokenSyncService.synchronize(token: nil)
                 if result.isNewUser {
                     navigateToOnboardingSubject.send(())
                 } else {
@@ -69,4 +74,18 @@ final class LoginViewModel: BaseViewModelType {
             }
         }
     }
+    
+    private func devLogin() {
+        Task {
+            do {
+                _ = try await devLoginUseCase.execute()
+                await fcmTokenSyncService.synchronize(token: nil)
+                navigateToHomeSubject.send(())
+            } catch {
+                PotiLogger.error(error)
+                loginFailureSubject.send(error)
+            }
+        }
+    }
+
 }

@@ -10,10 +10,15 @@ import Foundation
 struct YourPageModel {
     let userId: Int
     let nickname: String
-    let email: String?
     let profileImage: String?
     let ratingAverage: Double
     let activityMessage: String
     let joinedDate: String
-    let recruitSummary: RecruitSummary
+    let participationSummary: YourPageSummary
+    let recruitSummary: YourPageSummary
+}
+
+struct YourPageSummary {
+    let inProgressCount: Int
+    let completedCount: Int
 }

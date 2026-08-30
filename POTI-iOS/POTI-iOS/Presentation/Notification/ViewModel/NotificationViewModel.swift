@@ -7,7 +7,8 @@
 
 import Combine
 
-final class NotificationViewModel: BaseViewModelType {
+@MainActor
+final class NotificationViewModel: @MainActor BaseViewModelType {
 
     // MARK: - Input
 
@@ -108,10 +109,8 @@ final class NotificationViewModel: BaseViewModelType {
         guard notifications.indices.contains(index) else { return }
 
         let notification = notifications[index]
-        guard !notification.isRead else {
-            sendDeepLinkIfNeeded(notification.deeplink)
-            return
-        }
+        sendDeepLinkIfNeeded(notification.deeplink)
+        guard !notification.isRead else { return }
 
         Task { [weak self] in
             guard let self else { return }
@@ -121,7 +120,6 @@ final class NotificationViewModel: BaseViewModelType {
                 guard let updatedIndex = notifications.firstIndex(where: { $0.id == notification.id }) else { return }
                 notifications[updatedIndex].isRead = true
                 reloadDataSubject.send(())
-                sendDeepLinkIfNeeded(notification.deeplink)
             } catch {
                 PotiLogger.error(error)
             }
