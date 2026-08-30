@@ -24,6 +24,11 @@ struct MyJoinDepositState {
     let shippingMethod: String
     let shippingFee: Int
     let totalAmount: Int
+
+    var contentHeight: CGFloat {
+        let additionalRows = max(memberRows.count - 1, 0)
+        return 155 + CGFloat(additionalRows * 29)
+    }
 }
 
 // MARK: - Mapper
@@ -47,8 +52,15 @@ struct JoinDetailViewStateMapper {
         )
 
         let serverMessage = entity.statusMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        let progressMessage: String?
+        if let defaultMessage = screenState.message {
+            progressMessage = serverMessage.isEmpty ? defaultMessage : serverMessage
+        } else {
+            progressMessage = nil
+        }
+
         let progress = JoinProgressStatusViewCell.Model(
-            message: serverMessage.isEmpty ? screenState.message : serverMessage,
+            message: progressMessage,
             progressImage: screenState.progressImage
         )
         

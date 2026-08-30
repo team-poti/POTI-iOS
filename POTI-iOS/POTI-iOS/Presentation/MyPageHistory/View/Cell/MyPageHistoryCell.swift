@@ -38,6 +38,9 @@ final class MyPageHistoryCell: UITableViewCell {
     // MARK: - Custom Methods
     
     private func setStyle() {
+        backgroundColor = .potiWhite
+        contentView.backgroundColor = .potiWhite
+
         artistLabel.do {
             $0.font = PotiFontManager.caption12m.font
             $0.textColor = .gray800

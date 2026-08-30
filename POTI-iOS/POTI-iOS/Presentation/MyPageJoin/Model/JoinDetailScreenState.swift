@@ -76,7 +76,7 @@ private struct ShippingJoinState: JoinDetailScreenState {
 
 private struct DeliveredJoinState: JoinDetailScreenState {
     let navigationTitle = "종료된 분철"
-    let message: String? = "거래가 종료되었어요!"
+    let message: String? = nil
     let progressImage: UIImage? = .imgStep4
     let contentKind: JoinDetailContentKind = .depositCompleted
     let bottomAction: JoinDetailBottomAction? = nil

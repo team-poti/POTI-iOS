@@ -26,6 +26,7 @@ final class RecruitingCell: UITableViewCell {
     
     private func setStyle() {
         backgroundColor = .potiWhite
+        contentView.backgroundColor = .potiWhite
     }
 
     private func setUI() {

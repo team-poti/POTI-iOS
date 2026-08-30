@@ -49,7 +49,7 @@ final class JoinParticipantInfoLabelView: BaseView {
     }
     
     func configure(title: String, infos: [String]) {
-        titleLabel.setLabel(title, font: .body14sb)
+        titleLabel.text = title
         
         let text = infos
             .filter { !$0.isEmpty }

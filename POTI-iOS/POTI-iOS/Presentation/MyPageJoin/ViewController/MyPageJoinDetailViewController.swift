@@ -271,7 +271,7 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         case .progress:
             return UITableView.automaticDimension
         case .myJoinDepositInfo:
-            return UITableView.automaticDimension
+            return viewState?.myJoinDepositInfo.contentHeight ?? 155
         case .statusInfo:
             return UITableView.automaticDimension
         }

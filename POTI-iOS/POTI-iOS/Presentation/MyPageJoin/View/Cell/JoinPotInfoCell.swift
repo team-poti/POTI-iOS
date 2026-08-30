@@ -43,6 +43,8 @@ final class JoinPotInfoCell: UITableViewCell {
     // MARK: - Custom Method
     
     private func setStyle() {
+        contentView.backgroundColor = .potiWhite
+
         potIdLabel.do {
             $0.font = PotiFontManager.body14m.font
             $0.textColor = .gray800
@@ -107,7 +109,7 @@ final class JoinPotInfoCell: UITableViewCell {
         }
         
         artistLabel.snp.makeConstraints {
-            $0.top.equalTo(thumbnailView).inset(8)
+            $0.top.equalTo(thumbnailView).inset(4)
             $0.leading.equalTo(thumbnailView.snp.trailing).offset(12)
             $0.trailing.lessThanOrEqualTo(potButton.snp.leading).offset(-8)
         }

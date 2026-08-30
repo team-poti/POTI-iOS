@@ -29,6 +29,7 @@ final class MyJoinDepositInfoCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.backgroundColor = .potiWhite
+        contentView.backgroundColor = .potiWhite
         setStyle()
         setUI()
         setLayout()
