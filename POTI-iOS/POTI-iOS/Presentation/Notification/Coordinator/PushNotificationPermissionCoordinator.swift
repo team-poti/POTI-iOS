@@ -14,6 +14,7 @@ final class PushNotificationPermissionCoordinator {
     private let viewModel: NotificationSettingViewModel
     private let permissionService: PushNotificationPermissionService
     private var isWaitingForSystemSettings = false
+    private var pendingPermissionAllowedAction: (() -> Void)?
     
     // MARK: - Initializer
     
@@ -31,38 +32,46 @@ final class PushNotificationPermissionCoordinator {
     
     // MARK: - Private Methods
     
-    private func requestSystemPermission() {
+    private func requestSystemPermission(whenPermissionAllowed: @escaping () -> Void) {
         Task { [weak self] in
             guard let self else { return }
             let result = await permissionService.requestPermissionOrOpenSettings()
-            await handlePermissionResult(result)
+            await handlePermissionResult(result, whenPermissionAllowed: whenPermissionAllowed)
         }
     }
     
     @MainActor
-    private func handlePermissionResult(_ result: PushNotificationPermissionResult) {
+    private func handlePermissionResult(_ result: PushNotificationPermissionResult,
+                                        whenPermissionAllowed: @escaping () -> Void) {
         switch result {
         case .granted:
-            viewModel.action(.setAllNotifications(isEnabled: true))
+            whenPermissionAllowed()
         case .denied:
             viewModel.action(.setAllNotifications(isEnabled: false))
         case .openedSettings:
             isWaitingForSystemSettings = true
+            pendingPermissionAllowedAction = whenPermissionAllowed
             viewModel.action(.setAllNotifications(isEnabled: false))
         }
     }
-    
-    // MARK: - Public Methods
-    
-    func showPermissionModal(in view: UIView) {
+
+    private func showPermissionModal(in view: UIView, whenPermissionAllowed: @escaping () -> Void) {
         let modalView = PushNotificationPermissionModalView()
         modalView.onTapAllow = { [weak self] in
-            self?.requestSystemPermission()
+            self?.requestSystemPermission(whenPermissionAllowed: whenPermissionAllowed)
         }
         modalView.onTapLater = { [weak self] in
             self?.viewModel.action(.setAllNotifications(isEnabled: false))
         }
         modalView.show(in: view)
+    }
+
+    // MARK: - Public Methods
+
+    func showPermissionModal(in view: UIView) {
+        showPermissionModal(in: view) { [weak self] in
+            self?.viewModel.action(.setAllNotifications(isEnabled: true))
+        }
     }
     
     func handleEnablingNotification(in view: UIView, whenPermissionAllowed: @escaping () -> Void) {
@@ -72,7 +81,9 @@ final class PushNotificationPermissionCoordinator {
             if await permissionService.isPermissionAllowed() {
                 await MainActor.run { whenPermissionAllowed() }
             } else {
-                await MainActor.run { self.showPermissionModal(in: view) }
+                await MainActor.run {
+                    self.showPermissionModal(in: view, whenPermissionAllowed: whenPermissionAllowed)
+                }
             }
         }
     }
@@ -87,7 +98,12 @@ final class PushNotificationPermissionCoordinator {
             guard let self else { return }
             let isAllowed = await permissionService.isPermissionAllowed()
             await MainActor.run {
-                self.viewModel.action(.setAllNotifications(isEnabled: isAllowed))
+                if isAllowed {
+                    self.pendingPermissionAllowedAction?()
+                } else {
+                    self.viewModel.action(.setAllNotifications(isEnabled: false))
+                }
+                self.pendingPermissionAllowedAction = nil
             }
         }
     }
