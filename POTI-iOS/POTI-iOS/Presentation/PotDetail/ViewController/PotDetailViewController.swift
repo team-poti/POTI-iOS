@@ -127,7 +127,8 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     }
 
     private func showShareBottomSheet() {
-        guard let model = viewModel.potDetailModel,
+        guard viewModel.isShareContentReady,
+              let model = viewModel.potDetailModel,
               let host = try? AppConfig.deepLinkHost(),
               let shareURL = makeShareURL(host: host) else { return }
 

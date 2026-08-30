@@ -34,6 +34,7 @@ final class PotDetailViewModel: BaseViewModelType {
     private(set) var participants: [ParticipantModel] = []
     private(set) var potDetailModel: PotDetailModel?
     private(set) var availableMembers: [String] = []
+    private(set) var isShareContentReady = false
     
     // MARK: - Subject
     
@@ -55,6 +56,7 @@ final class PotDetailViewModel: BaseViewModelType {
     func action(_ trigger: Input) {
         switch trigger {
         case .viewDidLoad:
+            isShareContentReady = false
             fetchPotDetail()
             fetchPotOptions()
         }
@@ -93,6 +95,7 @@ final class PotDetailViewModel: BaseViewModelType {
             do {
                 let options = try await fetchPotOptionsUseCase.execute(postId: postId)
                 availableMembers = options.members.map(\.name)
+                isShareContentReady = true
             } catch {
                 PotiLogger.error(error)
             }
