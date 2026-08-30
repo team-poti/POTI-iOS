@@ -9,14 +9,36 @@ import XCTest
 @testable import POTI_iOS
 
 final class JoinDetailScreenStateTests: XCTestCase {
+    func testDepositInfoHeightMatchesFigmaSpacingForMemberRows() {
+        let singleMember = MyJoinDepositState(
+            memberRows: [.init(name: "안유진", price: 10)],
+            shippingMethod: "준등기",
+            shippingFee: 1800,
+            totalAmount: 4010
+        )
+        let threeMembers = MyJoinDepositState(
+            memberRows: [
+                .init(name: "안유진", price: 10),
+                .init(name: "장원영", price: 10),
+                .init(name: "레이", price: 10)
+            ],
+            shippingMethod: "준등기",
+            shippingFee: 1800,
+            totalAmount: 4030
+        )
+
+        XCTAssertEqual(singleMember.contentHeight, 155)
+        XCTAssertEqual(threeMembers.contentHeight, 213)
+    }
+
     func testEveryParticipantStageMatchesDesignCopyAndAction() {
-        let cases: [(PostStatus, ParticipantOrderStatus, String, JoinDetailContentKind, JoinDetailBottomAction?)] = [
+        let cases: [(PostStatus, ParticipantOrderStatus, String?, JoinDetailContentKind, JoinDetailBottomAction?)] = [
             (.recruiting, .waitPay, "다른 참여자들을 기다리고 있어요", .recruiting, nil),
             (.closed, .waitPay, "지금 입금해주세요!", .recruitCompleted, .submitDeposit),
             (.closed, .waitPayCheck, "모집자가 입금 내역을 확인하고 있어요", .recruitCompleted, nil),
             (.paymentDone, .paid, "모집자가 배송을 준비 중이에요", .depositCompleted, nil),
             (.shipping, .paid, "모집자가 배송을 시작했어요", .shipping, .completeDelivery),
-            (.delivered, .paid, "거래가 종료되었어요!", .depositCompleted, nil)
+            (.delivered, .paid, nil, .depositCompleted, nil)
         ]
 
         for (postStatus, participantStatus, message, contentKind, action) in cases {
@@ -52,7 +74,23 @@ final class JoinDetailScreenStateTests: XCTestCase {
         XCTAssertEqual(state.myJoinDepositInfo.memberRows, [.init(name: "민지", price: 5_000)])
     }
 
-    private func makeEntity(statusMessage: String) -> JoinDetailEntity {
+    func testDeliveredStateHidesServerMessageToMatchFigma() {
+        let entity = makeEntity(
+            postStatus: .delivered,
+            depositStatus: .delivered,
+            statusMessage: "거래가 종료되었어요!"
+        )
+
+        let state = JoinDetailViewStateMapper().map(entity: entity)
+
+        XCTAssertNil(state.progress.message)
+    }
+
+    private func makeEntity(
+        postStatus: PostStatus = .closed,
+        depositStatus: ParticipantOrderStatus = .waitPay,
+        statusMessage: String
+    ) -> JoinDetailEntity {
         JoinDetailEntity(
             participationId: 193,
             postId: 182,
@@ -60,13 +98,13 @@ final class JoinDetailScreenStateTests: XCTestCase {
             imageUrl: "",
             artistName: "POTI",
             title: "참여 상세",
-            postStatus: .closed,
+            postStatus: postStatus,
             statusMessage: statusMessage,
             memberPayments: [.init(memberName: "민지", price: 5_000)],
             paymentInfo: .init(
                 shippingFee: 1_800,
                 totalAmount: 6_800,
-                depositStatus: .waitPay,
+                depositStatus: depositStatus,
                 bank: "포티은행",
                 accountNumber: "123-456",
                 depositDeadline: "2026-08-30"

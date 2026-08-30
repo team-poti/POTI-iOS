@@ -13,7 +13,7 @@ final class ReviewsAPITests: XCTestCase {
     func testCreateReviewMatchesSwaggerContract() {
         let target = ReviewsAPI.createReview(transactionId: 193, rating: 5)
 
-        XCTAssertEqual(target.path, "api/v1/reviews")
+        XCTAssertEqual(target.path, "/api/v1/reviews")
         XCTAssertEqual(target.method, .post)
         XCTAssertEqual(target.bodyParameters?["transactionId"] as? Int, 193)
         XCTAssertEqual(target.bodyParameters?["star"] as? Int, 5)
