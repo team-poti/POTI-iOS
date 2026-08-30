@@ -61,7 +61,8 @@ final class PotiToggle: UIControl {
 
     private func setLayout() {
         snp.makeConstraints {
-            $0.size.equalTo(46)
+            $0.width.equalTo(46)
+            $0.height.equalTo(26)
         }
 
         trackView.snp.makeConstraints {

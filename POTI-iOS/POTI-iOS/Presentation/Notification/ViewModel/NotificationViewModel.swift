@@ -13,6 +13,7 @@ final class NotificationViewModel: BaseViewModelType {
 
     enum Input {
         case viewDidLoad
+        case loadNextPage
         case didTapNotification(index: Int)
         case didTapReadAll
     }
@@ -21,11 +22,21 @@ final class NotificationViewModel: BaseViewModelType {
 
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
+        let deepLink: AnyPublisher<String, Never>
     }
 
     // MARK: - Properties
 
-    private(set) var notifications: [NotificationItem]
+    private let fetchNotificationsUseCase: FetchNotificationsUseCase
+    private let readNotificationUseCase: ReadNotificationUseCase
+    private let readAllNotificationsUseCase: ReadAllNotificationsUseCase
+
+    private(set) var notifications: [NotificationItem] = []
+    private var currentPage = 0
+    private var hasNextPage = true
+    private var isFetching = false
+    private var isReadingAll = false
+
     let output: Output
 
     var hasUnreadNotification: Bool {
@@ -35,12 +46,16 @@ final class NotificationViewModel: BaseViewModelType {
     // MARK: - Subject
 
     private let reloadDataSubject = PassthroughSubject<Void, Never>()
+    private let deepLinkSubject = PassthroughSubject<String, Never>()
 
     // MARK: - Initializer
 
-    init(notifications: [NotificationItem] = []) {
-        self.notifications = notifications
-        self.output = Output(reloadData: reloadDataSubject.eraseToAnyPublisher())
+    init(fetchNotificationsUseCase: FetchNotificationsUseCase, readNotificationUseCase: ReadNotificationUseCase,
+         readAllNotificationsUseCase: ReadAllNotificationsUseCase) {
+        self.fetchNotificationsUseCase = fetchNotificationsUseCase
+        self.readNotificationUseCase = readNotificationUseCase
+        self.readAllNotificationsUseCase = readAllNotificationsUseCase
+        self.output = Output(reloadData: reloadDataSubject.eraseToAnyPublisher(), deepLink: deepLinkSubject.eraseToAnyPublisher())
     }
 
     // MARK: - Action
@@ -48,7 +63,9 @@ final class NotificationViewModel: BaseViewModelType {
     func action(_ trigger: Input) {
         switch trigger {
         case .viewDidLoad:
-            reloadDataSubject.send(())
+            fetchNotifications(isFirstPage: true)
+        case .loadNextPage:
+            fetchNotifications(isFirstPage: false)
         case .didTapNotification(let index):
             readNotification(at: index)
         case .didTapReadAll:
@@ -58,17 +75,81 @@ final class NotificationViewModel: BaseViewModelType {
 
     // MARK: - Private Methods
 
+    private func fetchNotifications(isFirstPage: Bool) {
+        guard !isFetching && (isFirstPage || hasNextPage) else { return }
+
+        isFetching = true
+        let requestedPage = isFirstPage ? 0 : currentPage
+
+        Task { [weak self] in
+            guard let self else { return }
+            defer { isFetching = false }
+
+            do {
+                let page = try await fetchNotificationsUseCase.execute(page: requestedPage)
+                let newItems = page.notifications.map { $0.toNotificationItem() }
+
+                if isFirstPage {
+                    notifications = newItems
+                } else {
+                    notifications.append(contentsOf: newItems)
+                }
+
+                currentPage = page.currentPage + 1
+                hasNextPage = page.hasNext
+                reloadDataSubject.send(())
+            } catch {
+                PotiLogger.error(error)
+            }
+        }
+    }
+
     private func readNotification(at index: Int) {
-        guard notifications.indices.contains(index), !notifications[index].isRead else { return }
-        notifications[index].isRead = true
-        reloadDataSubject.send(())
+        guard notifications.indices.contains(index) else { return }
+
+        let notification = notifications[index]
+        guard !notification.isRead else {
+            sendDeepLinkIfNeeded(notification.deeplink)
+            return
+        }
+
+        Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await readNotificationUseCase.execute(notificationId: notification.id)
+                guard let updatedIndex = notifications.firstIndex(where: { $0.id == notification.id }) else { return }
+                notifications[updatedIndex].isRead = true
+                reloadDataSubject.send(())
+                sendDeepLinkIfNeeded(notification.deeplink)
+            } catch {
+                PotiLogger.error(error)
+            }
+        }
+    }
+
+    private func sendDeepLinkIfNeeded(_ deepLink: String?) {
+        guard let deepLink, !deepLink.isBlank else { return }
+        deepLinkSubject.send(deepLink)
     }
 
     private func readAllNotifications() {
-        guard hasUnreadNotification else { return }
-        for index in notifications.indices {
-            notifications[index].isRead = true
+        guard hasUnreadNotification, !isReadingAll else { return }
+        isReadingAll = true
+
+        Task { [weak self] in
+            guard let self else { return }
+            defer { isReadingAll = false }
+
+            do {
+                try await readAllNotificationsUseCase.execute()
+                for index in notifications.indices {
+                    notifications[index].isRead = true
+                }
+                reloadDataSubject.send(())
+            } catch {
+                PotiLogger.error(error)
+            }
         }
-        reloadDataSubject.send(())
     }
 }
