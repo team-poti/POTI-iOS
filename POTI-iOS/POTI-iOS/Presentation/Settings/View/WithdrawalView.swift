@@ -11,18 +11,9 @@ import SnapKit
 import Then
 
 final class WithdrawalView: BaseView {
-    private static let reasons = [
-        (code: "HARD_TO_FIND", label: "원하는 굿즈를 찾기 어려워요."),
-        (code: "INCONVENIENT_PROCESS", label: "분철 모집 또는 참여 과정이 불편해요."),
-        (code: "LACK_OF_FEATURES", label: "필요한 기능이 부족해요."),
-        (code: "FREQUENT_ERRORS", label: "오류나 버그를 자주 경험했어요."),
-        (code: "USING_OTHER_SERVICE", label: "다른 서비스를 이용하고 있어요."),
-        (code: "LOW_FREQUENCY", label: "이용 빈도가 낮아요."),
-        (code: "OTHER", label: "기타")
-    ]
-
     let withdrawButton = SettingsActionButton(title: "탈퇴하기")
     private(set) var selectedReasonCode: String?
+    private var reasons: [WithdrawalReasonEntity] = []
     private let titleLabel = UILabel()
     private let reasonStackView = UIStackView()
     private var reasonRows: [WithdrawalReasonRow] = []
@@ -38,13 +29,25 @@ final class WithdrawalView: BaseView {
     }
 
     override func setUI() {
-        Self.reasons.enumerated().forEach { index, reason in
+        withdrawButton.setEnabled(false)
+        addSubviews(titleLabel, reasonStackView, withdrawButton)
+    }
+
+    func configure(reasons: [WithdrawalReasonEntity]) {
+        self.reasons = reasons
+        reasonRows.removeAll()
+        reasonStackView.arrangedSubviews.forEach {
+            reasonStackView.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        }
+
+        reasons.enumerated().forEach { index, reason in
             let row = WithdrawalReasonRow(title: reason.label)
             row.tag = index
             row.addTarget(self, action: #selector(reasonTapped(_:)), for: .touchUpInside)
             reasonRows.append(row)
             reasonStackView.addArrangedSubview(row)
-            if index < Self.reasons.count - 1 {
+            if index < reasons.count - 1 {
                 let divider = UIView().then {
                     $0.backgroundColor = .gray300
                 }
@@ -55,9 +58,8 @@ final class WithdrawalView: BaseView {
             }
         }
         reasonRows.first?.isSelected = true
-        selectedReasonCode = Self.reasons.first?.code
-        withdrawButton.setEnabled(true)
-        addSubviews(titleLabel, reasonStackView, withdrawButton)
+        selectedReasonCode = reasons.first?.code
+        withdrawButton.setEnabled(!reasons.isEmpty)
     }
 
     override func setLayout() {
@@ -78,7 +80,7 @@ final class WithdrawalView: BaseView {
 
     @objc private func reasonTapped(_ sender: WithdrawalReasonRow) {
         reasonRows.forEach { $0.isSelected = $0 === sender }
-        selectedReasonCode = Self.reasons[sender.tag].code
+        selectedReasonCode = reasons[sender.tag].code
         withdrawButton.setEnabled(true)
     }
 }

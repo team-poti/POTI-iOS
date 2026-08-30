@@ -9,6 +9,11 @@ import Combine
 import Foundation
 
 final class SettingsViewModel: BaseViewModelType {
+    enum WithdrawalError: Equatable {
+        case activeTransaction
+        case general(String)
+    }
+
     enum ProfileError {
         case fetch(String)
         case update(String)
@@ -24,6 +29,7 @@ final class SettingsViewModel: BaseViewModelType {
         case fetchNotificationSettings
         case updateNotificationSettings(tradeEnabled: Bool, eventEnabled: Bool)
         case checkWithdrawal
+        case fetchWithdrawalReasons
         case withdraw(String)
         case logout
     }
@@ -33,10 +39,12 @@ final class SettingsViewModel: BaseViewModelType {
         let profile: AnyPublisher<ProfileManagementEntity, Never>
         let address: AnyPublisher<AddressEntity, Never>
         let withdrawalAvailability: AnyPublisher<WithdrawalAvailabilityEntity, Never>
+        let withdrawalReasons: AnyPublisher<[WithdrawalReasonEntity], Never>
         let notificationSettings: AnyPublisher<NotificationSettingsEntity, Never>
         let completed: AnyPublisher<Void, Never>
         let logoutCompleted: AnyPublisher<Void, Never>
         let withdrawalCompleted: AnyPublisher<Void, Never>
+        let withdrawalError: AnyPublisher<WithdrawalError, Never>
         let profileError: AnyPublisher<ProfileError, Never>
         let error: AnyPublisher<String, Never>
     }
@@ -47,10 +55,12 @@ final class SettingsViewModel: BaseViewModelType {
     private let profileSubject = PassthroughSubject<ProfileManagementEntity, Never>()
     private let addressSubject = PassthroughSubject<AddressEntity, Never>()
     private let withdrawalSubject = PassthroughSubject<WithdrawalAvailabilityEntity, Never>()
+    private let withdrawalReasonsSubject = PassthroughSubject<[WithdrawalReasonEntity], Never>()
     private let notificationSettingsSubject = PassthroughSubject<NotificationSettingsEntity, Never>()
     private let completedSubject = PassthroughSubject<Void, Never>()
     private let logoutCompletedSubject = PassthroughSubject<Void, Never>()
     private let withdrawalCompletedSubject = PassthroughSubject<Void, Never>()
+    private let withdrawalErrorSubject = PassthroughSubject<WithdrawalError, Never>()
     private let profileErrorSubject = PassthroughSubject<ProfileError, Never>()
     private let errorSubject = PassthroughSubject<String, Never>()
     private let getAccountUseCase: GetAccountUseCase
@@ -94,10 +104,12 @@ final class SettingsViewModel: BaseViewModelType {
             profile: profileSubject.eraseToAnyPublisher(),
             address: addressSubject.eraseToAnyPublisher(),
             withdrawalAvailability: withdrawalSubject.eraseToAnyPublisher(),
+            withdrawalReasons: withdrawalReasonsSubject.eraseToAnyPublisher(),
             notificationSettings: notificationSettingsSubject.eraseToAnyPublisher(),
             completed: completedSubject.eraseToAnyPublisher(),
             logoutCompleted: logoutCompletedSubject.eraseToAnyPublisher(),
             withdrawalCompleted: withdrawalCompletedSubject.eraseToAnyPublisher(),
+            withdrawalError: withdrawalErrorSubject.eraseToAnyPublisher(),
             profileError: profileErrorSubject.eraseToAnyPublisher(),
             error: errorSubject.eraseToAnyPublisher()
         )
@@ -134,6 +146,8 @@ final class SettingsViewModel: BaseViewModelType {
                     )
                 case .checkWithdrawal:
                     withdrawalSubject.send(try await accountActionUseCase.withdrawalAvailability())
+                case .fetchWithdrawalReasons:
+                    withdrawalReasonsSubject.send(try await withdrawUseCase.fetchReasons())
                 case .withdraw(let reason):
                     try await withdrawUseCase.execute(reason: reason)
                     withdrawalCompletedSubject.send(())
@@ -142,6 +156,20 @@ final class SettingsViewModel: BaseViewModelType {
                     logoutCompletedSubject.send(())
                 }
             } catch {
+                if case .withdraw = trigger {
+                    if error as? PotiError == .withdrawalBlocked {
+                        withdrawalErrorSubject.send(.activeTransaction)
+                    } else {
+                        withdrawalErrorSubject.send(.general(error.localizedDescription))
+                    }
+                    return
+                }
+
+                if case .fetchWithdrawalReasons = trigger {
+                    withdrawalErrorSubject.send(.general(error.localizedDescription))
+                    return
+                }
+
                 let message = "요청을 처리하지 못했습니다."
 
                 switch trigger {

@@ -95,6 +95,13 @@ final class DefaultAuthRepository: AuthInterface {
         KeychainManager.deleteAllTokens()
     }
 
+    func fetchWithdrawalReasons() async throws -> [WithdrawalReasonEntity] {
+        try await networkService.request(
+            target: AuthAPI.withdrawalReasons,
+            type: [WithdrawalReasonResponseDTO].self
+        ).map { $0.toEntity() }
+    }
+
     func logout() async throws {
         _ = try await networkService.request(
             target: AuthAPI.logout(fcmToken: nil),

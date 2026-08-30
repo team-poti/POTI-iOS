@@ -29,6 +29,11 @@ enum WithdrawalAvailabilityEntity {
     case unavailable
 }
 
+struct WithdrawalReasonEntity: Equatable {
+    let code: String
+    let label: String
+}
+
 struct NotificationSettingsEntity {
     let tradeNotificationEnabled: Bool
     let eventNotificationEnabled: Bool

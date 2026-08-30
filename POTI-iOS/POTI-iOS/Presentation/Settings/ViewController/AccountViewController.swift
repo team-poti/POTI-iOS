@@ -66,13 +66,7 @@ final class AccountViewController: BaseViewController<SettingsViewModel>, Naviga
                 animated: true
             )
         case .unavailable:
-            let alert = UIAlertController(
-                title: "회원탈퇴를 할 수 없어요",
-                message: "진행 중인 모집이나 참여 내역이 있어 지금은 탈퇴할 수 없어요. 진행 중인 거래가 모두 종료된 후 다시 시도해 주세요.",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "확인", style: .default))
-            present(alert, animated: true)
+            WithdrawalUnavailableView().show(on: navigationController?.view ?? view)
         }
     }
 

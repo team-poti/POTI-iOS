@@ -9,6 +9,7 @@ import Foundation
 
 enum PotiError: Error, LocalizedError, Equatable {
     case apiError(message: String)
+    case withdrawalBlocked
     case badRequest
     case unauthorized
     case tokenExpired
@@ -35,6 +36,8 @@ enum PotiError: Error, LocalizedError, Equatable {
         switch self {
         case .apiError(let message):
             return message
+        case .withdrawalBlocked:
+            return "진행 중인 거래가 있어 탈퇴할 수 없습니다."
         case .badRequest:
             return "잘못된 요청입니다"
         case .unauthorized:
