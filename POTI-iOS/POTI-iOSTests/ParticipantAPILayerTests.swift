@@ -9,6 +9,56 @@ import XCTest
 @testable import POTI_iOS
 
 final class ParticipantAPILayerTests: XCTestCase {
+    func testParticipationDeliveredTargetMatchesSwaggerContract() {
+        let target = ParticipationAPI.patchParticipationDelivered(participationId: 193)
+
+        XCTAssertEqual(target.path, "/api/v1/participations/193/delivered")
+        XCTAssertEqual(target.method.rawValue, "PATCH")
+        XCTAssertNil(target.bodyParameters)
+    }
+
+    func testParticipationDeliveredResponsePreservesReviewTargetUserId() throws {
+        let json = #"{"leaderUserId":77}"#
+
+        let dto = try JSONDecoder().decode(
+            ParticipationDeliverResponseDTO.self,
+            from: Data(json.utf8)
+        )
+
+        XCTAssertEqual(dto.toEntity().leaderUserId, 77)
+    }
+
+    func testReviewTargetProfileUsesDeliveredLeaderUserId() {
+        let delivered = ParticipationDeliveredEntity(leaderUserId: 77)
+        let target = UsersAPI.fetchYourPageInformation(userId: delivered.leaderUserId)
+
+        XCTAssertEqual(target.path, "/api/v1/users/77/profile")
+        XCTAssertEqual(target.method.rawValue, "GET")
+        XCTAssertNil(target.queryParameters)
+        XCTAssertNil(target.bodyParameters)
+    }
+
+    func testParticipationRequestUsesCurrentSwaggerAddressFields() throws {
+        let entity = ParticipationEntity(
+            postId: 182,
+            shippingId: 3,
+            receiverName: "네온",
+            zipcode: "06000",
+            address: "서울시 포티구",
+            addressDetail: "193호",
+            phone: "010-0000-0000",
+            items: [.init(optionId: 7, count: 1)]
+        )
+        let target = ParticipationAPI.applyParticipation(
+            request: ParticipationRequestDTO(from: entity)
+        )
+        let deliveryInfo = try XCTUnwrap(target.bodyParameters?["deliveryInfo"] as? [String: Any])
+
+        XCTAssertEqual(deliveryInfo["address"] as? String, "서울시 포티구")
+        XCTAssertEqual(deliveryInfo["addressDetail"] as? String, "193호")
+        XCTAssertNil(deliveryInfo["addressLine"])
+    }
+
     func testParticipantListTarget() {
         let target = OrderManagementAPI.fetchManage(postId: 182)
 
