@@ -2,7 +2,7 @@
 //  JoinParticipantInfoLabelView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 import UIKit
@@ -56,7 +56,7 @@ final class JoinParticipantInfoLabelView: BaseView {
             .joined(separator: "\n")
         
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 6 // 디쟌쌤들께 물어보기 TODO!! << QA...
+        paragraphStyle.lineSpacing = 6
         
         let attributedText = NSAttributedString(
             string: text,

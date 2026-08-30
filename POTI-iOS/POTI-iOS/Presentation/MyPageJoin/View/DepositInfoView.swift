@@ -5,7 +5,6 @@
 //  Created by Neon on 1/19/26.
 //
 
-//TODO: -복사 아래 밑줄!!!!!!!!0120
 import UIKit
 
 import SnapKit
@@ -135,7 +134,6 @@ final class DepositInfoView: BaseView {
         guard let text = accountLabel.text, !text.isEmpty else { return }
         UIPasteboard.general.string = text
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        print("📋 pasteboard:", UIPasteboard.general.string ?? "nil")
     }
 }
 

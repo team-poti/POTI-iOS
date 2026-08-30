@@ -2,7 +2,7 @@
 //  JoinTrackingNumberView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 /// 복사 아래 밑줄!!!!!!!!!!!!!!!!!
@@ -110,6 +110,5 @@ final class JoinTrackingNumberView: BaseView {
         guard let text = shipLabel.text, !text.isEmpty else { return }
         UIPasteboard.general.string = text
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        print("📋 pasteboard:", UIPasteboard.general.string ?? "nil")
     }
 }

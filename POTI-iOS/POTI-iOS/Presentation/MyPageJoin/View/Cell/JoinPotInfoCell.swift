@@ -2,7 +2,7 @@
 //  JoinPotInfoCell.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 import UIKit
@@ -109,6 +109,7 @@ final class JoinPotInfoCell: UITableViewCell {
         artistLabel.snp.makeConstraints {
             $0.top.equalTo(thumbnailView).inset(8)
             $0.leading.equalTo(thumbnailView.snp.trailing).offset(12)
+            $0.trailing.lessThanOrEqualTo(potButton.snp.leading).offset(-8)
         }
         
         potTitleLabel.snp.makeConstraints {
@@ -133,13 +134,13 @@ final class JoinPotInfoCell: UITableViewCell {
     // MARK: - action
     
     @objc func potButtonTapped(_ sender: Any) {
-        print("potButtonTapped")
         onTapPotButton?()
     }
-    
-    /// 0121 어떻게 재사용할 수 있을지 고민.. (PotInfoCell 이랑 JoinInfoCell)
+
     func configure(model: PotInfoViewState) {
-        potIdLabel.text = "참여번호 poti-" + String(model.postId)
+        let orderNumber = model.orderNumber.isEmpty ? String(model.postId) : model.orderNumber
+        let normalizedOrderNumber = orderNumber.hasPrefix("poti-") ? orderNumber : "poti-\(orderNumber)"
+        potIdLabel.text = "참여번호 \(normalizedOrderNumber)"
         
         if let url = URL(string: model.imageUrl) {
             thumbnailView.kf.setImage(
