@@ -118,11 +118,11 @@ final class SettingsViewModel: BaseViewModelType {
                 case .checkWithdrawal:
                     withdrawalSubject.send(try await accountActionUseCase.withdrawalAvailability())
                 case .withdraw(let reason):
-                    await fcmTokenSyncService.deleteToken()
+                    try await fcmTokenSyncService.deleteToken()
                     try await withdrawUseCase.execute(reason: reason)
                     withdrawalCompletedSubject.send(())
                 case .logout:
-                    await fcmTokenSyncService.deleteToken()
+                    try await fcmTokenSyncService.deleteToken()
                     try await logoutUseCase.execute()
                     logoutCompletedSubject.send(())
                 }
