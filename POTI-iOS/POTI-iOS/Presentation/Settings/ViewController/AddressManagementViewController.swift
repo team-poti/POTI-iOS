@@ -43,19 +43,41 @@ final class AddressManagementViewController: BaseViewController<SettingsViewMode
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in self?.navigationController?.popViewController(animated: true) }
             .store(in: &cancellables)
+
+        viewModel.output.error
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.rootView.updateSaveButtonState()
+            }
+            .store(in: &cancellables)
     }
 
     override func addTarget() {
         rootView.saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         rootView.postalCodeField.searchButton.addTarget(self, action: #selector(searchPostalCodeTapped), for: .touchUpInside)
+        rootView.addressField.addGestureRecognizer(
+            UITapGestureRecognizer(
+                target: self,
+                action: #selector(searchPostalCodeTapped)
+            )
+        )
         rootView.editableFields.forEach { field in
+            field.textField.addTarget(self, action: #selector(fieldDidChange), for: .editingChanged)
             field.onBeginEditing = { [weak self] field in
                 self?.rootView.scrollToVisible(field)
             }
         }
     }
 
-    @objc private func saveTapped() { viewModel.action(.updateAddress(rootView.address)) }
+    @objc private func fieldDidChange() {
+        rootView.updateSaveButtonState()
+    }
+
+    @objc private func saveTapped() {
+        guard rootView.canSave else { return }
+        rootView.saveButton.setEnabled(false)
+        viewModel.action(.updateAddress(rootView.address))
+    }
 
     @objc private func searchPostalCodeTapped() {
         let viewController = factory.makePostcodeSearchViewController { [weak self] postalCode, address in

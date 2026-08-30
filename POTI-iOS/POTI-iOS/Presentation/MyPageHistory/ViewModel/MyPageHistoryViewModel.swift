@@ -41,12 +41,19 @@ enum MyPageHistoryType {
 }
 
 final class MyPageHistoryViewModel: BaseViewModelType {
+    private struct HistoryFetchResult {
+        let ongoingData: [MyPageHistoryModel]
+        let completedData: [MyPageHistoryModel]
+        let ongoingCount: Int
+        let completedCount: Int
+    }
     
     // MARK: - Input
     
     enum Input {
         case viewDidLoad
         case switchButtonTapped
+        case typeSelected(MyPageHistoryType)
         case refreshRequested
     }
     
@@ -73,6 +80,8 @@ final class MyPageHistoryViewModel: BaseViewModelType {
     private let completedCountSubject = CurrentValueSubject<Int, Never>(0)
     
     private var cancellables = Set<AnyCancellable>()
+    private var fetchTask: Task<Void, Never>?
+    private var latestRequestID = UUID()
     
     private let myPagePostsHistoryUseCase: MyPagePostsHistoryUseCase
     private let myPageParticipationsHistoryUseCase: MyPageParticipationsHistoryUseCase
@@ -109,6 +118,11 @@ final class MyPageHistoryViewModel: BaseViewModelType {
             let newType = currentTypeSubject.value.opposite
             currentTypeSubject.send(newType)
             fetchData()
+
+        case .typeSelected(let type):
+            guard currentTypeSubject.value != type else { return }
+            currentTypeSubject.send(type)
+            fetchData()
             
         case .refreshRequested:
             fetchData()
@@ -118,51 +132,66 @@ final class MyPageHistoryViewModel: BaseViewModelType {
     // MARK: - Methods
     
     private func fetchData() {
+        fetchTask?.cancel()
+
+        let requestedType = currentTypeSubject.value
+        let requestID = UUID()
+        latestRequestID = requestID
         isLoadingSubject.send(true)
-        Task {
+
+        fetchTask = Task { [weak self] in
+            guard let self else { return }
+
             do {
-                switch currentTypeSubject.value {
-                case .recruitment:
-                    async let ongoing = myPagePostsHistoryUseCase.execute(status: "IN_PROGRESS")
-                    async let completed = myPagePostsHistoryUseCase.execute(status: "COMPLETED")
-                    
-                    let ongoingResult = try await ongoing
-                    let completedResult = try await completed
-                    
-                    ongoingDataSubject.send(
-                        ongoingResult.groupBuyPosts.map { $0.toModel() }
-                    )
-                    
-                    completedDataSubject.send(
-                        completedResult.groupBuyPosts.map { $0.toModel() }
-                    )
-                    
-                    ongoingCountSubject.send(ongoingResult.inProgressCount)
-                    completedCountSubject.send(ongoingResult.completedCount)
-                    
-                case .participation:
-                    async let ongoing = myPageParticipationsHistoryUseCase.execute(status: "IN_PROGRESS")
-                    async let completed = myPageParticipationsHistoryUseCase.execute(status: "COMPLETED")
-                    
-                    let ongoingResult = try await ongoing
-                    let completedResult = try await completed
-                    
-                    ongoingDataSubject.send(
-                        ongoingResult.participations.map { $0.toModel() }
-                    )
-                    
-                    completedDataSubject.send(
-                        completedResult.participations.map { $0.toModel() }
-                    )
-                    
-                    ongoingCountSubject.send(ongoingResult.inProgressCount)
-                    completedCountSubject.send(ongoingResult.completedCount)
-                }
-                
-                isLoadingSubject.send(false)
+                let result = try await self.fetchHistory(for: requestedType)
+                try Task.checkCancellation()
+
+                guard self.latestRequestID == requestID,
+                      self.currentTypeSubject.value == requestedType else { return }
+
+                self.ongoingDataSubject.send(result.ongoingData)
+                self.completedDataSubject.send(result.completedData)
+                self.ongoingCountSubject.send(result.ongoingCount)
+                self.completedCountSubject.send(result.completedCount)
+                self.isLoadingSubject.send(false)
+            } catch is CancellationError {
+                return
             } catch {
-                isLoadingSubject.send(false)
+                guard self.latestRequestID == requestID else { return }
+                self.isLoadingSubject.send(false)
             }
+        }
+    }
+
+    private func fetchHistory(for type: MyPageHistoryType) async throws -> HistoryFetchResult {
+        switch type {
+        case .recruitment:
+            async let ongoing = myPagePostsHistoryUseCase.execute(status: "IN_PROGRESS")
+            async let completed = myPagePostsHistoryUseCase.execute(status: "COMPLETED")
+
+            let ongoingResult = try await ongoing
+            let completedResult = try await completed
+
+            return HistoryFetchResult(
+                ongoingData: ongoingResult.groupBuyPosts.map { $0.toModel() },
+                completedData: completedResult.groupBuyPosts.map { $0.toModel() },
+                ongoingCount: ongoingResult.inProgressCount,
+                completedCount: ongoingResult.completedCount
+            )
+
+        case .participation:
+            async let ongoing = myPageParticipationsHistoryUseCase.execute(status: "IN_PROGRESS")
+            async let completed = myPageParticipationsHistoryUseCase.execute(status: "COMPLETED")
+
+            let ongoingResult = try await ongoing
+            let completedResult = try await completed
+
+            return HistoryFetchResult(
+                ongoingData: ongoingResult.participations.map { $0.toModel() },
+                completedData: completedResult.participations.map { $0.toModel() },
+                ongoingCount: ongoingResult.inProgressCount,
+                completedCount: ongoingResult.completedCount
+            )
         }
     }
 }

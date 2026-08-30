@@ -8,14 +8,23 @@
 import UIKit
 
 final class PotiNavigationController: UINavigationController {
-    
-    private let customNavBarHeight: CGFloat = 56
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-        var newFrame = navigationBar.frame
-        newFrame.size.height = customNavBarHeight
-        navigationBar.frame = newFrame
+
+    override init(rootViewController: UIViewController) {
+        super.init(navigationBarClass: PotiHeightNavigationBar.self, toolbarClass: nil)
+        setViewControllers([rootViewController], animated: false)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+}
+
+private final class PotiHeightNavigationBar: UINavigationBar {
+    private let customHeight: CGFloat = 56
+
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
+        var navigationBarSize = super.sizeThatFits(size)
+        navigationBarSize.height = customHeight
+        return navigationBarSize
     }
 }

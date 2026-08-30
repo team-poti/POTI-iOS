@@ -26,11 +26,35 @@ final class DefaultAuthRepository: AuthInterface {
     func kakaoLogin() async throws -> LoginResponseEntity {
         let kakaoToken = try await authService.kakaoRequest()
         let result = try await tokenRefreshNetworkService.request(
-            target: AuthAPI.login(socialType: "KAKAO", token: kakaoToken), type: LoginResponseDTO.self
-            )
+            target: AuthAPI.login(
+                socialType: "KAKAO",
+                token: kakaoToken,
+                name: nil
+            ),
+            type: LoginResponseDTO.self
+        )
         
         KeychainManager.saveTokens(accessToken: result.accessToken, refreshToken: result.refreshToken)
         
+        return result.toLoginResponseEntity()
+    }
+
+    func appleLogin() async throws -> LoginResponseEntity {
+        let credential = try await authService.appleRequest()
+        let result = try await tokenRefreshNetworkService.request(
+            target: AuthAPI.login(
+                socialType: "APPLE",
+                token: credential.identityToken,
+                name: credential.name
+            ),
+            type: LoginResponseDTO.self
+        )
+
+        KeychainManager.saveTokens(
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken
+        )
+
         return result.toLoginResponseEntity()
     }
     

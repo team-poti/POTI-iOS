@@ -249,7 +249,7 @@ final class AppDIContainer {
     }
 
     @MainActor func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase())
+        LoginViewModel(loginUseCase: makeLoginUseCase())
     }
 
     @MainActor func makeHomeViewModel() -> HomeViewModel {
@@ -262,6 +262,14 @@ final class AppDIContainer {
 
     func makeSearchViewModel() -> SearchViewModel {
         SearchViewModel(searchPostsUseCase: makeSearchPostsUseCase())
+    }
+
+    func makeNotificationViewModel() -> NotificationViewModel {
+        NotificationViewModel(notifications: NotificationItem.mockData)
+    }
+
+    func makeNotificationSettingViewModel() -> NotificationSettingViewModel {
+        NotificationSettingViewModel()
     }
 
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {

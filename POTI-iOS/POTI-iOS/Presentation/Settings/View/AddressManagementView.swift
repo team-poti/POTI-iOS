@@ -88,14 +88,14 @@ final class AddressManagementView: BaseView {
         addressField.textField.text = address.address
         detailAddressField.textField.text = address.detailAddress
         phoneField.textField.text = address.phoneNumber
-        saveButton.setEnabled(true)
+        updateSaveButtonState()
     }
 
     func applySearchResult(postalCode: String, address: String) {
         postalCodeField.textField.text = postalCode
         addressField.textField.text = address
         detailAddressField.textField.becomeFirstResponder()
-        saveButton.setEnabled(true)
+        updateSaveButtonState()
     }
 
     var address: AddressEntity {
@@ -110,5 +110,23 @@ final class AddressManagementView: BaseView {
 
     var editableFields: [SettingsFieldView] {
         [nameField, detailAddressField, phoneField]
+    }
+
+    var canSave: Bool {
+        [
+            nameField,
+            postalCodeField,
+            addressField,
+            detailAddressField,
+            phoneField
+        ].allSatisfy {
+            !($0.textField.text ?? "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .isEmpty
+        }
+    }
+
+    func updateSaveButtonState() {
+        saveButton.setEnabled(canSave)
     }
 }
