@@ -8,6 +8,7 @@
 import UIKit
 import UserNotifications
 
+import FirebaseInstallations
 import FirebaseMessaging
 
 final class PushNotificationService: NSObject {
@@ -16,6 +17,7 @@ final class PushNotificationService: NSObject {
 
     var onFCMTokenUpdated: ((String) -> Void)?
     var onNotificationOpened: ((PushNotificationPayload) -> Void)?
+    private var currentRegistrationId: String?
 
     // MARK: - Public Methods
 
@@ -36,19 +38,41 @@ final class PushNotificationService: NSObject {
 
     func registerAPNsToken(_ token: Data) {
         Messaging.messaging().apnsToken = token
+
+        Messaging.messaging().register { error in
+            if let error {
+                PotiLogger.error(error)
+                return
+            }
+
+            Installations.installations().installationID { [weak self] installationId, error in
+                if let error {
+                    PotiLogger.error(error)
+                    return
+                }
+                guard let installationId else { return }
+                self?.handleRegistrationId(installationId)
+            }
+        }
     }
 
     func handleAPNsRegistrationFailure(_ error: Error) {
         PotiLogger.error(error)
+    }
+
+    private func handleRegistrationId(_ registrationId: String) {
+        guard currentRegistrationId != registrationId else { return }
+        currentRegistrationId = registrationId
+        onFCMTokenUpdated?(registrationId)
     }
 }
 
 // MARK: - MessagingDelegate
 
 extension PushNotificationService: MessagingDelegate {
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        guard let fcmToken else { return }
-        onFCMTokenUpdated?(fcmToken)
+    func messaging(_ messaging: Messaging, didReceiveRegistration installationId: String?) {
+        guard let installationId else { return }
+        handleRegistrationId(installationId)
     }
 }
 

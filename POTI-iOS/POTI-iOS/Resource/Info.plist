@@ -19,6 +19,8 @@
 	</array>
 	<key>DEEP_LINK_HOST</key>
 	<string>$(DEEP_LINK_HOST)</string>
+	<key>FirebaseMessagingInstallationIdEnabled</key>
+	<true/>
 	<key>KAKAO_APP_KEY</key>
 	<string>$(KAKAO_APP_KEY)</string>
 	<key>LSApplicationQueriesSchemes</key>
