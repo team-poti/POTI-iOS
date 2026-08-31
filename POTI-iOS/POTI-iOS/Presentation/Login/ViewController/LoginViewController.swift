@@ -35,6 +35,8 @@ final class LoginViewController: BaseViewController<LoginViewModel> {
         rootView.kakaoLoginButton.addTarget(self, action: #selector(kakaoLoginButtonTapped), for: .touchUpInside)
         
         rootView.appleLoginButton.addTarget(self, action: #selector(appleLoginButtonTapped), for: .touchUpInside)
+
+        rootView.noLoginButton.addTarget(self, action: #selector(noLoginButtonTapped), for: .touchUpInside)
     }
     
     override func bindViewModel() {
@@ -68,6 +70,11 @@ extension LoginViewController {
     
     @objc private func appleLoginButtonTapped() {
         viewModel.action(.appleLoginTap)
+    }
+
+    @objc private func noLoginButtonTapped() {
+        KeychainManager.deleteAllTokens()
+        switchRootToPotiTabBar()
     }
 }
 

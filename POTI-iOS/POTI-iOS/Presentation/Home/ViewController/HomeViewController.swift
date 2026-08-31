@@ -99,6 +99,7 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     // MARK: - Action
     
     @objc private func floatingButtonTapped() {
+        guard requireLogin(for: .register, factory: factory) else { return }
         let productRegisterViewController = factory.makeProductRegisterViewController()
         self.navigationController?.pushViewController(productRegisterViewController, animated: true)
         //                KeychainManager.deleteAllTokens()
