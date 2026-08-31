@@ -21,8 +21,6 @@ final class SettingsViewModel: BaseViewModelType {
         case updateProfile(nickname: String, profileImageURL: String?)
         case updateProfileImage(nickname: String, image: UploadImageEntity)
         case updateAddress(AddressEntity)
-        case fetchNotificationSettings
-        case updateNotificationSettings(tradeEnabled: Bool, eventEnabled: Bool)
         case checkWithdrawal
         case withdraw(String)
         case logout
@@ -33,7 +31,6 @@ final class SettingsViewModel: BaseViewModelType {
         let profile: AnyPublisher<ProfileManagementEntity, Never>
         let address: AnyPublisher<AddressEntity, Never>
         let withdrawalAvailability: AnyPublisher<WithdrawalAvailabilityEntity, Never>
-        let notificationSettings: AnyPublisher<NotificationSettingsEntity, Never>
         let completed: AnyPublisher<Void, Never>
         let logoutCompleted: AnyPublisher<Void, Never>
         let withdrawalCompleted: AnyPublisher<Void, Never>
@@ -47,7 +44,6 @@ final class SettingsViewModel: BaseViewModelType {
     private let profileSubject = PassthroughSubject<ProfileManagementEntity, Never>()
     private let addressSubject = PassthroughSubject<AddressEntity, Never>()
     private let withdrawalSubject = PassthroughSubject<WithdrawalAvailabilityEntity, Never>()
-    private let notificationSettingsSubject = PassthroughSubject<NotificationSettingsEntity, Never>()
     private let completedSubject = PassthroughSubject<Void, Never>()
     private let logoutCompletedSubject = PassthroughSubject<Void, Never>()
     private let withdrawalCompletedSubject = PassthroughSubject<Void, Never>()
@@ -59,11 +55,10 @@ final class SettingsViewModel: BaseViewModelType {
     private let uploadProfileImageUseCase: UploadProfileImageUseCase
     private let getAddressUseCase: GetAddressUseCase
     private let updateAddressUseCase: UpdateAddressUseCase
-    private let getNotificationSettingsUseCase: GetNotificationSettingsUseCase
-    private let updateNotificationSettingsUseCase: UpdateNotificationSettingsUseCase
     private let accountActionUseCase: SettingsAccountActionUseCase
     private let withdrawUseCase: WithdrawUseCase
     private let logoutUseCase: LogoutUseCase
+    private let fcmTokenSyncService: FCMTokenSyncService
 
     init(
         getAccountUseCase: GetAccountUseCase,
@@ -72,11 +67,10 @@ final class SettingsViewModel: BaseViewModelType {
         uploadProfileImageUseCase: UploadProfileImageUseCase,
         getAddressUseCase: GetAddressUseCase,
         updateAddressUseCase: UpdateAddressUseCase,
-        getNotificationSettingsUseCase: GetNotificationSettingsUseCase,
-        updateNotificationSettingsUseCase: UpdateNotificationSettingsUseCase,
         accountActionUseCase: SettingsAccountActionUseCase,
         withdrawUseCase: WithdrawUseCase,
-        logoutUseCase: LogoutUseCase
+        logoutUseCase: LogoutUseCase,
+        fcmTokenSyncService: FCMTokenSyncService
     ) {
         self.getAccountUseCase = getAccountUseCase
         self.getProfileUseCase = getProfileUseCase
@@ -84,17 +78,15 @@ final class SettingsViewModel: BaseViewModelType {
         self.uploadProfileImageUseCase = uploadProfileImageUseCase
         self.getAddressUseCase = getAddressUseCase
         self.updateAddressUseCase = updateAddressUseCase
-        self.getNotificationSettingsUseCase = getNotificationSettingsUseCase
-        self.updateNotificationSettingsUseCase = updateNotificationSettingsUseCase
         self.accountActionUseCase = accountActionUseCase
         self.withdrawUseCase = withdrawUseCase
         self.logoutUseCase = logoutUseCase
+        self.fcmTokenSyncService = fcmTokenSyncService
         output = Output(
             account: accountSubject.eraseToAnyPublisher(),
             profile: profileSubject.eraseToAnyPublisher(),
             address: addressSubject.eraseToAnyPublisher(),
             withdrawalAvailability: withdrawalSubject.eraseToAnyPublisher(),
-            notificationSettings: notificationSettingsSubject.eraseToAnyPublisher(),
             completed: completedSubject.eraseToAnyPublisher(),
             logoutCompleted: logoutCompletedSubject.eraseToAnyPublisher(),
             withdrawalCompleted: withdrawalCompletedSubject.eraseToAnyPublisher(),
@@ -123,21 +115,14 @@ final class SettingsViewModel: BaseViewModelType {
                 case .updateAddress(let address):
                     addressSubject.send(try await updateAddressUseCase.execute(address))
                     completedSubject.send(())
-                case .fetchNotificationSettings:
-                    notificationSettingsSubject.send(try await getNotificationSettingsUseCase.execute())
-                case .updateNotificationSettings(let tradeEnabled, let eventEnabled):
-                    notificationSettingsSubject.send(
-                        try await updateNotificationSettingsUseCase.execute(
-                            tradeEnabled: tradeEnabled,
-                            eventEnabled: eventEnabled
-                        )
-                    )
                 case .checkWithdrawal:
                     withdrawalSubject.send(try await accountActionUseCase.withdrawalAvailability())
                 case .withdraw(let reason):
+                    try await fcmTokenSyncService.deleteToken()
                     try await withdrawUseCase.execute(reason: reason)
                     withdrawalCompletedSubject.send(())
                 case .logout:
+                    try await fcmTokenSyncService.deleteToken()
                     try await logoutUseCase.execute()
                     logoutCompletedSubject.send(())
                 }

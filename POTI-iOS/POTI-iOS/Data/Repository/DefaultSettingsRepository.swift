@@ -44,19 +44,5 @@ final class DefaultSettingsRepository: SettingsInterface {
         return address
     }
 
-    func fetchNotificationSettings() async throws -> NotificationSettingsEntity {
-        try await networkService.request(
-            target: SettingsAPI.notificationSettings,
-            type: NotificationSettingsResponseDTO.self
-        ).toEntity()
-    }
-
-    func updateNotificationSettings(tradeEnabled: Bool, eventEnabled: Bool) async throws -> NotificationSettingsEntity {
-        try await networkService.request(
-            target: SettingsAPI.updateNotificationSettings(tradeEnabled: tradeEnabled, eventEnabled: eventEnabled),
-            type: NotificationSettingsResponseDTO.self
-        ).toEntity()
-    }
-
     func withdrawalAvailability() async throws -> WithdrawalAvailabilityEntity { .available }
 }

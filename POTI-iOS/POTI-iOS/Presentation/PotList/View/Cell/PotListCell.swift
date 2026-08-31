@@ -162,7 +162,6 @@ final class PotListCell: UICollectionViewCell {
             $0.leading.equalTo(separator)
             $0.trailing.equalTo(productImageView.snp.leading).offset(-30)
             $0.height.equalTo(40)
-            $0.width.equalTo(200)
         }
         
         priceLabel.snp.makeConstraints {
@@ -173,7 +172,6 @@ final class PotListCell: UICollectionViewCell {
         productImageView.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
             $0.top.equalTo(separator.snp.bottom).offset(16)
-            $0.bottom.equalToSuperview().inset(15)
             $0.size.equalTo(75)
         }
     }

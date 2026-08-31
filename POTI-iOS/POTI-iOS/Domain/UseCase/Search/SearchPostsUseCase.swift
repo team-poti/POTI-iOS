@@ -10,9 +10,9 @@ protocol SearchPostsUseCase {
 }
 
 final class DefaultSearchPostsUseCase: SearchPostsUseCase {
-    private let repository: SearchRepository
+    private let repository: SearchInterface
 
-    init(repository: SearchRepository) {
+    init(repository: SearchInterface) {
         self.repository = repository
     }
 

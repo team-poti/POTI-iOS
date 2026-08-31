@@ -87,12 +87,11 @@ extension YourPageView {
             signUpDate: model.joinedDate
         )
         
-        // TODO: - 추후 변경
         participationView.configure(
             title: "참여 내역",
             counts: (
-                ongoing: model.recruitSummary.inProgressCount,
-                completed: model.recruitSummary.completedCount
+                ongoing: model.participationSummary.inProgressCount,
+                completed: model.participationSummary.completedCount
             )
         )
 

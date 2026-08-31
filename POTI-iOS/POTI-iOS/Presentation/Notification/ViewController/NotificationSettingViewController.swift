@@ -11,13 +11,15 @@ import Combine
 
 final class NotificationSettingViewController: BaseViewController<NotificationSettingViewModel>, NavigationConfigurable {
     
-    // MARK: - Property
+    // MARK: - Properties
     
     private let rootView = NotificationSettingView()
+    private let pushNotificationPermissionCoordinator: PushNotificationPermissionCoordinator
     
     // MARK: - Initializer
     
-    override init(viewModel: NotificationSettingViewModel) {
+    init(viewModel: NotificationSettingViewModel, pushNotificationPermissionCoordinator: PushNotificationPermissionCoordinator) {
+        self.pushNotificationPermissionCoordinator = pushNotificationPermissionCoordinator
         super.init(viewModel: viewModel)
     }
     
@@ -62,15 +64,9 @@ final class NotificationSettingViewController: BaseViewController<NotificationSe
         )
     }
     
-    private func showPushNotificationPermissionModal() {
-        let modalView = PushNotificationPermissionModalView()
-        modalView.onTapAllow = { [weak self] in
-            self?.viewModel.action(.setAllNotifications(isEnabled: true))
-        }
-        modalView.onTapLater = { [weak self] in
-            self?.viewModel.action(.setAllNotifications(isEnabled: false))
-        }
-        modalView.show(in: navigationController?.view ?? view)
+    private func handleEnablingNotification(whenPermissionAllowed: @escaping () -> Void) {
+        pushNotificationPermissionCoordinator.handleEnablingNotification(in: navigationController?.view ?? view,
+                                                                         whenPermissionAllowed: whenPermissionAllowed)
     }
     
     // MARK: - Public Method
@@ -86,7 +82,9 @@ final class NotificationSettingViewController: BaseViewController<NotificationSe
             viewModel.action(.didToggleTradeNotification)
         } else {
             resetToggleState()
-            showPushNotificationPermissionModal()
+            handleEnablingNotification { [weak self] in
+                self?.viewModel.action(.didToggleTradeNotification)
+            }
         }
     }
     
@@ -95,7 +93,9 @@ final class NotificationSettingViewController: BaseViewController<NotificationSe
             viewModel.action(.didToggleEventNotification)
         } else {
             resetToggleState()
-            showPushNotificationPermissionModal()
+            handleEnablingNotification { [weak self] in
+                self?.viewModel.action(.didToggleEventNotification)
+            }
         }
     }
 }

@@ -44,7 +44,7 @@ final class RegisterViewModel: BaseViewModelType {
         let shippingSetting: AnyPublisher<ShippingSettingViewState, Never>
         let deadlinePickerRequest: AnyPublisher<Date, Never>
         let deadline: AnyPublisher<Date, Never>
-        let registrationCompleted: AnyPublisher<Int, Never>
+        let registrationCompleted: AnyPublisher<ProductRegistrationCompletion, Never>
         let registrationFailed: AnyPublisher<String, Never>
     }
 
@@ -69,7 +69,7 @@ final class RegisterViewModel: BaseViewModelType {
 
     // MARK: - Subjects
 
-    private let registrationCompletedSubject = PassthroughSubject<Int, Never>()
+    private let registrationCompletedSubject = PassthroughSubject<ProductRegistrationCompletion, Never>()
     private let registrationFailedSubject = PassthroughSubject<String, Never>()
     private let productTypesSubject = CurrentValueSubject<[String], Never>([])
     private let optimizedImagesSubject = CurrentValueSubject<[OptimizedImage], Never>([])
@@ -298,15 +298,18 @@ final class RegisterViewModel: BaseViewModelType {
         fieldErrorsSubject.send(errors)
         sendMemberSettingState()
         sendShippingSettingState()
-        guard !errors.hasError, let artistId = selectedArtist?.id else { return }
+        guard !errors.hasError, let selectedArtist else { return }
+        let productTitle = formState.productType
 
         Task { [weak self] in
             guard let self else { return }
             do {
                 let imagePaths = try await uploadImages()
-                let entity = makeRegisterPostEntity(artistId: artistId, imagePaths: imagePaths)
+                let entity = makeRegisterPostEntity(artistId: selectedArtist.id, productTitle: productTitle, imagePaths: imagePaths)
                 let response = try await registerPostUseCase.execute(entity)
-                await MainActor.run { self.registrationCompletedSubject.send(response.postId) }
+                let completion = ProductRegistrationCompletion(postId: response.postId, productTitle: productTitle,
+                                                               artistId: selectedArtist.id, artistName: selectedArtist.name)
+                await MainActor.run { self.registrationCompletedSubject.send(completion) }
             } catch {
                 PotiLogger.error(error)
                 await MainActor.run { self.registrationFailedSubject.send("등록에 실패했어요") }
@@ -349,9 +352,9 @@ final class RegisterViewModel: BaseViewModelType {
         try await uploadPostImagesUseCase.execute(images: optimizedImagesSubject.value.map { $0.toUploadImageEntity() })
     }
 
-    private func makeRegisterPostEntity(artistId: Int, imagePaths: [String]) -> RegisterPostEntity {
+    private func makeRegisterPostEntity(artistId: Int, productTitle: String, imagePaths: [String]) -> RegisterPostEntity {
         RegisterPostEntity(
-            artistId: artistId, title: formState.productType, content: formState.description,
+            artistId: artistId, title: productTitle, content: formState.description,
             deadline: formState.deadline?.toYMDString() ?? "", bankName: formState.bank, accountNumber: formState.accountNumber,
             imageUrls: imagePaths, options: makeMemberOptions(), shippings: makeShippingEntities()
         )

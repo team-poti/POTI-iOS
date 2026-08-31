@@ -29,6 +29,7 @@ final class SettingsViewController: BaseViewController<SettingsViewModel>, Navig
         rootView.accountButton.addTarget(self, action: #selector(accountTapped), for: .touchUpInside)
         rootView.profileButton.addTarget(self, action: #selector(profileTapped), for: .touchUpInside)
         rootView.addressButton.addTarget(self, action: #selector(addressTapped), for: .touchUpInside)
+        rootView.notificationButton.addTarget(self, action: #selector(notificationTapped), for: .touchUpInside)
     }
 
     @objc private func accountTapped() {
@@ -48,6 +49,13 @@ final class SettingsViewController: BaseViewController<SettingsViewModel>, Navig
     @objc private func addressTapped() {
         navigationController?.pushViewController(
             factory.makeAddressManagementViewController(viewModel: viewModel),
+            animated: true
+        )
+    }
+
+    @objc private func notificationTapped() {
+        navigationController?.pushViewController(
+            factory.makeNotificationSettingViewController(),
             animated: true
         )
     }

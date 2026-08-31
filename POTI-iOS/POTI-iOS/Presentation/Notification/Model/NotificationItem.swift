@@ -5,38 +5,21 @@
 //  Created by soomin on 8/27/26.
 //
 
+import Foundation
+
 struct NotificationItem {
+    let id: Int
     let title: String
     let content: String
     let time: String
+    let type: String
+    let deeplink: String?
     var isRead: Bool
 }
 
-extension NotificationItem {
-    static let mockData: [NotificationItem] = [
-        NotificationItem(
-            title: "배송 시작",
-            content: "아이브 메이크스타 거래건 배송이 시작되었어요",
-            time: "3시간 전",
-            isRead: false
-        ),
-        NotificationItem(
-            title: "배송 시작",
-            content: "아이브 메이크스타 거래건 배송이 시작되었어요",
-            time: "3시간 전",
-            isRead: true
-        ),
-        NotificationItem(
-            title: "배송 시작",
-            content: "아이브 메이크스타 거래건 배송이 시작되었어요",
-            time: "3시간 전",
-            isRead: true
-        ),
-        NotificationItem(
-            title: "배송 시작",
-            content: "아이브 메이크스타 거래건 배송이 시작되었어요",
-            time: "3시간 전",
-            isRead: true
-        )
-    ]
+extension NotificationEntity {
+    func toNotificationItem(now: Date = Date()) -> NotificationItem {
+        return NotificationItem(id: id, title: title, content: body, time: createdAt.toRelativeTime(now: now),
+                                type: type, deeplink: deeplink, isRead: isRead)
+    }
 }
