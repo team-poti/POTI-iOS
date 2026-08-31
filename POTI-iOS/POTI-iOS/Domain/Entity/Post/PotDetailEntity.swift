@@ -42,6 +42,7 @@ struct PotDetailEntity {
 
     func toPotDetailModel() -> PotDetailModel {
         return PotDetailModel(
+            isMyPost: isMyPost,
             status: status,
             artist: artist,
             title: title,

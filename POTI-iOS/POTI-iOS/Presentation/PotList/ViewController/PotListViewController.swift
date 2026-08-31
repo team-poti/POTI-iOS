@@ -191,8 +191,7 @@ extension PotListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedPot = viewModel.pots[indexPath.item]
-        guard selectedPot.status != "CLOSED" else { return }
-        
+
         let detailViewController = factory.makePotDetailViewController(postId: selectedPot.potId)
         self.navigationController?.pushViewController(detailViewController, animated: true)
     }

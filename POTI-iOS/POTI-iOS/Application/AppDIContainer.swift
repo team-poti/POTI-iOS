@@ -325,11 +325,16 @@ final class AppDIContainer {
     }
 
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
-        PotDetailViewModel(useCase: makePotDetailUseCase(), fetchPotOptionsUseCase: makePotOptionUseCase(), postId: postId)
+        PotDetailViewModel(useCase: makePotDetailUseCase(), fetchPotOptionsUseCase: makePotOptionUseCase(),
+                           getMyPageInformationUseCase: makeGetMyPageInformationUseCase(), postId: postId)
     }
 
     func makePotOrderViewModel(postId: Int, shippingId: Int,orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int), memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewModel {
-        return PotOrderViewModel(useCase: makeApplyParticipationUseCase(), postId: postId, shippingId: shippingId, orderItems: orderItems, shippingInfo: shippingInfo, memberInfos: memberInfos, uploaderNickname: uploaderNickname)
+        let settingsRepository = makeSettingsRepository()
+        return PotOrderViewModel(useCase: makeApplyParticipationUseCase(), getAddressUseCase: makeGetAddressUseCase(repository: settingsRepository),
+                                 updateAddressUseCase: makeUpdateAddressUseCase(repository: settingsRepository),
+                                 postId: postId, shippingId: shippingId, orderItems: orderItems,
+                                 shippingInfo: shippingInfo, memberInfos: memberInfos, uploaderNickname: uploaderNickname)
     }
 
     func makePotOptionsViewModel(postId: Int) -> PotOptionsViewModel {

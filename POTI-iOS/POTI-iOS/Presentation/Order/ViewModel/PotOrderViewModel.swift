@@ -18,6 +18,7 @@ final class PotOrderViewModel: BaseViewModelType {
         case addressSelected(zipcode: String, address: String)
         case detailAddressDidChange(String)
         case phoneDidChange(String)
+        case shipmentRegistrationDidTap
         case joinButtonDidTap
     }
     
@@ -28,6 +29,8 @@ final class PotOrderViewModel: BaseViewModelType {
         let orderHeaderData = PassthroughSubject<(items: [(Kind, String, String)], total: String), Never>()
         let orderCompleted = PassthroughSubject<Void, Never>()
         let orderError = PassthroughSubject<String, Never>()
+        let savedAddress = PassthroughSubject<AddressEntity, Never>()
+        let shipmentRegistrationState = CurrentValueSubject<ShipmentRegistrationState, Never>(.unselected)
         let nameError = PassthroughSubject<String?, Never>()
         let zipcodeError = PassthroughSubject<String?, Never>()
         let addressError = PassthroughSubject<String?, Never>()
@@ -40,6 +43,8 @@ final class PotOrderViewModel: BaseViewModelType {
     let output = Output()
     
     private let useCase: ApplyParticipationUseCase
+    private let getAddressUseCase: GetAddressUseCase
+    private let updateAddressUseCase: UpdateAddressUseCase
     
     let postId: Int
     private let shippingId: Int
@@ -55,10 +60,15 @@ final class PotOrderViewModel: BaseViewModelType {
     private var address = ""
     private var detailAddress = ""
     private var phone = ""
+    private var storedAddress: AddressEntity?
+    private var shouldSaveAddress = false
+    private var hasUserInput = false
     
     // MARK: - Initializer
     
     init(useCase: ApplyParticipationUseCase,
+         getAddressUseCase: GetAddressUseCase,
+         updateAddressUseCase: UpdateAddressUseCase,
          postId: Int,
          shippingId: Int,
          orderItems: [ParticipationItem],
@@ -66,6 +76,8 @@ final class PotOrderViewModel: BaseViewModelType {
          memberInfos: [(name: String, price: Int)], uploaderNickname: String) {
         
         self.useCase = useCase
+        self.getAddressUseCase = getAddressUseCase
+        self.updateAddressUseCase = updateAddressUseCase
         self.postId = postId
         self.shippingId = shippingId
         self.orderItems = orderItems
@@ -81,19 +93,32 @@ final class PotOrderViewModel: BaseViewModelType {
         switch input {
         case .viewDidLoad:
             fetchOrderData()
+            fetchSavedAddress()
         case .nameDidChange(let text):
+            hasUserInput = true
             name = text
             output.nameError.send(nil)
+            updateShipmentRegistrationState()
         case let .addressSelected(zipcode, address):
+            hasUserInput = true
             self.zipcode = zipcode
             self.address = address
             output.zipcodeError.send(nil)
             output.addressError.send(nil)
+            updateShipmentRegistrationState()
         case .detailAddressDidChange(let text):
+            hasUserInput = true
             detailAddress = text
+            updateShipmentRegistrationState()
         case .phoneDidChange(let text):
+            hasUserInput = true
             phone = text
             output.phoneError.send(nil)
+            updateShipmentRegistrationState()
+        case .shipmentRegistrationDidTap:
+            guard output.shipmentRegistrationState.value != .unavailable else { return }
+            shouldSaveAddress.toggle()
+            output.shipmentRegistrationState.send(shouldSaveAddress ? .selected : .unselected)
         case .joinButtonDidTap:
             if validateFields() {
                 requestSubmitOrder()
@@ -150,6 +175,61 @@ final class PotOrderViewModel: BaseViewModelType {
         output.orderHeaderData.send((items: displayItems, total: "\(totalAmount.formattedWithComma)원"))
         output.nickname.send(uploaderNickname)
     }
+
+    private func fetchSavedAddress() {
+        Task {
+            do {
+                let savedAddress = try await getAddressUseCase.execute()
+                guard !savedAddress.isEmpty else {
+                    output.shipmentRegistrationState.send(.unselected)
+                    return
+                }
+
+                storedAddress = savedAddress
+                guard !hasUserInput else {
+                    updateShipmentRegistrationState()
+                    return
+                }
+
+                name = savedAddress.name
+                zipcode = savedAddress.postalCode
+                address = savedAddress.address
+                detailAddress = savedAddress.detailAddress
+                phone = savedAddress.phoneNumber
+                shouldSaveAddress = false
+
+                output.savedAddress.send(savedAddress)
+                output.shipmentRegistrationState.send(.unavailable)
+            } catch {
+                PotiLogger.error(error)
+            }
+        }
+    }
+
+    private func updateShipmentRegistrationState() {
+        guard let storedAddress else {
+            output.shipmentRegistrationState.send(shouldSaveAddress ? .selected : .unselected)
+            return
+        }
+
+        if currentAddress == storedAddress {
+            shouldSaveAddress = false
+            output.shipmentRegistrationState.send(.unavailable)
+        } else {
+            shouldSaveAddress = true
+            output.shipmentRegistrationState.send(.selected)
+        }
+    }
+
+    private var currentAddress: AddressEntity {
+        AddressEntity(
+            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+            postalCode: zipcode.trimmingCharacters(in: .whitespacesAndNewlines),
+            address: address.trimmingCharacters(in: .whitespacesAndNewlines),
+            detailAddress: detailAddress.trimmingCharacters(in: .whitespacesAndNewlines),
+            phoneNumber: phone.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+    }
     
     private func requestSubmitOrder() {
         Task {
@@ -166,6 +246,13 @@ final class PotOrderViewModel: BaseViewModelType {
                 )
                 
                 _ = try await useCase.execute(info: entity)
+                if shouldSaveAddress {
+                    do {
+                        _ = try await updateAddressUseCase.execute(currentAddress)
+                    } catch {
+                        PotiLogger.error(error)
+                    }
+                }
                 output.orderCompleted.send()
             } catch {
                 let message = error.localizedDescription
@@ -191,5 +278,11 @@ final class PotOrderViewModel: BaseViewModelType {
             return false
         }
         return true
+    }
+}
+
+private extension AddressEntity {
+    var isEmpty: Bool {
+        name.isEmpty && postalCode.isEmpty && address.isEmpty && detailAddress.isEmpty && phoneNumber.isEmpty
     }
 }

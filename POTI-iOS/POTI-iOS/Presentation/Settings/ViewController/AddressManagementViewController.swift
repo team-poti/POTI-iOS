@@ -54,12 +54,11 @@ final class AddressManagementViewController: BaseViewController<SettingsViewMode
 
     override func addTarget() {
         rootView.saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
-        rootView.postalCodeField.searchButton.addTarget(self, action: #selector(searchPostalCodeTapped), for: .touchUpInside)
+        rootView.postalCodeField.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(searchPostalCodeTapped))
+        )
         rootView.addressField.addGestureRecognizer(
-            UITapGestureRecognizer(
-                target: self,
-                action: #selector(searchPostalCodeTapped)
-            )
+            UITapGestureRecognizer(target: self, action: #selector(searchPostalCodeTapped))
         )
         rootView.editableFields.forEach { field in
             field.textField.addTarget(self, action: #selector(fieldDidChange), for: .editingChanged)

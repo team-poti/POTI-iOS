@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-enum ShipmentRegistrationState {
+enum ShipmentRegistrationState: Equatable {
     case unselected
     case selected
     case unavailable
@@ -23,7 +23,7 @@ final class PotOrderContentView: BaseView {
     private let titleLabel = UILabel()
     private let registerShipmentStackView = UIStackView()
     private let registerShipmentLabel = UILabel()
-    private let registerShipmentButton = UIButton()
+    let registerShipmentButton = UIButton()
     
     private let nameLabel = UILabel()
     private let zipcodeLabel = UILabel()
@@ -166,7 +166,17 @@ final class PotOrderContentView: BaseView {
     
     // MARK: - Public Method
 
+    func configure(_ address: AddressEntity) {
+        nameField.text = address.name
+        zipcodeField.text = address.postalCode
+        addressField.text = address.address
+        detailAddressField.text = address.detailAddress
+        phoneField.text = address.phoneNumber
+    }
+
     func renderShipmentRegistrationState(_ state: ShipmentRegistrationState) {
+        registerShipmentStackView.isUserInteractionEnabled = state != .unavailable
+
         switch state {
         case .unselected:
             registerShipmentButton.isSelected = false

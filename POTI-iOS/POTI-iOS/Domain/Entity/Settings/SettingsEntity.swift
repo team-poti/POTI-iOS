@@ -16,7 +16,7 @@ struct ProfileManagementEntity {
     let profileImageURL: String?
 }
 
-struct AddressEntity {
+struct AddressEntity: Equatable {
     let name: String
     let postalCode: String
     let address: String

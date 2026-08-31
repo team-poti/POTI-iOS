@@ -7,6 +7,26 @@
 
 import Combine
 
+enum PotJoinButtonState: Equatable {
+    case available
+    case closed
+    case myPost
+    case alreadyParticipated
+
+    var isEnabled: Bool {
+        self == .available
+    }
+
+    var title: String {
+        switch self {
+        case .available: "분철팟 참여하기"
+        case .closed: "마감된 분철팟이에요"
+        case .myPost: "내가 등록한 분철팟이에요"
+        case .alreadyParticipated: "이미 참여한 분철팟이에요"
+        }
+    }
+}
+
 final class PotDetailViewModel: BaseViewModelType {
     
     // MARK: - Input
@@ -19,13 +39,14 @@ final class PotDetailViewModel: BaseViewModelType {
     
     struct Output {
         let reloadData: AnyPublisher<Void, Never>
-        let isJoinButtonEnabled = CurrentValueSubject<Bool, Never>(false)
+        let joinButtonState = CurrentValueSubject<PotJoinButtonState, Never>(.closed)
     }
     
     // MARK: - Properties
     
     private let useCase: PotDetailUseCase
     private let fetchPotOptionsUseCase: FetchPotOptionsUseCase
+    private let getMyPageInformationUseCase: GetMyPageInformationUseCase
     let postId: Int
     private var cancellables = Set<AnyCancellable>()
     
@@ -42,9 +63,11 @@ final class PotDetailViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: PotDetailUseCase, fetchPotOptionsUseCase: FetchPotOptionsUseCase, postId: Int) {
+    init(useCase: PotDetailUseCase, fetchPotOptionsUseCase: FetchPotOptionsUseCase,
+         getMyPageInformationUseCase: GetMyPageInformationUseCase, postId: Int) {
         self.useCase = useCase
         self.fetchPotOptionsUseCase = fetchPotOptionsUseCase
+        self.getMyPageInformationUseCase = getMyPageInformationUseCase
         self.postId = postId
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher()
@@ -77,17 +100,31 @@ final class PotDetailViewModel: BaseViewModelType {
                     }
                 }
                 
-                let isEnabled = (model.status == "RECRUITING")
+                let currentUserId = try? await getMyPageInformationUseCase.execute().userId
+                let joinButtonState = makeJoinButtonState(model: model, currentUserId: currentUserId)
                 
                 await MainActor.run {
-                    output.isJoinButtonEnabled.send(isEnabled)
+                    output.joinButtonState.send(joinButtonState)
                     reloadDataSubject.send(())
                 }
             } catch {
                 print("PotDetail fetch Error: \(error)")
-                output.isJoinButtonEnabled.send(false)
+                output.joinButtonState.send(.closed)
             }
         }
+    }
+
+    private func makeJoinButtonState(model: PotDetailModel, currentUserId: Int?) -> PotJoinButtonState {
+        if model.isMyPost {
+            return .myPost
+        }
+        guard let currentUserId else {
+            return .closed
+        }
+        if model.participants.contains(where: { $0.userId == currentUserId }) {
+            return .alreadyParticipated
+        }
+        return model.status == "RECRUITING" ? .available : .closed
     }
 
     private func fetchPotOptions() {
