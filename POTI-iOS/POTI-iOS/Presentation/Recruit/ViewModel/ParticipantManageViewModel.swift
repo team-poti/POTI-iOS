@@ -2,7 +2,7 @@
 //  ParticipantManageViewModel.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/16/26.
+//  Created by Neon on 1/16/26.
 //
 
 import Combine
@@ -106,7 +106,7 @@ final class ParticipantManageViewModel: BaseViewModelType {
                 self.fetchDataSubject.send()
                 
             } catch {
-                print("Error : \(error)")
+                self?.errorSubject.send("참여자 정보를 불러오지 못했어요")
             }
         }
     }
@@ -131,11 +131,9 @@ final class ParticipantManageViewModel: BaseViewModelType {
             do {
                 _ = try await paymentsUseCase.execute(orderId: orderId)
 
-                // PATCH 성공 후 최신 상태 재조회
                 let entity = try await postsParticipantsUseCase.execute(postId: postId)
                 self.participants = entity.toParticipantManageModels()
 
-                // UI 갱신
                 self.fetchDataSubject.send(())
 
             } catch {
@@ -160,11 +158,10 @@ final class ParticipantManageViewModel: BaseViewModelType {
 
                 _ = try await ordersDeliveriesUseCase.execute(orderId: orderId, entity: requestEntity)
                 
-                trackingNumberPatchedSubject.send(())
-
                 let entity = try await postsParticipantsUseCase.execute(postId: postId)
                 self.participants = entity.toParticipantManageModels()
                 fetchDataSubject.send(())
+                trackingNumberPatchedSubject.send(())
 
             } catch {
                 self.errorSubject.send("송장번호 등록에 실패했어요")

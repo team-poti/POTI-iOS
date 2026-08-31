@@ -2,7 +2,7 @@
 //  RecruitCompletedCell.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 import UIKit
@@ -32,6 +32,7 @@ final class RecruitCompletedCell: UITableViewCell {
     
     private func setStyle() {
         backgroundColor = .potiWhite
+        contentView.backgroundColor = .potiWhite
     }
     
     private func setUI() {

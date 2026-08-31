@@ -2,7 +2,7 @@
 //  JoinMemberRowStackView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 import UIKit
@@ -22,7 +22,7 @@ final class JoinMemberRowStackView: BaseView {
         memberListStackView.do {
             $0.axis = .vertical
             $0.spacing = 8
-            $0.alignment = .fill //반대축으로 꽉 채우기 (현 스택은 vertical이니까 horizontal로 fill
+            $0.alignment = .fill
             $0.distribution = .fill
         }
     }

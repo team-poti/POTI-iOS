@@ -38,4 +38,12 @@ final class DefaultRegisterRepository: RegisterInterface {
 
         return result.toEntities()
     }
+
+    func fetchShippingOptions() async throws -> [RegisterShippingOptionEntity] {
+        let result = try await networkService.request(
+            target: RegisterAPI.fetchShippingOptions,
+            type: [RegisterShippingOptionResponseDTO].self
+        )
+        return result.map { $0.toEntity() }
+    }
 }

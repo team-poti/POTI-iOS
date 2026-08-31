@@ -2,7 +2,7 @@
 //  ParticipantManageModel.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/14/26.
+//  Created by Neon on 1/14/26.
 //
 
 struct ParticipantManageModel: Hashable {
@@ -109,7 +109,7 @@ extension ManageParticipantEntity {
             profileImage: profileImage ?? "",
             nickname: nickname,
             memberTitle: memberNames,
-            participantstatus: status,
+            participantstatus: ParticipantStatus(domainStatus: status),
             memberRows: memberRows,
             shippingText: priceInfo.shippingName,
             shippingPrice: priceInfo.shippingPrice,

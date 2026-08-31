@@ -13,6 +13,7 @@ final class RegisterViewModel: BaseViewModelType {
     // MARK: - Input
 
     enum Input {
+        case viewDidLoad
         case addImageButtonTapped
         case deleteImageButtonTapped(Int)
         case addOptimizedImages([OptimizedImage])
@@ -66,6 +67,7 @@ final class RegisterViewModel: BaseViewModelType {
     private let registerPostUseCase: RegisterPostUseCase
     private let uploadPostImagesUseCase: UploadPostImagesUseCase
     private let artistMembersUseCase: ArtistMembersUseCase
+    private let fetchShippingOptionsUseCase: FetchShippingOptionsUseCase
 
     // MARK: - Subjects
 
@@ -87,7 +89,8 @@ final class RegisterViewModel: BaseViewModelType {
 
     init(
         maxImageCount: Int = 5, fetchProductTitlesUseCase: FetchProductTitlesUseCase, registerPostUseCase: RegisterPostUseCase,
-        uploadPostImagesUseCase: UploadPostImagesUseCase, artistMembersUseCase: ArtistMembersUseCase
+        uploadPostImagesUseCase: UploadPostImagesUseCase, artistMembersUseCase: ArtistMembersUseCase,
+        fetchShippingOptionsUseCase: FetchShippingOptionsUseCase
     ) {
         let shippingOptions = DefaultRegisterShippingOptions.items
         self.maxImageCount = maxImageCount
@@ -97,6 +100,7 @@ final class RegisterViewModel: BaseViewModelType {
         self.registerPostUseCase = registerPostUseCase
         self.uploadPostImagesUseCase = uploadPostImagesUseCase
         self.artistMembersUseCase = artistMembersUseCase
+        self.fetchShippingOptionsUseCase = fetchShippingOptionsUseCase
 
         self.output = Output(
             optimizedImages: optimizedImagesSubject.eraseToAnyPublisher(), imagePickerRequest: imagePickerRequestSubject.eraseToAnyPublisher(),
@@ -118,6 +122,9 @@ final class RegisterViewModel: BaseViewModelType {
 
     func action(_ trigger: Input) {
         switch trigger {
+
+        case .viewDidLoad:
+            fetchShippingOptions()
 
         case .addImageButtonTapped:
             requestImageSelection()
@@ -178,6 +185,31 @@ final class RegisterViewModel: BaseViewModelType {
         let remainingImageCount = maxImageCount - optimizedImagesSubject.value.count
         guard remainingImageCount > 0 else { return }
         imagePickerRequestSubject.send(remainingImageCount)
+    }
+
+    private func fetchShippingOptions() {
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                let options = try await fetchShippingOptionsUseCase.execute()
+                let items = options.map {
+                    RegisterShippingOptionItem(
+                        deliveryMethodID: $0.deliveryID,
+                        name: $0.name,
+                        price: $0.price,
+                        isSelected: true
+                    )
+                }
+
+                await MainActor.run {
+                    guard !items.isEmpty else { return }
+                    self.shippingOptions = items
+                    self.shippingSettingSubject.send(.init(options: items, error: nil))
+                }
+            } catch {
+                PotiLogger.error(error)
+            }
+        }
     }
 
     private func deleteImage(at index: Int) {

@@ -136,17 +136,18 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             }
             .store(in: &cancellables)
         
-        viewModel.output.orderResult
+        viewModel.output.orderCompleted
             .receive(on: RunLoop.main)
-            .sink { [weak self] isSuccess in
-                guard let self = self else { return }
-                
-                if isSuccess {
-                    self.view.endEditing(true)
-                    self.showParticipationNotice()
-                } else {
-                    PotiLogger.error(PotiError.apiError(message: "참여에 실패했습니다."))
-                }
+            .sink { [weak self] in
+                self?.view.endEditing(true)
+                self?.showParticipationNotice()
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.orderError
+            .receive(on: RunLoop.main)
+            .sink { [weak self] message in
+                self?.presentErrorAlert(message: message)
             }
             .store(in: &cancellables)
     }
@@ -201,6 +202,16 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
         rootView.orderContentView.detailAddressField.text = ""
         viewModel.action(.addressSelected(zipcode: address.zipcode, address: address.address))
         viewModel.action(.detailAddressDidChange(""))
+    }
+
+    private func presentErrorAlert(message: String) {
+        let alert = UIAlertController(
+            title: "참여할 수 없어요",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
     
     // MARK: - Public Method

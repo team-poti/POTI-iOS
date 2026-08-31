@@ -2,26 +2,19 @@
 //  ParticipantManageListCell.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/14/26.
+//  Created by Neon on 1/14/26.
 //
 
 import UIKit
 
+import Kingfisher
 import SnapKit
 import Then
 
 final class ParticipantManageListCell: UITableViewCell {
     
-    /// (구버전 호환) 상태 액션 버튼 탭 시 model을 그대로 넘겨줌
-    var onTapStatusAction: ((ParticipantManageModel) -> Void)?
-
-    /// 토글 버튼 탭
     var onTapToggle: (() -> Void)?
-
-    /// (신규) 입금 확인 버튼 탭
     var onTapConfirmDeposit: ((Int) -> Void)?
-
-    /// (신규) 송장 번호 입력 버튼 탭
     var onTapConfirmShip: ((Int) -> Void)?
     
     private let totalStackView = IconStackView(
@@ -34,6 +27,7 @@ final class ParticipantManageListCell: UITableViewCell {
     
     private let rootStackView = UIStackView()
     private let headerContainerView = UIView()
+    private let detailContainerView = UIView()
     private let divideView = DivideView()
     private let bottomDivideView = DivideView()
     
@@ -50,11 +44,8 @@ final class ParticipantManageListCell: UITableViewCell {
     private let shippingStackView = IconStackView(iconName: "icn-delivery", title: "", price: 0, fontSizeCase: .small)
     private let divideTopView = DivideView()
     private let divideBottomView = DivideView()
-    private let emptyView = UIView()
-    
+
     private var participantCaseZeroHeightConstraint: Constraint?
-    private var paddingZeroHeightConstraint: Constraint?
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.backgroundColor = .potiWhite
@@ -71,19 +62,19 @@ final class ParticipantManageListCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         onTapToggle = nil
-        onTapStatusAction = nil
         onTapConfirmDeposit = nil
         onTapConfirmShip = nil
         memberRowStackView.reset()
         participantCaseZeroHeightConstraint?.deactivate()
-        grayBackgroundView.isHidden = true
+        detailContainerView.isHidden = true
+        profileImageView.kf.cancelDownloadTask()
+        profileImageView.image = UIImage(named: "placeholder")
         toggleButton.setImage(.icnArrowDownLg, for: .normal)
     }
     
     //MARK: - Custom Method
     
     private func setStyle() {
-        emptyView.backgroundColor = .potiWhite
         participantMemberLabel.do {
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
@@ -129,8 +120,7 @@ final class ParticipantManageListCell: UITableViewCell {
         rootStackView.addArrangedSubviews(
             divideView,
             headerContainerView,
-            grayBackgroundView,
-            emptyView,
+            detailContainerView,
             bottomDivideView
         )
         
@@ -140,6 +130,8 @@ final class ParticipantManageListCell: UITableViewCell {
             toggleButton
         )
         
+        detailContainerView.addSubview(grayBackgroundView)
+
         grayBackgroundView.addSubviews(
             profileImageView,
             nicknameLabel,
@@ -152,8 +144,7 @@ final class ParticipantManageListCell: UITableViewCell {
             participantCaseView
         )
         
-        // 기본은 접힘
-        grayBackgroundView.isHidden = true
+        detailContainerView.isHidden = true
         bottomDivideView.isHidden = true
     }
     
@@ -178,15 +169,15 @@ final class ParticipantManageListCell: UITableViewCell {
         }
         
         participantMemberLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
+            $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(16)
-            $0.width.equalTo(235)
+            $0.trailing.lessThanOrEqualTo(statusLabel.snp.leading).offset(-12)
         }
         
         toggleButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(16)
-            $0.centerY.equalTo(participantMemberLabel)
+            $0.trailing.equalToSuperview().inset(4)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(48)
         }
         
         statusLabel.snp.makeConstraints {
@@ -195,13 +186,9 @@ final class ParticipantManageListCell: UITableViewCell {
         }
         
         grayBackgroundView.snp.makeConstraints {
+            $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(16)
-        }
-        
-        emptyView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
-            $0.top.equalTo(grayBackgroundView.snp.bottom).offset(20)
-            $0.height.equalTo(0.1)
+            $0.bottom.equalToSuperview().inset(20)
         }
         
         profileImageView.snp.makeConstraints {
@@ -259,16 +246,17 @@ final class ParticipantManageListCell: UITableViewCell {
 
 extension ParticipantManageListCell {
     func configure(model: ParticipantManageModel, isExpanded: Bool, isLast: Bool) {
-        /// header
         participantMemberLabel.text = model.memberTitle.joined(separator: ", ")
         statusLabel.text = model.participantstatus.badgeText
         statusLabel.textColor = model.participantstatus.badgeColor
         updateToggleButton(isExpanded: isExpanded)
         
-        /// gray content
         nicknameLabel.text = model.nickname
-        if let url = URL(string: model.profileImage) {
+        profileImageView.kf.cancelDownloadTask()
+        if let url = URL(string: model.profileImage), !model.profileImage.isEmpty {
             profileImageView.kf.setImage(with: url, placeholder: UIImage(named: "placeholder"))
+        } else {
+            profileImageView.image = UIImage(named: "placeholder")
         }
         
         memberRowStackView.configure(model: model)
@@ -278,37 +266,28 @@ extension ParticipantManageListCell {
         participantCaseView.configure(
             status: model.participantstatus,
             model: model,
-            onTapAction: { [weak self] in
+            onTapAction: { [weak self] action in
                 guard let self else { return }
 
-                // (구버전 호환)
-                self.onTapStatusAction?(model)
-
-                // (신규) 상태에 따라 VC로 분기 신호 전달
-                switch model.participantstatus {
-                case .waitPayCheck:
+                switch action {
+                case .confirmDeposit:
                     self.onTapConfirmDeposit?(model.purchaseId)
 
-                case .paid:
+                case .enterTrackingNumber:
                     self.onTapConfirmShip?(model.purchaseId)
-
-                default:
-                    break
                 }
             }
         )
         
         switch model.participantstatus {
-        case .recruiting, .waitPay:
+        case .recruiting, .waitPay, .unknown:
             participantCaseZeroHeightConstraint?.activate()
         default:
             participantCaseZeroHeightConstraint?.deactivate()
         }
         
-        grayBackgroundView.isHidden = !isExpanded
+        detailContainerView.isHidden = !isExpanded
         bottomDivideView.isHidden = !isLast
-        rootStackView.setCustomSpacing(0, after: headerContainerView)
-        rootStackView.setCustomSpacing(160, after: grayBackgroundView)
     }
     
     private func updateToggleButton(isExpanded: Bool) {

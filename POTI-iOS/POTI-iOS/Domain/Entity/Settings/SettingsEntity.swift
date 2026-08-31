@@ -28,3 +28,7 @@ enum WithdrawalAvailabilityEntity {
     case available
     case unavailable
 }
+struct WithdrawalReasonEntity: Equatable {
+    let code: String
+    let label: String
+}

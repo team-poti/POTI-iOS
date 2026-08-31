@@ -2,7 +2,7 @@
 //  InfoLabelStackView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/15/26.
+//  Created by Neon on 1/15/26.
 //
 
 import UIKit
@@ -30,7 +30,9 @@ final class InfoLabelStackView: BaseView {
     }
     
     override func setLayout() {
-        infoStackView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        infoStackView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
 }
 

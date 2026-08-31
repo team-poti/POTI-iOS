@@ -2,7 +2,7 @@
 //  MyJoinDepositInfoCell.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 import UIKit
@@ -10,13 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-/// 입금 정보!!!!!!!! 모집자 !!!!!
 final class MyJoinDepositInfoCell: UITableViewCell {
-    
-    var onTapStatusAction: ((ParticipantManageModel) -> Void)?
-    var onTapToggle: (() -> Void)?
-    /// `.paid` 상태에서 보이는 "송장 번호 입력" 버튼 탭 콜백 << - 추후 수정 예정
-    var onTapEnterTrackingNumber: ((ParticipantManageModel) -> Void)?
     
     private let totalStackView = IconStackView(
         iconName: "icn-priceAngle",
@@ -25,18 +19,17 @@ final class MyJoinDepositInfoCell: UITableViewCell {
         fontSizeCase: .large
     )
     private let divideView = DivideView()
-    private let bottomDivideView = DivideView()
     
     // MARK: - UI Component
     
     private let depositLabel = UILabel()
     private let memberRowStackView = JoinMemberRowStackView()
     private let shippingStackView = IconStackView(iconName: "icn-delivery", title: "", price: 0, fontSizeCase: .small)
-    private let depositStatusLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.backgroundColor = .potiWhite
+        contentView.backgroundColor = .potiWhite
         setStyle()
         setUI()
         setLayout()
@@ -48,9 +41,6 @@ final class MyJoinDepositInfoCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        onTapToggle = nil
-        onTapStatusAction = nil
-        onTapEnterTrackingNumber = nil
         memberRowStackView.reset()
     }
     

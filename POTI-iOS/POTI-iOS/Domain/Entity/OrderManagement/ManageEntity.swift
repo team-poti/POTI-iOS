@@ -2,7 +2,7 @@
 //  ManageEntity.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/17/26.
+//  Created by Neon on 1/17/26.
 //
 
 struct ManageEntity {
@@ -15,7 +15,7 @@ struct ManageParticipantEntity {
     let profileImage: String?
     let nickname: String
     let memberNames: [String]
-    let status: ParticipantStatus
+    let status: ParticipantOrderStatus
 
     let priceInfo: PriceInfoEntity
     let depositInfo: DepositInfoEntity?

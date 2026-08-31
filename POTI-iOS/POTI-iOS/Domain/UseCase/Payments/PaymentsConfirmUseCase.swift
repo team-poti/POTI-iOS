@@ -2,11 +2,11 @@
 //  PaymentsUseCase.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/22/26.
+//  Created by Neon on 1/22/26.
 //
 
 protocol PaymentsConfirmUseCase {
-    func execute(orderId: Int) async throws -> RecruitPaymentsConfirmDTO
+    func execute(orderId: Int) async throws -> PaymentsConfirmEntity
 }
 
 final class DefaultPaymentsUseCase: PaymentsConfirmUseCase {
@@ -17,7 +17,7 @@ final class DefaultPaymentsUseCase: PaymentsConfirmUseCase {
         self.repository = repository
     }
     
-    func execute(orderId: Int) async throws -> RecruitPaymentsConfirmDTO {
+    func execute(orderId: Int) async throws -> PaymentsConfirmEntity {
         return try await repository.patchPaymentConfirm(orderId: orderId)
     }
 }

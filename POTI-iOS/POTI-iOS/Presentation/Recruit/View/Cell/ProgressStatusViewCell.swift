@@ -2,7 +2,7 @@
 //  ProgressStatusViewCell.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/13/26.
+//  Created by Neon on 1/13/26.
 //
 
 import UIKit
@@ -13,9 +13,8 @@ import Then
 final class ProgressStatusViewCell: UITableViewCell {
     
     struct Model {
-        let postStatus: PostStatus
-        let role: UserRole
-        let participantStatus: ParticipantStatus
+        let message: String
+        let progressImage: UIImage?
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -71,17 +70,17 @@ final class ProgressStatusViewCell: UITableViewCell {
         potStatusMessageView.snp.makeConstraints {
             $0.top.equalTo(progressTitleLabel.snp.bottom).offset(20)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(CGFloat.dynamicH(45))
+            $0.height.equalTo(45)
         }
         progressStatusBar.snp.makeConstraints {
             $0.top.equalTo(potStatusMessageView.snp.bottom).offset(16)
             $0.horizontalEdges.equalToSuperview().inset(24)
-            $0.height.equalTo(CGFloat.dynamicH(53))
+            $0.height.equalTo(53)
         }
         divideView.snp.makeConstraints {
             $0.top.equalTo(progressStatusBar.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(CGFloat.dynamicH(8))
+            $0.height.equalTo(8)
             $0.bottom.equalToSuperview()
         }
     }
@@ -89,40 +88,7 @@ final class ProgressStatusViewCell: UITableViewCell {
     // MARK: - Custom Method
     
     func configure(model: Model) {
-        let messageText: String
-
-        if model.postStatus == .closed {
-            switch (model.role, model.participantStatus) {
-            case (.host, .recruiting):
-                messageText = "입금을 기다리는 중이에요"
-
-            case (.host, .waitPayCheck):
-                messageText = "입금 확인을 기다리는 참여자가 있어요"
-
-            case (.participant, .recruiting):
-                messageText = "지금 입금해주세요!"
-
-            case (.participant, .waitPayCheck):
-                messageText = "모집자가 입금 내역을 확인하고 있어요"
-
-            default:
-                // closed 상태지만 위 케이스에 해당 안 할 때
-                if model.role == .host {
-                    messageText = model.postStatus.statusText(role: model.role)
-                } else {
-                    messageText = model.participantStatus.statusText(role: model.role)
-                }
-            }
-        } else {
-            // closed가 아닐 때
-            if model.role == .host {
-                messageText = model.postStatus.statusText(role: model.role)
-            } else {
-                messageText = model.participantStatus.statusText(role: model.role)
-            }
-        }
-
-        potStatusMessageView.configure(text: messageText)
-        progressStatusBar.image = model.postStatus.progressImage
+        potStatusMessageView.configure(text: model.message)
+        progressStatusBar.image = model.progressImage
     }
 }

@@ -2,11 +2,11 @@
 //  ParticipationDeliveredUseCase.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/23/26.
+//  Created by Neon on 1/23/26.
 //
 
 protocol ParticipationDeliveredUseCase {
-    func execute(participationId: Int) async throws
+    func execute(participationId: Int) async throws -> ParticipationDeliveredEntity
 }
 
 final class DefaultParticipationDeliveredUseCase: ParticipationDeliveredUseCase {
@@ -17,7 +17,7 @@ final class DefaultParticipationDeliveredUseCase: ParticipationDeliveredUseCase 
         self.repository = repository
     }
     
-    func execute(participationId: Int) async throws {
+    func execute(participationId: Int) async throws -> ParticipationDeliveredEntity {
         try await repository.patchParticipationDelivered(participationId: participationId)
     }
 }

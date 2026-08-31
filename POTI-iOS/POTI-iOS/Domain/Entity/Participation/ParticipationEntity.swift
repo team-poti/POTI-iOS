@@ -10,7 +10,8 @@ struct ParticipationEntity {
     let shippingId: Int
     let receiverName: String
     let zipcode: String
-    let addressLine: String
+    let address: String
+    let addressDetail: String
     let phone: String
     let items: [ParticipationItem]
 }

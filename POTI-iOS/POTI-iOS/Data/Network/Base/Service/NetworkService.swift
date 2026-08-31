@@ -141,12 +141,14 @@ final class NetworkService: Sendable {
         }
     }
     
-    private func mapErrorCode(_ code: Int, message: String) -> PotiError {
+    func mapErrorCode(_ code: Int, message: String) -> PotiError {
         switch code {
         case 40100:
             return .invalidToken
         case 40101:
             return .tokenExpired
+        case 40019:
+            return .withdrawalBlocked
         case 400:
             return .badRequest
         case 401:

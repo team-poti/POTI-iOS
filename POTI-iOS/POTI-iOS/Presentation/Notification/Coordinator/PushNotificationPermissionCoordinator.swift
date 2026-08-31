@@ -72,7 +72,9 @@ final class PushNotificationPermissionCoordinator {
 
     func showPermissionModal(in view: UIView) {
         showPermissionModal(in: view) { [weak self] in
-            self?.viewModel.action(.setAllNotifications(isEnabled: true))
+            Task { @MainActor in
+                self?.viewModel.action(.setAllNotifications(isEnabled: true))
+            }
         }
     }
     

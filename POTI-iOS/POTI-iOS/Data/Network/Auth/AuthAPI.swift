@@ -12,6 +12,7 @@ enum AuthAPI: BaseTargetType {
     case reissue(refreshToken: String)
     case devLogin
     case logout(fcmToken: String?)
+    case withdrawalReasons
     case withdrawalUser(reason: String)
 
     var path: String {
@@ -24,6 +25,8 @@ enum AuthAPI: BaseTargetType {
             return "/dev/login"
         case .logout:
             return "/api/v1/auth/logout"
+        case .withdrawalReasons:
+            return "/api/v1/auth/withdrawal/reasons"
         case .withdrawalUser:
             return "/api/v1/auth/withdrawal"
         }
@@ -33,7 +36,7 @@ enum AuthAPI: BaseTargetType {
         switch self {
         case .login, .reissue, .logout:
             return .post
-        case .devLogin:
+        case .devLogin, .withdrawalReasons:
             return .get
         case .withdrawalUser:
             return .delete
@@ -60,7 +63,7 @@ enum AuthAPI: BaseTargetType {
             return ["fcmToken": fcmToken]
         case .withdrawalUser(let reason):
             return ["reason": reason]
-        case .devLogin:
+        case .devLogin, .withdrawalReasons:
             return nil
         }
     }

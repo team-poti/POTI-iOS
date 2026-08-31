@@ -11,6 +11,7 @@ enum RegisterAPI: BaseTargetType {
     case registerPost(RegisterPostRequestDTO)
     case fetchProductTitles(artistId: Int, keyword: String)
     case searchArtists(keyword: String)
+    case fetchShippingOptions
 
     var path: String {
         switch self {
@@ -20,6 +21,8 @@ enum RegisterAPI: BaseTargetType {
             return "/api/v1/posts/titles"
         case .searchArtists:
             return "/api/v1/posts/artists"
+        case .fetchShippingOptions:
+            return "/api/v1/shippings"
         }
     }
 
@@ -27,7 +30,7 @@ enum RegisterAPI: BaseTargetType {
         switch self {
         case .registerPost:
             return .post
-        case .fetchProductTitles, .searchArtists:
+        case .fetchProductTitles, .searchArtists, .fetchShippingOptions:
             return .get
         }
     }
@@ -43,7 +46,7 @@ enum RegisterAPI: BaseTargetType {
         case .searchArtists(let keyword):
             return ["keyword": keyword]
 
-        case .registerPost:
+        case .registerPost, .fetchShippingOptions:
             return nil
         }
     }

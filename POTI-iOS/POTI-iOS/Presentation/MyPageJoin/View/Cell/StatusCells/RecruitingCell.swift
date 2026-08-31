@@ -2,7 +2,7 @@
 //  RecruitingCell.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 import UIKit
@@ -26,6 +26,7 @@ final class RecruitingCell: UITableViewCell {
     
     private func setStyle() {
         backgroundColor = .potiWhite
+        contentView.backgroundColor = .potiWhite
     }
 
     private func setUI() {
@@ -35,7 +36,7 @@ final class RecruitingCell: UITableViewCell {
 
     private func setLayout() {
         joinShipInfoView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(24)
+            $0.top.equalToSuperview()
             $0.horizontalEdges.bottom.equalToSuperview()
         }
     }

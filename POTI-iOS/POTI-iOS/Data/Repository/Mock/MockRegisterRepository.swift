@@ -71,4 +71,11 @@ final class MockRegisterRepository: RegisterInterface {
             $0.name.localizedCaseInsensitiveContains(trimmedKeyword)
         }
     }
+
+    func fetchShippingOptions() async throws -> [RegisterShippingOptionEntity] {
+        [
+            .init(deliveryID: 1, name: "일반택배", price: 4_000),
+            .init(deliveryID: 2, name: "준등기", price: 1_800)
+        ]
+    }
 }

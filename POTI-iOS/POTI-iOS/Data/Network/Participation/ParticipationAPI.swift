@@ -49,7 +49,8 @@ enum ParticipationAPI: BaseTargetType {
                 "deliveryInfo": [
                     "receiverName": request.deliveryInfo.receiverName,
                     "zipcode": request.deliveryInfo.zipcode,
-                    "addressLine": request.deliveryInfo.addressLine,
+                    "address": request.deliveryInfo.address,
+                    "addressDetail": request.deliveryInfo.addressDetail,
                     "phone": request.deliveryInfo.phone
                 ],
                 "items": request.items.map { [

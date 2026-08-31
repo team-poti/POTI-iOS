@@ -2,10 +2,8 @@
 //  ParticipantListTableViewController.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/13/26.
+//  Created by Neon on 1/13/26.
 //
-
-// 참여자 관리
 
 import UIKit
 
@@ -22,9 +20,15 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     // MARK: - UI
     
     private let tableView = UITableView()
+    private let emptyLabel = UILabel().then {
+        $0.text = "아직 참여자가 없어요"
+        $0.font = PotiFontManager.body14m.font
+        $0.textColor = .gray700
+        $0.textAlignment = .center
+        $0.isHidden = true
+    }
     private var lastSectionCount: Int = 0
     
-    // 송장번호 입력 bottom sheet를 잡아두었다가 PATCH 성공 시 닫기
     private var trackingNumberSheet: DetailBottomSheet?
     
     // MARK: - Lifecycle
@@ -35,30 +39,19 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         lastSectionCount = viewModel.participants.count
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if let tabBarController = self.tabBarController as? PotiTabBar {
-            tabBarController.tabBar.isHidden = true
-        }
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if let tabBarController = self.tabBarController as? PotiTabBar {
-            tabBarController.tabBar.isHidden = false
-        }
-    }
-    
     override func setUI() {
-        view.addSubview(tableView)
+        view.addSubviews(tableView, emptyLabel)
         setStyle()
     }
     
     override func setLayout() {
         tableView.snp.makeConstraints {
-            $0.top.equalToSuperview()
-            $0.bottom.equalToSuperview().inset(30)
-            $0.leading.trailing.equalToSuperview()
+            $0.edges.equalToSuperview()
+        }
+
+        emptyLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(52)
+            $0.centerX.equalToSuperview()
         }
     }
     
@@ -73,6 +66,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             .sink { [weak self] in
                 guard let self else { return }
                 self.lastSectionCount = self.viewModel.participants.count
+                self.emptyLabel.isHidden = !self.viewModel.participants.isEmpty
                 self.tableView.reloadData()
             }
             .store(in: &cancellables)
@@ -104,7 +98,14 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
                 guard let self else { return }
                 self.trackingNumberSheet?.dismiss()
                 self.trackingNumberSheet = nil
-                self.viewModel.action(.viewDidLoad)
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.showError
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                self?.trackingNumberSheet?.submissionDidFail()
+                self?.presentErrorAlert(message: message)
             }
             .store(in: &cancellables)
     }
@@ -115,9 +116,7 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             message: "확인 후에는 되돌릴 수 없어요",
             cancelTitle: "이전",
             confirmTitle: "입금 확인",
-            onLeftButton: { [weak self] in
-                self?.dismiss(animated: true)
-            },
+            onLeftButton: {},
             onRightButton: { [weak self] in
                 self?.viewModel.action(.confirmDeposit(orderId: orderId))
             }
@@ -179,13 +178,12 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
             firstPlaceholder: "배송업체를 선택해주세요",
             secondTitle: "송장번호",
             secondPlaceholder: "송장번호를 입력해주세요",
-            confirmButtonText: "완료"
+            confirmButtonText: "완료",
+            dismissesOnSubmit: false
         )
         
-        // sheet를 잡아두었다가 PATCH 성공 시 닫기
         self.trackingNumberSheet = sheet
-        
-        // 입력 완료 → PATCH 실행
+
         sheet.onSubmit = { [weak self] carrier, trackingNumber in
             
             self?.viewModel.action(
@@ -194,6 +192,13 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         }
         
         sheet.show(in: self.navigationController?.view ?? view)
+    }
+
+    private func presentErrorAlert(message: String) {
+        guard presentedViewController == nil else { return }
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }
 

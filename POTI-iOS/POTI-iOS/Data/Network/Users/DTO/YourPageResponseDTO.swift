@@ -12,6 +12,7 @@ struct YourPageResponseDTO: Decodable {
     let ratingAvg: Double
     let activityMessage: String
     let joinedAt: String
+    let hasFavoriteArtist: Bool?
     let participationSummary: YourPageSummaryDTO
     let recruitSummary: YourPageSummaryDTO
     
@@ -23,6 +24,7 @@ struct YourPageResponseDTO: Decodable {
             ratingAvg: ratingAvg,
             activityMessage: activityMessage,
             joinedAt: joinedAt,
+            hasFavoriteArtist: hasFavoriteArtist ?? false,
             participationSummary: participationSummary.toEntity(),
             recruitSummary: recruitSummary.toEntity()
         )

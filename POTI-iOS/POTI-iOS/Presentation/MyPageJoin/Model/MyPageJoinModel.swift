@@ -2,7 +2,7 @@
 //  MyPageJoinModel.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 import UIKit
@@ -99,6 +99,7 @@ extension MyPageJoinModel {
         case waiting = "WAITING"
         case shipped = "SHIPPED"
         case completed = "COMPLETED"
+        case unknown = "UNKNOWN"
         
         var text: String {
             switch self {
@@ -108,6 +109,8 @@ extension MyPageJoinModel {
                 return "입금 확인중"
             case .completed:
                 return "입금 완료"
+            case .unknown:
+                return "상태 확인"
             }
         }
         
@@ -119,6 +122,8 @@ extension MyPageJoinModel {
                     return .poti600
                 case .completed:
                     return .gray700
+                case .unknown:
+                    return .gray700
                 }
             }
     }
@@ -127,6 +132,7 @@ extension MyPageJoinModel {
         case preparing = "PREPARING"
         case shipped = "SHIPPED"
         case delivered = "DELIVERED"
+        case unknown = "UNKNOWN"
         
         var text: String {
             switch self {
@@ -136,6 +142,8 @@ extension MyPageJoinModel {
                 return "배송 시작"
             case .delivered:
                 return "배송 완료"
+            case .unknown:
+                return "상태 확인"
             }
         }
         
@@ -147,6 +155,8 @@ extension MyPageJoinModel {
                 return .poti600
             case .delivered:
                 return .gray700
+            case .unknown:
+                return .gray700
             }
         }
     }
@@ -156,7 +166,6 @@ extension MyPageJoinModel {
 
 extension MyPageJoinModel {
 
-    /// 서버 상세(Entity) → 화면용 Model 변환
     static func map(entity: JoinDetailEntity) -> MyPageJoinModel {
         MyPageJoinModel(
             participationId: entity.participationId, postId: entity.postId,
@@ -164,7 +173,6 @@ extension MyPageJoinModel {
             artistName: entity.artistName,
             title: entity.title,
             postStatus: MyPageJoinModel.PostStatus.from(entity.postStatus),
-            // 상세 응답에는 별도 orderStatus 필드가 없어서, 배송 상태를 대표값으로 사용
             orderStatus: entity.shippingInfo.shippingStatus,
             statusMessage: entity.statusMessage,
             memberPayments: entity.memberPayments.map { .init(memberName: $0.memberName, price: $0.price) },
@@ -194,33 +202,32 @@ extension MyPageJoinModel {
 
 extension MyPageJoinModel.DepositStatus {
     static func from(_ status: ParticipantOrderStatus) -> MyPageJoinModel.DepositStatus {
-        // 서버 상태 → 입금 상태
-        // WAIT_PAY(입금대기), WAIT_PAY_CHECK(입금확인중), PAID/READY/SHIPPED/DELIVERED(입금완료로 간주)
         switch status {
         case .waitPay:
             return .waiting
         case .waitPayCheck:
             return .shipped
-        case .paid, .ready, .shipped, .delivered:
+        case .paid, .shipped, .delivered:
             return .completed
+        case .unknown:
+            return .unknown
         }
     }
 }
 
 extension MyPageJoinModel.ShippingStatus {
     static func from(_ status: ParticipantOrderStatus) -> MyPageJoinModel.ShippingStatus {
-        // 서버 상태 → 배송 상태
-        // READY(배송대기), SHIPPED(배송시작), DELIVERED(배송완료)
         switch status {
-        case .ready:
+        case .paid:
             return .preparing
         case .shipped:
             return .shipped
         case .delivered:
             return .delivered
-        case .waitPay, .waitPayCheck, .paid:
-            // 배송 단계 이전 상태들은 '배송 대기'로 표시
+        case .waitPay, .waitPayCheck:
             return .preparing
+        case .unknown:
+            return .unknown
         }
     }
 }

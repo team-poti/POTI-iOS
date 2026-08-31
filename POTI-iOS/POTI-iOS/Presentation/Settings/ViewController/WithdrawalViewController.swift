@@ -27,10 +27,25 @@ final class WithdrawalViewController: BaseViewController<SettingsViewModel>, Nav
 
     override func loadView() { view = rootView }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        viewModel.action(.fetchWithdrawalReasons)
+    }
+
     override func bindViewModel() {
         viewModel.output.withdrawalCompleted
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in self?.navigateToLogin() }
+            .store(in: &cancellables)
+
+        viewModel.output.withdrawalReasons
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.rootView.configure(reasons: $0) }
+            .store(in: &cancellables)
+
+        viewModel.output.withdrawalError
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.showWithdrawalError($0) }
             .store(in: &cancellables)
     }
 
@@ -48,5 +63,24 @@ final class WithdrawalViewController: BaseViewController<SettingsViewModel>, Nav
 
     private func navigateToLogin() {
         switchRootViewController(to: factory.makeLoginViewController())
+    }
+
+    private func showWithdrawalError(_ error: SettingsViewModel.WithdrawalError) {
+        let message: String
+        switch error {
+        case .activeTransaction:
+            WithdrawalUnavailableView().show(on: navigationController?.view ?? view)
+            return
+        case .general(let errorMessage):
+            message = errorMessage
+        }
+
+        let alert = UIAlertController(
+            title: "회원탈퇴를 할 수 없어요",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }

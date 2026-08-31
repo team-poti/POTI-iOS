@@ -2,7 +2,7 @@
 //  DefaultPaymentsRepository.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/22/26.
+//  Created by Neon on 1/22/26.
 //
 
 final class DefaultPaymentsRepository: PaymentsInterface {
@@ -12,13 +12,13 @@ final class DefaultPaymentsRepository: PaymentsInterface {
         self.networkService = networkService
     }
     
-    func patchPaymentConfirm(orderId: Int) async throws -> RecruitPaymentsConfirmDTO {
+    func patchPaymentConfirm(orderId: Int) async throws -> PaymentsConfirmEntity {
         let response = try await networkService.request(
             target: PaymentsAPI.patchPaymentConfirm(
                 orderId: orderId),
             type: RecruitPaymentsConfirmDTO.self
         )
-        return response
+        return response.toEntity()
     }
     
     func postPaymentConfirm(entity: PostPaymentEntity) async throws -> PostPaymentResponseEntity {

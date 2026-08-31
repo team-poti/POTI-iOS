@@ -2,7 +2,7 @@
 //  ParticipationsDetailDTO.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/23/26.
+//  Created by Neon on 1/23/26.
 //
 
 struct ParticipationDetailDTO: Decodable {
@@ -100,7 +100,7 @@ extension JoinPaymentDTO {
         JoinPaymentEntity(
             shippingFee: shippingFee,
             totalAmount: totalAmount,
-            depositStatus: ParticipantOrderStatus(rawValue: depositStatus) ?? .waitPay,
+            depositStatus: ParticipantOrderStatus(serverValue: depositStatus),
             bank: bank,
             accountNumber: accountNumber,
             depositDeadline: depositDeadline
@@ -118,7 +118,7 @@ extension JoinShippingDTO {
             phone: phone,
             carrier: carrier ?? "",
             trackingNumber: trackingNumber ?? "",
-            shippingStatus: ParticipantOrderStatus(rawValue: shippingStatus) ?? .waitPay
+            shippingStatus: ParticipantOrderStatus(serverValue: shippingStatus)
             )
     }
 }

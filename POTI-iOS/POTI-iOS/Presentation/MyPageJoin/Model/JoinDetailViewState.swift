@@ -2,7 +2,7 @@
 //  JoinDetailViewState.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/23/26.
+//  Created by Neon on 1/23/26.
 //
 
 import UIKit
@@ -11,6 +11,7 @@ struct JoinDetailViewState {
     let potInfo: PotInfoViewState
     let progress: JoinProgressStatusViewCell.Model
     let myJoinDepositInfo: MyJoinDepositState
+    let screenState: any JoinDetailScreenState
 }
 
 struct MyJoinDepositState {
@@ -23,30 +24,20 @@ struct MyJoinDepositState {
     let shippingMethod: String
     let shippingFee: Int
     let totalAmount: Int
+
+    var contentHeight: CGFloat {
+        let additionalRows = max(memberRows.count - 1, 0)
+        return 155 + CGFloat(additionalRows * 29)
+    }
 }
 
 // MARK: - Mapper
 
 struct JoinDetailViewStateMapper {
-    private func resolveParticipantStatus(
-        participants: [JoinDetailEntity]
-    ) -> ParticipantOrderStatus {
-        
-        // 참여자 기준: 대표 상태 (우선순위)
-        if participants.contains(where: { $0.postStatus == .recruiting }) {
-            return .waitPay
-        }
-        
-        if participants.contains(where: { $0.paymentInfo.depositStatus == .waitPayCheck }) {
-            return .waitPayCheck
-        }
-        
-        return participants.first?.paymentInfo.depositStatus ?? .delivered
-    }
-    
     func map(entity: JoinDetailEntity) -> JoinDetailViewState {
         let potInfo = PotInfoViewState(
-            postId: entity.participationId,
+            postId: entity.postId,
+            orderNumber: entity.orderNumber,
             imageUrl: entity.imageUrl,
             artistName: entity.artistName,
             title: entity.title,
@@ -55,10 +46,22 @@ struct JoinDetailViewStateMapper {
         
         let participantStatus = entity.paymentInfo.depositStatus
         
-        let progress = JoinProgressStatusViewCell.Model(
+        let screenState = JoinDetailScreenStateFactory.make(
             postStatus: entity.postStatus,
-            role: .participant,
             participantStatus: participantStatus
+        )
+
+        let serverMessage = entity.statusMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        let progressMessage: String?
+        if let defaultMessage = screenState.message {
+            progressMessage = serverMessage.isEmpty ? defaultMessage : serverMessage
+        } else {
+            progressMessage = nil
+        }
+
+        let progress = JoinProgressStatusViewCell.Model(
+            message: progressMessage,
+            progressImage: screenState.progressImage
         )
         
         let myJoinDepositInfo = MyJoinDepositState(
@@ -71,7 +74,8 @@ struct JoinDetailViewStateMapper {
         return JoinDetailViewState(
             potInfo: potInfo,
             progress: progress,
-            myJoinDepositInfo: myJoinDepositInfo
+            myJoinDepositInfo: myJoinDepositInfo,
+            screenState: screenState
         )
     }
 }

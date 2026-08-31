@@ -218,7 +218,8 @@ extension PotiNavigationBar {
         button.addTarget(target, action: #selector(NavigationActionHandling.navigationButtonTapped(_:)), for: .touchUpInside)
         
         button.snp.makeConstraints {
-            $0.width.height.equalTo(48)
+            $0.width.equalTo(48)
+            $0.height.equalTo(44)
         }
         
         return button
@@ -235,7 +236,8 @@ extension PotiNavigationBar {
 
         containerView.addSubviews(imageView, button)
         containerView.snp.makeConstraints {
-            $0.size.equalTo(48)
+            $0.width.equalTo(48)
+            $0.height.equalTo(44)
         }
         imageView.snp.makeConstraints {
             $0.centerY.equalToSuperview()

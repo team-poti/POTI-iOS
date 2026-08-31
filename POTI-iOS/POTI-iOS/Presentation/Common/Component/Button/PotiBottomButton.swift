@@ -77,8 +77,8 @@ public final class PotiBottomButton: UIButton, PotiButtonProtocol {
     
     private func setLayout() {
         self.snp.makeConstraints {
-            heightConstraint = $0.height.equalTo(buttonSize).constraint
-            widthConstraint = $0.width.equalTo(size.value).constraint
+            heightConstraint = $0.height.equalTo(buttonSize).priority(.high).constraint
+            widthConstraint = $0.width.equalTo(size.value).priority(.high).constraint
         }
     }
     

@@ -2,7 +2,7 @@
 //  ParticipantStatusCaseView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/15/26.
+//  Created by Neon on 1/15/26.
 //
 
 import UIKit
@@ -16,7 +16,8 @@ final class ParticipantStatusCaseView: BaseView {
     private let infoLabelStackView = InfoLabelStackView()
     private let actionButton = UIButton()
 
-    private var onTapAction : (() -> Void)?
+    private var action: ParticipantManagementAction?
+    private var onTapAction: ((ParticipantManagementAction) -> Void)?
 
     // MARK: - Custom Method
 
@@ -30,10 +31,10 @@ final class ParticipantStatusCaseView: BaseView {
         }
 
         actionButton.do {
-            $0.setTitleColor(.potiWhite, for: .normal)
+            $0.setTitleColor(.gray300, for: .normal)
             $0.backgroundColor = .potiBlack
-            $0.layer.cornerRadius = 12
-            $0.titleLabel?.font = PotiFontManager.body16sb.font
+            $0.layer.cornerRadius = 8
+            $0.titleLabel?.font = PotiFontManager.body14sb.font
             $0.isHidden = true
         }
     }
@@ -63,10 +64,10 @@ final class ParticipantStatusCaseView: BaseView {
 
     //MARK: - Action
 
-    //TODO: - Input output
     @objc
     private func actionButtonDidTap() {
-        onTapAction?()
+        guard let action else { return }
+        onTapAction?(action)
     }
 }
 
@@ -76,66 +77,32 @@ extension ParticipantStatusCaseView {
         infoLabelStackView.reset()
         actionButton.isHidden = true
         actionButton.setTitle("", for: .normal)
+        action = nil
         onTapAction = nil
     }
 
     func configure(
         status: ParticipantStatus,
         model: ParticipantManageModel,
-        onTapAction: (() -> Void)? = nil
+        onTapAction: ((ParticipantManagementAction) -> Void)? = nil
     ) {
         reset()
 
-        var items: [(title: String, infos: [String])] = []
+        let state = ParticipantManagementStateFactory.make(status: status)
+        isHidden = !state.isDetailVisible
 
-        var buttonTitle: String = ""
+        guard state.isDetailVisible else { return }
 
-        switch status {
-        case .recruiting, .waitPay:
-            self.isHidden = true
-            return
+        infoLabelStackView.configure(
+            items: state.informationItems(for: model).map {
+                (title: $0.title, infos: $0.infos)
+            }
+        )
 
-        case .waitPayCheck:
-            self.isHidden = false
-            items = [
-                (title: "입금 정보",
-                 infos: [
-                    model.paidInfo?.depositorName ?? "",
-                    model.paidInfo?.depositTimeText ?? ""
-                 ])
-            ]
-            buttonTitle = "입금 확인"
-
-        case .paid:
-            self.isHidden = false
-            items = [
-                (title: "이름", infos: [model.paidInfo?.depositorName ?? ""]),
-                (title: "배송 정보", infos: [model.shipInfo?.addressText ?? ""]),
-                (title: "연락처", infos: [model.shipInfo?.phoneText ?? ""])
-            ]
-            buttonTitle = "송장 번호 입력"
-
-        case .shipped:
-            self.isHidden = false
-            items = [
-                (title: "이름", infos: [model.shipInfo?.receiverName ?? ""]),
-                (title: "배송 정보", infos: [model.shipInfo?.addressText ?? ""]),
-                (title: "연락처", infos: [model.shipInfo?.phoneText ?? ""]),
-                (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
-            ]
-
-        case .delivered:
-            self.isHidden = false
-            items = [
-                (title: "송장 번호", infos: [model.shipInfo?.trackingNumber ?? ""])
-            ]
-        }
-
-        infoLabelStackView.configure(items: items)
-
-        if !buttonTitle.isEmpty {
+        if let action = state.action {
             actionButton.isHidden = false
-            actionButton.setTitle(buttonTitle, for: .normal)
+            actionButton.setTitle(action.title, for: .normal)
+            self.action = action
             self.onTapAction = onTapAction
         } else {
             actionButton.isHidden = true

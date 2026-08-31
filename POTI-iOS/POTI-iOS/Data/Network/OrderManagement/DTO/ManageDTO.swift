@@ -2,7 +2,7 @@
 //  ManageDTO.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/22/26.
+//  Created by Neon on 1/22/26.
 //
 
 struct ManageDTO: Decodable {
@@ -39,9 +39,9 @@ struct DepositInfoDTO: Decodable {
 }
 
 struct ManageShippingInfoDTO: Decodable {
-    let receiverName: String
-    let address: String
-    let phone: String
+    let receiverName: String?
+    let address: String?
+    let phone: String?
     let trackingNumber: String?
 }
 
@@ -62,7 +62,7 @@ extension ManageParticipantDTO {
             profileImage: profileImage,
             nickname: nickname,
             memberNames: memberNames,
-            status: ParticipantStatus(rawValue: status) ?? .recruiting,
+            status: ParticipantOrderStatus(serverValue: status),
             priceInfo: priceInfo.toEntity(),
             depositInfo: depositInfo?.toEntity(),
             shippingInfo: shippingInfo?.toEntity()
@@ -99,9 +99,9 @@ extension DepositInfoDTO {
 extension ManageShippingInfoDTO {
     func toEntity() -> ShippingInfoEntity {
         ShippingInfoEntity(
-            receiverName: receiverName,
-            address: address,
-            phone: phone,
+            receiverName: receiverName ?? "",
+            address: address ?? "",
+            phone: phone ?? "",
             trackingNumber: trackingNumber
         )
     }

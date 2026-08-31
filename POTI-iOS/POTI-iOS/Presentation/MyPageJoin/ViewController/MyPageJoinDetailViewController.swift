@@ -2,36 +2,24 @@
 //  MyPageJoinDetailViewController.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/13/26.
+//  Created by Neon on 1/13/26.
 //
-
-
-// 참여
 
 import UIKit
 
 import SnapKit
 import Then
 
-class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, NavigationConfigurable {
+final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, NavigationConfigurable {
     
     func navigationStyle() -> PotiNavigationStyle {
-        let status = viewModel.participantOrderStatus ?? .recruiting
-        print("네비 바 작동 확인 \(status)")
-        
-        switch status {
-        case .completed:
-            return .backDefault("종료된 분철")
-        default:
-            return .backDefault("진행 중인 분철")
-        }
+        .backDefault(viewState?.screenState.navigationTitle ?? "진행 중인 분철")
     }
     
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let completeButton = PotiBottomButton()
     private var tableViewBottomConstraint: Constraint?
     private var viewState: JoinDetailViewState?
-    private var didSubmitDeposit: Bool = false
     
     // MARK: - Lifecycle
     
@@ -49,23 +37,6 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.action(.viewDidLoad)
-        updateCompleteButton()
-        navigationController?.setNavigationBarHidden(true, animated: false)
-        navigationController?.setNavigationBarHidden(false, animated: false)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if let tabBarController = self.tabBarController as? PotiTabBar {
-            tabBarController.tabBar.isHidden = true
-        }
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if let tabBarController = self.tabBarController as? PotiTabBar {
-            tabBarController.tabBar.isHidden = false
-        }
     }
     
     override func setUI() {
@@ -109,47 +80,27 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
     }
     
     private func updateCompleteButton() {
-        guard let model = viewModel.joinModel else { return }
-        let status = model.postStatus
-        let depositStatus = model.paymentInfo.depositStatus
-        
-        
-        switch status {
-        case .recruitCompleted:
-                // 로컬 변수인 didSubmitDeposit은 무시하고, 서버 상태가 waiting일 때만 버튼 노출
-                if depositStatus == .waiting {
-                    completeButton.isHidden = false
-                    completeButton.text = "입금 완료했어요"
-                    tableViewBottomConstraint?.update(inset: 94)
-                } else {
-                    // '입금 확인중'이나 '입금 완료' 상태면 버튼을 완전히 제거
-                    completeButton.isHidden = true
-                    tableViewBottomConstraint?.update(inset: 0)
-                }
-            
-        case .shipping:
-            didSubmitDeposit = false
+        if let action = viewState?.screenState.bottomAction {
             completeButton.isHidden = false
-            completeButton.text = "배송을 받았어요"
+            completeButton.text = action.title
             tableViewBottomConstraint?.update(inset: 94)
-            
-        default:
+        } else {
             completeButton.isHidden = true
             tableViewBottomConstraint?.update(inset: 0)
         }
-        
+
         UIView.animate(withDuration: 0.25) {
-                self.view.layoutIfNeeded()
-            }
+            self.view.layoutIfNeeded()
+        }
     }
     
     @objc private func didTapCompleteButton() {
-        switch viewModel.participantOrderStatus {
-        case .recruitCompleted:
+        switch viewState?.screenState.bottomAction {
+        case .submitDeposit:
             presentDetailBottomSheet()
-        case .shipping:
+        case .completeDelivery:
             completeButtonTapped()
-        default:
+        case nil:
             break
         }
     }
@@ -168,8 +119,6 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             guard let self else { return }
             
             guard let currentId = self.viewModel.joinModel?.participationId else { return }
-            
-            self.didSubmitDeposit = true // 버튼 UI 제어용
             
             self.viewModel.action(
                 .submitDeposit(
@@ -192,35 +141,11 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             cancelTitle: "이전",
             confirmTitle: "배송 완료",
             onLeftButton: { [weak self] in
-                self?.navigationController?.popViewController(animated: true)
+                self?.completeButton.isEnabled = true
             },
             onRightButton: { [weak self] in
                 guard let self else { return }
-                
-                guard let yourPageModel = self.viewModel.yourPageModel else { return }
-                let nickname = yourPageModel.nickname
-                let avgRating = yourPageModel.ratingAverage
-                
-                let reviewUseCase = self.factory.makeReviewUseCase()
-                
-                let starRating = StarRatingPopupView(
-                    reviewUseCase: reviewUseCase,
-                    transactionId: participantId,
-                    onCompleteButton: { [weak self] rating in
-                        guard let self else { return }
-                        // 리뷰 완료 후 배송 완료 처리
-                        self.viewModel.action(.completeDelivery(participantId: participantId))
-                    },
-                    onSkipButton: { [weak self] in
-                        guard let self else { return }
-                        // 리뷰 건너뛰고 배송 완료 처리
-                        self.viewModel.action(.completeDelivery(participantId: participantId))
-                    }
-                )
-                
-                // ⭐️ 상대방 정보 설정
-                starRating.configure(nickname: nickname, avgRating: avgRating)
-                starRating.show(on: self.navigationController?.view ?? self.view)
+                self.viewModel.action(.completeDelivery(participantId: participantId))
             }
         )
         alert.show(on: navigationController?.view ?? view)
@@ -245,21 +170,13 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
             }
             .store(in: &cancellables)
         
-        viewModel.output.reloadData
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.updateCompleteButton()
-                self?.tableView.reloadData()
-            }
-            .store(in: &cancellables)
-        
         viewModel.output.naviPotInfo
             .receive(on: DispatchQueue.main)
             .sink { [weak self] id in
-                let factory = DefaultViewControllerFactory()
+                guard let self else { return }
                 let containerVC = factory.makePotDetailViewController(postId: id)
                 containerVC.hidesBottomBarWhenPushed = true
-                self?.navigationController?.pushViewController(containerVC, animated: true)
+                navigationController?.pushViewController(containerVC, animated: true)
             }
             .store(in: &cancellables)
         
@@ -274,21 +191,48 @@ class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewModel>, N
         
         viewModel.output.completeDeliveryResult
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] reviewTarget in
                 guard let self else { return }
                 self.updateCompleteButton()
                 self.tableView.reloadData()
+                self.presentStarRating(reviewTarget: reviewTarget)
             }
             .store(in: &cancellables)
-        
-        viewModel.output.completeReviewResult
+
+        viewModel.output.deliveryError
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self else { return }
-                self.updateCompleteButton()
-                self.tableView.reloadData()
+            .sink { [weak self] message in
+                self?.presentDeliveryError(message: message)
             }
             .store(in: &cancellables)
+    }
+
+    private func presentStarRating(reviewTarget: MyPageJoinViewModel.ReviewTarget) {
+        guard let participationId = viewModel.joinModel?.participationId else { return }
+        let starRating = StarRatingPopupView(
+            onCompleteButton: { [weak self] rating in
+                self?.viewModel.action(
+                    .completeReview(transactionId: participationId, rating: rating)
+                )
+            },
+            onSkipButton: {}
+        )
+        starRating.configure(
+            nickname: reviewTarget.nickname,
+            profileImageURL: reviewTarget.profileImageURL,
+            avgRating: reviewTarget.averageRating
+        )
+        starRating.show(on: navigationController?.view ?? view)
+    }
+
+    private func presentDeliveryError(message: String) {
+        let alert = UIAlertController(
+            title: "배송 완료를 처리할 수 없어요",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }
 
@@ -323,16 +267,13 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         
         switch section {
         case .myJoinInfo:
-            return 110
+            return 153
         case .progress:
             return UITableView.automaticDimension
         case .myJoinDepositInfo:
-            return UITableView.automaticDimension
+            return viewState?.myJoinDepositInfo.contentHeight ?? 155
         case .statusInfo:
-            switch viewModel.participantOrderStatus {
-            default:
-                return UITableView.automaticDimension
-            }
+            return UITableView.automaticDimension
         }
     }
     
@@ -381,52 +322,39 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
             return cell
             
         case .statusInfo:
-            let status = viewModel.participantOrderStatus ?? .recruiting
-            switch status {
+            guard let model = viewModel.joinModel,
+                  let contentKind = viewState?.screenState.contentKind else {
+                return UITableViewCell()
+            }
+
+            switch contentKind {
             case .recruiting:
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: RecruitingCell.identifier,
                     for: indexPath
                 ) as? RecruitingCell else { return UITableViewCell() }
-                if let model = viewModel.joinModel {
-                    cell.configure(model: model)
-                }
+                cell.configure(model: model)
                 return cell
             case .recruitCompleted:
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: RecruitCompletedCell.identifier,
                     for: indexPath
                 ) as? RecruitCompletedCell else { return UITableViewCell() }
-                if let model = viewModel.joinModel {
-                    cell.configure(model: model)
-                }
+                cell.configure(model: model)
                 return cell
             case .depositCompleted:
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: DepositCompletedCell.identifier,
                     for: indexPath
                 ) as? DepositCompletedCell else { return UITableViewCell() }
-                if let model = viewModel.joinModel {
-                    cell.configure(model: model)
-                }
+                cell.configure(model: model)
                 return cell
             case .shipping:
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: ShippingCell.identifier,
                     for: indexPath
                 ) as? ShippingCell else { return UITableViewCell() }
-                if let model = viewModel.joinModel {
-                    cell.configure(model: model)
-                }
-                return cell
-            case .completed:
-                guard let cell = tableView.dequeueReusableCell(
-                    withIdentifier: DepositCompletedCell.identifier,
-                    for: indexPath
-                ) as? DepositCompletedCell else { return UITableViewCell() }
-                if let model = viewModel.joinModel {
-                    cell.configure(model: model)
-                }
+                cell.configure(model: model)
                 return cell
             }
         }
