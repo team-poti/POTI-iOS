@@ -99,11 +99,6 @@ extension SelectFavoriteIdolGroupViewController {
         }
         
         sceneDelegate.switchRootViewController(to: tabBar)
-
-        let permissionCoordinator = factory.makePushNotificationPermissionCoordinator()
-        DispatchQueue.main.async {
-            permissionCoordinator.showPermissionModal(in: tabBar.view)
-        }
     }
 }
 
