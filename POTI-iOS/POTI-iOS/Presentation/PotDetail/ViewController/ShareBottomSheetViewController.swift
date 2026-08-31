@@ -14,7 +14,6 @@ final class ShareBottomSheetViewController: BaseViewController<ShareBottomSheetV
 
     // MARK: - Properties
 
-    private let kakaoTemplateID: Int64 = 136577
     private let rootView = ShareBottomSheetView()
 
     // MARK: - Initializer
@@ -90,7 +89,7 @@ final class ShareBottomSheetViewController: BaseViewController<ShareBottomSheetV
     }
 
     private func shareToKakaoTalk() {
-        let templateID = kakaoTemplateID
+        guard let templateID = try? AppConfig.kakaoShareTemplateID() else { return }
         let templateArgs = viewModel.content.templateArgs
         dismissBottomSheet {
             ShareApi.shared.shareCustom(templateId: templateID, templateArgs: templateArgs) { sharingResult, error in
