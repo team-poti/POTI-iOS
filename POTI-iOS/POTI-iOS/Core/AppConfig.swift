@@ -20,6 +20,18 @@ enum AppConfig {
     static func kakaoAppKey() throws -> String {
         try string(forKey: "KAKAO_APP_KEY")
     }
+
+    static func kakaoShareTemplateID() throws -> Int64 {
+        let value = try string(forKey: "KAKAO_SHARE_TEMPLATE_ID")
+
+        guard let templateID = Int64(value) else {
+            let error = PotiError.missingConfig(key: "KAKAO_SHARE_TEMPLATE_ID")
+            PotiLogger.error(error)
+            throw error
+        }
+
+        return templateID
+    }
 }
 
 private extension AppConfig {
