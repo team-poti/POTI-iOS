@@ -14,6 +14,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     private var deepLinkHandler: DeepLinkHandler?
+    private var pushNotificationPermissionCoordinator: PushNotificationPermissionCoordinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
@@ -21,6 +22,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let factory = DefaultViewControllerFactory()
         configureDeepLinkHandler(with: factory)
+        pushNotificationPermissionCoordinator = factory.makePushNotificationPermissionCoordinator()
 
         let splashViewController = factory.makeLaunchScreenViewController()
         window.rootViewController = splashViewController
@@ -116,7 +118,13 @@ extension SceneDelegate {
         viewController.view.layoutIfNeeded()
 
         let completion: (Bool) -> Void = { [weak self] _ in
-            self?.deepLinkHandler?.executePendingRouteIfNeeded(from: viewController)
+            guard let self else { return }
+            deepLinkHandler?.executePendingRouteIfNeeded(from: viewController)
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                pushNotificationPermissionCoordinator?.evaluatePermissionIfNeeded(in: window)
+            }
         }
 
         if animated {

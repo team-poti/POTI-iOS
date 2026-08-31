@@ -54,8 +54,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     private let diContainer: AppDIContainer
     private let pushNotificationPermissionService: PushNotificationPermissionService = DefaultPushNotificationPermissionService()
     private lazy var notificationSettingViewModel = diContainer.makeNotificationSettingViewModel()
-    private lazy var pushNotificationPermissionCoordinator = PushNotificationPermissionCoordinator(viewModel: notificationSettingViewModel,
-                                                                                                    permissionService: pushNotificationPermissionService)
+    private lazy var pushNotificationPermissionCoordinator = diContainer.makePushNotificationPermissionCoordinator(viewModel: notificationSettingViewModel, permissionService: pushNotificationPermissionService)
     
     init(diContainer: AppDIContainer = .shared) {
         self.diContainer = diContainer
