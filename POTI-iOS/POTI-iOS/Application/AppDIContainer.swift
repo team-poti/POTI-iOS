@@ -6,8 +6,10 @@
 //
 
 final class AppDIContainer {
-
     static let shared = AppDIContainer()
+
+    private lazy var fcmTokenSyncService: FCMTokenSyncService = DefaultFCMTokenSyncService(registerFCMTokenUseCase: makeRegisterFCMTokenUseCase(), deleteFCMTokenUseCase: makeDeleteFCMTokenUseCase(), tokenStore: UserDefaultsFCMTokenStore())
+
     private init() {}
 
     // MARK: - Service
@@ -40,6 +42,10 @@ final class AppDIContainer {
         DefaultImageUploadService(networkService: makeNetworkService())
     }
 
+    func makeFCMTokenSyncService() -> FCMTokenSyncService {
+        fcmTokenSyncService
+    }
+
     // MARK: - Repository
 
     @MainActor private func makeAuthRepository() -> AuthInterface {
@@ -50,8 +56,12 @@ final class AppDIContainer {
         DefaultPostRepository(networkService: makeNetworkService())
     }
 
-    private func makeSearchRepository() -> SearchRepository {
+    private func makeSearchRepository() -> SearchInterface {
         DefaultSearchRepository(networkService: makeNetworkService())
+    }
+
+    private func makeNotificationRepository() -> NotificationInterface {
+        DefaultNotificationRepository(networkService: makeNetworkService())
     }
 
     private func makeArtistsRepository() -> ArtistsInterface {
@@ -94,6 +104,10 @@ final class AppDIContainer {
         DefaultSettingsRepository(networkService: makeNetworkService())
     }
 
+    private func makePushNotificationRepository() -> PushNotificationRepository {
+        DefaultPushNotificationRepository(networkService: makeNetworkService())
+    }
+
     // MARK: - UseCase
 
     @MainActor private func makeLoginUseCase() -> LoginUseCase {
@@ -112,6 +126,14 @@ final class AppDIContainer {
         DefaultRefreshTokenUseCase(
             repository: makeAuthRepository()
         )
+    }
+
+    func makeRegisterFCMTokenUseCase() -> RegisterFCMTokenUseCase {
+        DefaultRegisterFCMTokenUseCase(repository: makePushNotificationRepository())
+    }
+
+    func makeDeleteFCMTokenUseCase() -> DeleteFCMTokenUseCase {
+        DefaultDeleteFCMTokenUseCase(repository: makePushNotificationRepository())
     }
 
     private func makeHomeUseCase() -> HomeUseCase {
@@ -136,6 +158,26 @@ final class AppDIContainer {
 
     private func makeSearchPostsUseCase() -> SearchPostsUseCase {
         DefaultSearchPostsUseCase(repository: makeSearchRepository())
+    }
+
+    private func makeFetchNotificationsUseCase() -> FetchNotificationsUseCase {
+        DefaultFetchNotificationsUseCase(repository: makeNotificationRepository())
+    }
+
+    func makeReadNotificationUseCase() -> ReadNotificationUseCase {
+        DefaultReadNotificationUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeReadAllNotificationsUseCase() -> ReadAllNotificationsUseCase {
+        DefaultReadAllNotificationsUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeFetchNotificationSettingsUseCase() -> FetchNotificationSettingsUseCase {
+        DefaultFetchNotificationSettingsUseCase(repository: makeNotificationRepository())
+    }
+
+    private func makeUpdateNotificationSettingsUseCase() -> UpdateNotificationSettingsUseCase {
+        DefaultUpdateNotificationSettingsUseCase(repository: makeNotificationRepository())
     }
 
     private func makeApplyParticipationUseCase() -> ApplyParticipationUseCase {
@@ -242,18 +284,16 @@ final class AppDIContainer {
     }
     private func makeGetAddressUseCase(repository: SettingsInterface) -> GetAddressUseCase { DefaultGetAddressUseCase(repository: repository) }
     private func makeUpdateAddressUseCase(repository: SettingsInterface) -> UpdateAddressUseCase { DefaultUpdateAddressUseCase(repository: repository) }
-    private func makeGetNotificationSettingsUseCase(repository: SettingsInterface) -> GetNotificationSettingsUseCase { DefaultGetNotificationSettingsUseCase(repository: repository) }
-    private func makeUpdateNotificationSettingsUseCase(repository: SettingsInterface) -> UpdateNotificationSettingsUseCase { DefaultUpdateNotificationSettingsUseCase(repository: repository) }
     private func makeSettingsAccountActionUseCase(repository: SettingsInterface) -> SettingsAccountActionUseCase { DefaultSettingsAccountActionUseCase(repository: repository) }
 
     // MARK: - ViewModel
 
     @MainActor func makeLaunchScreenViewModel() -> LaunchScreenViewModel {
-        LaunchScreenViewModel(refreshTokenUseCase: makeRefreshTokenUseCase())
+        LaunchScreenViewModel(refreshTokenUseCase: makeRefreshTokenUseCase(), fcmTokenSyncService: makeFCMTokenSyncService())
     }
 
     @MainActor func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(loginUseCase: makeLoginUseCase())
+        LoginViewModel(loginUseCase: makeLoginUseCase(), devLoginUseCase: makeDevLoginUseCase(), fcmTokenSyncService: makeFCMTokenSyncService())
     }
 
     @MainActor func makeHomeViewModel() -> HomeViewModel {
@@ -268,16 +308,19 @@ final class AppDIContainer {
         SearchViewModel(searchPostsUseCase: makeSearchPostsUseCase())
     }
 
-    func makeNotificationViewModel() -> NotificationViewModel {
-        NotificationViewModel(notifications: NotificationItem.mockData)
+    @MainActor func makeNotificationViewModel() -> NotificationViewModel {
+        NotificationViewModel(fetchNotificationsUseCase: makeFetchNotificationsUseCase(),
+                              readNotificationUseCase: makeReadNotificationUseCase(),
+                              readAllNotificationsUseCase: makeReadAllNotificationsUseCase())
     }
 
-    func makeNotificationSettingViewModel() -> NotificationSettingViewModel {
-        NotificationSettingViewModel()
+    @MainActor func makeNotificationSettingViewModel() -> NotificationSettingViewModel {
+        NotificationSettingViewModel(fetchNotificationSettingsUseCase: makeFetchNotificationSettingsUseCase(),
+                                     updateNotificationSettingsUseCase: makeUpdateNotificationSettingsUseCase())
     }
 
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
-        PotDetailViewModel(useCase: makePotDetailUseCase(), postId: postId)
+        PotDetailViewModel(useCase: makePotDetailUseCase(), fetchPotOptionsUseCase: makePotOptionUseCase(), postId: postId)
     }
 
     func makePotOrderViewModel(postId: Int, shippingId: Int,orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int), memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewModel {
@@ -367,11 +410,10 @@ final class AppDIContainer {
             uploadProfileImageUseCase: makeUploadProfileImageUseCase(),
             getAddressUseCase: makeGetAddressUseCase(repository: repository),
             updateAddressUseCase: makeUpdateAddressUseCase(repository: repository),
-            getNotificationSettingsUseCase: makeGetNotificationSettingsUseCase(repository: repository),
-            updateNotificationSettingsUseCase: makeUpdateNotificationSettingsUseCase(repository: repository),
             accountActionUseCase: makeSettingsAccountActionUseCase(repository: repository),
             withdrawUseCase: makeWithdrawUseCase(),
-            logoutUseCase: makeLogoutUseCase()
+            logoutUseCase: makeLogoutUseCase(),
+            fcmTokenSyncService: makeFCMTokenSyncService()
         )
     }
 }

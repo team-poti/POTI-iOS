@@ -227,7 +227,7 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     private func bindRegistrationResult() {
         viewModel.output.registrationCompleted
             .receive(on: RunLoop.main)
-            .sink { [weak self] in self?.showRegistrationNotice(postId: $0) }
+            .sink { [weak self] in self?.showRegistrationNotice(completion: $0) }
             .store(in: &cancellables)
 
         viewModel.output.registrationFailed
@@ -323,14 +323,14 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
         viewModel.action(.setArtist(artist))
     }
 
-    private func showRegistrationNotice(postId: Int) {
+    private func showRegistrationNotice(completion: ProductRegistrationCompletion) {
         let noticeView = NoticeModalView(type: .register)
-        noticeView.onTapConfirm = { [weak self] in self?.replaceWithProductDetail(postId: postId) }
+        noticeView.onTapConfirm = { [weak self] in self?.replaceWithProductDetail(completion: completion) }
         noticeView.show(in: navigationController?.view ?? view)
     }
 
-    private func replaceWithProductDetail(postId: Int) {
-        let productDetailViewController = factory.makePotDetailViewController(postId: postId)
+    private func replaceWithProductDetail(completion: ProductRegistrationCompletion) {
+        let productDetailViewController = factory.makePotDetailViewController(postId: completion.postId)
         productDetailViewController.hidesBottomBarWhenPushed = true
 
         if let tabBarController,

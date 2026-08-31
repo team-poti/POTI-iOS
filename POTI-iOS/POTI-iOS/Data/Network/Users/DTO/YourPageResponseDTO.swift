@@ -8,37 +8,35 @@
 struct YourPageResponseDTO: Decodable {
     let userId: Int
     let nickname: String
-    let email: String?
     let profileImageUrl: String?
     let ratingAvg: Double
     let activityMessage: String
     let joinedAt: String
     let hasFavoriteArtist: Bool?
-    let recruitSummary: YourPageRecruitSummaryDTO
+    let participationSummary: YourPageSummaryDTO
+    let recruitSummary: YourPageSummaryDTO
     
     func toEntity() -> YourPageEntity {
         return .init(
             userId: userId,
             nickname: nickname,
-            email: email,
             profileImageUrl: profileImageUrl,
             ratingAvg: ratingAvg,
             activityMessage: activityMessage,
             joinedAt: joinedAt,
             hasFavoriteArtist: hasFavoriteArtist ?? false,
+            participationSummary: participationSummary.toEntity(),
             recruitSummary: recruitSummary.toEntity()
         )
     }
 }
 
-struct YourPageRecruitSummaryDTO: Decodable {
-    let total: Int?
+struct YourPageSummaryDTO: Decodable {
     let inProgress: Int
     let completed: Int
     
-    func toEntity() -> YourPageRecruitSummaryEntity {
+    func toEntity() -> YourPageSummaryEntity {
         return .init(
-            total: total ?? inProgress + completed,
             inProgress: inProgress,
             completed: completed
         )

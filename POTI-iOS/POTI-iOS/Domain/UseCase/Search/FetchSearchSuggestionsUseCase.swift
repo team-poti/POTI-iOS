@@ -10,9 +10,9 @@ protocol FetchSearchSuggestionsUseCase {
 }
 
 final class DefaultFetchSearchSuggestionsUseCase: FetchSearchSuggestionsUseCase {
-    private let repository: SearchRepository
+    private let repository: SearchInterface
 
-    init(repository: SearchRepository) {
+    init(repository: SearchInterface) {
         self.repository = repository
     }
 

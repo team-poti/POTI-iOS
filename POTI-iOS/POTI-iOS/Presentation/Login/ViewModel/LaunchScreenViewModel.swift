@@ -28,9 +28,11 @@ final class LaunchScreenViewModel: BaseViewModelType {
     private var cancellables = Set<AnyCancellable>()
         
     private let refreshTokenUseCase: RefreshTokenUseCase
+    private let fcmTokenSyncService: FCMTokenSyncService
         
-    init(refreshTokenUseCase: RefreshTokenUseCase) {
+    init(refreshTokenUseCase: RefreshTokenUseCase, fcmTokenSyncService: FCMTokenSyncService) {
         self.refreshTokenUseCase = refreshTokenUseCase
+        self.fcmTokenSyncService = fcmTokenSyncService
         self.output = Output(
             navigationDestination: navigationSubject.eraseToAnyPublisher()
         )
@@ -48,8 +50,6 @@ final class LaunchScreenViewModel: BaseViewModelType {
         let hasRefreshToken = KeychainManager.getRefreshToken() != nil
         
         if hasAccessToken && hasRefreshToken {
-            let refreshToken = KeychainManager.getRefreshToken()!
-            PotiLogger.debug("🔑 현재 Keychain 리프레시 토큰: \(refreshToken)")
             refreshAndNavigate()
         } else {
             navigationSubject.send(.login)
@@ -60,6 +60,7 @@ final class LaunchScreenViewModel: BaseViewModelType {
         Task {
             do {
                 try await refreshTokenUseCase.execute()
+                await fcmTokenSyncService.synchronize(token: nil)
                 
                 await MainActor.run {
                     navigationSubject.send(.tabBar)

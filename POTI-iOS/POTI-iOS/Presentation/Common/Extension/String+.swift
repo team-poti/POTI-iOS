@@ -52,4 +52,45 @@ extension String {
         formatter.dateFormat = "yyyy-MM-dd H:mm"
         return formatter.string(from: date)
     }
+
+    func toRelativeTime(now: Date = Date()) -> String {
+        let fractionalSecondsFormatter = ISO8601DateFormatter()
+        fractionalSecondsFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        let defaultFormatter = ISO8601DateFormatter()
+        defaultFormatter.formatOptions = [.withInternetDateTime]
+
+        let localDateFormatter = DateFormatter()
+        localDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        localDateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        localDateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+
+        let localDateWithoutFractionalSecondsFormatter = DateFormatter()
+        localDateWithoutFractionalSecondsFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        localDateWithoutFractionalSecondsFormatter.locale = Locale(identifier: "en_US_POSIX")
+        localDateWithoutFractionalSecondsFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+
+        guard let date = fractionalSecondsFormatter.date(from: self)
+                ?? defaultFormatter.date(from: self)
+                ?? localDateFormatter.date(from: self)
+                ?? localDateWithoutFractionalSecondsFormatter.date(from: self) else { return "" }
+        let elapsedSeconds = max(0, Int(now.timeIntervalSince(date)))
+
+        switch elapsedSeconds {
+        case ..<60:
+            return "방금 전"
+        case ..<3600:
+            return "\(elapsedSeconds / 60)분 전"
+        case ..<86400:
+            return "\(elapsedSeconds / 3600)시간 전"
+        case ..<604800:
+            return "\(elapsedSeconds / 86400)일 전"
+        default:
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MM.dd"
+            dateFormatter.locale = Locale(identifier: "ko_KR")
+            dateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+            return dateFormatter.string(from: date)
+        }
+    }
 }
