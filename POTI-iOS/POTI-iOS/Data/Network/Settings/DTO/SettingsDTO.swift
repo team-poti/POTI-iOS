@@ -18,13 +18,15 @@ struct AccountResponseDTO: Decodable {
 struct AddressResponseDTO: Decodable, EmptyResponseInitializable {
     let receiverName: String?
     let zipcode: String?
-    let addressLine: String?
+    let address: String?
+    let addressDetail: String?
     let phone: String?
 
     init() {
         receiverName = nil
         zipcode = nil
-        addressLine = nil
+        address = nil
+        addressDetail = nil
         phone = nil
     }
 
@@ -32,8 +34,8 @@ struct AddressResponseDTO: Decodable, EmptyResponseInitializable {
         AddressEntity(
             name: receiverName ?? "",
             postalCode: zipcode ?? "",
-            address: addressLine ?? "",
-            detailAddress: "",
+            address: address ?? "",
+            detailAddress: addressDetail ?? "",
             phoneNumber: phone ?? ""
         )
     }

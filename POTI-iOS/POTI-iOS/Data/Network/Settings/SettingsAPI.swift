@@ -35,13 +35,11 @@ enum SettingsAPI: BaseTargetType {
             parameters["profileImageUrl"] = profileImageURL
             return parameters
         case .updateAddress(let address):
-            let addressLine = [address.address, address.detailAddress]
-                .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-                .joined(separator: " ")
             return [
                 "receiverName": address.name,
                 "zipcode": address.postalCode,
-                "addressLine": addressLine,
+                "address": address.address,
+                "addressDetail": address.detailAddress,
                 "phone": address.phoneNumber
             ]
         case .account, .address:
