@@ -78,14 +78,13 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
             }
             .store(in: &cancellables)
 
-        viewModel.output.isJoinButtonEnabled
+        viewModel.output.joinButtonState
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] isEnabled in
+            .sink { [weak self] state in
                 guard let self = self else { return }
-                self.rootView.joinButton.isDisabled = !isEnabled
-                self.rootView.joinButton.color = isEnabled ? .primaryMain : .deactiveMain
-                let buttonTitle = isEnabled ? "분철팟 참여하기" : "마감된 분철팟이에요"
-                self.rootView.joinButton.setTitle(buttonTitle, for: .normal)
+                self.rootView.joinButton.isDisabled = !state.isEnabled
+                self.rootView.joinButton.color = state.isEnabled ? .primaryMain : .deactiveMain
+                self.rootView.joinButton.setTitle(state.title, for: .normal)
             }
             .store(in: &cancellables)
     }
