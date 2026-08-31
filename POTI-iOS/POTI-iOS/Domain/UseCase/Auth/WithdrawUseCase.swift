@@ -6,6 +6,7 @@
 //
 
 protocol WithdrawUseCase {
+    func fetchReasons() async throws -> [WithdrawalReasonEntity]
     func execute(reason: String) async throws
 }
 
@@ -18,5 +19,9 @@ final class DefaultWithdrawUseCase: WithdrawUseCase {
     
     func execute(reason: String) async throws {
         try await repository.withdraw(reason: reason)
+    }
+
+    func fetchReasons() async throws -> [WithdrawalReasonEntity] {
+        try await repository.fetchWithdrawalReasons()
     }
 }

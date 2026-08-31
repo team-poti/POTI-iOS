@@ -166,7 +166,6 @@ extension MyPageJoinModel {
 
 extension MyPageJoinModel {
 
-    /// 서버 상세(Entity) → 화면용 Model 변환
     static func map(entity: JoinDetailEntity) -> MyPageJoinModel {
         MyPageJoinModel(
             participationId: entity.participationId, postId: entity.postId,
@@ -174,7 +173,6 @@ extension MyPageJoinModel {
             artistName: entity.artistName,
             title: entity.title,
             postStatus: MyPageJoinModel.PostStatus.from(entity.postStatus),
-            // 상세 응답에는 별도 orderStatus 필드가 없어서, 배송 상태를 대표값으로 사용
             orderStatus: entity.shippingInfo.shippingStatus,
             statusMessage: entity.statusMessage,
             memberPayments: entity.memberPayments.map { .init(memberName: $0.memberName, price: $0.price) },
@@ -219,8 +217,6 @@ extension MyPageJoinModel.DepositStatus {
 
 extension MyPageJoinModel.ShippingStatus {
     static func from(_ status: ParticipantOrderStatus) -> MyPageJoinModel.ShippingStatus {
-        // 서버 상태 → 배송 상태
-        // PAID(배송대기), SHIPPED(배송시작), DELIVERED(배송완료)
         switch status {
         case .paid:
             return .preparing
@@ -229,7 +225,6 @@ extension MyPageJoinModel.ShippingStatus {
         case .delivered:
             return .delivered
         case .waitPay, .waitPayCheck:
-            // 배송 단계 이전 상태들은 '배송 대기'로 표시
             return .preparing
         case .unknown:
             return .unknown

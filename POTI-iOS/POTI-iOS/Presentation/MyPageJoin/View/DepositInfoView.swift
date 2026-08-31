@@ -5,7 +5,6 @@
 //  Created by Neon on 1/19/26.
 //
 
-//TODO: -복사 아래 밑줄!!!!!!!!0120
 import UIKit
 
 import SnapKit
@@ -56,6 +55,7 @@ final class DepositInfoView: BaseView {
                 attributes: underlineAttributes
             )
             $0.setAttributedTitle(attributedTitle, for: .normal)
+            $0.accessibilityLabel = "계좌번호 복사"
         }
         
         deadlineContainerView.do {
@@ -92,12 +92,15 @@ final class DepositInfoView: BaseView {
         
         accountLabel.snp.makeConstraints {
             $0.leading.equalTo(accountContainerView.snp.leading).offset(16)
+            $0.trailing.lessThanOrEqualTo(copyButton.snp.leading).offset(-8)
             $0.centerY.equalTo(accountContainerView)
         }
         
         copyButton.snp.makeConstraints {
-            $0.trailing.equalTo(accountContainerView.snp.trailing).inset(16)
+            $0.trailing.equalTo(accountContainerView.snp.trailing).inset(4)
             $0.centerY.equalTo(accountContainerView)
+            $0.width.equalTo(48)
+            $0.height.equalTo(45)
         }
         
         deadlineContainerView.snp.makeConstraints {
@@ -135,7 +138,6 @@ final class DepositInfoView: BaseView {
         guard let text = accountLabel.text, !text.isEmpty else { return }
         UIPasteboard.general.string = text
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        print("📋 pasteboard:", UIPasteboard.general.string ?? "nil")
     }
 }
 

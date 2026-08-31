@@ -2,10 +2,9 @@
 //  JoinTrackingNumberView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
-/// 복사 아래 밑줄!!!!!!!!!!!!!!!!!
 import UIKit
 
 import SnapKit
@@ -55,6 +54,7 @@ final class JoinTrackingNumberView: BaseView {
                 attributes: underlineAttributes
             )
             $0.setAttributedTitle(attributedTitle, for: .normal)
+            $0.accessibilityLabel = "송장번호 복사"
         }
         
         statusLabel.do {
@@ -66,7 +66,6 @@ final class JoinTrackingNumberView: BaseView {
     
     override func setUI() {
         addSubviews(shipContainerView, statusLabel)
-        shipContainerView.addSubviews(shipLabel, copyButton)
         shipContainerView.addSubviews(shipLabel, copyButton)
     }
     
@@ -81,12 +80,15 @@ final class JoinTrackingNumberView: BaseView {
         
         shipLabel.snp.makeConstraints {
             $0.leading.equalTo(shipContainerView.snp.leading).offset(16)
+            $0.trailing.lessThanOrEqualTo(copyButton.snp.leading).offset(-8)
             $0.centerY.equalTo(shipContainerView)
         }
         
         copyButton.snp.makeConstraints {
-            $0.trailing.equalTo(shipContainerView.snp.trailing).inset(16)
+            $0.trailing.equalTo(shipContainerView.snp.trailing).inset(4)
             $0.centerY.equalTo(shipContainerView)
+            $0.width.equalTo(48)
+            $0.height.equalTo(45)
         }
         
         statusLabel.snp.makeConstraints {
@@ -110,6 +112,5 @@ final class JoinTrackingNumberView: BaseView {
         guard let text = shipLabel.text, !text.isEmpty else { return }
         UIPasteboard.general.string = text
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        print("📋 pasteboard:", UIPasteboard.general.string ?? "nil")
     }
 }

@@ -29,10 +29,11 @@ final class DefaultParticipationRepository: ParticipationInterface {
         return response.toEntity()
     }
 
-    func patchParticipationDelivered(participationId: Int) async throws {
-        _ = try await networkService.request(
+    func patchParticipationDelivered(participationId: Int) async throws -> ParticipationDeliveredEntity {
+        let response = try await networkService.request(
             target: ParticipationAPI.patchParticipationDelivered(participationId: participationId),
             type: ParticipationDeliverResponseDTO.self
         )
+        return response.toEntity()
     }
 }

@@ -2,7 +2,7 @@
 //  JoinShipInfoView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 import UIKit
@@ -10,7 +10,6 @@ import UIKit
 import SnapKit
 import Then
 
-/// 배송 정보
 final class JoinShipInfoView: BaseView {
 
     private let shipInfoView = JoinParticipantInfoLabelView()

@@ -39,20 +39,6 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
         lastSectionCount = viewModel.participants.count
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if let tabBarController = self.tabBarController as? PotiTabBar {
-            tabBarController.tabBar.isHidden = true
-        }
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if let tabBarController = self.tabBarController as? PotiTabBar {
-            tabBarController.tabBar.isHidden = false
-        }
-    }
-    
     override func setUI() {
         view.addSubviews(tableView, emptyLabel)
         setStyle()

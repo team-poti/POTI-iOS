@@ -41,6 +41,11 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
         self.view = rootView
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        viewModel.action(.viewDidLoad)
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
@@ -325,16 +330,23 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     }
 
     private func replaceWithProductDetail(completion: ProductRegistrationCompletion) {
-        let potListViewController = factory.makePotListViewController(title: completion.productTitle,
-                                                                      artistId: completion.artistId, artistName: completion.artistName)
         let productDetailViewController = factory.makePotDetailViewController(postId: completion.postId)
+        productDetailViewController.hidesBottomBarWhenPushed = true
 
-        if let navigationController {
-            var previousViewControllers = navigationController.viewControllers.filter { $0 !== self }
-            if previousViewControllers.last is PotListViewController {
-                previousViewControllers.removeLast()
-            }
-            navigationController.setViewControllers(previousViewControllers + [potListViewController, productDetailViewController], animated: true)
+        if let tabBarController,
+           let homeNavigationController = tabBarController.viewControllers?.first as? UINavigationController,
+           let homeViewController = homeNavigationController.viewControllers.first {
+            homeNavigationController.setViewControllers(
+                [homeViewController, productDetailViewController],
+                animated: false
+            )
+            tabBarController.selectedIndex = 0
+        } else if let navigationController,
+                  let rootViewController = navigationController.viewControllers.first {
+            navigationController.setViewControllers(
+                [rootViewController, productDetailViewController],
+                animated: true
+            )
         } else {
             present(productDetailViewController, animated: true)
         }

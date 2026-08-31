@@ -10,6 +10,7 @@ protocol AuthInterface {
     func appleLogin() async throws -> LoginResponseEntity
     func devLogin() async throws -> LoginResponseEntity
     func refreshToken() async throws
+    func fetchWithdrawalReasons() async throws -> [WithdrawalReasonEntity]
     func withdraw(reason: String) async throws
     func logout() async throws
 }

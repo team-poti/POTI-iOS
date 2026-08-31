@@ -2,10 +2,9 @@
 //  JoinInfoLabelStackView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
-//TODO!!!!! HOT!!!!!!!!!! 비상!!!!
 
 import UIKit
 

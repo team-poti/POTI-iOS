@@ -129,9 +129,9 @@ private final class PostsParticipantsUseCaseSpy: PostsParticipantsUseCase {
 private final class PaymentsConfirmUseCaseSpy: PaymentsConfirmUseCase {
     private(set) var receivedOrderIds: [Int] = []
 
-    func execute(orderId: Int) async throws -> RecruitPaymentsConfirmDTO {
+    func execute(orderId: Int) async throws -> PaymentsConfirmEntity {
         receivedOrderIds.append(orderId)
-        return RecruitPaymentsConfirmDTO(
+        return PaymentsConfirmEntity(
             orderId: orderId,
             status: "PAID",
             confirmedAt: "2026-08-30T10:00:00"

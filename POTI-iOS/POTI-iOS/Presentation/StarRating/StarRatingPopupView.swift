@@ -2,12 +2,12 @@
 //  StarRatingPopupView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/21/26.
+//  Created by Neon on 1/21/26.
 //
 
 import UIKit
 
-import Cosmos
+import Kingfisher
 import SnapKit
 import Then
 
@@ -17,8 +17,6 @@ final class StarRatingPopupView: BaseView {
     
     private let backgroundView = UIView()
     private let containerView = UIView()
-    
-    private let closeButton = UIButton()
     
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
@@ -32,16 +30,12 @@ final class StarRatingPopupView: BaseView {
     private let avgRatingStarImageView = UIImageView()
     private let avgRatingStackView = UIStackView()
     
-    private let starView = CosmosView()
+    private let starView = StarRatingControl()
     
     private let confirmButton = UIButton()
     private let skipButton = UIButton()
-    private let contentStackView = UIStackView()
-    
     // MARK: - Properties
     
-    private let reviewUseCase: ReviewUseCase
-    private let transactionId: Int
     private var onCompleteButton: ((Int) -> Void)?
     private var onSkipButton: (() -> Void)?
     private var currentRating: Int = 0
@@ -49,13 +43,9 @@ final class StarRatingPopupView: BaseView {
     // MARK: - Custom Methods
     
     init(
-        reviewUseCase: ReviewUseCase,
-        transactionId: Int,
         onCompleteButton: @escaping (Int) -> Void,
         onSkipButton: @escaping () -> Void
     ) {
-        self.reviewUseCase = reviewUseCase
-        self.transactionId = transactionId
         self.onCompleteButton = onCompleteButton
         self.onSkipButton = onSkipButton
         super.init(frame: .zero)
@@ -118,8 +108,8 @@ final class StarRatingPopupView: BaseView {
         
         avgRatingLabel.do {
             $0.text = ""
-            $0.font = .systemFont(ofSize: 12, weight: .regular)
-            $0.textColor = .gray700
+            $0.font = PotiFontManager.body14m.font
+            $0.textColor = .gray800
         }
         avgRatingStarImageView.do {
             $0.image = UIImage(resource: .icnStar)
@@ -136,7 +126,7 @@ final class StarRatingPopupView: BaseView {
         
         textStackView.do {
             $0.axis = .vertical
-            $0.alignment = .trailing
+            $0.alignment = .leading
             $0.distribution = .fill
             $0.spacing = 0
         }
@@ -149,19 +139,7 @@ final class StarRatingPopupView: BaseView {
         }
         
         starView.do {
-            $0.settings.fillMode = .full
-            $0.settings.totalStars = 5
-            $0.settings.updateOnTouch = true
-            $0.settings.starMargin = -6
-            $0.settings.starSize = 48
-            $0.rating = 0.0
-            $0.settings.minTouchRating = 0.5
-            $0.settings.filledImage = UIImage(resource: .icnStarFill)
-            $0.settings.emptyImage = UIImage(resource: .icnStarEmpty)
-            
-            $0.didFinishTouchingCosmos = { [weak self] rating in
-                self?.currentRating = Int(rating)
-            }
+            $0.addTarget(self, action: #selector(ratingChanged), for: .valueChanged)
         }
         
         confirmButton.do {
@@ -179,12 +157,6 @@ final class StarRatingPopupView: BaseView {
             $0.titleLabel?.font = PotiFontManager.button14sb.font
         }
         
-        contentStackView.do {
-            $0.axis = .vertical
-            $0.alignment = .fill
-            $0.distribution = .fill
-            $0.spacing = 0
-        }
     }
     
     override func setUI() {
@@ -223,8 +195,10 @@ final class StarRatingPopupView: BaseView {
         }
         
         containerView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(42)
+            $0.width.equalTo(291)
+            $0.height.equalTo(382)
             $0.centerY.equalToSuperview()
+            $0.centerX.equalToSuperview()
             $0.top.greaterThanOrEqualToSuperview().offset(80)
             $0.bottom.lessThanOrEqualToSuperview().inset(80)
         }
@@ -264,13 +238,9 @@ final class StarRatingPopupView: BaseView {
         }
         
         skipButton.snp.makeConstraints {
-            $0.top.equalTo(confirmButton.snp.bottom).offset(12)
-            $0.centerX.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(48)
             $0.bottom.equalToSuperview().inset(12)
-        }
-        
-        profileContainerView.snp.makeConstraints {
-            $0.height.equalTo(62)
         }
         
         profileStackView.snp.makeConstraints {
@@ -279,8 +249,6 @@ final class StarRatingPopupView: BaseView {
         }
         
         profileImageView.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(10)
-            $0.centerY.equalToSuperview()
             $0.size.equalTo(36)
         }
         
@@ -288,36 +256,6 @@ final class StarRatingPopupView: BaseView {
             $0.trailing.lessThanOrEqualToSuperview()
         }
         
-        starView.snp.makeConstraints {
-            $0.height.equalTo(48)
-        }
-        
-        confirmButton.snp.makeConstraints {
-            $0.height.equalTo(48)
-        }
-        
-        skipButton.snp.makeConstraints {
-            $0.top.equalTo(confirmButton.snp.bottom).offset(12)
-            $0.horizontalEdges.equalToSuperview()
-        }
-    }
-    
-    private func bindViewModel() {
-        //        Publishers.CombineLatest(viewModel.output.options, viewModel.output.selectedIndex)
-        //            .receive(on: RunLoop.main)
-        //            .sink { [weak self] _ in
-        //                self?.tableView.reloadData()
-        //                self?.updateTableViewHeight()
-        //            }
-        //            .store(in: &cancellables)
-        //
-        //        viewModel.output.onSelect
-        //            .receive(on: RunLoop.main)
-        //            .sink { [weak self] index in
-        //                self?.onSelectCompletion?(index)
-        //                self?.dismiss()
-        //            }
-        //            .store(in: &cancellables)
     }
     
     private func setAddTarget() {
@@ -328,34 +266,26 @@ final class StarRatingPopupView: BaseView {
     // MARK: - Methods
     
     @objc private func didTapConfirmButton() {
-        let rating = Int(starView.rating)
-        currentRating = rating
+        guard currentRating > 0, confirmButton.isEnabled else { return }
         confirmButton.isEnabled = false
-        
-        Task {
-            do {
-                let result = try await reviewUseCase.execute(
-                    transactionId: transactionId,
-                    rating: rating
-                )
-                
-                await MainActor.run {
-                    dismiss()
-                    onCompleteButton?(rating)
-                }
-            } catch {
-                print("리뷰 생성 실패: \(error)")
-                
-                await MainActor.run {
-                    confirmButton.isEnabled = true
-                }
-            }
-        }
+        dismiss()
+        onCompleteButton?(currentRating)
+    }
+
+    @objc private func ratingChanged() {
+        currentRating = starView.rating
     }
     
     @objc private func didTapSkipButton() {
         dismiss()
         onSkipButton?()
+    }
+
+    func configure(nickname: String, profileImageURL: String?, avgRating: Double?) {
+        nicknameLabel.text = nickname
+        avgRatingStackView.isHidden = avgRating == nil
+        avgRatingLabel.text = avgRating.map { String(format: "%.1f", $0) }
+        profileImageView.kf.setImage(with: profileImageURL.flatMap(URL.init(string:)))
     }
     
     // MARK: - Public Methods
@@ -368,11 +298,6 @@ final class StarRatingPopupView: BaseView {
         UIView.animate(withDuration: 0.3) {
             self.alpha = 1
         }
-    }
-    
-    func configure(nickname: String, avgRating: Double) {
-        nicknameLabel.text = nickname
-        avgRatingLabel.text = String(format: "%.1f", avgRating)
     }
     
     private func dismiss() {

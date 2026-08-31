@@ -14,7 +14,13 @@ struct ParticipationRequestDTO: Encodable {
     init(from entity: ParticipationEntity) {
         groupBuyPostId = entity.postId
         shippingId = entity.shippingId
-        deliveryInfo = DeliveryInfoDTO(receiverName: entity.receiverName, zipcode: entity.zipcode, addressLine: entity.addressLine, phone: entity.phone)
+        deliveryInfo = DeliveryInfoDTO(
+            receiverName: entity.receiverName,
+            zipcode: entity.zipcode,
+            address: entity.address,
+            addressDetail: entity.addressDetail,
+            phone: entity.phone
+        )
         items = entity.items.map {
             .init(groupBuyOptionId: $0.optionId, count: $0.count)
         }
@@ -24,7 +30,8 @@ struct ParticipationRequestDTO: Encodable {
 struct DeliveryInfoDTO: Encodable {
     let receiverName: String
     let zipcode: String
-    let addressLine: String
+    let address: String
+    let addressDetail: String
     let phone: String
 }
 

@@ -2,7 +2,7 @@
 //  JoinProgressStatusViewCell.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/13/26.
+//  Created by Neon on 1/13/26.
 //
 
 import UIKit
@@ -13,9 +13,8 @@ import Then
 final class JoinProgressStatusViewCell: UITableViewCell {
     
     struct Model {
-        let postStatus: PostStatus
-        let role: UserRole
-        let participantStatus: ParticipantOrderStatus
+        let message: String?
+        let progressImage: UIImage?
     }
     
     // MARK: - Lifecycle
@@ -23,6 +22,7 @@ final class JoinProgressStatusViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.backgroundColor = .potiWhite
+        contentView.backgroundColor = .potiWhite
         selectionStyle = .none
         
         setUI()
@@ -46,6 +46,8 @@ final class JoinProgressStatusViewCell: UITableViewCell {
     private let potStatusMessageView = StatusMessageView()
     private let progressStatusBar = UIImageView()
     private let divideView = UIView()
+    private var messageHeightConstraint: Constraint?
+    private var progressTopConstraint: Constraint?
     
     // MARK: - Custom Method
     
@@ -82,56 +84,27 @@ final class JoinProgressStatusViewCell: UITableViewCell {
         potStatusMessageView.snp.makeConstraints {
             $0.top.equalTo(progressTitleLabel.snp.bottom).offset(20)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(CGFloat.dynamicH(45))
+            messageHeightConstraint = $0.height.equalTo(45).constraint
         }
         progressStatusBar.snp.makeConstraints {
-            $0.top.equalTo(potStatusMessageView.snp.bottom).offset(16)
+            progressTopConstraint = $0.top.equalTo(potStatusMessageView.snp.bottom).offset(16).constraint
             $0.horizontalEdges.equalToSuperview().inset(24)
-            $0.height.equalTo(CGFloat.dynamicH(53))
+            $0.height.equalTo(53)
         }
         divideView.snp.makeConstraints {
             $0.top.equalTo(progressStatusBar.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(CGFloat.dynamicH(8))
+            $0.height.equalTo(8)
             $0.bottom.equalToSuperview()
         }
     }
     
     func configure(model: Model) {
-        let messageText: String
-
-        if model.postStatus == .closed {
-            switch (model.role, model.participantStatus) {
-            case (.host, .waitPay):
-                messageText = "입금을 기다리는 중이에요"
-
-            case (.host, .waitPayCheck):
-                messageText = "입금 확인을 기다리는 참여자가 있어요"
-
-            case (.participant, .waitPay):
-                messageText = "지금 입금해주세요!"
-
-            case (.participant, .waitPayCheck):
-                messageText = "모집자가 입금 내역을 확인하고 있어요"
-
-            default:
-                // closed 상태지만 위 케이스에 해당 안 할 때
-                if model.role == .host {
-                    messageText = model.postStatus.statusText(role: model.role)
-                } else {
-                    messageText = model.postStatus.statusText(role: .participant)
-                }
-            }
-        } else {
-            // closed가 아닐 때
-            if model.role == .host {
-                messageText = model.postStatus.statusText(role: model.role)
-            } else {
-                messageText = model.postStatus.statusText(role: .participant)
-            }
-        }
-
-        potStatusMessageView.configure(text: messageText)
-        progressStatusBar.image = model.postStatus.progressImage
+        let showsMessage = model.message != nil
+        potStatusMessageView.isHidden = !showsMessage
+        messageHeightConstraint?.update(offset: showsMessage ? 45 : 0)
+        progressTopConstraint?.update(offset: showsMessage ? 16 : 0)
+        potStatusMessageView.configure(text: model.message ?? "")
+        progressStatusBar.image = model.progressImage
     }
 }

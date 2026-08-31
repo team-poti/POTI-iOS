@@ -2,7 +2,7 @@
 //  ParticipationDeliveredEntity.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/23/26.
+//  Created by Neon on 1/23/26.
 //
 
 

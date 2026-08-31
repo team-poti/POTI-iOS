@@ -260,6 +260,7 @@ extension MyPageHistoryViewController {
         switch currentType {
         case .recruitment:
             let vc = factory.makeRecruitDetailViewController(postId: item.id)
+            vc.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(vc, animated: true)
             
         case .participation:
