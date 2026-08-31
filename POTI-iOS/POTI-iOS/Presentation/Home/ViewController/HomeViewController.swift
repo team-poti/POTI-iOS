@@ -118,6 +118,8 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     }
 
     override func alarmButtonTapped() {
+        guard AuthenticationSession.isAuthenticated else { return }
+
         let notificationViewController = factory.makeNotificationViewController()
         notificationViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(notificationViewController, animated: true)

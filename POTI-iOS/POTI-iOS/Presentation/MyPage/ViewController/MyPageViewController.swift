@@ -31,10 +31,8 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     }
 
     override func alarmButtonTapped() {
-        guard AuthenticationSession.isAuthenticated else {
-            moveToLogin(factory: factory)
-            return
-        }
+        guard AuthenticationSession.isAuthenticated else { return }
+
         let notificationViewController = factory.makeNotificationViewController()
         notificationViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(notificationViewController, animated: true)
