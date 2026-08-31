@@ -22,6 +22,7 @@ final class PotiTabBar: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        delegate = self
         setTabBar()
         appearance()
     }
@@ -88,5 +89,17 @@ final class PotiTabBar: UITabBarController {
         tabFrame.size.height = .dynamicH(114)
         tabFrame.origin.y = view.frame.size.height - .dynamicH(114)
         tabBar.frame = tabFrame
+    }
+}
+
+extension PotiTabBar: UITabBarControllerDelegate {
+    func tabBarController(
+        _ tabBarController: UITabBarController,
+        shouldSelect viewController: UIViewController
+    ) -> Bool {
+        guard viewController.tabBarItem.tag == 2 else {
+            return true
+        }
+        return requireLogin(for: .history, factory: factory)
     }
 }

@@ -99,6 +99,7 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     // MARK: - Action
     
     @objc private func floatingButtonTapped() {
+        guard requireLogin(for: .register, factory: factory) else { return }
         let productRegisterViewController = factory.makeProductRegisterViewController()
         self.navigationController?.pushViewController(productRegisterViewController, animated: true)
         //                KeychainManager.deleteAllTokens()
@@ -117,6 +118,8 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
     }
 
     override func alarmButtonTapped() {
+        guard AuthenticationSession.isAuthenticated else { return }
+
         let notificationViewController = factory.makeNotificationViewController()
         notificationViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(notificationViewController, animated: true)

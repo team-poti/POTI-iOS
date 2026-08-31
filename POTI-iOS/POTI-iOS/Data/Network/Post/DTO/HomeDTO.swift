@@ -6,7 +6,7 @@
 //
 
 struct HomeDTO: Decodable {
-    let nickname: String
+    let nickname: String?
     let mainArtist: String?
     let mainArtistId: Int?
     let myGroupItems: [GoodsDTO]
@@ -15,7 +15,7 @@ struct HomeDTO: Decodable {
     
     func toEntity() -> HomeEntity {
         HomeEntity(
-            nickname: nickname,
+            nickname: nickname ?? "포티",
             mainArtist: mainArtist,
             mainArtistId: mainArtistId,
             myGroupItems: myGroupItems.map { $0.toEntity() },

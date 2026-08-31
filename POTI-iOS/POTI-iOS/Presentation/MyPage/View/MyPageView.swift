@@ -23,6 +23,7 @@ final class MyPageView: BaseView {
     let recruitmentView = MyPageNavigationView()
     
     private let inquiryInfoView = InquiryInformationView()
+    let guestView = GuestMyPageView()
     
     override func setStyle() {
         scrollView.do {
@@ -35,6 +36,8 @@ final class MyPageView: BaseView {
         scrollView.addSubview(contentView)
         
         contentView.addSubviews(profileInformationView, userInformationView, participationView, recruitmentView, inquiryInfoView)
+        addSubview(guestView)
+        guestView.isHidden = true
     }
     
     override func setLayout() {
@@ -75,11 +78,21 @@ final class MyPageView: BaseView {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(57)
         }
+
+        guestView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
 }
 
 extension MyPageView {
+    func setGuestMode(_ isGuest: Bool) {
+        scrollView.isHidden = isGuest
+        guestView.isHidden = !isGuest
+    }
+
     func configure(with model: MyPageModel) {
+        setGuestMode(false)
     
         profileInformationView.configure(nickname: model.nickname, email: model.email, profileImageURL: model.profileImage, ratingAverage: model.ratingAverage, hasFavoriteArtist: model.hasFavoriteArtist, favoriteArtistName: model.favoriteArtistName)
 
