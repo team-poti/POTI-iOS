@@ -20,8 +20,19 @@
 		77B362A8303D7944008DB336 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 77B362A7303D7944008DB336 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		A18200092F30000100NE0N00 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 335F0F272F0D72A400E13B6F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 335F0F2E2F0D72A400E13B6F;
+			remoteInfo = "POTI-iOS";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		335F0F2F2F0D72A500E13B6F /* POTI-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "POTI-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A18200012F30000100NE0N00 /* POTI-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "POTI-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -47,6 +58,11 @@
 			path = "POTI-iOS";
 			sourceTree = "<group>";
 		};
+		A18200022F30000100NE0N00 /* POTI-iOSTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "POTI-iOSTests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +84,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A18200032F30000100NE0N00 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -75,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				335F0F312F0D72A500E13B6F /* POTI-iOS */,
+				A18200022F30000100NE0N00 /* POTI-iOSTests */,
 				335F0F302F0D72A500E13B6F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -83,6 +107,7 @@
 			isa = PBXGroup;
 			children = (
 				335F0F2F2F0D72A500E13B6F /* POTI-iOS.app */,
+				A18200012F30000100NE0N00 /* POTI-iOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -123,6 +148,29 @@
 			productReference = 335F0F2F2F0D72A500E13B6F /* POTI-iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A18200042F30000100NE0N00 /* POTI-iOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A18200052F30000100NE0N00 /* Build configuration list for PBXNativeTarget "POTI-iOSTests" */;
+			buildPhases = (
+				A18200062F30000100NE0N00 /* Sources */,
+				A18200032F30000100NE0N00 /* Frameworks */,
+				A18200072F30000100NE0N00 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A18200082F30000100NE0N00 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A18200022F30000100NE0N00 /* POTI-iOSTests */,
+			);
+			name = "POTI-iOSTests";
+			packageProductDependencies = (
+			);
+			productName = "POTI-iOSTests";
+			productReference = A18200012F30000100NE0N00 /* POTI-iOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -140,6 +188,10 @@
 								enabled = 1;
 							};
 						};
+					};
+					A18200042F30000100NE0N00 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 335F0F2E2F0D72A400E13B6F;
 					};
 				};
 			};
@@ -168,12 +220,20 @@
 			projectRoot = "";
 			targets = (
 				335F0F2E2F0D72A400E13B6F /* POTI-iOS */,
+				A18200042F30000100NE0N00 /* POTI-iOSTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		335F0F2D2F0D72A400E13B6F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A18200072F30000100NE0N00 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -190,7 +250,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A18200062F30000100NE0N00 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A18200082F30000100NE0N00 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 335F0F2E2F0D72A400E13B6F /* POTI-iOS */;
+			targetProxy = A18200092F30000100NE0N00 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		335F0F432F0D72A700E13B6F /* Debug */ = {
@@ -382,6 +457,38 @@
 			};
 			name = Release;
 		};
+		A182000A2F30000100NE0N00 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kr.POTI.Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/POTI-iOS.app/POTI-iOS";
+			};
+			name = Debug;
+		};
+		A182000B2F30000100NE0N00 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kr.POTI.Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/POTI-iOS.app/POTI-iOS";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -399,6 +506,15 @@
 			buildConfigurations = (
 				335F0F432F0D72A700E13B6F /* Debug */,
 				335F0F442F0D72A700E13B6F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A18200052F30000100NE0N00 /* Build configuration list for PBXNativeTarget "POTI-iOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A182000A2F30000100NE0N00 /* Debug */,
+				A182000B2F30000100NE0N00 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

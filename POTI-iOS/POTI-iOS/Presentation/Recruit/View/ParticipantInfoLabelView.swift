@@ -2,7 +2,7 @@
 //  ParticipantInfoLabelView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/15/26.
+//  Created by Neon on 1/15/26.
 //
 import UIKit
 
@@ -44,13 +44,6 @@ final class ParticipantInfoLabelView: BaseView {
             $0.bottom.equalToSuperview()
         }
     }
-    
-    // TODO: - Participant~Case에서 configure(model: ParticipantManageModel) 로 받아서 아래처럼 처리
-    
-    //    func configure(title: String, info: String) {
-    //        titleLabel.text = title
-    //        infoLabel.text = info
-    //    }
     
     func configure(title: String, infos: [String]) { 
         titleLabel.setLabel(title, font: .body14sb)

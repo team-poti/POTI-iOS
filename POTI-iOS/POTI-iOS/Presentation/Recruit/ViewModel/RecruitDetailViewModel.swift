@@ -2,7 +2,7 @@
 //  RecruitDetailViewModel.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/13/26.
+//  Created by Neon on 1/13/26.
 //
 
 import UIKit
@@ -25,10 +25,10 @@ final class RecruitDetailViewModel: BaseViewModelType {
     // MARK: - Output
     
     struct Output {
-        let reloadData: AnyPublisher<Void, Never>
         let viewState: AnyPublisher<RecruitDetailViewState, Never>
         let naviPotInfo: AnyPublisher<Int, Never>
         let naviManageInfo: AnyPublisher<Int, Never>
+        let showError: AnyPublisher<String, Never>
     }
     
     // MARK: - Properties
@@ -39,10 +39,10 @@ final class RecruitDetailViewModel: BaseViewModelType {
     
     // MARK: - Subject
     
-    private let reloadDataSubject = PassthroughSubject<Void, Never>()
     private let naviPotInfoSubject = PassthroughSubject<Int, Never>()
     private let naviManageInfoSubject = PassthroughSubject<Int, Never>()
     private let viewStateSubject = CurrentValueSubject<RecruitDetailViewState?, Never>(nil)
+    private let errorSubject = PassthroughSubject<String, Never>()
     
     // MARK: - Initializer
     
@@ -53,12 +53,12 @@ final class RecruitDetailViewModel: BaseViewModelType {
         self.initialPostId = postId
         self.postsSaleUseCase = postsSaleUseCase
         self.output = Output(
-            reloadData: reloadDataSubject.eraseToAnyPublisher(),
             viewState: viewStateSubject
                 .compactMap { $0 }
                 .eraseToAnyPublisher(),
             naviPotInfo: naviPotInfoSubject.eraseToAnyPublisher(),
-            naviManageInfo: naviManageInfoSubject.eraseToAnyPublisher()
+            naviManageInfo: naviManageInfoSubject.eraseToAnyPublisher(),
+            showError: errorSubject.eraseToAnyPublisher()
         )
     }
     
@@ -90,9 +90,8 @@ final class RecruitDetailViewModel: BaseViewModelType {
             
             let state = viewStateMapper.map(entity: entity)
             viewStateSubject.send(state)
-            reloadDataSubject.send()
         } catch {
-            print("🚘 fetchRecruitDetail error:", error)
+            errorSubject.send("분철 정보를 불러오지 못했어요")
         }
     }
 }

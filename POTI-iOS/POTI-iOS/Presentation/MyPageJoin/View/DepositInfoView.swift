@@ -2,7 +2,7 @@
 //  DepositInfoView.swift
 //  POTI-iOS
 //
-//  Created by 이서현 on 1/19/26.
+//  Created by Neon on 1/19/26.
 //
 
 //TODO: -복사 아래 밑줄!!!!!!!!0120
@@ -163,6 +163,8 @@ extension MyPageJoinModel {
             return ("입금 완료", .gray700)
         case .shipped:
             return ("입금 확인중", .poti600)
+        case .unknown:
+            return ("상태 확인", .gray700)
         }
     }
 }
