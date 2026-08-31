@@ -77,6 +77,7 @@ final class DetailInfoCell: UICollectionViewCell {
 
         titleStackView.do {
             $0.axis = .vertical
+            $0.spacing = 4
         }
 
         footerStackView.do {
@@ -101,11 +102,6 @@ final class DetailInfoCell: UICollectionViewCell {
     private func setLayout() {
         titleStackView.snp.makeConstraints {
             $0.top.equalToSuperview()
-            $0.horizontalEdges.equalToSuperview()
-        }
-
-        productNameLabel.snp.makeConstraints {
-            $0.top.equalTo(artistNameLabel.snp.bottom).offset(4)
             $0.horizontalEdges.equalToSuperview()
         }
 

@@ -11,6 +11,10 @@ import SnapKit
 import Then
 
 final class DetailSubContentFooterView: UICollectionReusableView {
+
+    // MARK: - Properties
+
+    var onShare: (() -> Void)?
     
     // MARK: - UI Components
     
@@ -28,6 +32,7 @@ final class DetailSubContentFooterView: UICollectionReusableView {
         setStyle()
         setUI()
         setLayout()
+        addTarget()
     }
     
     required init?(coder: NSCoder) {
@@ -83,5 +88,16 @@ final class DetailSubContentFooterView: UICollectionReusableView {
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview().inset(60)
         }
+    }
+
+    private func addTarget() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(shareButtonTapped))
+        shareStackView.addGestureRecognizer(tapGesture)
+    }
+
+    // MARK: - Action
+
+    @objc private func shareButtonTapped() {
+        onShare?()
     }
 }
