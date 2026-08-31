@@ -31,6 +31,8 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     }
 
     override func alarmButtonTapped() {
+        guard AuthenticationSession.isAuthenticated else { return }
+
         let notificationViewController = factory.makeNotificationViewController()
         notificationViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(notificationViewController, animated: true)
@@ -43,7 +45,11 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.action(.viewDidLoad)
+        let isGuest = !AuthenticationSession.isAuthenticated
+        rootView.setGuestMode(isGuest)
+        if !isGuest {
+            viewModel.action(.viewDidLoad)
+        }
     }
     
     override func bindViewModel() {
@@ -75,6 +81,12 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
         rootView.profileInformationView.idolButton.addTarget(
             self,
             action: #selector(idolButtonDidTap),
+            for: .touchUpInside
+        )
+
+        rootView.guestView.loginButton.addTarget(
+            self,
+            action: #selector(loginButtonDidTap),
             for: .touchUpInside
         )
     }
@@ -109,9 +121,17 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     }
 
     override func settingButtonTapped() {
+        guard AuthenticationSession.isAuthenticated else {
+            moveToLogin(factory: factory)
+            return
+        }
         let viewController = factory.makeSettingsViewController()
         viewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    @objc private func loginButtonDidTap() {
+        moveToLogin(factory: factory)
     }
 
     private func presentLoadFailureAlert(message: String) {

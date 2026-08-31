@@ -104,6 +104,7 @@ final class FeedsViewController: BaseViewController<FeedsViewModel>, NavigationC
     // MARK: - Action
     
     @objc private func floatingButtonTapped() {
+        guard requireLogin(for: .register, factory: factory) else { return }
         let registerViewContorller = factory.makeProductRegisterViewController()
         self.navigationController?.pushViewController(registerViewContorller, animated: true)
     }

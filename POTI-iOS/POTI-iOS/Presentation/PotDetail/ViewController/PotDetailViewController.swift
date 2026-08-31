@@ -99,6 +99,7 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     // MARK: - Action
 
     @objc private func joinButtonDidTap() {
+        guard requireLogin(for: .participate, factory: factory) else { return }
         let optionsViewController = factory.makePotOptionsViewController(postId: viewModel.postId)
         optionsViewController.modalPresentationStyle = .overFullScreen
 
