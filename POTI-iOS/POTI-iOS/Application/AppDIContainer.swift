@@ -158,6 +158,10 @@ final class AppDIContainer {
         DefaultRegisterPostUseCase(repository: makeRegisterRepository())
     }
 
+    private func makeFetchShippingOptionsUseCase() -> FetchShippingOptionsUseCase {
+        DefaultFetchShippingOptionsUseCase(repository: makeRegisterRepository())
+    }
+
     private func makeUploadPostImagesUseCase() -> UploadPostImagesUseCase {
         DefaultUploadPostImagesUseCase(repository: makeImageUploadRepository())
     }
@@ -318,7 +322,8 @@ final class AppDIContainer {
 
     func makeProductRegisterViewModel() -> RegisterViewModel {
         RegisterViewModel(fetchProductTitlesUseCase: makeFetchProductTitlesUseCase(), registerPostUseCase: makeRegisterPostUseCase(),
-                          uploadPostImagesUseCase: makeUploadPostImagesUseCase(), artistMembersUseCase: makeArtistMembersUseCase())
+                          uploadPostImagesUseCase: makeUploadPostImagesUseCase(), artistMembersUseCase: makeArtistMembersUseCase(),
+                          fetchShippingOptionsUseCase: makeFetchShippingOptionsUseCase())
     }
 
     func makeArtistSearchViewModel() -> ArtistSearchViewModel {

@@ -41,6 +41,11 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
         self.view = rootView
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        viewModel.action(.viewDidLoad)
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
