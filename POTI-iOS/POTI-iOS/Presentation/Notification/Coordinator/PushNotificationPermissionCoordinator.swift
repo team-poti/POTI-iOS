@@ -89,6 +89,12 @@ final class PushNotificationPermissionCoordinator {
         }
     }
 
+    private func restartEvaluationIfNeeded(in view: UIView) {
+        isEvaluating = false
+        didEvaluateCurrentSession = false
+        evaluatePermissionIfNeeded(in: view)
+    }
+
     private static func isPermissionAllowed(_ status: UNAuthorizationStatus) -> Bool {
         switch status {
         case .authorized, .provisional, .ephemeral:
@@ -101,7 +107,7 @@ final class PushNotificationPermissionCoordinator {
     // MARK: - Public Methods
 
     func evaluatePermissionIfNeeded(in view: UIView) {
-        guard KeychainManager.getAccessToken() != nil else {
+        guard let sessionToken = KeychainManager.getAccessToken() else {
             didEvaluateCurrentSession = false
             isEvaluating = false
             return
@@ -115,7 +121,17 @@ final class PushNotificationPermissionCoordinator {
 
             do {
                 let status = await permissionService.authorizationStatus()
+                guard sessionToken == KeychainManager.getAccessToken() else {
+                    restartEvaluationIfNeeded(in: view)
+                    return
+                }
+
                 let settings = try await fetchNotificationSettingsUseCase.execute()
+                guard sessionToken == KeychainManager.getAccessToken() else {
+                    restartEvaluationIfNeeded(in: view)
+                    return
+                }
+
                 let systemPermissionAllowed = Self.isPermissionAllowed(status)
                 let serverPermissionAllowed = settings.isTradeNotificationEnabled || settings.isEventNotificationEnabled
 
