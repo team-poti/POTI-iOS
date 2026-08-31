@@ -41,6 +41,7 @@ final class PushNotificationService: NSObject {
     func handleAPNsRegistrationFailure(_ error: Error) {
         PotiLogger.error(error)
     }
+
 }
 
 // MARK: - MessagingDelegate

@@ -319,6 +319,11 @@ final class AppDIContainer {
                                      updateNotificationSettingsUseCase: makeUpdateNotificationSettingsUseCase())
     }
 
+    @MainActor func makePushNotificationPermissionCoordinator(viewModel: NotificationSettingViewModel, permissionService: PushNotificationPermissionService) -> PushNotificationPermissionCoordinator {
+        PushNotificationPermissionCoordinator(viewModel: viewModel, permissionService: permissionService,
+                                              fetchNotificationSettingsUseCase: makeFetchNotificationSettingsUseCase())
+    }
+
     func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
         PotDetailViewModel(useCase: makePotDetailUseCase(), fetchPotOptionsUseCase: makePotOptionUseCase(),
                            getMyPageInformationUseCase: makeGetMyPageInformationUseCase(), postId: postId)
