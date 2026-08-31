@@ -17,6 +17,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     
     private let rootView = PotOrderView()
     private let factory: ViewControllerFactory
+    private var navigationTitle = "팟"
     var onSuccess: (() -> Void)?
     
     // MARK: - Initializer
@@ -63,6 +64,8 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
         rootView.orderContentView.phoneField.textPublisher
             .sink { [weak self] in self?.viewModel.action(.phoneDidChange($0)) }
             .store(in: &cancellables)
+
+        rootView.orderContentView.registerShipmentButton.addTarget(self, action: #selector(shipmentRegistrationButtonTapped), for: .touchUpInside)
         
         rootView.bottomButton.addTarget(self, action: #selector(joinButtonTapped), for: .touchUpInside)
     }
@@ -72,12 +75,13 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .receive(on: RunLoop.main)
             .sink { [weak self] nickname in
                 guard let self = self else { return }
-                
-                let navigationStyle = PotiNavigationStyle.backDefault("\(nickname)의 팟")
+                navigationTitle = "\(nickname)의 팟"
+
+                let navigationStyle = PotiNavigationStyle.backDefault(navigationTitle)
                 PotiNavigationBar.configure(navigationItem: self.navigationItem, navigationController: self.navigationController,
                                             style: navigationStyle, target: self)
-                
-                self.title = "\(nickname)의 팟"
+
+                self.title = navigationTitle
             }
             .store(in: &cancellables)
         
@@ -85,6 +89,20 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .receive(on: RunLoop.main)
             .sink { [weak self] data in
                 self?.rootView.headerView.configure(items: data.items, totalAmount: data.total)
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.savedAddress
+            .receive(on: RunLoop.main)
+            .sink { [weak self] address in
+                self?.rootView.orderContentView.configure(address)
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.shipmentRegistrationState
+            .receive(on: RunLoop.main)
+            .sink { [weak self] state in
+                self?.rootView.orderContentView.renderShipmentRegistrationState(state)
             }
             .store(in: &cancellables)
         
@@ -217,12 +235,16 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     // MARK: - Public Method
     
     func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("팟")
+        .backDefault(navigationTitle)
     }
     
     // MARK: - Action
     
     @objc private func joinButtonTapped() {
         viewModel.action(.joinButtonDidTap)
+    }
+
+    @objc private func shipmentRegistrationButtonTapped() {
+        viewModel.action(.shipmentRegistrationDidTap)
     }
 }
