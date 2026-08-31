@@ -39,6 +39,7 @@ final class StarRatingControl: UIControl {
     private func configureView() {
         isAccessibilityElement = true
         accessibilityLabel = "별점"
+        accessibilityValue = "5점 중 \(rating)점"
         accessibilityTraits = [.adjustable]
 
         stackView.axis = .horizontal

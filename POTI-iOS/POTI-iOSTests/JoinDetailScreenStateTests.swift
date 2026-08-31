@@ -65,6 +65,17 @@ final class JoinDetailScreenStateTests: XCTestCase {
         XCTAssertNil(state.progressImage)
     }
 
+    func testUnknownParticipantStatusHidesDeliveryActionWhilePostIsShipping() {
+        let state = JoinDetailScreenStateFactory.make(
+            postStatus: .shipping,
+            participantStatus: .unknown
+        )
+
+        XCTAssertEqual(state.message, "참여 상태를 확인해주세요")
+        XCTAssertNil(state.bottomAction)
+        XCTAssertNil(state.progressImage)
+    }
+
     func testMapperKeepsOrderNumberAndServerMessage() {
         let state = JoinDetailViewStateMapper().map(entity: makeEntity(statusMessage: " 서버 메시지 "))
 

@@ -94,6 +94,10 @@ final class WithdrawalUnavailableView: BaseView {
     }
 
     func show(on view: UIView) {
+        guard !view.subviews.contains(where: { $0 is WithdrawalUnavailableView }) else {
+            return
+        }
+
         view.addSubview(self)
         snp.makeConstraints { $0.edges.equalToSuperview() }
     }

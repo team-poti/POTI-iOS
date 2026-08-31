@@ -266,7 +266,8 @@ final class StarRatingPopupView: BaseView {
     // MARK: - Methods
     
     @objc private func didTapConfirmButton() {
-        guard currentRating > 0 else { return }
+        guard currentRating > 0, confirmButton.isEnabled else { return }
+        confirmButton.isEnabled = false
         dismiss()
         onCompleteButton?(currentRating)
     }

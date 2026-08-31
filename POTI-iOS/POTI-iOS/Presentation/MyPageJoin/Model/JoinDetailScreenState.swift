@@ -95,6 +95,10 @@ enum JoinDetailScreenStateFactory {
         postStatus: PostStatus,
         participantStatus: ParticipantOrderStatus
     ) -> any JoinDetailScreenState {
+        guard participantStatus != .unknown else {
+            return UnknownJoinState()
+        }
+
         switch postStatus {
         case .recruiting:
             return RecruitingJoinState()
