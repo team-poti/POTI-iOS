@@ -62,6 +62,7 @@ final class PotOrderViewModel: BaseViewModelType {
     private var phone = ""
     private var storedAddress: AddressEntity?
     private var shouldSaveAddress = false
+    private var hasUserInput = false
     
     // MARK: - Initializer
     
@@ -94,19 +95,23 @@ final class PotOrderViewModel: BaseViewModelType {
             fetchOrderData()
             fetchSavedAddress()
         case .nameDidChange(let text):
+            hasUserInput = true
             name = text
             output.nameError.send(nil)
             updateShipmentRegistrationState()
         case let .addressSelected(zipcode, address):
+            hasUserInput = true
             self.zipcode = zipcode
             self.address = address
             output.zipcodeError.send(nil)
             output.addressError.send(nil)
             updateShipmentRegistrationState()
         case .detailAddressDidChange(let text):
+            hasUserInput = true
             detailAddress = text
             updateShipmentRegistrationState()
         case .phoneDidChange(let text):
+            hasUserInput = true
             phone = text
             output.phoneError.send(nil)
             updateShipmentRegistrationState()
@@ -181,6 +186,11 @@ final class PotOrderViewModel: BaseViewModelType {
                 }
 
                 storedAddress = savedAddress
+                guard !hasUserInput else {
+                    updateShipmentRegistrationState()
+                    return
+                }
+
                 name = savedAddress.name
                 zipcode = savedAddress.postalCode
                 address = savedAddress.address
@@ -237,7 +247,11 @@ final class PotOrderViewModel: BaseViewModelType {
                 
                 _ = try await useCase.execute(info: entity)
                 if shouldSaveAddress {
-                    _ = try await updateAddressUseCase.execute(currentAddress)
+                    do {
+                        _ = try await updateAddressUseCase.execute(currentAddress)
+                    } catch {
+                        PotiLogger.error(error)
+                    }
                 }
                 output.orderCompleted.send()
             } catch {
