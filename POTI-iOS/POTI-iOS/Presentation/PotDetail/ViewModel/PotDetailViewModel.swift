@@ -118,10 +118,8 @@ final class PotDetailViewModel: BaseViewModelType {
         if model.isMyPost {
             return .myPost
         }
-        guard let currentUserId else {
-            return .closed
-        }
-        if model.participants.contains(where: { $0.userId == currentUserId }) {
+        if let currentUserId,
+           model.participants.contains(where: { $0.userId == currentUserId }) {
             return .alreadyParticipated
         }
         return model.status == "RECRUITING" ? .available : .closed

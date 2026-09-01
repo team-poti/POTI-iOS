@@ -121,10 +121,7 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
     }
 
     override func settingButtonTapped() {
-        guard AuthenticationSession.isAuthenticated else {
-            moveToLogin(factory: factory)
-            return
-        }
+        guard AuthenticationSession.isAuthenticated else { return }
         let viewController = factory.makeSettingsViewController()
         viewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(viewController, animated: true)
