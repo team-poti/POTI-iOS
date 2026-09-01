@@ -76,13 +76,14 @@ final class WithdrawalConfirmationView: BaseView {
         }
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(20)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.centerX.equalToSuperview()
         }
         messageLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.centerX.equalToSuperview()
         }
         buttonStackView.snp.makeConstraints {
+            $0.top.equalTo(messageLabel.snp.bottom).offset(12)
             $0.horizontalEdges.bottom.equalToSuperview().inset(16)
             $0.height.equalTo(48)
         }
