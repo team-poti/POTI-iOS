@@ -42,9 +42,7 @@ final class MemberSettingSectionView: BaseView {
 
     override func setStyle() {
         titleLabel.do {
-            $0.text = "멤버 설정"
-            $0.font = PotiFontManager.title18sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("멤버 설정", font: .title18sb, color: .potiBlack)
         }
 
         contentStackView.do {
@@ -58,8 +56,6 @@ final class MemberSettingSectionView: BaseView {
         }
 
         emptyStateLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray700
             $0.textAlignment = .center
         }
 
@@ -67,13 +63,11 @@ final class MemberSettingSectionView: BaseView {
             $0.image = .imgHint
             $0.isHidden = true
             $0.isUserInteractionEnabled = true
+            $0.layer.zPosition = 1
         }
 
         guideLabel.do {
-            $0.text = "모집자 본인이 보유할 멤버는 꼭 제외해주세요!"
-            $0.font = PotiFontManager.body14sb.font
-            $0.textColor = .poti600
-            $0.textAlignment = .center
+            $0.setLabel("모집자 본인이 보유할 멤버는 꼭 제외해주세요!", font: .body14sb, alignment: .center, color: .poti600)
         }
 
         editButton.do {
@@ -93,7 +87,8 @@ final class MemberSettingSectionView: BaseView {
     }
 
     override func setUI() {
-        addSubviews(titleLabel, errorView, contentStackView, grayLineView, guideView)
+        addSubviews(titleLabel, errorView, contentStackView, grayLineView)
+        insertSubview(guideView, aboveSubview: contentStackView)
         memberContainerView.addSubview(memberRowsStackView)
         emptyStateContainerView.addSubview(emptyStateLabel)
         guideView.addSubview(guideLabel)
@@ -150,7 +145,7 @@ final class MemberSettingSectionView: BaseView {
         }
 
         guideLabel.snp.makeConstraints {
-            $0.center.equalToSuperview().offset(-6)
+            $0.center.equalToSuperview().offset(-8)
         }
     }
 
@@ -169,7 +164,9 @@ final class MemberSettingSectionView: BaseView {
             renderEmptyState(message: "선택한 멤버가 없어요", showsEditButton: true)
         }
 
-        if state.showsGuide { bringSubviewToFront(guideView) }
+        if state.showsGuide {
+            bringSubviewToFront(guideView)
+        }
     }
 
     private func renderEmptyState(message: String, showsEditButton: Bool) {
@@ -177,7 +174,7 @@ final class MemberSettingSectionView: BaseView {
         memberRowsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         memberContainerView.isHidden = true
         emptyStateContainerView.isHidden = false
-        emptyStateLabel.text = message
+        emptyStateLabel.setLabel(message, font: .body14m, alignment: .center, color: .gray700)
         editButton.isHidden = !showsEditButton
         bottomSpacingConstraint?.update(offset: showsEditButton ? 24 : 0)
     }
