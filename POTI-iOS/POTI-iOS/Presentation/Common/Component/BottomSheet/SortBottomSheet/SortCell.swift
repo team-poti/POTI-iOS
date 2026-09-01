@@ -34,8 +34,7 @@ final class SortCell: UITableViewCell {
         backgroundColor = .potiWhite
         
         optionLabel.do {
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .body16m, color: .potiBlack)
         }
         
         selectIcon.do {
@@ -75,7 +74,7 @@ final class SortCell: UITableViewCell {
 
 extension SortCell {
     func configure(text: String, isSelected: Bool, isLast: Bool) {
-        optionLabel.text = text
+        optionLabel.setLabel(text, font: .body16m, color: .potiBlack)
         selectIcon.isHidden = !isSelected
         separatorView.isHidden = isLast
     }

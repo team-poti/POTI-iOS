@@ -37,9 +37,7 @@ final class OptionContentView: BaseView {
         }
         
         memberLabel.do {
-            $0.text = "멤버"
-            $0.font = PotiFontManager.body14sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("멤버", font: .body14sb, color: .potiBlack)
         }
         
         memberButton.do {
@@ -61,9 +59,7 @@ final class OptionContentView: BaseView {
         }
         
         deliveryLabel.do {
-            $0.text = "배송 방법"
-            $0.font = PotiFontManager.body14sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("배송 방법", font: .body14sb, color: .potiBlack)
         }
         
         deliveryButton.do {
@@ -89,14 +85,11 @@ final class OptionContentView: BaseView {
         }
         
         totalPriceTextLabel.do {
-            $0.text = "총 입금 예정 금액"
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
+            $0.setLabel("총 입금 예정 금액", font: .body16m, color: .potiBlack)
         }
         
         totalPriceNumberLabel.do {
-            $0.font = PotiFontManager.display20b.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .display20b, color: .potiBlack)
         }
         
         bottomButton.do {

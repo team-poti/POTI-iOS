@@ -48,8 +48,6 @@ final class SearchView: BaseView {
         }
         
         statusLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray700
             $0.textAlignment = .center
             $0.numberOfLines = 0
             $0.isHidden = true
@@ -119,10 +117,10 @@ final class SearchView: BaseView {
         case .idle, .loading, .results:
             statusLabel.isHidden = true
         case .empty:
-            statusLabel.setText("검색 결과가 없어요\n다른 키워드로 다시 검색해보세요", lineSpacing: 4, alignment: .center)
+            statusLabel.setLabel("검색 결과가 없어요\n다른 키워드로 다시 검색해보세요", font: .body14m, alignment: .center, color: .gray700)
             statusLabel.isHidden = false
         case .error:
-            statusLabel.setText("검색 중 문제가 발생했어요\n잠시 후 다시 시도해주세요", lineSpacing: 4, alignment: .center)
+            statusLabel.setLabel("검색 중 문제가 발생했어요\n잠시 후 다시 시도해주세요", font: .body14m, alignment: .center, color: .gray700)
             statusLabel.isHidden = false
         }
     }

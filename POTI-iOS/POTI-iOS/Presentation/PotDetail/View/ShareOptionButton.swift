@@ -40,9 +40,7 @@ final class ShareOptionButton: UIControl {
         }
 
         titleLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .potiBlack
-            $0.textAlignment = .center
+            $0.setLabel("", font: .body14m, alignment: .center, color: .potiBlack)
         }
     }
 
@@ -63,7 +61,7 @@ final class ShareOptionButton: UIControl {
     }
 
     private func configure(title: String, image: UIImage) {
-        titleLabel.text = title
+        titleLabel.setLabel(title, font: .body14m, alignment: .center, color: .potiBlack)
         iconImageView.image = image
     }
 }

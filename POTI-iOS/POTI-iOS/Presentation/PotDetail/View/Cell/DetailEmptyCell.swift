@@ -32,10 +32,7 @@ final class DetailEmptyCell: UICollectionViewCell {
     
     private func setStyle() {
         messageLabel.do {
-            $0.text = "현재 참여 중인 사용자가 없어요"
-            $0.textColor = .gray700
-            $0.font = PotiFontManager.body14m.font
-            $0.textAlignment = .center
+            $0.setLabel("현재 참여 중인 사용자가 없어요", font: .body14m, alignment: .center, color: .gray700)
         }
     }
     
