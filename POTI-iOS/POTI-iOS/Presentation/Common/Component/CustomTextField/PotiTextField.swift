@@ -71,8 +71,6 @@ final class PotiTextField: BaseView {
         }
 
         countLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray700
             $0.textAlignment = .right
             $0.setContentCompressionResistancePriority(.required, for: .horizontal)
             $0.setContentHuggingPriority(.required, for: .horizontal)
@@ -153,7 +151,7 @@ final class PotiTextField: BaseView {
         case .characterLimited(let maxLength):
             tapGesture.isEnabled = false
             textField.isUserInteractionEnabled = true
-            countLabel.text = "0/\(maxLength)"
+            countLabel.setLabel("0/\(maxLength)", font: .body14m, alignment: .right, color: .gray700)
             countLabel.isHidden = false
         case .editable:
             tapGesture.isEnabled = false
@@ -180,7 +178,7 @@ final class PotiTextField: BaseView {
 
     private func updateCount() {
         guard case .characterLimited(let maxLength) = variant else { return }
-        countLabel.text = "\(text.count)/\(maxLength)"
+        countLabel.setLabel("\(text.count)/\(maxLength)", font: .body14m, alignment: .right, color: .gray700)
     }
 
     private func render() {

@@ -24,6 +24,17 @@ public extension UILabel {
         attributedText = NSAttributedString(string: text, attributes: [.font: font, .paragraphStyle: paragraph, .foregroundColor: color])
     }
 
+    func setLabel(_ text: NSAttributedString, lineHeight style: PotiFontManager, alignment: NSTextAlignment = .natural) {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.minimumLineHeight = style.fontProperty.lineHeight
+        paragraph.maximumLineHeight = style.fontProperty.lineHeight
+        paragraph.alignment = alignment
+
+        let mutableText = NSMutableAttributedString(attributedString: text)
+        mutableText.addAttribute(.paragraphStyle, value: paragraph, range: NSRange(location: 0, length: mutableText.length))
+        attributedText = mutableText
+    }
+
     func setText(_ text: String, lineSpacing: CGFloat, alignment: NSTextAlignment = .natural) {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = alignment

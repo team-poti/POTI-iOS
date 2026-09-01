@@ -43,17 +43,12 @@ final class PushNotificationPermissionModalView: BaseView {
         }
 
         titleLabel.do {
-            $0.text = "푸시 알림을 허용해주세요"
-            $0.font = PotiFontManager.title18sb.font
-            $0.textColor = .potiBlack
-            $0.textAlignment = .center
+            $0.setLabel("푸시 알림을 허용해주세요", font: .title18sb, alignment: .center, color: .potiBlack)
         }
 
         descriptionLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
             $0.numberOfLines = 0
-            $0.setText("분철 진행 상황을 실시간으로 확인할 수 있도록\n알림을 보내드려요.", lineSpacing: 4, alignment: .center)
+            $0.setLabel("분철 진행 상황을 실시간으로 확인할 수 있도록\n알림을 보내드려요.", font: .body14m, alignment: .center, color: .gray800)
         }
 
         allowButton.do {

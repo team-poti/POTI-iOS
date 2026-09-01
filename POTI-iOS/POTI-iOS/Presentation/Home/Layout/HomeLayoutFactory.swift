@@ -54,7 +54,7 @@ private extension HomeLayoutFactory {
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .absolute(210),
-            heightDimension: .estimated(225)
+            heightDimension: .estimated(229)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         

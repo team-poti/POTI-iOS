@@ -40,11 +40,8 @@ final class NotificationView: BaseView {
         }
 
         emptyLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray700
             $0.numberOfLines = 0
-            $0.textAlignment = .center
-            $0.setText("새로운 알림이 없어요\n알림이 도착하면 알려드릴게요", lineSpacing: 4, alignment: .center)
+            $0.setLabel("새로운 알림이 없어요\n알림이 도착하면 알려드릴게요", font: .body14m, alignment: .center, color: .gray700)
             $0.isHidden = true
         }
 

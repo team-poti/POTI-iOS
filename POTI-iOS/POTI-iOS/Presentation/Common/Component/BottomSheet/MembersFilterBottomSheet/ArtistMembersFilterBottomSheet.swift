@@ -63,9 +63,7 @@ final class ArtistMembersFilterBottomSheet: BaseView {
         closeButton.do { $0.setImage(.icnX, for: .normal) }
 
         titleLabel.do {
-            $0.text = viewModel.mode.title
-            $0.font = PotiFontManager.title18sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel(viewModel.mode.title, font: .title18sb, color: .potiBlack)
         }
 
         collectionView.do {

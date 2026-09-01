@@ -40,7 +40,7 @@ final class ArtistMembersFilterCell: UICollectionViewCell {
         }
         
         memberNameLabel.do {
-            $0.font = PotiFontManager.button16sb.font
+            $0.setLabel("", font: .button16sb)
         }
     }
     
@@ -51,13 +51,16 @@ final class ArtistMembersFilterCell: UICollectionViewCell {
     
     private func setLayout() {
         backgroundContainerView.snp.makeConstraints { $0.edges.equalToSuperview() }
-        memberNameLabel.snp.makeConstraints { $0.center.equalToSuperview() }
+        memberNameLabel.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.centerY.equalToSuperview().offset(-1)
+        }
     }
     
     // MARK: - Public Method
     
     func configure(name: String, isSelected: Bool) {
-        memberNameLabel.text = name
+        memberNameLabel.setLabel(name, font: .button16sb)
         backgroundContainerView.backgroundColor = isSelected ? .poti600 : .gray100
         memberNameLabel.textColor = isSelected ? .potiWhite : .gray800
     }

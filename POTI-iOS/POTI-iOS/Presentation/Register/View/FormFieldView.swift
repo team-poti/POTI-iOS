@@ -22,7 +22,7 @@ final class FormFieldView: BaseView {
     init(title: String, fieldView: UIView) {
         self.fieldView = fieldView
         super.init(frame: .zero)
-        titleLabel.text = title
+        titleLabel.setLabel(title, font: .body14sb, color: .potiBlack)
     }
 
     required init?(coder: NSCoder) {
@@ -32,10 +32,7 @@ final class FormFieldView: BaseView {
     // MARK: - Custom Methods
 
     override func setStyle() {
-        titleLabel.do {
-            $0.font = PotiFontManager.body14sb.font
-            $0.textColor = .potiBlack
-        }
+        titleLabel.setLabel(titleLabel.text ?? "", font: .body14sb, color: .potiBlack)
     }
 
     override func setUI() {
