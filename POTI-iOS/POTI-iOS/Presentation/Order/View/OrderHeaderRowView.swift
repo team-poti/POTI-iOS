@@ -76,7 +76,7 @@ final class OrderHeaderRowView: BaseView {
         
         titleLabel.snp.makeConstraints {
             $0.leading.equalTo(iconImageView.snp.trailing).offset(2)
-            $0.centerY.equalToSuperview()
+            $0.top.equalTo(iconImageView).offset(-1.5)
         }
         
         priceLabel.snp.makeConstraints {
@@ -86,4 +86,3 @@ final class OrderHeaderRowView: BaseView {
         }
     }
 }
-

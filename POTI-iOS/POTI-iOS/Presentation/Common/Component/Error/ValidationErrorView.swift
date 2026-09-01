@@ -26,7 +26,7 @@ final class ValidationErrorView: BaseView {
         stackView.do {
             $0.axis = .horizontal
             $0.spacing = 0
-            $0.alignment = .center
+            $0.alignment = .top
             $0.distribution = .fill
         }
 
@@ -37,8 +37,6 @@ final class ValidationErrorView: BaseView {
         }
 
         messageLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .sementicRed
             $0.numberOfLines = 0
         }
     }
@@ -61,7 +59,7 @@ final class ValidationErrorView: BaseView {
     // MARK: - Public Method
 
     func setMessage(_ message: String?) {
-        messageLabel.text = message
+        messageLabel.setLabel(message ?? "", font: .body14m, color: .sementicRed)
         isHidden = message == nil
     }
 }
