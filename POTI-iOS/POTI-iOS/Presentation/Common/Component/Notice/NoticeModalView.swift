@@ -159,8 +159,8 @@ final class NoticeModalView: BaseView {
 
         listStackView.snp.makeConstraints {
             $0.top.equalTo(topPointBackgroundView.snp.bottom).offset(12)
-            $0.leading.equalToSuperview().inset(30)
             $0.trailing.equalToSuperview().inset(16)
+            $0.leading.equalToSuperview().inset(20)
         }
 
         bottomPointBackgroundView.snp.makeConstraints {
