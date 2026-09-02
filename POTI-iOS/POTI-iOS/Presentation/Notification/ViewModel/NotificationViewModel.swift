@@ -135,17 +135,23 @@ final class NotificationViewModel: @MainActor BaseViewModelType {
         guard hasUnreadNotification, !isReadingAll else { return }
         isReadingAll = true
 
+        let unreadNotificationIDs = Set(notifications.filter { !$0.isRead }.map(\.id))
+        for index in notifications.indices {
+            notifications[index].isRead = true
+        }
+        reloadDataSubject.send(())
+
         Task { [weak self] in
             guard let self else { return }
             defer { isReadingAll = false }
 
             do {
                 try await readAllNotificationsUseCase.execute()
-                for index in notifications.indices {
-                    notifications[index].isRead = true
+            } catch {
+                for index in notifications.indices where unreadNotificationIDs.contains(notifications[index].id) {
+                    notifications[index].isRead = false
                 }
                 reloadDataSubject.send(())
-            } catch {
                 PotiLogger.error(error)
             }
         }

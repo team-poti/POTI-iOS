@@ -12,10 +12,15 @@ import Then
 
 final class NotificationView: BaseView {
 
+    // MARK: - Properties
+
+    private var tableBottomToButtonConstraint: Constraint?
+    private var tableBottomToSafeAreaConstraint: Constraint?
+
     // MARK: - UI Components
 
     let notificationTableView = UITableView(frame: .zero, style: .plain)
-    let readAllButton = PotiBottomButton()
+    let readAllButton = UIButton()
     private let emptyLabel = UILabel()
     private let topGrayLineView = UIView()
 
@@ -34,9 +39,13 @@ final class NotificationView: BaseView {
         }
 
         readAllButton.do {
-            $0.text = "전체 읽음"
-            $0.color = .secondaryMain
-            $0.cornerRadius = 8
+            $0.setTitle("전체 읽음", for: .normal)
+            $0.setTitleColor(.potiWhite, for: .normal)
+            $0.titleLabel?.font = PotiFontManager.button16sb.font
+            $0.backgroundColor = .potiBlack
+            $0.layer.cornerRadius = 26
+            $0.clipsToBounds = true
+            $0.isHidden = true
         }
 
         emptyLabel.do {
@@ -58,8 +67,9 @@ final class NotificationView: BaseView {
         notificationTableView.snp.makeConstraints {
             $0.top.equalTo(topGrayLineView.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(readAllButton.snp.top).offset(-16)
+            tableBottomToSafeAreaConstraint = $0.bottom.equalTo(safeAreaLayoutGuide).constraint
         }
+        tableBottomToButtonConstraint?.deactivate()
 
         topGrayLineView.snp.makeConstraints {
             $0.top.horizontalEdges.equalToSuperview()
@@ -67,8 +77,10 @@ final class NotificationView: BaseView {
         }
 
         readAllButton.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.width.equalTo(readAllButton.intrinsicContentSize.width + 43)
+            $0.height.equalTo(52)
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)
+            $0.centerX.equalToSuperview()
         }
 
         emptyLabel.snp.makeConstraints {
@@ -76,17 +88,24 @@ final class NotificationView: BaseView {
             $0.centerX.equalToSuperview()
         }
     }
-
+    
     // MARK: - Public Methods
-
-    func updateReadAllButton(isEnabled: Bool) {
-        readAllButton.isDisabled = !isEnabled
-        readAllButton.color = isEnabled ? .secondaryMain : .deactivedSub
-    }
 
     func updateEmptyState(isEmpty: Bool) {
         notificationTableView.isHidden = isEmpty
         topGrayLineView.isHidden = isEmpty
         emptyLabel.isHidden = !isEmpty
+    }
+
+    func updateReadAllButton(isEnabled: Bool) {
+        readAllButton.isHidden = !isEnabled
+
+        if isEnabled {
+            tableBottomToSafeAreaConstraint?.deactivate()
+            tableBottomToButtonConstraint?.activate()
+        } else {
+            tableBottomToButtonConstraint?.deactivate()
+            tableBottomToSafeAreaConstraint?.activate()
+        }
     }
 }

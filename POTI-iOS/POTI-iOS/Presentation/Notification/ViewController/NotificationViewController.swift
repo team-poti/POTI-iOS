@@ -79,7 +79,15 @@ final class NotificationViewController: BaseViewController<NotificationViewModel
             guard let url = URL(string: deepLink) else { return }
             let parser = DeepLinkParser(allowedHost: try AppConfig.deepLinkHost())
             guard let route = parser.parse(url) else { return }
-            deepLinkRouter.route(to: route, from: view.window?.rootViewController)
+
+            guard let navigationController else {
+                deepLinkRouter.route(to: route, from: view.window?.rootViewController)
+                return
+            }
+
+            let destinationViewController = deepLinkRouter.makeViewController(for: route)
+            destinationViewController.hidesBottomBarWhenPushed = true
+            navigationController.pushViewController(destinationViewController, animated: true)
         } catch {
             PotiLogger.error(error)
         }
