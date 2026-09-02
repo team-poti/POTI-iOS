@@ -12,29 +12,29 @@ import Combine
 import SnapKit
 import Then
 
-final class DetailBottomSheet: BaseView {
-    
+final class DetailBottomSheet: BaseView, UIGestureRecognizerDelegate {
+
     // MARK: - Properties
-    
+
     private let viewModel: BottomSheetViewModel
     private let dismissesOnSubmit: Bool
     private var isSubmitting = false
     private var cancellables = Set<AnyCancellable>()
-    
+
     var onSubmit: ((String, String) -> Void)?
     var onPatched: (() -> Void)?
-    
+
     // MARK: - UI Components
-    
+
     private let backgroundView = UIView()
     private let containerView = UIView()
     private let closeButton = UIButton()
     private let firstTextFieldView = DetailTextFieldView()
     private let secondTextFieldView = DetailTextFieldView()
     private let confirmButton = PotiBottomButton()
-    
+
     // MARK: - Initializer
-    
+
     init(
         viewModel: BottomSheetViewModel,
         firstTitle: String,
@@ -47,48 +47,48 @@ final class DetailBottomSheet: BaseView {
         self.viewModel = viewModel
         self.dismissesOnSubmit = dismissesOnSubmit
         super.init(frame: .zero)
-        
+
         firstTextFieldView.configure(
             title: firstTitle,
             placeholder: firstPlaceholder
         )
-        
+
         secondTextFieldView.configure(
             title: secondTitle,
             placeholder: secondPlaceholder
         )
-        
+
         confirmButton.text = confirmButtonText
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Custom Methods
-    
+
     override func setStyle() {
-        
+
         backgroundView.do {
             $0.backgroundColor = .black.withAlphaComponent(0.6)
         }
-        
+
         containerView.do {
             $0.backgroundColor = .potiWhite
             $0.layer.cornerRadius = 20
             $0.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
             $0.clipsToBounds = true
         }
-        
+
         closeButton.do {
             $0.setImage(.icnX, for: .normal)
         }
-        
+
         confirmButton.do {
             $0.isDisabled = true
         }
     }
-    
+
     override func setUI() {
         addSubviews(backgroundView, containerView)
         containerView.addSubviews(
@@ -100,24 +100,24 @@ final class DetailBottomSheet: BaseView {
         setAddTarget()
         bindViewModel()
     }
-    
+
     override func setLayout() {
         backgroundView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        
+
         containerView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
             $0.height.equalTo(584)
         }
-        
+
         closeButton.snp.makeConstraints {
             $0.top.equalToSuperview().offset(8)
             $0.leading.equalToSuperview().inset(4)
             $0.size.equalTo(48)
         }
-        
+
         firstTextFieldView.snp.makeConstraints {
             $0.top.equalTo(closeButton.snp.bottom).offset(16)
             $0.horizontalEdges.equalToSuperview().inset(16)
@@ -131,7 +131,7 @@ final class DetailBottomSheet: BaseView {
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
     }
-    
+
     private func bindViewModel() {
         viewModel.output.submit
             .receive(on: RunLoop.main)
@@ -144,43 +144,54 @@ final class DetailBottomSheet: BaseView {
             }
             .store(in: &cancellables)
     }
-    
+
     private func setAddTarget() {
         closeButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismiss))
         backgroundView.addGestureRecognizer(tapGesture)
+
+        let containerTapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(dismissKeyboard)
+        )
+        containerTapGesture.delegate = self
+        containerTapGesture.cancelsTouchesInView = false
+        containerView.addGestureRecognizer(containerTapGesture)
         confirmButton.addTarget(self, action: #selector(didTapConfirmButton), for: .touchUpInside)
-        
+
         firstTextFieldView.onTextChanged = { [weak self] _ in
             self?.updateConfirmButtonState()
         }
-        
+
         secondTextFieldView.onTextChanged = { [weak self] _ in
             self?.updateConfirmButtonState()
+        }
+        secondTextFieldView.onReturn = { [weak self] in
+            self?.endEditing(true)
         }
         
         updateConfirmButtonState()
     }
-    
+
     private func updateConfirmButtonState() {
         let first = firstTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let second = secondTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let shouldDisable = isSubmitting || first.isEmpty || second.isEmpty
-        
+
         confirmButton.isDisabled = shouldDisable
         confirmButton.color = shouldDisable ? .deactiveMain : .secondaryMain
     }
-    
+
     // MARK: - Methods
-    
+
     func show(in view: UIView) {
         view.addSubview(self)
         self.snp.makeConstraints { $0.edges.equalToSuperview() }
         containerView.transform = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height)
         backgroundView.alpha = 0
-        
+
         self.layoutIfNeeded()
-        
+
         UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
             self.containerView.transform = .identity
             self.backgroundView.alpha = 1
@@ -191,8 +202,9 @@ final class DetailBottomSheet: BaseView {
         isSubmitting = false
         updateConfirmButtonState()
     }
-    
+
     @objc func dismiss() {
+        endEditing(true)
         UIView.animate(withDuration: 0.3, animations: {
             self.containerView.transform = CGAffineTransform(translationX: 0, y: 500)
             self.backgroundView.alpha = 0
@@ -200,14 +212,31 @@ final class DetailBottomSheet: BaseView {
             self.removeFromSuperview()
         }
     }
-    
+
     @objc private func didTapConfirmButton() {
         guard !isSubmitting else { return }
 
+        endEditing(true)
         let depositor = firstTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let depositTime = secondTextFieldView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         isSubmitting = true
         updateConfirmButtonState()
         viewModel.action(.tapComplete(depositor: depositor, depositTime: depositTime))
+    }
+
+    @objc private func dismissKeyboard() {
+        endEditing(true)
+    }
+
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldReceive touch: UITouch
+    ) -> Bool {
+        guard let touchedView = touch.view else { return true }
+
+        return !touchedView.isDescendant(of: firstTextFieldView)
+            && !touchedView.isDescendant(of: secondTextFieldView)
+            && !touchedView.isDescendant(of: confirmButton)
+            && !touchedView.isDescendant(of: closeButton)
     }
 }
