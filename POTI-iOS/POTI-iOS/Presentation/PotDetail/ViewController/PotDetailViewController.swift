@@ -92,7 +92,8 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     // MARK: - Method
 
     func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("")
+        let nickname = viewModel.potDetailModel?.uploader.nickname ?? ""
+        return .backDefault(nickname.isEmpty ? "" : "\(nickname)의 팟")
     }
 
     // MARK: - Action
@@ -222,7 +223,7 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
         }
 
         if kind == UICollectionView.elementKindSectionFooter {
-            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailSubContentFooterView.identifier, for: indexPath) as! DetailSubContentFooterView
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailShareFooterView.identifier, for: indexPath) as! DetailShareFooterView
             footer.onShare = { [weak self] in
                 self?.showShareBottomSheet()
             }

@@ -11,10 +11,7 @@ final class PotDetailView: BaseView {
     
     // MARK: - UI Components
     
-    lazy var potDetailCollectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: PotDetailLayoutFactory.createLayout()
-    )
+    lazy var potDetailCollectionView = UICollectionView(frame: .zero, collectionViewLayout: PotDetailLayoutFactory.createLayout())
     let joinButton = PotiBottomButton()
     
     // MARK: - Custom Methods
@@ -32,7 +29,7 @@ final class PotDetailView: BaseView {
             $0.register(DetailParticipantsCell.self)
             $0.register(DetailEmptyCell.self)
             $0.registerHeader(DetailParticipantsHeaderView.self)
-            $0.registerFooter(DetailSubContentFooterView.self)
+            $0.registerFooter(DetailShareFooterView.self)
         }
         
         joinButton.do {
@@ -53,7 +50,7 @@ final class PotDetailView: BaseView {
         joinButton.snp.makeConstraints {
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(60)
+            $0.height.equalTo(54)
         }
     }
 }

@@ -98,7 +98,7 @@ final class DetailUploaderCell: UICollectionViewCell {
 
         nickNameLabel.snp.makeConstraints {
             $0.leading.equalTo(profileImageView.snp.trailing).offset(8)
-            $0.top.equalTo(profileImageView.snp.top).offset(6)
+            $0.top.equalTo(profileImageView.snp.top).offset(3)
         }
 
         starImageView.snp.makeConstraints {
@@ -114,7 +114,7 @@ final class DetailUploaderCell: UICollectionViewCell {
 
         reviewLabel.snp.makeConstraints {
             $0.leading.equalTo(nickNameLabel.snp.leading)
-            $0.bottom.equalTo(profileImageView.snp.bottom).offset(-6)
+            $0.bottom.equalTo(profileImageView.snp.bottom).offset(-3)
         }
 
         profileDetailButton.snp.makeConstraints {
