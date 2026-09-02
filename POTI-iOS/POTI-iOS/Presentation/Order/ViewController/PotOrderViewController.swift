@@ -46,6 +46,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     
     override func addTarget() {
         rootView.orderContentView.nameField.textPublisher
+            .dropFirst()
             .sink { [weak self] in self?.viewModel.action(.nameDidChange($0)) }
             .store(in: &cancellables)
         
@@ -58,10 +59,12 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
         }
 
         rootView.orderContentView.detailAddressField.textPublisher
+            .dropFirst()
             .sink { [weak self] in self?.viewModel.action(.detailAddressDidChange($0)) }
             .store(in: &cancellables)
         
         rootView.orderContentView.phoneField.textPublisher
+            .dropFirst()
             .sink { [weak self] in self?.viewModel.action(.phoneDidChange($0)) }
             .store(in: &cancellables)
 

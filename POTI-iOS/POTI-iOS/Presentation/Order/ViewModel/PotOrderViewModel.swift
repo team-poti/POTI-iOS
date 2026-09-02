@@ -30,7 +30,7 @@ final class PotOrderViewModel: BaseViewModelType {
         let orderCompleted = PassthroughSubject<Void, Never>()
         let orderError = PassthroughSubject<String, Never>()
         let savedAddress = PassthroughSubject<AddressEntity, Never>()
-        let shipmentRegistrationState = CurrentValueSubject<ShipmentRegistrationState, Never>(.unselected)
+        let shipmentRegistrationState = CurrentValueSubject<ShipmentRegistrationState, Never>(.unavailable)
         let nameError = PassthroughSubject<String?, Never>()
         let zipcodeError = PassthroughSubject<String?, Never>()
         let addressError = PassthroughSubject<String?, Never>()
@@ -60,7 +60,6 @@ final class PotOrderViewModel: BaseViewModelType {
     private var address = ""
     private var detailAddress = ""
     private var phone = ""
-    private var storedAddress: AddressEntity?
     private var shouldSaveAddress = false
     private var hasUserInput = false
     
@@ -95,26 +94,22 @@ final class PotOrderViewModel: BaseViewModelType {
             fetchOrderData()
             fetchSavedAddress()
         case .nameDidChange(let text):
-            hasUserInput = true
             name = text
             output.nameError.send(nil)
-            updateShipmentRegistrationState()
+            markAddressAsEdited()
         case let .addressSelected(zipcode, address):
-            hasUserInput = true
             self.zipcode = zipcode
             self.address = address
             output.zipcodeError.send(nil)
             output.addressError.send(nil)
-            updateShipmentRegistrationState()
+            markAddressAsEdited()
         case .detailAddressDidChange(let text):
-            hasUserInput = true
             detailAddress = text
-            updateShipmentRegistrationState()
+            markAddressAsEdited()
         case .phoneDidChange(let text):
-            hasUserInput = true
             phone = text
             output.phoneError.send(nil)
-            updateShipmentRegistrationState()
+            markAddressAsEdited()
         case .shipmentRegistrationDidTap:
             guard output.shipmentRegistrationState.value != .unavailable else { return }
             shouldSaveAddress.toggle()
@@ -181,13 +176,13 @@ final class PotOrderViewModel: BaseViewModelType {
             do {
                 let savedAddress = try await getAddressUseCase.execute()
                 guard !savedAddress.isEmpty else {
-                    output.shipmentRegistrationState.send(.unselected)
+                    if !hasUserInput {
+                        output.shipmentRegistrationState.send(.unavailable)
+                    }
                     return
                 }
 
-                storedAddress = savedAddress
                 guard !hasUserInput else {
-                    updateShipmentRegistrationState()
                     return
                 }
 
@@ -206,19 +201,10 @@ final class PotOrderViewModel: BaseViewModelType {
         }
     }
 
-    private func updateShipmentRegistrationState() {
-        guard let storedAddress else {
-            output.shipmentRegistrationState.send(shouldSaveAddress ? .selected : .unselected)
-            return
-        }
-
-        if currentAddress == storedAddress {
-            shouldSaveAddress = false
-            output.shipmentRegistrationState.send(.unavailable)
-        } else {
-            shouldSaveAddress = true
-            output.shipmentRegistrationState.send(.selected)
-        }
+    private func markAddressAsEdited() {
+        hasUserInput = true
+        shouldSaveAddress = false
+        output.shipmentRegistrationState.send(.unselected)
     }
 
     private var currentAddress: AddressEntity {

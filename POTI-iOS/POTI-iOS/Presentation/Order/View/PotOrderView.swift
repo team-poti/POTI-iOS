@@ -21,8 +21,6 @@ final class PotOrderView: BaseView {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let dividerUpperView = UIView()
-    private let dividerBottomView = UIView()
-    private let noticeView = NoticeView(type: .participate)
     
     // MARK: - Custom Methods
     
@@ -42,15 +40,12 @@ final class PotOrderView: BaseView {
             $0.backgroundColor = .gray100
         }
         
-        dividerBottomView.do {
-            $0.backgroundColor = .gray100
-        }
     }
     
     override func setUI() {
         addSubviews(scrollView, bottomButton)
         scrollView.addSubview(contentView)
-        contentView.addSubviews(headerView, dividerUpperView, orderContentView, dividerBottomView, noticeView)
+        contentView.addSubviews(headerView, dividerUpperView, orderContentView)
     }
     
     override func setLayout() {
@@ -84,18 +79,7 @@ final class PotOrderView: BaseView {
         orderContentView.snp.makeConstraints {
             $0.top.equalTo(dividerUpperView.snp.bottom)
             $0.horizontalEdges.equalToSuperview().inset(16)
-        }
-        
-        dividerBottomView.snp.makeConstraints {
-            $0.top.equalTo(orderContentView.snp.bottom)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(9)
-        }
-        
-        noticeView.snp.makeConstraints {
-            $0.top.equalTo(dividerBottomView.snp.bottom).offset(16)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(60)
+            $0.bottom.equalToSuperview()
         }
     }
 }

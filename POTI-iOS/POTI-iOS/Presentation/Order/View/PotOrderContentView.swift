@@ -59,7 +59,7 @@ final class PotOrderContentView: BaseView {
             $0.setImage(.btnCheckboxSelected, for: .selected)
         }
 
-        renderShipmentRegistrationState(.unselected)
+        renderShipmentRegistrationState(.unavailable)
 
         nameLabel.do {
             $0.setLabel("이름", font: .body14sb, color: .potiBlack)
@@ -160,7 +160,7 @@ final class PotOrderContentView: BaseView {
         phoneField.snp.makeConstraints {
             $0.top.equalTo(phoneLabel.snp.bottom).offset(8)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalToSuperview().inset(24)
+            $0.bottom.equalToSuperview().inset(40)
         }
     }
     
