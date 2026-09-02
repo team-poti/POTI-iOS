@@ -162,7 +162,7 @@ final class PotListCell: UICollectionViewCell {
         memberContainerView.snp.makeConstraints {
             $0.top.equalTo(separator.snp.bottom).offset(16)
             $0.leading.equalTo(separator)
-            $0.trailing.equalTo(productImageView.snp.leading).offset(-30)
+            $0.trailing.equalTo(productImageView.snp.leading).offset(-12)
             $0.height.equalTo(46)
         }
         
@@ -261,18 +261,21 @@ extension PotListCell {
         memberContainerView.subviews.forEach {
             $0.removeFromSuperview()
         }
+
+        contentView.layoutIfNeeded()
         
-        let maxWidth: CGFloat = 200
+        let maxWidth = memberContainerView.bounds.width
         let maxLines = 2
         let lineHeight = PotiFontManager.body14m.fontProperty.lineHeight
-        let itemSpacing: CGFloat = 4
+        let itemSpacing: CGFloat = 2
         
         var currentX: CGFloat = 0
         var currentY: CGFloat = 0
         var currentLine = 1
         
-        for member in members {
-            let text = "\(member) |"
+        for (index, member) in members.enumerated() {
+            let isLastMember = index == members.index(before: members.endIndex)
+            let text = isLastMember ? member : "\(member) |"
             
             let label = UILabel()
             label.setLabel(text, font: .body14m, color: .gray800)
@@ -305,13 +308,7 @@ extension PotListCell {
             
             memberContainerView.addSubview(label)
             
-            label.frame = CGRect(
-                x: currentX,
-                y: currentY,
-                width: size.width,
-                height: lineHeight
-            )
-            
+            label.frame = CGRect(x: currentX, y: currentY, width: size.width, height: lineHeight)
             currentX += size.width + itemSpacing
         }
     }
