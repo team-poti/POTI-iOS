@@ -84,10 +84,8 @@ extension SelectFavoriteIdolGroupViewController {
     }
     
     @objc private func startButtonDidTap() {
-        if let selectedId = selectedGroupId {
-            viewModel.action(.submitWithArtist)
-        } else {
-        }
+        guard selectedGroupId != nil else { return }
+        viewModel.action(.submitWithArtist)
     }
     
     private func navigateToHome() {

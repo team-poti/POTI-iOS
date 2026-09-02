@@ -13,10 +13,16 @@ final class DefaultPushNotificationRepository: PushNotificationRepository {
     }
 
     func registerFCMToken(_ token: String) async throws {
-        try await networkService.request(target: PushNotificationAPI.registerToken(token: token), type: EmptyResponse.self)
+        _ = try await networkService.request(
+            target: PushNotificationAPI.registerToken(token: token),
+            type: EmptyResponse.self
+        )
     }
 
     func deleteFCMToken(_ token: String) async throws {
-        try await networkService.request(target: PushNotificationAPI.deleteToken(token: token), type: EmptyResponse.self)
+        _ = try await networkService.request(
+            target: PushNotificationAPI.deleteToken(token: token),
+            type: EmptyResponse.self
+        )
     }
 }
