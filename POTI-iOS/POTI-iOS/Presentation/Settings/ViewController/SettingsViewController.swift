@@ -30,6 +30,7 @@ final class SettingsViewController: BaseViewController<SettingsViewModel>, Navig
         rootView.profileButton.addTarget(self, action: #selector(profileTapped), for: .touchUpInside)
         rootView.addressButton.addTarget(self, action: #selector(addressTapped), for: .touchUpInside)
         rootView.notificationButton.addTarget(self, action: #selector(notificationTapped), for: .touchUpInside)
+        rootView.policyButton.addTarget(self, action: #selector(policyTapped), for: .touchUpInside)
     }
 
     @objc private func accountTapped() {
@@ -58,5 +59,10 @@ final class SettingsViewController: BaseViewController<SettingsViewModel>, Navig
             factory.makeNotificationSettingViewController(),
             animated: true
         )
+    }
+
+    @objc private func policyTapped() {
+        guard let url = URL(string: "https://poti-support.notion.site/3c6909fac41b80139587d8d110e6d0d1?source=copy_link") else { return }
+        UIApplication.shared.open(url)
     }
 }

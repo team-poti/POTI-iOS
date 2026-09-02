@@ -89,6 +89,12 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
             action: #selector(loginButtonDidTap),
             for: .touchUpInside
         )
+
+        rootView.inquiryInfoView.inquiryButton.addTarget(
+            self,
+            action: #selector(inquiryButtonDidTap),
+            for: .touchUpInside
+        )
     }
     
     private func navigateToHistory(historyType: MyPageHistoryType, filterType: MyPageNavigationType) {
@@ -129,6 +135,11 @@ final class MyPageViewController: BaseViewController<MyPageViewModel>, Navigatio
 
     @objc private func loginButtonDidTap() {
         moveToLogin(factory: factory)
+    }
+
+    @objc private func inquiryButtonDidTap() {
+        guard let url = URL(string: "https://poti-support.notion.site/3c4909fac41b80f4b881e8a5850d6574?pvs=105") else { return }
+        UIApplication.shared.open(url)
     }
 
     private func presentLoadFailureAlert(message: String) {
