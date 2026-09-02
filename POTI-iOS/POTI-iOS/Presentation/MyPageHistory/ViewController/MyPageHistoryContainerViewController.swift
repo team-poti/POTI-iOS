@@ -57,18 +57,10 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(
-            entryPoint == .tabBar,
-            animated: false
-        )
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
         if entryPoint == .tabBar {
-            navigationController?.setNavigationBarHidden(false, animated: false)
+            navigationController?.setNavigationBarHidden(true, animated: false)
         }
+        super.viewWillAppear(animated)
     }
 
     override func setUI() {
@@ -115,6 +107,7 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
     
     private func switchChildViewController() {
         if let currentChildVC = currentChildVC {
+            initialTab = currentChildVC.selectedTab
             currentChildVC.willMove(toParent: nil)
             currentChildVC.view.removeFromSuperview()
             currentChildVC.removeFromParent()
@@ -134,8 +127,6 @@ final class MyPageHistoryContainerViewController: BaseViewController<MyPageHisto
         childVC.didMove(toParent: self)
         
         currentChildVC = childVC
-        
-        initialTab = .ongoing
     }
     
     // MARK: - Navigation Actions
