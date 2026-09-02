@@ -25,7 +25,6 @@ final class ShippingSettingSectionView: BaseView {
     private let titleLabel = UILabel()
     private let errorView = ValidationErrorView()
     private let rowsStackView = UIStackView()
-    private let grayLineView = UIView()
 
     // MARK: - Custom Methods
 
@@ -42,14 +41,10 @@ final class ShippingSettingSectionView: BaseView {
             $0.alignment = .fill
             $0.distribution = .fill
         }
-
-        grayLineView.do {
-            $0.backgroundColor = .gray100
-        }
     }
 
     override func setUI() {
-        addSubviews(titleLabel, errorView, rowsStackView, grayLineView)
+        addSubviews(titleLabel, errorView, rowsStackView)
     }
 
     override func setLayout() {
@@ -66,12 +61,7 @@ final class ShippingSettingSectionView: BaseView {
         rowsStackView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(16)
-        }
-
-        grayLineView.snp.makeConstraints {
-            $0.top.equalTo(rowsStackView.snp.bottom).offset(24)
-            $0.horizontalEdges.bottom.equalToSuperview()
-            $0.height.equalTo(9)
+            $0.bottom.equalToSuperview().inset(40)
         }
     }
 

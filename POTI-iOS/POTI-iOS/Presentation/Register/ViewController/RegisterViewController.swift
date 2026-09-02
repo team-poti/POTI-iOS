@@ -18,13 +18,24 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     private let factory: ViewControllerFactory
     private let imagePickerResultLoader: ImagePickerResultLoading
     private let imageOptimizer: ImageOptimizing
+    private let prefilledArtist: ArtistSearchItem?
+    private let prefilledProductType: String?
     private weak var focusedInputView: UIView?
     private var keyboardHeight: CGFloat = 0
 
     // MARK: - Initializer
 
-    init(viewModel: RegisterViewModel, factory: ViewControllerFactory, imagePickerResultLoader: ImagePickerResultLoading = ImagePickerResultLoader(), imageOptimizer: ImageOptimizing = ImageOptimizer()) {
+    init(
+        viewModel: RegisterViewModel,
+        factory: ViewControllerFactory,
+        prefilledArtist: ArtistSearchItem? = nil,
+        prefilledProductType: String? = nil,
+        imagePickerResultLoader: ImagePickerResultLoading = ImagePickerResultLoader(),
+        imageOptimizer: ImageOptimizing = ImageOptimizer()
+    ) {
         self.factory = factory
+        self.prefilledArtist = prefilledArtist
+        self.prefilledProductType = prefilledProductType
         self.imagePickerResultLoader = imagePickerResultLoader
         self.imageOptimizer = imageOptimizer
         super.init(viewModel: viewModel)
@@ -43,6 +54,7 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        applyPrefilledValues()
         viewModel.action(.viewDidLoad)
     }
 
@@ -75,6 +87,18 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     private func bindViewActions() {
         rootView.onAction = { [weak self] in self?.handleProductRegisterAction($0) }
         rootView.onInputFocus = { [weak self] in self?.handleInputFocus($0) }
+    }
+
+    private func applyPrefilledValues() {
+        if let prefilledArtist {
+            rootView.setArtist(name: prefilledArtist.name)
+            viewModel.action(.setArtist(prefilledArtist))
+        }
+
+        if let prefilledProductType {
+            rootView.setProductType(prefilledProductType)
+            viewModel.action(.updateProductType(prefilledProductType))
+        }
     }
 
     private func handleProductRegisterAction(_ action: ProductRegisterAction) {

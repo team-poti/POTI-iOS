@@ -192,7 +192,11 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeProductRegisterViewController() -> RegisterViewController {
-        RegisterViewController(viewModel: diContainer.makeProductRegisterViewModel(), factory: self)
+        makeProductRegisterViewController(prefilledArtist: nil, productType: nil)
+    }
+
+    func makeProductRegisterViewController(prefilledArtist: ArtistSearchItem?, productType: String?) -> RegisterViewController {
+        RegisterViewController(viewModel: diContainer.makeProductRegisterViewModel(), factory: self, prefilledArtist: prefilledArtist, prefilledProductType: productType)
     }
     
     func makeYourPageViewController(userId: Int) -> YourPageViewController {

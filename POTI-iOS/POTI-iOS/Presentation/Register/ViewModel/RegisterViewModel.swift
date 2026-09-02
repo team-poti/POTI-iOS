@@ -197,7 +197,7 @@ final class RegisterViewModel: BaseViewModelType {
                         deliveryMethodID: $0.deliveryID,
                         name: $0.name,
                         price: $0.price,
-                        isSelected: true
+                        isSelected: false
                     )
                 }
 

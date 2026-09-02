@@ -66,7 +66,7 @@ final class MemberPriceRowView: BaseView {
 
     override func setLayout() {
         self.snp.makeConstraints {
-            $0.height.equalTo(36)
+            $0.height.equalTo(28)
         }
 
         nameLabel.snp.makeConstraints {
@@ -85,7 +85,7 @@ final class MemberPriceRowView: BaseView {
         }
 
         underlineView.snp.makeConstraints {
-            $0.top.equalTo(priceTextField.snp.bottom).offset(4)
+            $0.top.equalTo(priceTextField.snp.bottom).offset(2)
             $0.horizontalEdges.equalTo(priceTextField)
             $0.height.equalTo(2)
         }
