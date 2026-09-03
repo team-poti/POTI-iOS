@@ -85,7 +85,7 @@ final class MemberPriceRowView: BaseView {
         }
 
         underlineView.snp.makeConstraints {
-            $0.top.equalTo(priceTextField.snp.bottom).offset(2)
+            $0.bottom.equalToSuperview()
             $0.horizontalEdges.equalTo(priceTextField)
             $0.height.equalTo(2)
         }

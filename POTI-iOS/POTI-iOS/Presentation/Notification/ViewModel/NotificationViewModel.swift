@@ -37,6 +37,7 @@ final class NotificationViewModel: @MainActor BaseViewModelType {
     private var hasNextPage = true
     private var isFetching = false
     private var isReadingAll = false
+    private var readingNotificationIDs = Set<Int>()
 
     let output: Output
 
@@ -110,10 +111,12 @@ final class NotificationViewModel: @MainActor BaseViewModelType {
 
         let notification = notifications[index]
         sendDeepLinkIfNeeded(notification.deeplink)
-        guard !notification.isRead else { return }
+        guard !notification.isRead, !isReadingAll, readingNotificationIDs.insert(notification.id).inserted
+        else { return }
 
         Task { [weak self] in
             guard let self else { return }
+            defer { readingNotificationIDs.remove(notification.id) }
 
             do {
                 try await readNotificationUseCase.execute(notificationId: notification.id)
@@ -132,7 +135,7 @@ final class NotificationViewModel: @MainActor BaseViewModelType {
     }
 
     private func readAllNotifications() {
-        guard hasUnreadNotification, !isReadingAll else { return }
+        guard hasUnreadNotification, !isReadingAll, readingNotificationIDs.isEmpty else { return }
         isReadingAll = true
 
         let unreadNotificationIDs = Set(notifications.filter { !$0.isRead }.map(\.id))

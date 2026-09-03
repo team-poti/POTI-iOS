@@ -96,7 +96,6 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .store(in: &cancellables)
 
         viewModel.output.savedAddress
-            .receive(on: RunLoop.main)
             .sink { [weak self] address in
                 self?.rootView.orderContentView.configure(address)
             }

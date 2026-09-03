@@ -137,7 +137,7 @@ final class PotOrderViewModel: BaseViewModelType {
         } else {
             output.zipcodeError.send(nil)
         }
-
+        
         if address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             output.addressError.send("주소를 입력해주세요")
             isValid = false
@@ -170,43 +170,43 @@ final class PotOrderViewModel: BaseViewModelType {
         output.orderHeaderData.send((items: displayItems, total: "\(totalAmount.formattedWithComma)원"))
         output.nickname.send(uploaderNickname)
     }
-
+    
     private func fetchSavedAddress() {
         Task {
             do {
                 let savedAddress = try await getAddressUseCase.execute()
-                guard !savedAddress.isEmpty else {
-                    if !hasUserInput {
-                        output.shipmentRegistrationState.send(.unavailable)
+                await MainActor.run {
+                    guard !savedAddress.isEmpty else {
+                        if !hasUserInput {
+                            output.shipmentRegistrationState.send(.unavailable)
+                        }
+                        return
                     }
-                    return
+                    
+                    guard !hasUserInput else { return }
+                    
+                    name = savedAddress.name
+                    zipcode = savedAddress.postalCode
+                    address = savedAddress.address
+                    detailAddress = savedAddress.detailAddress
+                    phone = savedAddress.phoneNumber
+                    shouldSaveAddress = false
+                    
+                    output.savedAddress.send(savedAddress)
+                    output.shipmentRegistrationState.send(.unavailable)
                 }
-
-                guard !hasUserInput else {
-                    return
-                }
-
-                name = savedAddress.name
-                zipcode = savedAddress.postalCode
-                address = savedAddress.address
-                detailAddress = savedAddress.detailAddress
-                phone = savedAddress.phoneNumber
-                shouldSaveAddress = false
-
-                output.savedAddress.send(savedAddress)
-                output.shipmentRegistrationState.send(.unavailable)
             } catch {
                 PotiLogger.error(error)
             }
         }
     }
-
+    
     private func markAddressAsEdited() {
         hasUserInput = true
         shouldSaveAddress = false
         output.shipmentRegistrationState.send(.unselected)
     }
-
+    
     private var currentAddress: AddressEntity {
         AddressEntity(
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -248,7 +248,7 @@ final class PotOrderViewModel: BaseViewModelType {
             }
         }
     }
-
+    
     private func applyServerValidationError(_ message: String) -> Bool {
         if message.contains("우편번호") {
             output.zipcodeError.send(message)
