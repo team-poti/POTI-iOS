@@ -46,10 +46,7 @@ final class PotDetailViewModel: BaseViewModelType {
     
     private let useCase: PotDetailUseCase
     private let fetchPotOptionsUseCase: FetchPotOptionsUseCase
-    private let getMyPageInformationUseCase: GetMyPageInformationUseCase
     let postId: Int
-    private var cancellables = Set<AnyCancellable>()
-    
     let output: Output
     
     private(set) var participants: [ParticipantModel] = []
@@ -63,11 +60,9 @@ final class PotDetailViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: PotDetailUseCase, fetchPotOptionsUseCase: FetchPotOptionsUseCase,
-         getMyPageInformationUseCase: GetMyPageInformationUseCase, postId: Int) {
+    init(useCase: PotDetailUseCase, fetchPotOptionsUseCase: FetchPotOptionsUseCase, postId: Int) {
         self.useCase = useCase
         self.fetchPotOptionsUseCase = fetchPotOptionsUseCase
-        self.getMyPageInformationUseCase = getMyPageInformationUseCase
         self.postId = postId
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher()
@@ -79,9 +74,7 @@ final class PotDetailViewModel: BaseViewModelType {
     func action(_ trigger: Input) {
         switch trigger {
         case .viewDidLoad:
-            isShareContentReady = false
             fetchPotDetail()
-            fetchPotOptions()
         }
     }
     
@@ -100,8 +93,7 @@ final class PotDetailViewModel: BaseViewModelType {
                     }
                 }
                 
-                let currentUserId = try? await getMyPageInformationUseCase.execute().userId
-                let joinButtonState = makeJoinButtonState(model: model, currentUserId: currentUserId)
+                let joinButtonState = makeJoinButtonState(model: model)
                 
                 await MainActor.run {
                     output.joinButtonState.send(joinButtonState)
@@ -114,28 +106,29 @@ final class PotDetailViewModel: BaseViewModelType {
         }
     }
 
-    private func makeJoinButtonState(model: PotDetailModel, currentUserId: Int?) -> PotJoinButtonState {
+    private func makeJoinButtonState(model: PotDetailModel) -> PotJoinButtonState {
         if model.isMyPost {
             return .myPost
         }
-        guard let currentUserId else {
-            return .closed
-        }
-        if model.participants.contains(where: { $0.userId == currentUserId }) {
+        if model.isParticipated {
             return .alreadyParticipated
         }
         return model.status == "RECRUITING" ? .available : .closed
     }
 
-    private func fetchPotOptions() {
-        Task {
-            do {
-                let options = try await fetchPotOptionsUseCase.execute(postId: postId)
-                availableMembers = options.members.map(\.name)
-                isShareContentReady = true
-            } catch {
-                PotiLogger.error(error)
-            }
+    func prepareShareContent() async -> Bool {
+        if isShareContentReady {
+            return true
+        }
+
+        do {
+            let options = try await fetchPotOptionsUseCase.execute(postId: postId)
+            availableMembers = options.members.map(\.name)
+            isShareContentReady = true
+            return true
+        } catch {
+            PotiLogger.error(error)
+            return false
         }
     }
 }

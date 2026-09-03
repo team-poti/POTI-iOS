@@ -7,6 +7,7 @@
 
 struct PotDetailModel {
     let isMyPost: Bool
+    let isParticipated: Bool
     let status: String
     let artist: String
     let title: String

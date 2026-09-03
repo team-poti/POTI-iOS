@@ -8,6 +8,7 @@
 struct PotDetailDTO: Decodable {
     let postId: Int
     let isMyPost: Bool
+    let isParticipated: Bool
     let status: String
     let artist: String
     let artistId: Int
@@ -27,6 +28,7 @@ struct PotDetailDTO: Decodable {
         return PotDetailEntity(
             postId: postId,
             isMyPost: isMyPost,
+            isParticipated: isParticipated,
             status: status,
             artist: artist,
             title: title,
