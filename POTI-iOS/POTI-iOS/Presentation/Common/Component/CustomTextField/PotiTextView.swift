@@ -43,7 +43,7 @@ final class PotiTextView: BaseView {
     convenience init(placeholder: String, maxLength: Int? = nil, minimumHeight: CGFloat = 160) {
         self.init(frame: .zero)
         self.maxLength = maxLength
-        placeholderLabel.setText(placeholder, lineSpacing: 4, alignment: .left)
+        placeholderLabel.setLabel(placeholder, font: .body16m, alignment: .left, color: .gray700)
         inputContainer.setMinimumHeight(minimumHeight)
         updatePlaceholder()
         render()
@@ -63,8 +63,6 @@ final class PotiTextView: BaseView {
         }
 
         placeholderLabel.do {
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .gray700
             $0.numberOfLines = 0
             $0.isUserInteractionEnabled = false
         }

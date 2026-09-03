@@ -21,9 +21,7 @@ final class ProductImageSectionView: BaseView {
 
     override func setStyle() {
         titleLabel.do {
-            $0.text = "상품 정보"
-            $0.font = PotiFontManager.title18sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("상품 정보", font: .title18sb, color: .potiBlack)
         }
     }
 

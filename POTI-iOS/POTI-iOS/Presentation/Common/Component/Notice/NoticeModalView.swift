@@ -75,9 +75,7 @@ final class NoticeModalView: BaseView {
         }
 
         titleLabel.do {
-            $0.text = modalType.title
-            $0.font = PotiFontManager.title18sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel(modalType.title, font: .title18sb, color: .potiBlack)
         }
 
         closeButton.do {

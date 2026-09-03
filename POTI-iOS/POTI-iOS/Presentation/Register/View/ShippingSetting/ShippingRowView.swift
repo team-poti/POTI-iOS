@@ -48,8 +48,7 @@ final class ShippingRowView: BaseView {
         }
 
         nameLabel.do {
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .body16m, color: .potiBlack)
         }
 
         priceTextField.do {
@@ -66,9 +65,7 @@ final class ShippingRowView: BaseView {
         }
 
         wonLabel.do {
-            $0.text = "원"
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
+            $0.setLabel("원", font: .body16m, color: .potiBlack)
         }
     }
 
@@ -85,7 +82,7 @@ final class ShippingRowView: BaseView {
 
         nameLabel.snp.makeConstraints {
             $0.leading.equalTo(checkButton.snp.trailing).offset(8)
-            $0.centerY.equalTo(priceTextField)
+            $0.centerY.equalTo(priceTextField).offset(-2)
             $0.height.equalTo(priceTextField)
         }
 
@@ -123,7 +120,7 @@ final class ShippingRowView: BaseView {
     // MARK: - Public Method
 
     func render(_ option: RegisterShippingOptionItem) {
-        nameLabel.text = option.name
+        nameLabel.setLabel(option.name, font: .body16m, color: .potiBlack)
         checkButton.isSelected = option.isSelected
         guard !priceTextField.isFirstResponder else { return }
         priceTextField.text = option.price?.formattedWithComma

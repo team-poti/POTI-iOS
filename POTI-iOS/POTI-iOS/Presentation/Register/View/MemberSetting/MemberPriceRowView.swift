@@ -40,8 +40,7 @@ final class MemberPriceRowView: BaseView {
 
     override func setStyle() {
         nameLabel.do {
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .body16m, color: .potiBlack)
         }
 
         priceTextField.do {
@@ -57,9 +56,7 @@ final class MemberPriceRowView: BaseView {
         }
 
         priceWonLabel.do {
-            $0.text = "원"
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
+            $0.setLabel("원", font: .body16m, color: .potiBlack)
         }
     }
 
@@ -103,7 +100,7 @@ final class MemberPriceRowView: BaseView {
     // MARK: - Custom Method
 
     func configure(name: String, price: Int?) {
-        nameLabel.text = name
+        nameLabel.setLabel(name, font: .body16m, color: .potiBlack)
         priceTextField.text = price?.formattedWithComma
     }
 

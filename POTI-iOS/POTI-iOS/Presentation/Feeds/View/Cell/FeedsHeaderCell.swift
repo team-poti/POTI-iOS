@@ -68,7 +68,8 @@ final class FeedsHeaderCell: UICollectionReusableView {
     
     private func setLayout() {
         filterButton.snp.makeConstraints {
-            $0.trailing.top.equalToSuperview().inset(16)
+            $0.trailing.equalToSuperview().inset(16)
+            $0.top.equalToSuperview().inset(13.5)
         }
     }
     
@@ -106,4 +107,3 @@ extension FeedsHeaderCell {
         filterButton.isSelected = isSelected
     }
 }
-

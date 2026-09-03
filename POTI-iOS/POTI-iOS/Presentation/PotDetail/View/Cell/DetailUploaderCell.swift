@@ -41,14 +41,11 @@ final class DetailUploaderCell: UICollectionViewCell {
 
     private func setStyle() {
         titleLabel.do {
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
-            $0.text = "모집자"
+            $0.setLabel("모집자", font: .body16sb, color: .potiBlack)
         }
 
         nickNameLabel.do {
-            $0.font = PotiFontManager.body14sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .body14sb, color: .potiBlack)
         }
 
         profileImageView.do {
@@ -64,13 +61,11 @@ final class DetailUploaderCell: UICollectionViewCell {
         }
 
         starRatingLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
+            $0.setLabel("", font: .body14m, color: .gray800)
         }
 
         reviewLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
+            $0.setLabel("", font: .body14m, color: .gray800)
         }
 
         profileDetailButton.do {
@@ -108,7 +103,7 @@ final class DetailUploaderCell: UICollectionViewCell {
 
         starImageView.snp.makeConstraints {
             $0.leading.equalTo(nickNameLabel.snp.trailing).offset(4)
-            $0.top.equalTo(nickNameLabel.snp.top).offset(-2)
+            $0.top.equalTo(nickNameLabel).offset(2)
             $0.size.equalTo(21)
         }
 
@@ -139,9 +134,9 @@ final class DetailUploaderCell: UICollectionViewCell {
     // MARK: - Method
 
     func configure(with model: UploaderModel, target: Any?, action: Selector) {
-        nickNameLabel.text = model.nickname
-        starRatingLabel.text = "\(model.rating)"
-        reviewLabel.text = "\(model.reviewCount)개의 평가"
+        nickNameLabel.setLabel(model.nickname, font: .body14sb, color: .potiBlack)
+        starRatingLabel.setLabel("\(model.rating)", font: .body14m, color: .gray800)
+        reviewLabel.setLabel("\(model.reviewCount)개의 평가", font: .body14m, color: .gray800)
         profileImageView.kf.setImage(with: URL(string: model.profileImage))
 
         profileDetailButton.removeTarget(nil, action: nil, for: .allEvents)

@@ -211,7 +211,7 @@ final class PotOptionsView: BaseView {
         
         renderSelectedOptions(state)
         updateDeliveryButtonTitle(state.selectedDelivery?.name)
-        contentView.totalPriceNumberLabel.text = state.totalPriceText
+        contentView.totalPriceNumberLabel.setLabel(state.totalPriceText, font: .display20b, color: .potiBlack)
         contentView.bottomButton.isDisabled = !state.isContinueEnabled
         contentView.bottomButton.color = state.isContinueEnabled ? .secondaryMain : .deactiveMain
 

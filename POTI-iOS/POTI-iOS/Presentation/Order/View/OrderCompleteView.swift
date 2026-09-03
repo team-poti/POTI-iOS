@@ -46,17 +46,11 @@ final class OrderCompleteView: BaseView {
         }
 
         titleLabel.do {
-            $0.text = "참여가 완료되었어요"
-            $0.font = PotiFontManager.title18sb.font
-            $0.textColor = .potiBlack
-            $0.textAlignment = .center
+            $0.setLabel("참여가 완료되었어요", font: .title18sb, alignment: .center, color: .potiBlack)
         }
 
         subTitleLabel.do {
-            $0.text = "모집이 끝나면 입금이 시작돼요"
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
-            $0.textAlignment = .center
+            $0.setLabel("모집이 끝나면 입금이 시작돼요", font: .body14m, alignment: .center, color: .gray800)
         }
 
         bottomButton.do {

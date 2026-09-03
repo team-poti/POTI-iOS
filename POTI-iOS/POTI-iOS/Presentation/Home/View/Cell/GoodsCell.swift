@@ -55,13 +55,11 @@ final class GoodsCell: UICollectionViewCell {
         }
         
         artistNameLabel.do {
-            $0.font = PotiFontManager.caption12m.font
-            $0.textColor = .gray800
+            $0.setLabel("", font: .caption12m, color: .gray800)
         }
         
         productNameLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .body14m, color: .potiBlack)
         }
     }
     
@@ -98,6 +96,7 @@ final class GoodsCell: UICollectionViewCell {
         potTagView.snp.makeConstraints {
             $0.top.equalTo(productNameLabel.snp.bottom).offset(8)
             $0.leading.equalTo(backgroundGrayView).inset(12)
+            $0.bottom.equalTo(backgroundGrayView).inset(12)
             $0.height.equalTo(26)
         }
     }
@@ -108,8 +107,8 @@ final class GoodsCell: UICollectionViewCell {
 extension GoodsCell {
     func configure(goods: GoodsModel) {
         imageView.kf.setImage(with: URL(string: goods.postImage ?? ""))
-        artistNameLabel.text = goods.artist
-        productNameLabel.text = goods.postTitle
+        artistNameLabel.setLabel(goods.artist, font: .caption12m, color: .gray800)
+        productNameLabel.setLabel(goods.postTitle, font: .body14m, color: .potiBlack)
         potTagView.setTagText(goods.potCountText)
         popularTagView.isHidden = !goods.hasPopularTag
         

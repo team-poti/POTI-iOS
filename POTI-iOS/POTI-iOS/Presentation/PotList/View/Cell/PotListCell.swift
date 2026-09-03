@@ -75,8 +75,7 @@ final class PotListCell: UICollectionViewCell {
         }
         
         userNicknameLabel.do {
-            $0.textColor = .potiBlack
-            $0.font = PotiFontManager.body14m.font
+            $0.setLabel("", font: .body14m, color: .potiBlack)
         }
         
         starIcon.do {
@@ -84,16 +83,20 @@ final class PotListCell: UICollectionViewCell {
             let starImage = UIImage(named: "icn-star")?.withRenderingMode(.alwaysTemplate)
             $0.image = starImage
             $0.tintColor = .gray800
+            $0.transform = CGAffineTransform(translationX: 0, y: 2)
         }
         
         starScoreLabel.do {
-            $0.textColor = .gray800
-            $0.font = PotiFontManager.body14m.font
+            $0.setLabel("", font: .body14m, color: .gray800)
+        }
+
+        starRatingStackView.do {
+            $0.axis = .horizontal
+            $0.alignment = .top
         }
         
         countLabel.do {
-            $0.textColor = .sementicRed
-            $0.font = PotiFontManager.display18b.font
+            $0.setLabel("", font: .display18b, color: .sementicRed)
         }
         
         separator.do {
@@ -107,8 +110,7 @@ final class PotListCell: UICollectionViewCell {
         }
         
         priceLabel.do {
-            $0.textColor = .potiBlack
-            $0.font = PotiFontManager.display18b.font
+            $0.setLabel("", font: .display18b, color: .potiBlack)
         }
     }
     
@@ -161,7 +163,7 @@ final class PotListCell: UICollectionViewCell {
             $0.top.equalTo(separator.snp.bottom).offset(16)
             $0.leading.equalTo(separator)
             $0.trailing.equalTo(productImageView.snp.leading).offset(-30)
-            $0.height.equalTo(40)
+            $0.height.equalTo(46)
         }
         
         priceLabel.snp.makeConstraints {
@@ -182,8 +184,8 @@ final class PotListCell: UICollectionViewCell {
 extension PotListCell {
     func configure(model: PotModel) {
         userProfileImageView.kf.setImage(with: URL(string: model.recruiter.profileImage))
-        userNicknameLabel.text = model.recruiter.nickname
-        starScoreLabel.text = "\(model.recruiter.rating)"
+        userNicknameLabel.setLabel(model.recruiter.nickname, font: .body14m, color: .potiBlack)
+        starScoreLabel.setLabel("\(model.recruiter.rating)", font: .body14m, color: .gray800)
         
         productImageView.kf.setImage(with: URL(string: model.thumbnailUrl))
         setPriceLabel(price: model.price)
@@ -213,15 +215,11 @@ extension PotListCell {
     }
     
     private func setClosedStyle() {
-        countLabel.text = "마감"
-        countLabel.textColor = .gray800.withAlphaComponent(0.5)
-        countLabel.font = PotiFontManager.body16sb.font
+        countLabel.setLabel("마감", font: .body16sb, color: .gray800.withAlphaComponent(0.5))
     }
     
     private func setRecruitingStyle(current: Int, total: Int, members: [String]) {
         countLabel.alpha = 1.0
-        countLabel.font = PotiFontManager.display18b.font
-        
         let currentString = "\(current.formattedWithComma)"
         let totalString = "/\(total.formattedWithComma)"
         let fullCountText = NSMutableAttributedString(string: currentString + totalString)
@@ -238,7 +236,7 @@ extension PotListCell {
             .font: PotiFontManager.body16sb.font
         ], range: totalRange)
         
-        countLabel.attributedText = fullCountText
+        countLabel.setLabel(fullCountText, lineHeight: .display18b)
         
         configureMemberTags(members)
     }
@@ -249,11 +247,14 @@ extension PotListCell {
         let fullPriceText = NSMutableAttributedString(string: priceString + perPersonString)
         
         fullPriceText.addAttributes([
+            .foregroundColor: UIColor.potiBlack,
+            .font: PotiFontManager.display18b.font
+        ], range: NSRange(location: 0, length: fullPriceText.length))
+        fullPriceText.addAttributes([
             .foregroundColor: UIColor.gray800,
             .font: PotiFontManager.body14m.font
         ], range: (fullPriceText.string as NSString).range(of: perPersonString))
-        
-        priceLabel.attributedText = fullPriceText
+        priceLabel.setLabel(fullPriceText, lineHeight: .display18b)
     }
     
     private func configureMemberTags(_ members: [String]) {
@@ -263,7 +264,7 @@ extension PotListCell {
         
         let maxWidth: CGFloat = 200
         let maxLines = 2
-        let lineHeight: CGFloat = 18
+        let lineHeight = PotiFontManager.body14m.fontProperty.lineHeight
         let itemSpacing: CGFloat = 4
         
         var currentX: CGFloat = 0
@@ -274,9 +275,7 @@ extension PotListCell {
             let text = "\(member) |"
             
             let label = UILabel()
-            label.font = PotiFontManager.body14m.font
-            label.textColor = .gray800
-            label.text = text
+            label.setLabel(text, font: .body14m, color: .gray800)
             
             let size = label.intrinsicContentSize
             
@@ -319,9 +318,7 @@ extension PotListCell {
     
     private func addEllipsis(x: CGFloat, y: CGFloat) {
         let label = UILabel()
-        label.font = PotiFontManager.body14m.font
-        label.textColor = .gray800
-        label.text = "..."
+        label.setLabel("...", font: .body14m, color: .gray800)
         
         memberContainerView.addSubview(label)
         
@@ -329,7 +326,7 @@ extension PotListCell {
             x: x,
             y: y,
             width: label.intrinsicContentSize.width,
-            height: 18
+            height: PotiFontManager.body14m.fontProperty.lineHeight
         )
     }
 }
