@@ -118,11 +118,6 @@ final class PotOptionsViewModel: BaseViewModelType {
         updateState()
     }
     
-    private func removeDelivery() {
-        selectedDelivery = nil
-        updateState()
-    }
-
     private func updateState() {
         let selectedMemberOptions = members.compactMap { member -> PotOptionsViewState.SelectedOption? in
             guard selectedMembers[member.memberOptionId] != nil else { return nil }

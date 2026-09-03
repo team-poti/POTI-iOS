@@ -34,8 +34,6 @@ final class HomeViewModel: BaseViewModelType {
     // MARK: - Properties
     
     private let useCase: HomeUseCase
-    private var cancellables = Set<AnyCancellable>()
-    
     let output: Output
     
     private(set) var banners: [BannerModel] = []

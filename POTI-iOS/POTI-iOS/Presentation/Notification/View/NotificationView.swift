@@ -14,11 +14,6 @@ final class NotificationView: BaseView {
 
     // MARK: - Properties
 
-    private var tableBottomToButtonConstraint: Constraint?
-    private var tableBottomToSafeAreaConstraint: Constraint?
-
-    // MARK: - UI Components
-
     let notificationTableView = UITableView(frame: .zero, style: .plain)
     let readAllButton = UIButton()
     private let emptyLabel = UILabel()
@@ -67,9 +62,8 @@ final class NotificationView: BaseView {
         notificationTableView.snp.makeConstraints {
             $0.top.equalTo(topGrayLineView.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
-            tableBottomToSafeAreaConstraint = $0.bottom.equalTo(safeAreaLayoutGuide).constraint
+            $0.bottom.equalTo(safeAreaLayoutGuide)
         }
-        tableBottomToButtonConstraint?.deactivate()
 
         topGrayLineView.snp.makeConstraints {
             $0.top.horizontalEdges.equalToSuperview()
@@ -99,13 +93,5 @@ final class NotificationView: BaseView {
 
     func updateReadAllButton(isEnabled: Bool) {
         readAllButton.isHidden = !isEnabled
-
-        if isEnabled {
-            tableBottomToSafeAreaConstraint?.deactivate()
-            tableBottomToButtonConstraint?.activate()
-        } else {
-            tableBottomToButtonConstraint?.deactivate()
-            tableBottomToSafeAreaConstraint?.activate()
-        }
     }
 }

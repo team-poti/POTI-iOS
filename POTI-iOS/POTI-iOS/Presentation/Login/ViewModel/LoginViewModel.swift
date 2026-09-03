@@ -31,7 +31,6 @@ final class LoginViewModel: BaseViewModelType {
     private let navigateToOnboardingSubject = PassthroughSubject<Void, Never>()
     private let navigateToHomeSubject = PassthroughSubject<Void, Never>()
     private let loginFailureSubject = PassthroughSubject<Error, Never>()
-    private var cancellables = Set<AnyCancellable>()
     
     private let loginUseCase: LoginUseCase
     private let devLoginUseCase: DevLoginUseCase
