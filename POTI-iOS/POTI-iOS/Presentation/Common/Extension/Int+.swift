@@ -9,8 +9,12 @@ import UIKit
 
 extension Int {
     var formattedWithComma: String {
+        Self.decimalFormatter.string(from: NSNumber(value: self)) ?? "\(self)"
+    }
+
+    private static let decimalFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
-    }
+        return formatter
+    }()
  }
