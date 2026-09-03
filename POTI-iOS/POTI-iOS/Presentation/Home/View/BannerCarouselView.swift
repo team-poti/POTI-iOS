@@ -124,12 +124,14 @@ final class BannerCarouselView: BaseView {
     private func updateBackground(page: Int) {
         guard page < banners.count else { return }
         let urlString = banners[page].imageUrl
+        shadowImageView.kf.cancelDownloadTask()
         shadowImageView.kf.setImage(with: URL(string: urlString))
     }
     
     // MARK: - Public Method
     
     func configure(banners: [BannerModel]) {
+        shadowImageView.kf.cancelDownloadTask()
         self.banners = banners
         lastRecordedPage = 0
         pageControl.currentPage = 0

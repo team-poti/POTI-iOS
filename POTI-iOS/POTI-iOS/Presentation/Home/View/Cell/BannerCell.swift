@@ -30,6 +30,12 @@ final class BannerCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        bannerImageView.kf.cancelDownloadTask()
+        bannerImageView.image = nil
+    }
     
     // MARK: - Custom Methods
     
@@ -59,7 +65,10 @@ final class BannerCell: UICollectionViewCell {
 
 extension BannerCell {
     func configure(banner: BannerModel) {
-        guard let url = URL(string: banner.imageUrl) else { return }
+        guard let url = URL(string: banner.imageUrl) else {
+            bannerImageView.image = nil
+            return
+        }
         bannerImageView.kf.setImage(with: url)
     }
 }

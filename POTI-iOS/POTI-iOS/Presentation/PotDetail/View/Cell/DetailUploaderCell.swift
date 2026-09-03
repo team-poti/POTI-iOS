@@ -37,6 +37,13 @@ final class DetailUploaderCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        profileImageView.kf.cancelDownloadTask()
+        profileImageView.image = nil
+        profileDetailButton.removeTarget(nil, action: nil, for: .allEvents)
+    }
+
     // MARK: - Custom Methods
 
     private func setStyle() {
