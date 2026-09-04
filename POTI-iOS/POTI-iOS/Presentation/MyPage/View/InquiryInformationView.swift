@@ -13,7 +13,7 @@ import Then
 final class InquiryInformationView: BaseView {
     
     private let inquiryLabel = UILabel()
-    private let inquiryButton = UIButton()
+    let inquiryButton = UIButton()
     
     override func setStyle() {
         backgroundColor = .potiWhite

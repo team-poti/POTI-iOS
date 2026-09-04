@@ -49,25 +49,40 @@ final class YourPageViewModel: BaseViewModelType {
     func action(_ input: Input) {
         switch input {
         case .viewDidLoad:
-            fetchYourPage()
+            Task { @MainActor [weak self] in
+                self?.fetchYourPage()
+            }
         }
     }
 }
 
 extension YourPageViewModel {
 
+    @MainActor
     private func fetchYourPage() {
+        guard userId > 0 else {
+            errorSubject.send("유저 정보를 불러오지 못했습니다.")
+            return
+        }
+
         isLoadingSubject.send(true)
 
         Task {
             do {
+                // 모집자 프로필은 공개 프로필 API(/api/v1/users/{userId}/profile)를 사용한다.
                 let entity = try await getYourPageInformationUseCase.execute(userId: userId)
                 let model = entity.toModel()
-                yourPageSubject.send(model)
+                await MainActor.run {
+                    yourPageSubject.send(model)
+                }
             } catch {
-                errorSubject.send("유저 정보를 불러오지 못했습니다.")
+                await MainActor.run {
+                    errorSubject.send("유저 정보를 불러오지 못했습니다.")
+                }
             }
-            isLoadingSubject.send(false)
+            await MainActor.run {
+                isLoadingSubject.send(false)
+            }
         }
     }
 }

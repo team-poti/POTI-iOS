@@ -100,8 +100,17 @@ final class PotDetailViewModel: BaseViewModelType {
                     }
                 }
                 
-                let currentUserId = try? await getMyPageInformationUseCase.execute().userId
-                let joinButtonState = makeJoinButtonState(model: model, currentUserId: currentUserId)
+                let joinButtonState: PotJoinButtonState
+                if KeychainManager.hasValidToken() {
+                    do {
+                        let currentUserId = try await getMyPageInformationUseCase.execute().userId
+                        joinButtonState = makeJoinButtonState(model: model, currentUserId: currentUserId)
+                    } catch {
+                        joinButtonState = .closed
+                    }
+                } else {
+                    joinButtonState = makeJoinButtonState(model: model, currentUserId: nil)
+                }
                 
                 await MainActor.run {
                     output.joinButtonState.send(joinButtonState)
@@ -118,10 +127,8 @@ final class PotDetailViewModel: BaseViewModelType {
         if model.isMyPost {
             return .myPost
         }
-        guard let currentUserId else {
-            return .closed
-        }
-        if model.participants.contains(where: { $0.userId == currentUserId }) {
+        if let currentUserId,
+           model.participants.contains(where: { $0.userId == currentUserId }) {
             return .alreadyParticipated
         }
         return model.status == "RECRUITING" ? .available : .closed

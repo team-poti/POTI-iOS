@@ -115,7 +115,7 @@ final class CustomAlertView: BaseView {
 
         messageLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.centerX.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
         }
 
         buttonStackView.snp.makeConstraints {

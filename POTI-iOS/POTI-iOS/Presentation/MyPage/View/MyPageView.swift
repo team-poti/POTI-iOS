@@ -22,7 +22,7 @@ final class MyPageView: BaseView {
     let participationView = MyPageNavigationView()
     let recruitmentView = MyPageNavigationView()
     
-    private let inquiryInfoView = InquiryInformationView()
+    let inquiryInfoView = InquiryInformationView()
     let guestView = GuestMyPageView()
     
     override func setStyle() {
