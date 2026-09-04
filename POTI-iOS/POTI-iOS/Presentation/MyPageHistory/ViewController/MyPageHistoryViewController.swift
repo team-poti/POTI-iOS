@@ -33,6 +33,9 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
     
     private var ongoingItems: [MyPageHistoryModel] = []
     private var completedItems: [MyPageHistoryModel] = []
+
+    var selectedTab: HistoryTab { currentTab }
+    private var hasAppliedInitialTabOffset = false
     
     private let factory: ViewControllerFactory
     
@@ -50,11 +53,15 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.updateTabSelection(to: self.currentTab, animated: false)
-        }
+        tabView.updateTabSelection(tab: currentTab)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        guard !hasAppliedInitialTabOffset, view.bounds.width > 0 else { return }
+        hasAppliedInitialTabOffset = true
+        updateTabSelection(to: currentTab, animated: false)
     }
     
     // MARK: - Override Methods

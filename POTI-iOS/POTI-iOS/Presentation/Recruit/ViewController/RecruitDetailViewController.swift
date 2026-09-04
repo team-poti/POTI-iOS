@@ -47,6 +47,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
         viewModel.action(.viewDidLoad)
     }
     
@@ -72,6 +73,11 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
             $0.showsVerticalScrollIndicator = false
             $0.sectionHeaderTopPadding = 0
             $0.backgroundColor = .potiWhite
+            $0.sectionFooterHeight = .leastNormalMagnitude
+            $0.estimatedSectionHeaderHeight = 0
+            $0.estimatedSectionFooterHeight = 0
+            $0.contentInset.top = 12
+            $0.verticalScrollIndicatorInsets.top = 12
         }
     }
     
@@ -261,7 +267,11 @@ extension RecruitDetailViewController: UITableViewDelegate, UITableViewDataSourc
         case .participantInfo:
             return 64
         default:
-            return 0
+            return .leastNormalMagnitude
         }
+    }
+
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
     }
 }

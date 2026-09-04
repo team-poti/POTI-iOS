@@ -24,6 +24,7 @@ final class DetailTextFieldView: BaseView {
         customTextField.text ?? ""
     }
     var onTextChanged: ((String) -> Void)?
+    var onReturn: (() -> Void)?
 
     // MARK: - Custom Method
 
@@ -40,6 +41,7 @@ final class DetailTextFieldView: BaseView {
             $0.layer.borderWidth = 1
             $0.font = PotiFontManager.body16m.font
             $0.textColor = .potiBlack
+            $0.delegate = self
         }
         setTextFieldInset(16)
     }
@@ -104,5 +106,12 @@ final class DetailTextFieldView: BaseView {
     func reset() {
         customTextField.text = ""
         onTextChanged = nil
+    }
+}
+
+extension DetailTextFieldView: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        onReturn?()
+        return true
     }
 }

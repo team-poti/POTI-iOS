@@ -6,7 +6,7 @@
 //
 
 struct FeedsDTO: Decodable {
-    let nickname: String
+    let nickname: String?
     let mainArtist: String?
     let mainArtistId: Int?
     let hasNext: Bool
@@ -14,7 +14,7 @@ struct FeedsDTO: Decodable {
     
     func toEntity() -> FeedsEntity {
         FeedsEntity(
-            nickname: nickname,
+            nickname: nickname ?? "",
             mainArtist: mainArtist,
             mainArtistId: mainArtistId,
             hasNext: hasNext,

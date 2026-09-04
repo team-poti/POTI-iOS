@@ -16,7 +16,7 @@ final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewMod
         .backDefault(viewState?.screenState.navigationTitle ?? "진행 중인 분철")
     }
     
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private let tableView = UITableView(frame: .zero, style: .plain)
     private let completeButton = PotiBottomButton()
     private var tableViewBottomConstraint: Constraint?
     private var viewState: JoinDetailViewState?
@@ -69,6 +69,13 @@ final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewMod
             $0.separatorStyle = .none
             $0.showsVerticalScrollIndicator = false
             $0.backgroundColor = .potiWhite
+            $0.sectionHeaderHeight = .leastNormalMagnitude
+            $0.sectionFooterHeight = .leastNormalMagnitude
+            $0.estimatedSectionHeaderHeight = 0
+            $0.estimatedSectionFooterHeight = 0
+            $0.sectionHeaderTopPadding = 0
+            $0.contentInset.top = 12
+            $0.verticalScrollIndicatorInsets.top = 12
         }
     }
     

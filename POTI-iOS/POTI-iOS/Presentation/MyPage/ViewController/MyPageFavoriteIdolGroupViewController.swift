@@ -61,6 +61,11 @@ final class MyPageFavoriteIdolGroupViewController: BaseViewController<Onboarding
             action: #selector(doneButtonDidTap),
             for: .touchUpInside
         )
+        rootView.inquiryButton.addTarget(
+            self,
+            action: #selector(inquiryButtonDidTap),
+            for: .touchUpInside
+        )
     }
     
     override func bindViewModel() {
@@ -94,6 +99,11 @@ final class MyPageFavoriteIdolGroupViewController: BaseViewController<Onboarding
     @objc private func doneButtonDidTap() {
         guard selectedGroupId != nil else { return }
         viewModel.action(.submitWithArtist)
+    }
+
+    @objc private func inquiryButtonDidTap() {
+        guard let url = URL(string: "https://poti-support.notion.site/850909fac41b83d2b15401dc19d5c1ef?pvs=105") else { return }
+        UIApplication.shared.open(url)
     }
 }
 
