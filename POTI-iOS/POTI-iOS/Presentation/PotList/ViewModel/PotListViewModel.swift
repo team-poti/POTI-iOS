@@ -62,7 +62,6 @@ final class PotListViewModel: BaseViewModelType {
     private var hasNextPage: Bool = true
     private var isFetching: Bool = false
     
-    private var cancellables = Set<AnyCancellable>()
     let output: Output
     private(set) var pots: [PotModel] = []
     

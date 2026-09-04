@@ -30,7 +30,7 @@ final class PotOrderViewModel: BaseViewModelType {
         let orderCompleted = PassthroughSubject<Void, Never>()
         let orderError = PassthroughSubject<String, Never>()
         let savedAddress = PassthroughSubject<AddressEntity, Never>()
-        let shipmentRegistrationState = CurrentValueSubject<ShipmentRegistrationState, Never>(.unselected)
+        let shipmentRegistrationState = CurrentValueSubject<ShipmentRegistrationState, Never>(.unavailable)
         let nameError = PassthroughSubject<String?, Never>()
         let zipcodeError = PassthroughSubject<String?, Never>()
         let addressError = PassthroughSubject<String?, Never>()
@@ -60,7 +60,6 @@ final class PotOrderViewModel: BaseViewModelType {
     private var address = ""
     private var detailAddress = ""
     private var phone = ""
-    private var storedAddress: AddressEntity?
     private var shouldSaveAddress = false
     private var hasUserInput = false
     
@@ -95,26 +94,22 @@ final class PotOrderViewModel: BaseViewModelType {
             fetchOrderData()
             fetchSavedAddress()
         case .nameDidChange(let text):
-            hasUserInput = true
             name = text
             output.nameError.send(nil)
-            updateShipmentRegistrationState()
+            markAddressAsEdited()
         case let .addressSelected(zipcode, address):
-            hasUserInput = true
             self.zipcode = zipcode
             self.address = address
             output.zipcodeError.send(nil)
             output.addressError.send(nil)
-            updateShipmentRegistrationState()
+            markAddressAsEdited()
         case .detailAddressDidChange(let text):
-            hasUserInput = true
             detailAddress = text
-            updateShipmentRegistrationState()
+            markAddressAsEdited()
         case .phoneDidChange(let text):
-            hasUserInput = true
             phone = text
             output.phoneError.send(nil)
-            updateShipmentRegistrationState()
+            markAddressAsEdited()
         case .shipmentRegistrationDidTap:
             guard output.shipmentRegistrationState.value != .unavailable else { return }
             shouldSaveAddress.toggle()
@@ -142,7 +137,7 @@ final class PotOrderViewModel: BaseViewModelType {
         } else {
             output.zipcodeError.send(nil)
         }
-
+        
         if address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             output.addressError.send("주소를 입력해주세요")
             isValid = false
@@ -175,52 +170,43 @@ final class PotOrderViewModel: BaseViewModelType {
         output.orderHeaderData.send((items: displayItems, total: "\(totalAmount.formattedWithComma)원"))
         output.nickname.send(uploaderNickname)
     }
-
+    
     private func fetchSavedAddress() {
         Task {
             do {
                 let savedAddress = try await getAddressUseCase.execute()
-                guard !savedAddress.isEmpty else {
-                    output.shipmentRegistrationState.send(.unselected)
-                    return
+                await MainActor.run {
+                    guard !savedAddress.isEmpty else {
+                        if !hasUserInput {
+                            output.shipmentRegistrationState.send(.unavailable)
+                        }
+                        return
+                    }
+                    
+                    guard !hasUserInput else { return }
+                    
+                    name = savedAddress.name
+                    zipcode = savedAddress.postalCode
+                    address = savedAddress.address
+                    detailAddress = savedAddress.detailAddress
+                    phone = savedAddress.phoneNumber
+                    shouldSaveAddress = false
+                    
+                    output.savedAddress.send(savedAddress)
+                    output.shipmentRegistrationState.send(.unavailable)
                 }
-
-                storedAddress = savedAddress
-                guard !hasUserInput else {
-                    updateShipmentRegistrationState()
-                    return
-                }
-
-                name = savedAddress.name
-                zipcode = savedAddress.postalCode
-                address = savedAddress.address
-                detailAddress = savedAddress.detailAddress
-                phone = savedAddress.phoneNumber
-                shouldSaveAddress = false
-
-                output.savedAddress.send(savedAddress)
-                output.shipmentRegistrationState.send(.unavailable)
             } catch {
                 PotiLogger.error(error)
             }
         }
     }
-
-    private func updateShipmentRegistrationState() {
-        guard let storedAddress else {
-            output.shipmentRegistrationState.send(shouldSaveAddress ? .selected : .unselected)
-            return
-        }
-
-        if currentAddress == storedAddress {
-            shouldSaveAddress = false
-            output.shipmentRegistrationState.send(.unavailable)
-        } else {
-            shouldSaveAddress = true
-            output.shipmentRegistrationState.send(.selected)
-        }
+    
+    private func markAddressAsEdited() {
+        hasUserInput = true
+        shouldSaveAddress = false
+        output.shipmentRegistrationState.send(.unselected)
     }
-
+    
     private var currentAddress: AddressEntity {
         AddressEntity(
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -262,7 +248,7 @@ final class PotOrderViewModel: BaseViewModelType {
             }
         }
     }
-
+    
     private func applyServerValidationError(_ message: String) -> Bool {
         if message.contains("우편번호") {
             output.zipcodeError.send(message)

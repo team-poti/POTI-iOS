@@ -76,7 +76,7 @@ final class ArtistMembersFilterBottomSheet: BaseView {
 
         bottomButtonStackView.do {
             $0.axis = .horizontal
-            $0.distribution = .fillProportionally
+            $0.distribution = .fill
             $0.spacing = 10
         }
 
@@ -126,6 +126,10 @@ final class ArtistMembersFilterBottomSheet: BaseView {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(38)
             $0.height.equalTo(56)
+        }
+
+        resetButton.snp.makeConstraints {
+            $0.width.equalTo(completeButton.snp.width).multipliedBy(119.0 / 216.0)
         }
     }
 

@@ -31,7 +31,6 @@ class BottomSheetViewModel: BaseViewModelType {
     
     let output: Output
     
-    private var cancellables = Set<AnyCancellable>()
     
     private let isCompleteEnabledSubject = CurrentValueSubject<Bool, Never>(false)
     private let submitSubject = PassthroughSubject<BottomSheetSubmitPayload, Never>()
@@ -52,4 +51,3 @@ class BottomSheetViewModel: BaseViewModelType {
         }
     }
 }
-

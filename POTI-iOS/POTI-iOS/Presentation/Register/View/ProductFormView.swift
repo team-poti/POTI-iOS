@@ -109,6 +109,10 @@ final class ProductFormView: BaseView {
         artistField.text = name
     }
 
+    func setProductType(_ productType: String) {
+        productTypeField.text = productType
+    }
+
     func setDeadline(_ deadline: String) {
         deadlineField.text = deadline
     }

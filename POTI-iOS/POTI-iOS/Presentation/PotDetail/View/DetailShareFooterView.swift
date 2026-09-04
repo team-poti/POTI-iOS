@@ -1,5 +1,5 @@
 //
-//  DetailSubContentFooterView.swift
+//  DetailShareFooterView.swift
 //  POTI-iOS
 //
 //  Created by soomin on 1/19/26.
@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class DetailSubContentFooterView: UICollectionReusableView {
+final class DetailShareFooterView: UICollectionReusableView {
 
     // MARK: - Properties
 
@@ -22,7 +22,6 @@ final class DetailSubContentFooterView: UICollectionReusableView {
     private let shareStackView = UIStackView()
     private let shareIconView = UIImageView()
     private let shareLabel = UILabel()
-    private let noticeView = NoticeView(type: .participate)
     
     // MARK: - Initializer
     
@@ -63,7 +62,7 @@ final class DetailSubContentFooterView: UICollectionReusableView {
     
     private func setUI() {
         shareStackView.addArrangedSubviews(shareIconView, shareLabel)
-        addSubviews(grayLineView, shareStackView, noticeView)
+        addSubviews(grayLineView, shareStackView)
     }
     
     private func setLayout() {
@@ -80,12 +79,7 @@ final class DetailSubContentFooterView: UICollectionReusableView {
         shareStackView.snp.makeConstraints {
             $0.top.equalTo(grayLineView.snp.bottom).offset(16)
             $0.centerX.equalToSuperview()
-        }
-        
-        noticeView.snp.makeConstraints {
-            $0.top.equalTo(shareStackView.snp.bottom).offset(32)
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalToSuperview().inset(60)
+            $0.bottom.equalToSuperview().inset(40)
         }
     }
 

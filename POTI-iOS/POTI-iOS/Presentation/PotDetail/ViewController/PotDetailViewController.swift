@@ -92,7 +92,8 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     // MARK: - Method
 
     func navigationStyle() -> PotiNavigationStyle {
-        return .backDefault("")
+        let nickname = viewModel.potDetailModel?.uploader.nickname ?? ""
+        return .backDefault(nickname.isEmpty ? "" : "\(nickname)의 팟")
     }
 
     // MARK: - Action
@@ -127,8 +128,7 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     }
 
     private func showShareBottomSheet() {
-        guard viewModel.isShareContentReady,
-              let model = viewModel.potDetailModel,
+        guard let model = viewModel.potDetailModel,
               let host = try? AppConfig.deepLinkHost(),
               let shareURL = makeShareURL(host: host) else { return }
 
@@ -222,9 +222,12 @@ extension PotDetailViewController: UICollectionViewDataSource, UICollectionViewD
         }
 
         if kind == UICollectionView.elementKindSectionFooter {
-            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailSubContentFooterView.identifier, for: indexPath) as! DetailSubContentFooterView
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DetailShareFooterView.identifier, for: indexPath) as! DetailShareFooterView
             footer.onShare = { [weak self] in
-                self?.showShareBottomSheet()
+                Task { [weak self] in
+                    guard let self, await self.viewModel.prepareShareContent() else { return }
+                    self.showShareBottomSheet()
+                }
             }
             return footer
         }

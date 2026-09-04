@@ -56,23 +56,21 @@ final class AccordionDropdownCell: UITableViewCell {
         titleLabel.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(16)
             $0.trailing.lessThanOrEqualTo(priceLabel.snp.leading).offset(-8)
-            $0.centerY.equalToSuperview()
+            $0.centerY.equalToSuperview().offset(-1)
         }
         
         priceLabel.snp.makeConstraints {
             $0.trailing.equalToSuperview().offset(-16)
-            $0.centerY.equalToSuperview()
+            $0.centerY.equalToSuperview().offset(-1)
         }
     }
     
     // MARK: - Public Method
     
     func configure(with item: DropdownItem) {
-        titleLabel.setLabel(item.name, font: .body14m)
-        priceLabel.setLabel("\(item.price.formattedWithComma)원", font: .body14sb)
-        
-        titleLabel.textColor = item.isEnabled ? .potiBlack : .gray700
-        priceLabel.textColor = item.isEnabled ? .potiBlack : .gray700
+        let textColor: UIColor = item.isEnabled ? .potiBlack : .gray700
+        titleLabel.setLabel(item.name, font: .body14m, color: textColor)
+        priceLabel.setLabel("\(item.price.formattedWithComma)원", font: .body14sb, color: textColor)
         isUserInteractionEnabled = item.isEnabled
     }
 }

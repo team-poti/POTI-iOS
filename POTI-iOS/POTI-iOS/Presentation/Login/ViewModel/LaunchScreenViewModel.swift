@@ -25,7 +25,6 @@ final class LaunchScreenViewModel: BaseViewModelType {
     private(set) var output: Output
     
     private let navigationSubject = PassthroughSubject<NavigationDestination, Never>()
-    private var cancellables = Set<AnyCancellable>()
         
     private let refreshTokenUseCase: RefreshTokenUseCase
     private let fcmTokenSyncService: FCMTokenSyncService

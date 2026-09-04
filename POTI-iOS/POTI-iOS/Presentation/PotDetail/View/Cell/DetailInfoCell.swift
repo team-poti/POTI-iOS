@@ -136,10 +136,7 @@ final class DetailInfoCell: UICollectionViewCell {
     // MARK: - Private Method
     
     private func setPriceLabel(price: Int) {
-        let formatter = NumberFormatter().then { $0.numberStyle = .decimal }
-        let formattedPrice = formatter.string(from: NSNumber(value: price)) ?? "\(price)"
-
-        let priceString = "\(formattedPrice)원~"
+        let priceString = "\(price.formattedWithComma)원~"
         let perPersonString = " / 인"
         let fullString = priceString + perPersonString
 
@@ -172,10 +169,8 @@ final class DetailInfoCell: UICollectionViewCell {
         contentLabel.setLabel(model.content, font: .body16m, alignment: .left, color: .potiBlack)
         setPriceLabel(price: model.price)
 
-        let formatter = NumberFormatter().then { $0.numberStyle = .decimal }
         let shippingStrings: [String] = model.shippingOptions.map { option in
-            let formattedPrice = formatter.string(from: NSNumber(value: option.price)) ?? "\(option.price)"
-            return "\(option.name) \(formattedPrice)원"
+            return "\(option.name) \(option.price.formattedWithComma)원"
         }
 
         let formattedDeadline = "\(model.deadline) 까지"

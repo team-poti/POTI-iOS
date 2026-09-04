@@ -25,14 +25,11 @@ protocol ViewControllerFactory {
     func makeSelectFavoriteIdolGroupViewController(viewModel: OnboardingViewModel) -> SelectFavoriteIdolGroupViewController
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController
     func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController
-    func makeMyPageHistoryContainerViewController(
-        initialType: MyPageHistoryType,
-        initialTab: MyPageHistoryViewController.HistoryTab,
-        entryPoint: MyPageHistoryEntryPoint
-    ) -> MyPageHistoryContainerViewController
+    func makeMyPageHistoryContainerViewController(initialType: MyPageHistoryType, initialTab: MyPageHistoryViewController.HistoryTab, entryPoint: MyPageHistoryEntryPoint) -> MyPageHistoryContainerViewController
     func makePotListViewController(title: String, artistId: Int, artistName: String) -> PotListViewController
     func makeArtistSearchViewController() -> ArtistSearchViewController
     func makeProductRegisterViewController() -> RegisterViewController
+    func makeProductRegisterViewController(prefilledArtist: ArtistSearchItem?, productType: String?) -> RegisterViewController
     func makeArtistMembersFilterBottomSheet(artistId: Int, selectedIds: [Int]) -> ArtistMembersFilterBottomSheet
     func makeSortBottomSheet(type: SortType, initialIndex: Int) -> SortBottomSheet
     func makeMyPageJoinDetailViewController(participationId: Int) -> MyPageJoinDetailViewController
@@ -42,9 +39,7 @@ protocol ViewControllerFactory {
     @MainActor func makeAccountViewController(viewModel: SettingsViewModel) -> AccountViewController
     @MainActor func makeProfileManagementViewController(viewModel: SettingsViewModel) -> ProfileManagementViewController
     @MainActor func makeAddressManagementViewController(viewModel: SettingsViewModel) -> AddressManagementViewController
-    @MainActor func makePostcodeSearchViewController(
-        onSelect: @escaping (String, String) -> Void
-    ) -> PostcodeSearchViewController
+    @MainActor func makePostcodeSearchViewController(onSelect: @escaping (String, String) -> Void) -> PostcodeSearchViewController
     @MainActor func makeWithdrawalViewController(viewModel: SettingsViewModel) -> WithdrawalViewController
     func makeReviewUseCase() -> ReviewUseCase
 }
@@ -61,15 +56,11 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     @MainActor func makeLaunchScreenViewController() -> LaunchScreenViewController {
-        LaunchScreenViewController(
-            viewModel: diContainer.makeLaunchScreenViewModel(), factory: self
-        )
+        LaunchScreenViewController(viewModel: diContainer.makeLaunchScreenViewModel(), factory: self)
     }
     
     @MainActor func makeLoginViewController() -> LoginViewController {
-        LoginViewController(
-            viewModel: diContainer.makeLoginViewModel(), factory: self
-        )
+        LoginViewController(viewModel: diContainer.makeLoginViewModel(), factory: self)
     }
     
     func makePotiTabBar() -> PotiTabBar {
@@ -81,9 +72,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     @MainActor func makeHomeViewController() -> HomeViewController {
-        HomeViewController(
-            viewModel: diContainer.makeHomeViewModel(),factory: self
-        )
+        HomeViewController(viewModel: diContainer.makeHomeViewModel(),factory: self)
     }
 
     func makeNotificationViewController() -> NotificationViewController {
@@ -114,16 +103,11 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeMyPageViewController() -> MyPageViewController {
-        MyPageViewController(
-            viewModel: diContainer.makeMyPageViewModel(), factory: self
-        )
+        MyPageViewController(viewModel: diContainer.makeMyPageViewModel(), factory: self)
     }
 
     func makeMyPageFavoriteIdolGroupViewController(nickname: String) -> MyPageFavoriteIdolGroupViewController {
-        MyPageFavoriteIdolGroupViewController(
-            nickname: nickname,
-            viewModel: diContainer.makeOnboardingViewModel()
-        )
+        MyPageFavoriteIdolGroupViewController(nickname: nickname, viewModel: diContainer.makeOnboardingViewModel())
     }
     
     func makePotOptionsViewController(postId: Int) -> PotOptionsViewController {
@@ -131,10 +115,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeRecruitDetailViewController(postId: Int) -> RecruitDetailViewController {
-        RecruitDetailViewController(
-            viewModel: diContainer.makeRecruitDetailViewModel(postId: postId),
-            factory: self
-        )
+        RecruitDetailViewController(viewModel: diContainer.makeRecruitDetailViewModel(postId: postId), factory: self)
     }
     
     func makeParticipantManageViewController(postId: Int) -> ParticipantListTableViewController {
@@ -150,9 +131,7 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeOnboardingViewController() -> OnboardingViewController {
-        OnboardingViewController(
-            viewModel: diContainer.makeOnboardingViewModel(), factory: self
-        )
+        OnboardingViewController(viewModel: diContainer.makeOnboardingViewModel(), factory: self)
     }
     
     func makeValidNicknameViewController(viewModel: OnboardingViewModel) -> ValidNicknameViewController {
@@ -173,18 +152,9 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         )
     }
     
-    func makeMyPageHistoryContainerViewController(
-        initialType: MyPageHistoryType,
-        initialTab: MyPageHistoryViewController.HistoryTab = .ongoing,
-        entryPoint: MyPageHistoryEntryPoint
-    ) -> MyPageHistoryContainerViewController {
-        MyPageHistoryContainerViewController(
-            initialType: initialType,
-            initialTab: initialTab,
-            entryPoint: entryPoint,
-            viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType),
-            factory: self
-        )
+    func makeMyPageHistoryContainerViewController(initialType: MyPageHistoryType, initialTab: MyPageHistoryViewController.HistoryTab = .ongoing, entryPoint: MyPageHistoryEntryPoint) -> MyPageHistoryContainerViewController {
+        MyPageHistoryContainerViewController(initialType: initialType, initialTab: initialTab, entryPoint: entryPoint,
+                                             viewModel: diContainer.makeMyPageHistoryViewModel(initialType: initialType), factory: self)
     }
     
     func makeArtistSearchViewController() -> ArtistSearchViewController {
@@ -192,7 +162,11 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
     
     func makeProductRegisterViewController() -> RegisterViewController {
-        RegisterViewController(viewModel: diContainer.makeProductRegisterViewModel(), factory: self)
+        makeProductRegisterViewController(prefilledArtist: nil, productType: nil)
+    }
+
+    func makeProductRegisterViewController(prefilledArtist: ArtistSearchItem?, productType: String?) -> RegisterViewController {
+        RegisterViewController(viewModel: diContainer.makeProductRegisterViewModel(), factory: self, prefilledArtist: prefilledArtist, prefilledProductType: productType)
     }
     
     func makeYourPageViewController(userId: Int) -> YourPageViewController {
@@ -200,37 +174,26 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
     }
 
     @MainActor func makeSettingsViewController() -> SettingsViewController {
-        SettingsViewController(
-            viewModel: diContainer.makeSettingsViewModel(),
-            factory: self
-        )
+        SettingsViewController(viewModel: diContainer.makeSettingsViewModel(), factory: self)
     }
 
     @MainActor func makeAccountViewController(viewModel: SettingsViewModel) -> AccountViewController {
         AccountViewController(viewModel: viewModel, factory: self)
     }
 
-    @MainActor func makeProfileManagementViewController(
-        viewModel: SettingsViewModel
-    ) -> ProfileManagementViewController {
+    @MainActor func makeProfileManagementViewController(viewModel: SettingsViewModel) -> ProfileManagementViewController {
         ProfileManagementViewController(viewModel: viewModel)
     }
 
-    @MainActor func makeAddressManagementViewController(
-        viewModel: SettingsViewModel
-    ) -> AddressManagementViewController {
+    @MainActor func makeAddressManagementViewController(viewModel: SettingsViewModel) -> AddressManagementViewController {
         AddressManagementViewController(viewModel: viewModel, factory: self)
     }
 
-    @MainActor func makePostcodeSearchViewController(
-        onSelect: @escaping (String, String) -> Void
-    ) -> PostcodeSearchViewController {
+    @MainActor func makePostcodeSearchViewController(onSelect: @escaping (String, String) -> Void) -> PostcodeSearchViewController {
         PostcodeSearchViewController(onSelect: onSelect)
     }
 
-    @MainActor func makeWithdrawalViewController(
-        viewModel: SettingsViewModel
-    ) -> WithdrawalViewController {
+    @MainActor func makeWithdrawalViewController(viewModel: SettingsViewModel) -> WithdrawalViewController {
         WithdrawalViewController(viewModel: viewModel, factory: self)
     }
     

@@ -9,10 +9,18 @@ import Foundation
 
 extension Date {
     func toYMDString() -> String {
+        DateFormatter.ymd.string(from: self)
+    }
+}
+
+private extension DateFormatter {
+    static let ymd = make(dateFormat: "yyyy-MM-dd")
+
+    static func make(dateFormat: String, locale: String = "ko_KR", timeZone: String = "Asia/Seoul") -> DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-        return formatter.string(from: self)
+        formatter.dateFormat = dateFormat
+        formatter.locale = Locale(identifier: locale)
+        formatter.timeZone = TimeZone(identifier: timeZone)
+        return formatter
     }
 }

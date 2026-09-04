@@ -8,72 +8,33 @@
 import Foundation
 
 extension String {
-
     var isBlank: Bool {
         trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
     func toDate() -> Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-        return formatter.date(from: self)!
+        StringDateFormatter.ymd.date(from: self)!
     }
     
     func toKoreanYMD() -> String? {
-        let inputFormatter = DateFormatter()
-        inputFormatter.dateFormat = "yyyy-MM-dd"
-        inputFormatter.locale = Locale(identifier: "ko_KR")
-        inputFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-        
-        guard let date = inputFormatter.date(from: self) else {
+        guard let date = StringDateFormatter.ymd.date(from: self) else {
             return nil
         }
-        
-        let outputFormatter = DateFormatter()
-        outputFormatter.dateFormat = "yyyy년 M월 d일"
-        outputFormatter.locale = Locale(identifier: "ko_KR")
-        outputFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-        
-        return outputFormatter.string(from: date)
+
+        return StringDateFormatter.koreanYMD.string(from: date)
     }
     
     func formattedDateString() -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = .current
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
-        
-        guard let date = formatter.date(from: self) else {
+        guard let date = StringDateFormatter.dateTimeWithoutSeconds.date(from: self) else {
             return ""
         }
-        
-        formatter.dateFormat = "yyyy-MM-dd H:mm"
-        return formatter.string(from: date)
+
+        return StringDateFormatter.readableDateTime.string(from: date)
     }
 
     func toRelativeTime(now: Date = Date()) -> String {
-        let fractionalSecondsFormatter = ISO8601DateFormatter()
-        fractionalSecondsFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
-        let defaultFormatter = ISO8601DateFormatter()
-        defaultFormatter.formatOptions = [.withInternetDateTime]
-
-        let localDateFormatter = DateFormatter()
-        localDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
-        localDateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        localDateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-
-        let localDateWithoutFractionalSecondsFormatter = DateFormatter()
-        localDateWithoutFractionalSecondsFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        localDateWithoutFractionalSecondsFormatter.locale = Locale(identifier: "en_US_POSIX")
-        localDateWithoutFractionalSecondsFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-
-        guard let date = fractionalSecondsFormatter.date(from: self)
-                ?? defaultFormatter.date(from: self)
-                ?? localDateFormatter.date(from: self)
-                ?? localDateWithoutFractionalSecondsFormatter.date(from: self) else { return "" }
+        guard let date = StringDateFormatter.iso8601Fractional.date(from: self) ?? StringDateFormatter.iso8601.date(from: self)
+                    ?? StringDateFormatter.localDateTimeFractional.date(from: self) ?? StringDateFormatter.localDateTime.date(from: self) else { return "" }
         let elapsedSeconds = max(0, Int(now.timeIntervalSince(date)))
 
         switch elapsedSeconds {
@@ -86,11 +47,37 @@ extension String {
         case ..<604800:
             return "\(elapsedSeconds / 86400)일 전"
         default:
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MM.dd"
-            dateFormatter.locale = Locale(identifier: "ko_KR")
-            dateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-            return dateFormatter.string(from: date)
+            return StringDateFormatter.monthDay.string(from: date)
         }
+    }
+}
+
+private enum StringDateFormatter {
+    static let ymd = make("yyyy-MM-dd")
+    static let koreanYMD = make("yyyy년 M월 d일")
+    static let dateTimeWithoutSeconds = make("yyyy-MM-dd'T'HH:mm", timeZone: .current)
+    static let readableDateTime = make("yyyy-MM-dd H:mm", timeZone: .current)
+    static let localDateTimeFractional = make("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", locale: "en_US_POSIX")
+    static let localDateTime = make("yyyy-MM-dd'T'HH:mm:ss", locale: "en_US_POSIX")
+    static let monthDay = make("MM.dd")
+
+    static let iso8601Fractional: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    static let iso8601: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    private static func make(_ format: String, locale: String = "ko_KR", timeZone: TimeZone? = TimeZone(identifier: "Asia/Seoul")) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.locale = Locale(identifier: locale)
+        formatter.timeZone = timeZone
+        return formatter
     }
 }

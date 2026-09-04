@@ -79,7 +79,6 @@ final class MyPageHistoryViewModel: BaseViewModelType {
     private let ongoingCountSubject = CurrentValueSubject<Int, Never>(0)
     private let completedCountSubject = CurrentValueSubject<Int, Never>(0)
     
-    private var cancellables = Set<AnyCancellable>()
     private var fetchTask: Task<Void, Never>?
     private var latestRequestID = UUID()
     

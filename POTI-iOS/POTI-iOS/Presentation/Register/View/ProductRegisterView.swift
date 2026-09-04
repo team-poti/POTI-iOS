@@ -28,8 +28,6 @@ final class ProductRegisterView: BaseView {
     private let productInfoView = ProductInfoSectionView()
     private let memberSettingView = MemberSettingSectionView()
     private let shippingSettingView = ShippingSettingSectionView()
-    private let noticeContainerView = UIView()
-    private let noticeView = NoticeView(type: .register)
     private let submitButton = PotiBottomButton()
 
     // MARK: - Custom Methods
@@ -60,14 +58,13 @@ final class ProductRegisterView: BaseView {
     override func setUI() {
         addSubviews(scrollView, submitButton)
         scrollView.addSubview(contentStackView)
-        noticeContainerView.addSubview(noticeView)
-        contentStackView.addArrangedSubviews(productInfoView, memberSettingView, shippingSettingView, noticeContainerView)
+        contentStackView.addArrangedSubviews(productInfoView, memberSettingView, shippingSettingView)
     }
 
     override func setLayout() {
         scrollView.snp.makeConstraints {
             $0.top.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(submitButton.snp.top).offset(-40)
+            $0.bottom.equalTo(submitButton.snp.top).offset(-4)
         }
 
         contentStackView.snp.makeConstraints {
@@ -75,16 +72,10 @@ final class ProductRegisterView: BaseView {
             $0.width.equalTo(scrollView.frameLayoutGuide)
         }
 
-        noticeView.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(24)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(40)
-        }
-
         submitButton.snp.makeConstraints {
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(60)
+            $0.height.equalTo(54)
         }
     }
 
@@ -149,6 +140,10 @@ final class ProductRegisterView: BaseView {
 
     func setArtist(name: String) {
         productFormView.setArtist(name: name)
+    }
+
+    func setProductType(_ productType: String) {
+        productFormView.setProductType(productType)
     }
 
     func setDeadline(_ deadline: String) {

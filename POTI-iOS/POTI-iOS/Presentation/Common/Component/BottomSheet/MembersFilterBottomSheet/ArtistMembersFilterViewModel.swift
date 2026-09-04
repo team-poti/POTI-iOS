@@ -153,11 +153,24 @@ private extension ArtistMembersFilterViewModel {
 
     func resetSelection() {
         var members = membersSubject.value
-        for index in members.indices {
-            members[index].isSelected = mode == .registration
+
+        switch mode {
+        case .filter:
+            for index in members.indices {
+                members[index].isSelected = false
+            }
+            membersSubject.send(members)
+            updateCompleteButtonState()
+
+        case .registration:
+            guard !members.isEmpty else { return }
+            let shouldSelectAll = !members.allSatisfy(\.isSelected)
+            for index in members.indices {
+                members[index].isSelected = shouldSelectAll
+            }
+            membersSubject.send(members)
+            isCompleteEnabledSubject.send(!shouldSelectAll)
         }
-        membersSubject.send(members)
-        updateCompleteButtonState()
     }
 
     func updateCompleteButtonState() {

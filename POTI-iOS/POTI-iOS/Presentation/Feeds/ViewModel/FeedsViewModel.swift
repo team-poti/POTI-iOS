@@ -32,7 +32,6 @@ final class FeedsViewModel: BaseViewModelType {
     let nickname: String
     private(set) var artistId: Int?
     
-    private var cancellables = Set<AnyCancellable>()
     let output: Output
     
     private(set) var groupItems: [GoodsListItemModel] = []

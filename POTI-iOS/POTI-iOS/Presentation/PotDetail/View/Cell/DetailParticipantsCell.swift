@@ -34,6 +34,12 @@ final class DetailParticipantsCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        profileImageView.kf.cancelDownloadTask()
+        profileImageView.image = nil
+    }
+
     // MARK: - Custom Methods
 
     private func setStyle() {

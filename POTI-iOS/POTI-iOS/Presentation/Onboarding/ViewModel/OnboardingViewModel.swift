@@ -48,7 +48,6 @@ final class OnboardingViewModel: BaseViewModelType {
     private let onboardingSuccessSubject = PassthroughSubject<Void, Never>()
     private let onboardingFailureSubject = PassthroughSubject<Error, Never>()
             
-    private var cancellables = Set<AnyCancellable>()
     private let onboardingArtistsUsecase: OnboardingArtistsUsecase
     private let validNicknameUseCase: ValidNicknameUseCase
     private let submitOnboardingUseCase: SubmitOnboardingUseCase

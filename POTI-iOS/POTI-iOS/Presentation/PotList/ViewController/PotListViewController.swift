@@ -135,8 +135,11 @@ final class PotListViewController: BaseViewController<PotListViewModel>, Navigat
     
     @objc private func floatingButtonTapped() {
         guard requireLogin(for: .register, factory: factory) else { return }
-        let vc = factory.makeProductRegisterViewController()
-        self.navigationController?.pushViewController(vc, animated: true)
+        let productRegisterViewController = factory.makeProductRegisterViewController(
+            prefilledArtist: ArtistSearchItem(id: viewModel.artistId, name: viewModel.artistName),
+            productType: viewModel.title
+        )
+        self.navigationController?.pushViewController(productRegisterViewController, animated: true)
     }
 }
 

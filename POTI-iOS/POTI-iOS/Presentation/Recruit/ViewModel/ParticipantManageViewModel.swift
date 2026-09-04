@@ -36,7 +36,6 @@ final class ParticipantManageViewModel: BaseViewModelType {
     private let postsParticipantsUseCase: PostsParticipantsUseCase
     private let paymentsUseCase: PaymentsConfirmUseCase
     private let ordersDeliveriesUseCase: OrdersDeliveriesUseCase
-    private var cancellables = Set<AnyCancellable>()
     let output: Output
     private(set) var expandedSections: Set<Int> = [] // 섹션 펼침 여부
     private(set) var participants: [ParticipantManageModel] = []

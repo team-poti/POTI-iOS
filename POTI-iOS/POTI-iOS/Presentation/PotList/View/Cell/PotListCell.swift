@@ -30,7 +30,7 @@ final class PotListCell: UICollectionViewCell {
     
     private let separator = UIView()
     
-    private let memberContainerView = UIView()
+    private let memberLabel = UILabel()
     private let priceLabel = UILabel()
     private let productImageView = UIImageView()
     
@@ -49,6 +49,11 @@ final class PotListCell: UICollectionViewCell {
     }
     
     override func prepareForReuse() {
+        super.prepareForReuse()
+        userProfileImageView.kf.cancelDownloadTask()
+        productImageView.kf.cancelDownloadTask()
+        userProfileImageView.image = nil
+        productImageView.image = nil
         self.containerView.alpha = 1.0
         self.countLabel.alpha = 1.0
         self.countLabel.attributedText = nil
@@ -58,7 +63,7 @@ final class PotListCell: UICollectionViewCell {
         self.containerView.layer.borderColor = UIColor.gray300.cgColor
     }
     
-    // MARK: - Custom Methods
+    // MARK: - Private Methods
     
     private func setStyle() {
         containerView.do {
@@ -89,7 +94,7 @@ final class PotListCell: UICollectionViewCell {
         starScoreLabel.do {
             $0.setLabel("", font: .body14m, color: .gray800)
         }
-
+        
         starRatingStackView.do {
             $0.axis = .horizontal
             $0.alignment = .top
@@ -112,15 +117,18 @@ final class PotListCell: UICollectionViewCell {
         priceLabel.do {
             $0.setLabel("", font: .display18b, color: .potiBlack)
         }
+        
+        memberLabel.do {
+            $0.setLabel("", font: .body14m, color: .gray800)
+            $0.numberOfLines = 2
+            $0.lineBreakMode = .byTruncatingTail
+        }
     }
     
     private func setUI() {
         contentView.addSubview(containerView)
-        containerView.addSubviews(
-            userProfileImageView, userNicknameLabel, starRatingStackView, countLabel,
-            separator,
-            memberContainerView, priceLabel, productImageView
-        )
+        containerView.addSubviews(userProfileImageView, userNicknameLabel, starRatingStackView, countLabel,
+                                  separator,memberLabel, priceLabel, productImageView)
         starRatingStackView.addArrangedSubviews(starIcon, starScoreLabel)
     }
     
@@ -159,15 +167,15 @@ final class PotListCell: UICollectionViewCell {
             $0.height.equalTo(1)
         }
         
-        memberContainerView.snp.makeConstraints {
+        memberLabel.snp.makeConstraints {
             $0.top.equalTo(separator.snp.bottom).offset(16)
             $0.leading.equalTo(separator)
-            $0.trailing.equalTo(productImageView.snp.leading).offset(-30)
-            $0.height.equalTo(46)
+            $0.trailing.equalTo(productImageView.snp.leading).offset(-12)
+            $0.height.lessThanOrEqualTo(46)
         }
         
         priceLabel.snp.makeConstraints {
-            $0.leading.equalTo(memberContainerView)
+            $0.leading.equalTo(memberLabel)
             $0.bottom.equalToSuperview().inset(15)
         }
         
@@ -177,22 +185,6 @@ final class PotListCell: UICollectionViewCell {
             $0.size.equalTo(75)
         }
     }
-}
-
-// MARK: - Extension
-
-extension PotListCell {
-    func configure(model: PotModel) {
-        userProfileImageView.kf.setImage(with: URL(string: model.recruiter.profileImage))
-        userNicknameLabel.setLabel(model.recruiter.nickname, font: .body14m, color: .potiBlack)
-        starScoreLabel.setLabel("\(model.recruiter.rating)", font: .body14m, color: .gray800)
-        
-        productImageView.kf.setImage(with: URL(string: model.thumbnailUrl))
-        setPriceLabel(price: model.price)
-        
-        let status = PotListStatus(rawValue: model.status) ?? .recruiting
-        updateUI(status: status, model: model)
-    }
     
     private func updateUI(status: PotListStatus, model: PotModel) {
         let isClosed = (status == .closed)
@@ -201,21 +193,13 @@ extension PotListCell {
         [userProfileImageView, userNicknameLabel, starScoreLabel, starIcon, priceLabel, productImageView].forEach {
             $0.alpha = alpha
         }
-        memberContainerView.isHidden = isClosed
+        memberLabel.isHidden = isClosed
         
         if isClosed {
-            setClosedStyle()
+            countLabel.setLabel("마감", font: .body16sb, color: .gray800.withAlphaComponent(0.5))
         } else {
-            setRecruitingStyle(
-                current: model.currentCount,
-                total: model.totalCount,
-                members: model.availableMembers
-            )
+            setRecruitingStyle(current: model.currentCount, total: model.totalCount, members: model.availableMembers)
         }
-    }
-    
-    private func setClosedStyle() {
-        countLabel.setLabel("마감", font: .body16sb, color: .gray800.withAlphaComponent(0.5))
     }
     
     private func setRecruitingStyle(current: Int, total: Int, members: [String]) {
@@ -237,8 +221,7 @@ extension PotListCell {
         ], range: totalRange)
         
         countLabel.setLabel(fullCountText, lineHeight: .display18b)
-        
-        configureMemberTags(members)
+        memberLabel.setLabel(members.joined(separator: " | "), font: .body14m, color: .gray800)
     }
     
     private func setPriceLabel(price: Int) {
@@ -257,76 +240,17 @@ extension PotListCell {
         priceLabel.setLabel(fullPriceText, lineHeight: .display18b)
     }
     
-    private func configureMemberTags(_ members: [String]) {
-        memberContainerView.subviews.forEach {
-            $0.removeFromSuperview()
-        }
-        
-        let maxWidth: CGFloat = 200
-        let maxLines = 2
-        let lineHeight = PotiFontManager.body14m.fontProperty.lineHeight
-        let itemSpacing: CGFloat = 4
-        
-        var currentX: CGFloat = 0
-        var currentY: CGFloat = 0
-        var currentLine = 1
-        
-        for member in members {
-            let text = "\(member) |"
-            
-            let label = UILabel()
-            label.setLabel(text, font: .body14m, color: .gray800)
-            
-            let size = label.intrinsicContentSize
-            
-            if currentX + size.width > maxWidth {
-                
-                currentLine += 1
-                
-                if currentLine > maxLines {
-                    addEllipsis(x: currentX, y: currentY)
-                    return
-                }
-                
-                currentX = 0
-                currentY += lineHeight + itemSpacing
-            }
-            
-            if currentLine == maxLines {
-                let ellipsisWidth = ("..." as NSString).size(
-                    withAttributes: [.font: PotiFontManager.body14m.font]
-                ).width
-                
-                if currentX + size.width + ellipsisWidth > maxWidth {
-                    addEllipsis(x: currentX, y: currentY)
-                    return
-                }
-            }
-            
-            memberContainerView.addSubview(label)
-            
-            label.frame = CGRect(
-                x: currentX,
-                y: currentY,
-                width: size.width,
-                height: lineHeight
-            )
-            
-            currentX += size.width + itemSpacing
-        }
-    }
+    // MARK: - Public Method
     
-    private func addEllipsis(x: CGFloat, y: CGFloat) {
-        let label = UILabel()
-        label.setLabel("...", font: .body14m, color: .gray800)
+    func configure(model: PotModel) {
+        userProfileImageView.kf.setImage(with: URL(string: model.recruiter.profileImage))
+        userNicknameLabel.setLabel(model.recruiter.nickname, font: .body14m, color: .potiBlack)
+        starScoreLabel.setLabel("\(model.recruiter.rating)", font: .body14m, color: .gray800)
         
-        memberContainerView.addSubview(label)
+        productImageView.kf.setImage(with: URL(string: model.thumbnailUrl))
+        setPriceLabel(price: model.price)
         
-        label.frame = CGRect(
-            x: x,
-            y: y,
-            width: label.intrinsicContentSize.width,
-            height: PotiFontManager.body14m.fontProperty.lineHeight
-        )
+        let status = PotListStatus(rawValue: model.status) ?? .recruiting
+        updateUI(status: status, model: model)
     }
 }

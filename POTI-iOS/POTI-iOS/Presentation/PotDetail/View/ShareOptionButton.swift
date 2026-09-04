@@ -22,10 +22,10 @@ final class ShareOptionButton: UIControl {
     init(title: String, image: UIImage) {
         super.init(frame: .zero)
 
-        configure(title: title, image: image)
         setStyle()
         setUI()
         setLayout()
+        configure(title: title, image: image)
     }
 
     required init?(coder: NSCoder) {
@@ -40,7 +40,7 @@ final class ShareOptionButton: UIControl {
         }
 
         titleLabel.do {
-            $0.setLabel("", font: .body14m, alignment: .center, color: .potiBlack)
+            $0.textAlignment = .center
         }
     }
 

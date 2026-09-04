@@ -170,6 +170,7 @@ final class MockPostRepository: PostInterface {
         return PotDetailEntity(
             postId: postId,
             isMyPost: false,
+            isParticipated: false,
             status: "RECRUITING",
             artist: "아이브",
             title: "아이브 미니 2집 신상 포카 분철합니다!!",
