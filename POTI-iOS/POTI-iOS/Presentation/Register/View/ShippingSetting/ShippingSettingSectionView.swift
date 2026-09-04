@@ -33,9 +33,7 @@ final class ShippingSettingSectionView: BaseView {
         backgroundColor = .clear
 
         titleLabel.do {
-            $0.text = "배송 설정"
-            $0.font = PotiFontManager.title18sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("배송 설정", font: .title18sb, color: .potiBlack)
         }
 
         rowsStackView.do {

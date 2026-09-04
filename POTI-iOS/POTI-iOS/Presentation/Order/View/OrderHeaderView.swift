@@ -35,14 +35,11 @@ final class OrderHeaderView: BaseView {
         }
         
         totalPriceTextLabel.do {
-            $0.text = "총 입금 예정 금액"
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
+            $0.setLabel("총 입금 예정 금액", font: .body16m, color: .potiBlack)
         }
         
         totalPriceNumberLabel.do {
-            $0.font = PotiFontManager.display20b.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .display20b, color: .potiBlack)
         }
     }
     
@@ -91,6 +88,6 @@ final class OrderHeaderView: BaseView {
             contentStackView.addArrangedSubview(row)
         }
 
-        totalPriceNumberLabel.text = totalAmount
+        totalPriceNumberLabel.setLabel(totalAmount, font: .display20b, color: .potiBlack)
     }
 }

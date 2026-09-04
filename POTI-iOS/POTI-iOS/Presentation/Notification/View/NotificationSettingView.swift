@@ -30,15 +30,11 @@ final class NotificationSettingView: BaseView {
         backgroundColor = .potiWhite
 
         tradeTitleLabel.do {
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
-            $0.text = "거래 알림"
+            $0.setLabel("거래 알림", font: .body16sb, color: .potiBlack)
         }
 
         tradeDescriptionLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
-            $0.text = "분철 모집/참여 거래 알림"
+            $0.setLabel("분철 모집/참여 거래 알림", font: .body14m, color: .gray800)
         }
 
         tradeStackView.do {
@@ -48,15 +44,11 @@ final class NotificationSettingView: BaseView {
         }
 
         eventTitleLabel.do {
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
-            $0.text = "이벤트 및 혜택 알림"
+            $0.setLabel("이벤트 및 혜택 알림", font: .body16sb, color: .potiBlack)
         }
 
         eventDescriptionLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
-            $0.text = "광고성 정보 수신 및 마케팅 알림"
+            $0.setLabel("광고성 정보 수신 및 마케팅 알림", font: .body14m, color: .gray800)
         }
 
         eventStackView.do {

@@ -34,8 +34,7 @@ final class RowView: UIView {
 
     private func setStyle() {
         titleLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
+            $0.setLabel("", font: .body14m, color: .gray800)
         }
 
         valueStackView.do {
@@ -66,14 +65,14 @@ final class RowView: UIView {
     // MARK: - Public Configure Methods
 
     func configure(title: String, value: String) {
-        titleLabel.text = title
+        titleLabel.setLabel(title, font: .body14m, color: .gray800)
         valueStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         let label = createValueLabel(with: value)
         valueStackView.addArrangedSubview(label)
     }
 
     func configureWithDivider(title: String, values: [String]) {
-        titleLabel.text = title
+        titleLabel.setLabel(title, font: .body14m, color: .gray800)
         valueStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
         values.chunked(into: 2).forEach { rowValues in
@@ -102,9 +101,7 @@ final class RowView: UIView {
 
     private func createValueLabel(with text: String) -> UILabel {
         return UILabel().then {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .potiBlack
-            $0.text = text
+            $0.setLabel(text, font: .body14m, color: .potiBlack)
             $0.numberOfLines = 1
             $0.adjustsFontSizeToFitWidth = true
             $0.minimumScaleFactor = 0.8

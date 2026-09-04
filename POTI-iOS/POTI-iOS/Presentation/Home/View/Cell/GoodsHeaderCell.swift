@@ -45,8 +45,7 @@ final class GoodsHeaderCell: UICollectionReusableView {
     
     private func setStyle() {
         titleLabel.do {
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .body16sb, color: .potiBlack)
         }
         
         moreButton.do {
@@ -86,7 +85,7 @@ final class GoodsHeaderCell: UICollectionReusableView {
 
 extension GoodsHeaderCell {
     func configure(text: String, section: Int) {
-        titleLabel.text = text
+        titleLabel.setLabel(text, font: .body16sb, color: .potiBlack)
         self.sectionIndex = section
     }
 }

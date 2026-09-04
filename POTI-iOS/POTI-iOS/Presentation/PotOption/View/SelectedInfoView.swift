@@ -62,15 +62,11 @@ final class SelectedInfoView: BaseView {
         }
         
         titleLabel.do {
-            $0.text = text
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
+            $0.setLabel(text, font: .body14m, color: .gray800)
         }
         
         priceLabel.do {
-            $0.text = price
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel(price, font: .body16sb, color: .potiBlack)
         }
         
         cancelButton.do {
@@ -93,7 +89,7 @@ final class SelectedInfoView: BaseView {
         
         titleLabel.snp.makeConstraints {
             $0.leading.equalTo(iconImageView.snp.trailing).offset(2)
-            $0.centerY.equalTo(iconImageView)
+            $0.top.equalTo(iconImageView).offset(-1.5)
         }
         
         cancelButton.snp.makeConstraints {
@@ -118,8 +114,8 @@ final class SelectedInfoView: BaseView {
     // MARK: - Method
     
     func updateData(title: String, price: String) {
-        self.titleLabel.text = title
-        self.priceLabel.text = price
+        self.titleLabel.setLabel(title, font: .body14m, color: .gray800)
+        self.priceLabel.setLabel(price, font: .body16sb, color: .potiBlack)
     }
     
     // MARK: - Action

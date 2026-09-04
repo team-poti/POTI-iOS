@@ -38,8 +38,7 @@ final class DetailParticipantsCell: UICollectionViewCell {
 
     private func setStyle() {
         nickNameLabel.do {
-            $0.font = PotiFontManager.body14sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .body14sb, color: .potiBlack)
         }
 
         profileImageView.do {
@@ -55,8 +54,7 @@ final class DetailParticipantsCell: UICollectionViewCell {
         }
 
         starRatingLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
+            $0.setLabel("", font: .body14m, color: .gray800)
         }
     }
 
@@ -79,12 +77,12 @@ final class DetailParticipantsCell: UICollectionViewCell {
 
         starImageView.snp.makeConstraints {
             $0.leading.equalTo(nickNameLabel.snp.trailing).offset(4)
-            $0.centerY.equalTo(nickNameLabel)
+            $0.top.equalTo(nickNameLabel).offset(2)
             $0.size.equalTo(21)
         }
 
         starRatingLabel.snp.makeConstraints {
-            $0.centerY.equalTo(starImageView)
+            $0.top.equalTo(nickNameLabel)
             $0.leading.equalTo(starImageView.snp.trailing)
         }
 
@@ -99,8 +97,8 @@ final class DetailParticipantsCell: UICollectionViewCell {
 
     func configure(model: ParticipantModel) {
         let user = model.userInfo
-        nickNameLabel.text = user.nickname
-        starRatingLabel.text = "\(user.rating)"
+        nickNameLabel.setLabel(user.nickname, font: .body14sb, color: .potiBlack)
+        starRatingLabel.setLabel("\(user.rating)", font: .body14m, color: .gray800)
         profileImageView.kf.setImage(with: URL(string: user.profileImage))
 
         memberTagView.setTagText(model.selectedMember)
@@ -125,14 +123,11 @@ final class DetailParticipantsHeaderView: UICollectionReusableView {
 
     private func setStyle() {
         titleLabel.do {
-            $0.text = "참여자"
-            $0.textColor = .potiBlack
-            $0.font = PotiFontManager.body16sb.font
+            $0.setLabel("참여자", font: .body16sb, color: .potiBlack)
         }
 
         countLabel.do {
-            $0.textColor = .poti600
-            $0.font = PotiFontManager.body16sb.font
+            $0.setLabel("", font: .body16sb, color: .poti600)
         }
     }
 
@@ -153,6 +148,6 @@ final class DetailParticipantsHeaderView: UICollectionReusableView {
     }
 
     func configure(currentCount: Int, totalCount: Int) {
-        countLabel.text = "\(currentCount)/\(totalCount)"
+        countLabel.setLabel("\(currentCount)/\(totalCount)", font: .body16sb, color: .poti600)
     }
 }

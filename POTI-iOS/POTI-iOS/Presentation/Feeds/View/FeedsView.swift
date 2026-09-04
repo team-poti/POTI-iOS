@@ -71,7 +71,7 @@ private extension FeedsView {
         
         if sectionType != .otherGroup {
             layout.headerReferenceSize = CGSize(width: screenWidth, height: 48)
-            layout.sectionInset = UIEdgeInsets(top: 10, left: 16, bottom: 88, right: 16)
+            layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 88, right: 16)
         } else {
             layout.headerReferenceSize = .zero
             layout.sectionInset = UIEdgeInsets(top: 12, left: 16, bottom: 88, right: 16)

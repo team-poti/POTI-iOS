@@ -39,13 +39,11 @@ final class AccordionDropdownCell: UITableViewCell {
         contentView.backgroundColor = .potiWhite
         
         titleLabel.do {
-            $0.font = PotiFontManager.body14m.font
             $0.numberOfLines = 1
             $0.lineBreakMode = .byTruncatingTail
         }
         
         priceLabel.do {
-            $0.font = PotiFontManager.body14sb.font
             $0.setContentCompressionResistancePriority(.required, for: .horizontal)
         }
     }
@@ -70,8 +68,8 @@ final class AccordionDropdownCell: UITableViewCell {
     // MARK: - Public Method
     
     func configure(with item: DropdownItem) {
-        titleLabel.text = item.name
-        priceLabel.text = "\(item.price.formattedWithComma)원"
+        titleLabel.setLabel(item.name, font: .body14m)
+        priceLabel.setLabel("\(item.price.formattedWithComma)원", font: .body14sb)
         
         titleLabel.textColor = item.isEnabled ? .potiBlack : .gray700
         priceLabel.textColor = item.isEnabled ? .potiBlack : .gray700

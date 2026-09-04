@@ -47,6 +47,7 @@ final class PotOrderContentView: BaseView {
         registerShipmentStackView.do {
             $0.axis = .horizontal
             $0.spacing = 4
+            $0.alignment = .top
         }
         
         registerShipmentLabel.do {
@@ -56,7 +57,6 @@ final class PotOrderContentView: BaseView {
         registerShipmentButton.do {
             $0.setImage(.btnCheckboxDefault, for: .normal)
             $0.setImage(.btnCheckboxSelected, for: .selected)
-            $0.transform = CGAffineTransform(translationX: 0, y: 2)
         }
 
         renderShipmentRegistrationState(.unselected)

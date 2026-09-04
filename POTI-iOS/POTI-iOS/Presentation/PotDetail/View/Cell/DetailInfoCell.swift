@@ -46,23 +46,19 @@ final class DetailInfoCell: UICollectionViewCell {
 
     private func setStyle() {
         artistNameLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
+            $0.setLabel("", font: .body14m, color: .gray800)
         }
 
         productNameLabel.do {
-            $0.font = PotiFontManager.title18sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .title18sb, color: .potiBlack)
         }
 
         priceLabel.do {
-            $0.textColor = .potiBlack
-            $0.font = PotiFontManager.display20b.font
+            $0.setLabel("", font: .display20b, color: .potiBlack)
         }
 
         timeLabel.do {
-            $0.textColor = .gray800
-            $0.font = PotiFontManager.body14m.font
+            $0.setLabel("", font: .body14m, color: .gray800)
         }
 
         dividerView.do {
@@ -70,8 +66,6 @@ final class DetailInfoCell: UICollectionViewCell {
         }
 
         contentLabel.do {
-            $0.textColor = .potiBlack
-            $0.font = PotiFontManager.body16m.font
             $0.numberOfLines = 0
         }
 
@@ -152,23 +146,30 @@ final class DetailInfoCell: UICollectionViewCell {
         let attributedString = NSMutableAttributedString(string: fullString)
         let range = (fullString as NSString).range(of: perPersonString)
 
+        attributedString.addAttributes([
+            .foregroundColor: UIColor.potiBlack,
+            .font: PotiFontManager.display20b.font
+        ], range: NSRange(location: 0, length: attributedString.length))
         if range.location != NSNotFound {
-            attributedString.addAttributes([.foregroundColor: UIColor.gray800, .font: PotiFontManager.body16m.font], range: range)
+            attributedString.addAttributes([
+                .foregroundColor: UIColor.gray800,
+                .font: PotiFontManager.body16m.font
+            ], range: range)
         }
 
-        priceLabel.attributedText = attributedString
+        priceLabel.setLabel(attributedString, lineHeight: .display20b)
     }
     
     // MARK: - Public Method
 
     func configure(with model: PotDetailModel) {
-        artistNameLabel.text = model.artist
-        productNameLabel.text = model.title
+        artistNameLabel.setLabel(model.artist, font: .body14m, color: .gray800)
+        productNameLabel.setLabel(model.title, font: .title18sb, color: .potiBlack)
 
         let datePart = String(model.uploadTime.prefix(10))
-        timeLabel.text = "\(datePart) 등록"
+        timeLabel.setLabel("\(datePart) 등록", font: .body14m, color: .gray800)
 
-        contentLabel.text = model.content
+        contentLabel.setLabel(model.content, font: .body16m, alignment: .left, color: .potiBlack)
         setPriceLabel(price: model.price)
 
         let formatter = NumberFormatter().then { $0.numberStyle = .decimal }

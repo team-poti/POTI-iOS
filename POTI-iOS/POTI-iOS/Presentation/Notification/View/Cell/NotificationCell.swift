@@ -50,20 +50,16 @@ final class NotificationCell: UITableViewCell {
         contentView.backgroundColor = .potiWhite
 
         shippingStatusLabel.do {
-            $0.font = PotiFontManager.body16sb.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .body16sb, color: .potiBlack)
         }
 
         contentLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
             $0.numberOfLines = 0
             $0.textAlignment = .left
         }
 
         timeLabel.do {
-            $0.font = PotiFontManager.caption12m.font
-            $0.textColor = .gray700
+            $0.setLabel("", font: .caption12m, color: .gray700)
         }
 
         grayLineView.do {
@@ -100,9 +96,9 @@ final class NotificationCell: UITableViewCell {
     // MARK: - Public Method
 
     func configure(title: String, content: String, time: String, isRead: Bool) {
-        shippingStatusLabel.text = title
-        contentLabel.setText(content, lineSpacing: 4, alignment: .left)
-        timeLabel.text = time
+        shippingStatusLabel.setLabel(title, font: .body16sb, color: .potiBlack)
+        contentLabel.setLabel(content, font: .body14m, alignment: .left, color: .gray800)
+        timeLabel.setLabel(time, font: .caption12m, color: .gray700)
         contentView.backgroundColor = isRead ? .potiWhite : .gray100
     }
 }

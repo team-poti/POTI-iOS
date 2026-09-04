@@ -39,8 +39,6 @@ final class ArtistSearchView: BaseView {
         }
         
         searchStatusLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray700
             $0.textAlignment = .center
             $0.numberOfLines = 0
             $0.isHidden = true
@@ -79,10 +77,10 @@ final class ArtistSearchView: BaseView {
         case .idle, .loading, .results:
             searchStatusLabel.isHidden = true
         case .empty:
-            searchStatusLabel.setText("검색 결과가 없어요\n다른 키워드로 다시 검색해보세요", lineSpacing: 4, alignment: .center)
+            searchStatusLabel.setLabel("검색 결과가 없어요\n다른 키워드로 다시 검색해보세요", font: .body14m, alignment: .center, color: .gray700)
             searchStatusLabel.isHidden = false
         case .error:
-            searchStatusLabel.setText("검색 중 문제가 발생했어요\n잠시 후 다시 시도해주세요", lineSpacing: 4, alignment: .center)
+            searchStatusLabel.setLabel("검색 중 문제가 발생했어요\n잠시 후 다시 시도해주세요", font: .body14m, alignment: .center, color: .gray700)
             searchStatusLabel.isHidden = false
         }
     }

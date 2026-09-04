@@ -42,9 +42,7 @@ final class NoticeView: BaseView {
         }
 
         titleLabel.do {
-            $0.text = type.title
-            $0.font = PotiFontManager.caption12m.font
-            $0.textColor = .gray700
+            $0.setLabel(type.title, font: .caption12m, color: .gray700)
             $0.numberOfLines = 0
         }
     }
@@ -63,10 +61,8 @@ final class NoticeView: BaseView {
 
     private func makeMessageLabel(text: String) -> UILabel {
         let label = UILabel()
-        label.font = PotiFontManager.caption12m.font
-        label.textColor = .gray700
         label.numberOfLines = 0
-        label.setText(text, lineSpacing: 4)
+        label.setLabel(text, font: .caption12m, color: .gray700)
         return label
     }
 }

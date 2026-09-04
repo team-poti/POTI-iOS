@@ -64,13 +64,11 @@ final class GoodsListCell: UICollectionViewCell {
         }
 
         artistNameLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .gray800
+            $0.setLabel("", font: .body14m, color: .gray800)
         }
 
         productNameLabel.do {
-            $0.font = PotiFontManager.body16m.font
-            $0.textColor = .potiBlack
+            $0.setLabel("", font: .body16m, color: .potiBlack)
             $0.lineBreakMode = .byTruncatingTail
         }
     }
@@ -110,8 +108,8 @@ final class GoodsListCell: UICollectionViewCell {
 
     func configure(with model: GoodsListItemModel) {
         productImageView.kf.setImage(with: model.postImage.flatMap { URL(string: $0) })
-        artistNameLabel.text = model.artist
-        productNameLabel.text = model.title
+        artistNameLabel.setLabel(model.artist, font: .body14m, color: .gray800)
+        productNameLabel.setLabel(model.title, font: .body16m, color: .potiBlack)
         potCountTagView.setTagText(model.postCountText)
         popularTagView.isHidden = !model.hasPopularTag
 

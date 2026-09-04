@@ -49,6 +49,7 @@ final class DetailSubContentFooterView: UICollectionReusableView {
         shareStackView.do {
             $0.axis = .horizontal
             $0.spacing = 8
+            $0.alignment = .top
         }
         
         shareIconView.do {
@@ -56,9 +57,7 @@ final class DetailSubContentFooterView: UICollectionReusableView {
         }
         
         shareLabel.do {
-            $0.text = "이 분철팟 공유하기"
-            $0.font = PotiFontManager.button14sb.font
-            $0.textColor = .gray800
+            $0.setLabel("이 분철팟 공유하기", font: .button14sb, color: .gray800)
         }
     }
     

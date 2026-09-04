@@ -47,8 +47,6 @@ final class SearchListCell: UITableViewCell {
         contentView.backgroundColor = .clear
         
         titleLabel.do {
-            $0.font = PotiFontManager.body14m.font
-            $0.textColor = .potiBlack
             $0.numberOfLines = 1
             $0.lineBreakMode = .byTruncatingTail
         }
@@ -68,6 +66,6 @@ final class SearchListCell: UITableViewCell {
     // MARK: - Public Method
     
     func configure(with text: String) {
-        titleLabel.text = text
+        titleLabel.setLabel(text, font: .body14m, color: .potiBlack)
     }
 }
