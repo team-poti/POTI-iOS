@@ -47,6 +47,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
         viewModel.action(.viewDidLoad)
     }
     

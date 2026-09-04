@@ -100,8 +100,17 @@ final class PotDetailViewModel: BaseViewModelType {
                     }
                 }
                 
-                let currentUserId = try? await getMyPageInformationUseCase.execute().userId
-                let joinButtonState = makeJoinButtonState(model: model, currentUserId: currentUserId)
+                let joinButtonState: PotJoinButtonState
+                if KeychainManager.hasValidToken() {
+                    do {
+                        let currentUserId = try await getMyPageInformationUseCase.execute().userId
+                        joinButtonState = makeJoinButtonState(model: model, currentUserId: currentUserId)
+                    } catch {
+                        joinButtonState = .closed
+                    }
+                } else {
+                    joinButtonState = makeJoinButtonState(model: model, currentUserId: nil)
+                }
                 
                 await MainActor.run {
                     output.joinButtonState.send(joinButtonState)

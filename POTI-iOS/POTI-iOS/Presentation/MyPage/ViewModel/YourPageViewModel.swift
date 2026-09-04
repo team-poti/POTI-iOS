@@ -49,13 +49,16 @@ final class YourPageViewModel: BaseViewModelType {
     func action(_ input: Input) {
         switch input {
         case .viewDidLoad:
-            fetchYourPage()
+            Task { @MainActor [weak self] in
+                self?.fetchYourPage()
+            }
         }
     }
 }
 
 extension YourPageViewModel {
 
+    @MainActor
     private func fetchYourPage() {
         guard userId > 0 else {
             errorSubject.send("유저 정보를 불러오지 못했습니다.")
