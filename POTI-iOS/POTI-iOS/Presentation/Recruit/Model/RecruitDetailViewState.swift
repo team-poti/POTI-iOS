@@ -13,6 +13,7 @@ struct RecruitDetailViewState {
     let progress: ProgressStatusViewCell.Model
     let participantCount: Int
     let participants: [ParticipantManageViewCell.Model]
+    let canDelete: Bool
 }
 
 struct PotInfoViewState {
@@ -184,7 +185,8 @@ struct RecruitDetailViewStateMapper {
             potInfo: potInfo,
             progress: progress,
             participantCount: entity.totalCount,
-            participants: participants
+            participants: participants,
+            canDelete: entity.participant.isEmpty
         )
     }
 }
