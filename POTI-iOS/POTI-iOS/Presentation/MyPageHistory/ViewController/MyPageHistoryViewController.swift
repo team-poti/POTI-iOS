@@ -56,10 +56,27 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
         tabView.updateTabSelection(tab: currentTab)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.action(.refreshRequested)
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        applyInitialTabOffsetIfPossible()
+    }
 
-        guard !hasAppliedInitialTabOffset, view.bounds.width > 0 else { return }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        applyInitialTabOffsetIfPossible()
+    }
+
+    private func applyInitialTabOffsetIfPossible() {
+        let pageWidth = contentView.scrollView.bounds.width
+        guard !hasAppliedInitialTabOffset,
+              pageWidth > 0,
+              contentView.scrollView.contentSize.width >= pageWidth * 2 else { return }
+
         hasAppliedInitialTabOffset = true
         updateTabSelection(to: currentTab, animated: false)
     }
