@@ -35,8 +35,12 @@ final class ParticipantListTableViewController: BaseViewController<ParticipantMa
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.action(.viewDidLoad)
         lastSectionCount = viewModel.participants.count
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.action(.viewDidLoad)
     }
     
     override func setUI() {

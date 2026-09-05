@@ -8,6 +8,8 @@
 import Foundation
 
 final class MockPostRepository: PostInterface {
+    func deletePost(postId: Int) async throws {}
+
     func fetchHomeData() async throws -> HomeEntity {
         return createMockHomeEntity(mainArtistId: 1, isFallback: false)
     }

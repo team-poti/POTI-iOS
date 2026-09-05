@@ -13,6 +13,7 @@ enum PostAPI: BaseTargetType {
     case fetchPotList(title: String, artistId: Int, memberIds: [Int]?, sort: String, page: Int)
     case fetchPotDetail(postId: Int)
     case fetchPotOptions(postId: Int)
+    case deletePost(postId: Int)
 
     var path: String {
         switch self {
@@ -26,6 +27,8 @@ enum PostAPI: BaseTargetType {
             return "api/v1/posts/pots"
         case .fetchPotOptions(postId: let postId):
             return "/api/v1/posts/\(postId)/options"
+        case .deletePost(let postId):
+            return "/api/v1/posts/\(postId)"
         }
     }
 
@@ -33,12 +36,14 @@ enum PostAPI: BaseTargetType {
         switch self {
         case .fetchPotDetail, .fetchHome, .fetchFeeds, .fetchPotList, .fetchPotOptions:
             return .get
+        case .deletePost:
+            return .delete
         }
     }
 
     var queryParameters: [String: String]? {
         switch self {
-        case .fetchHome, .fetchPotDetail, .fetchPotOptions:
+        case .fetchHome, .fetchPotDetail, .fetchPotOptions, .deletePost:
             return nil
 
         case .fetchFeeds(let artistId, let sort, let page):
