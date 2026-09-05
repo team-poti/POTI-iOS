@@ -186,7 +186,7 @@ struct RecruitDetailViewStateMapper {
             progress: progress,
             participantCount: entity.totalCount,
             participants: participants,
-            canDelete: entity.participant.isEmpty
+            canDelete: entity.totalCount == 0
         )
     }
 }

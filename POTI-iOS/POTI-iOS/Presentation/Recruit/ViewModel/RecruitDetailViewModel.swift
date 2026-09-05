@@ -13,6 +13,7 @@ final class RecruitDetailViewModel: BaseViewModelType {
     private let currentUserRole: UserRole = .host
     private let initialPostId: Int
     private var detailEntity: RecruitDetailEntity?
+    private var isDeleting = false
     
     // MARK: - Input
     
@@ -86,8 +87,10 @@ final class RecruitDetailViewModel: BaseViewModelType {
                 naviManageInfoSubject.send(postId)
             }
         case .tapDelete:
-            Task {
-                await deletePost()
+            guard !isDeleting else { return }
+            isDeleting = true
+            Task { [weak self] in
+                await self?.deletePost()
             }
         }
     }
@@ -107,7 +110,9 @@ final class RecruitDetailViewModel: BaseViewModelType {
     }
 
     private func deletePost() async {
-        guard let detailEntity, detailEntity.participant.isEmpty else {
+        defer { isDeleting = false }
+
+        guard let detailEntity, detailEntity.totalCount == 0 else {
             errorSubject.send("참여자가 있으면 모집글을 삭제할 수 없어요.")
             return
         }
