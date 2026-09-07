@@ -265,7 +265,7 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         case .progress:
             return 1
         case .myJoinDepositInfo:
-            return 1
+            return viewState?.screenState.contentKind == .recruiting ? 0 : 1
         case .statusInfo:
             return 1
         }
