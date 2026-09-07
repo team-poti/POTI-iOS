@@ -22,7 +22,7 @@ final class AddressManagementView: BaseView {
     let detailAddressField = SettingsFieldView(title: "상세주소", placeholder: "상세주소를 입력하세요")
     let phoneField = SettingsFieldView(title: "연락처", placeholder: "연락처를 입력하세요")
     let saveButton = SettingsActionButton(title: "저장")
-    private let fieldStackView = UIStackView()
+    let fieldStackView = UIStackView()
 
     override func setStyle() {
         backgroundColor = .potiWhite
@@ -61,25 +61,6 @@ final class AddressManagementView: BaseView {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(4)
         }
-    }
-
-    func updateKeyboardFrame(_ keyboardEndFrame: CGRect) {
-        layoutIfNeeded()
-        let keyboardFrame = convert(keyboardEndFrame, from: nil)
-        let overlap = max(0, scrollView.frame.maxY - keyboardFrame.minY)
-        let bottomInset = overlap > 0 ? overlap + 12 : 0
-
-        scrollView.contentInset.bottom = bottomInset
-        scrollView.verticalScrollIndicatorInsets.bottom = bottomInset
-
-        guard overlap > 0,
-              let focusedField = editableFields.first(where: { $0.textField.isFirstResponder }) else { return }
-        scrollToVisible(focusedField)
-    }
-
-    func scrollToVisible(_ field: SettingsFieldView) {
-        let rect = field.convert(field.bounds, to: scrollView).insetBy(dx: 0, dy: -12)
-        scrollView.scrollRectToVisible(rect, animated: true)
     }
 
     func configure(_ address: AddressEntity) {

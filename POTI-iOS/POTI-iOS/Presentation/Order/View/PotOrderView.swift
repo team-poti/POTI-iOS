@@ -18,7 +18,7 @@ final class PotOrderView: BaseView {
     let orderContentView = PotOrderContentView()
     let bottomButton = PotiBottomButton()
     
-    private let scrollView = UIScrollView()
+    let scrollView = UIScrollView()
     private let contentView = UIView()
     private let dividerUpperView = UIView()
     
@@ -29,6 +29,7 @@ final class PotOrderView: BaseView {
         
         scrollView.do {
             $0.showsVerticalScrollIndicator = false
+            $0.keyboardDismissMode = .interactive
         }
         
         bottomButton.do {
