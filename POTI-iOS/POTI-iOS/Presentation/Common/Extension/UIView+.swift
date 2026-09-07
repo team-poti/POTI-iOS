@@ -11,4 +11,9 @@ public extension UIView {
     func addSubviews(_ views: UIView...) {
         views.forEach { self.addSubview($0) }
     }
+
+    var firstResponder: UIView? {
+        if isFirstResponder { return self }
+        return subviews.lazy.compactMap(\.firstResponder).first
+    }
 }

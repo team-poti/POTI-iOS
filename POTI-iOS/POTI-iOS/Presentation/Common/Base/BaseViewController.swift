@@ -14,6 +14,13 @@ class BaseViewController<VM: BaseViewModelType>: UIViewController, NavigationAct
     private(set) var viewModel: VM
     public var cancellables = Set<AnyCancellable>()
     private var didSetupLayout = false
+    private weak var keyboardAvoidingScrollView: UIScrollView?
+    private weak var keyboardFocusScopeView: UIView?
+    private var keyboardEndFrame: CGRect?
+    private var keyboardAvoidancePadding: CGFloat = 0
+    private var originalScrollInsets: UIEdgeInsets = .zero
+    private var originalIndicatorInsets: UIEdgeInsets = .zero
+    private var isKeyboardAvoidanceEnabled = false
     
     public init(viewModel: VM) {
         self.viewModel = viewModel
@@ -89,6 +96,81 @@ class BaseViewController<VM: BaseViewModelType>: UIViewController, NavigationAct
     
     /// 뷰모델 바인딩
     open func bindViewModel() {}
+
+    func enableKeyboardAvoidance(for scrollView: UIScrollView, focusScopeView: UIView, padding: CGFloat = 12) {
+        keyboardAvoidingScrollView = scrollView
+        keyboardFocusScopeView = focusScopeView
+        keyboardAvoidancePadding = padding
+        originalScrollInsets = scrollView.contentInset
+        originalIndicatorInsets = scrollView.verticalScrollIndicatorInsets
+
+        guard !isKeyboardAvoidanceEnabled else { return }
+        isKeyboardAvoidanceEnabled = true
+
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)
+            .compactMap { notification in
+                (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+            }
+            .receive(on: RunLoop.main)
+            .sink { [weak self] keyboardEndFrame in
+                self?.updateKeyboardAvoidance(with: keyboardEndFrame)
+            }
+            .store(in: &cancellables)
+
+        Publishers.Merge(
+            NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification),
+            NotificationCenter.default.publisher(for: UITextView.textDidBeginEditingNotification)
+        )
+        .receive(on: RunLoop.main)
+        .sink { [weak self] notification in
+            guard let inputView = notification.object as? UIView else { return }
+            self?.scrollToVisibleIfNeeded(inputView)
+        }
+        .store(in: &cancellables)
+    }
+
+    private func updateKeyboardAvoidance(with keyboardEndFrame: CGRect) {
+        guard let scrollView = keyboardAvoidingScrollView else { return }
+        self.keyboardEndFrame = keyboardEndFrame
+        view.layoutIfNeeded()
+
+        let scrollFrame = scrollView.convert(scrollView.bounds, to: view)
+        let convertedKeyboardFrame = view.convert(keyboardEndFrame, from: nil)
+        let overlap = max(0, scrollFrame.maxY - convertedKeyboardFrame.minY)
+        let additionalInset = overlap > 0 ? overlap + keyboardAvoidancePadding : 0
+
+        scrollView.contentInset.bottom = originalScrollInsets.bottom + additionalInset
+        scrollView.verticalScrollIndicatorInsets.bottom = originalIndicatorInsets.bottom + additionalInset
+
+        guard overlap > 0,
+              let focusScopeView = keyboardFocusScopeView,
+              let focusedInputView = focusScopeView.firstResponder else { return }
+        scrollToVisible(focusedInputView)
+    }
+
+    private func scrollToVisibleIfNeeded(_ inputView: UIView) {
+        guard let keyboardEndFrame,
+              let focusScopeView = keyboardFocusScopeView,
+              inputView.isDescendant(of: focusScopeView) else { return }
+
+        let convertedKeyboardFrame = view.convert(keyboardEndFrame, from: nil)
+        guard convertedKeyboardFrame.minY < view.bounds.maxY else { return }
+        scrollToVisible(inputView)
+    }
+
+    private func scrollToVisible(_ inputView: UIView) {
+        guard let scrollView = keyboardAvoidingScrollView,
+              let focusScopeView = keyboardFocusScopeView else { return }
+
+        var targetView = inputView
+        while let superview = targetView.superview, superview !== focusScopeView {
+            targetView = superview
+        }
+
+        let targetRect = targetView.convert(targetView.bounds, to: scrollView)
+            .insetBy(dx: 0, dy: -keyboardAvoidancePadding)
+        scrollView.scrollRectToVisible(targetRect, animated: true)
+    }
     
     // MARK: - Navigation Setting
     
