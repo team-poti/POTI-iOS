@@ -39,6 +39,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        enableKeyboardAvoidance(for: rootView.scrollView, focusScopeView: rootView.orderContentView)
         viewModel.action(.viewDidLoad)
     }
     
@@ -62,7 +63,7 @@ final class PotOrderViewController: BaseViewController<PotOrderViewModel>, Navig
             .dropFirst()
             .sink { [weak self] in self?.viewModel.action(.detailAddressDidChange($0)) }
             .store(in: &cancellables)
-        
+
         rootView.orderContentView.phoneField.textPublisher
             .dropFirst()
             .sink { [weak self] in self?.viewModel.action(.phoneDidChange($0)) }

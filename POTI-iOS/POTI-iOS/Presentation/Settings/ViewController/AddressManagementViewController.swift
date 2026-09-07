@@ -29,7 +29,7 @@ final class AddressManagementViewController: BaseViewController<SettingsViewMode
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        bindKeyboard()
+        enableKeyboardAvoidance(for: rootView.scrollView, focusScopeView: rootView.fieldStackView)
         viewModel.action(.fetchAddress)
     }
 
@@ -62,9 +62,6 @@ final class AddressManagementViewController: BaseViewController<SettingsViewMode
         )
         rootView.editableFields.forEach { field in
             field.textField.addTarget(self, action: #selector(fieldDidChange), for: .editingChanged)
-            field.onBeginEditing = { [weak self] field in
-                self?.rootView.scrollToVisible(field)
-            }
         }
     }
 
@@ -85,15 +82,4 @@ final class AddressManagementViewController: BaseViewController<SettingsViewMode
         navigationController?.pushViewController(viewController, animated: true)
     }
 
-    private func bindKeyboard() {
-        NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)
-            .compactMap { notification in
-                notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
-            }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] keyboardEndFrame in
-                self?.rootView.updateKeyboardFrame(keyboardEndFrame)
-            }
-            .store(in: &cancellables)
-    }
 }
