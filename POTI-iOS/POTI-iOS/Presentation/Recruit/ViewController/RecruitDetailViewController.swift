@@ -93,7 +93,15 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
                     style: .backDefault(state.navigationTitle),
                     target: self
                 )
+                self.updateDeleteButton(isVisible: state.canDelete)
                 self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+
+        viewModel.output.postDeleted
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
             }
             .store(in: &cancellables)
         
@@ -135,6 +143,35 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
+    }
+
+    private func updateDeleteButton(isVisible: Bool) {
+        guard isVisible else {
+            navigationItem.rightBarButtonItem = nil
+            return
+        }
+
+        let deleteButton = UIButton(type: .system)
+        deleteButton.setTitle("삭제", for: .normal)
+        deleteButton.setTitleColor(.gray800, for: .normal)
+        deleteButton.titleLabel?.font = PotiFontManager.body14m.font
+        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        deleteButton.frame = CGRect(x: 0, y: 0, width: 48, height: 44)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: deleteButton)
+    }
+
+    @objc private func deleteButtonTapped() {
+        let alert = CustomAlertView(
+            title: "모집글을 삭제할까요?",
+            message: "삭제한 모집글은 복구할 수 없어요.",
+            cancelTitle: "취소",
+            confirmTitle: "삭제",
+            onLeftButton: {},
+            onRightButton: { [weak self] in
+                self?.viewModel.action(.tapDelete)
+            }
+        )
+        alert.show(on: navigationController?.view ?? view)
     }
 }
 

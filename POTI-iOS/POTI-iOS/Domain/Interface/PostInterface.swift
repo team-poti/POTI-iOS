@@ -11,4 +11,5 @@ protocol PostInterface {
     func fetchPotListData(title: String, artistId: Int, memberIds: [Int]?, sort: String, page: Int) async throws -> PotListEntity
     func fetchPotDetail(postId: Int) async throws -> PotDetailEntity
     func fetchPotOptions(postId: Int) async throws -> PotOptionsEntity
+    func deletePost(postId: Int) async throws
 }

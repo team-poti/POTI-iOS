@@ -51,4 +51,11 @@ final class DefaultPostRepository: PostInterface {
         )
         return response.toEntity()
     }
+
+    func deletePost(postId: Int) async throws {
+        _ = try await networkService.request(
+            target: PostAPI.deletePost(postId: postId),
+            type: EmptyResponse.self
+        )
+    }
 }

@@ -156,6 +156,10 @@ final class AppDIContainer {
         DefaultFetchPotOptionsUseCase(repository: makePostRepository())
     }
 
+    private func makeDeletePostUseCase() -> DeletePostUseCase {
+        DefaultDeletePostUseCase(repository: makePostRepository())
+    }
+
     private func makeSearchPostsUseCase() -> SearchPostsUseCase {
         DefaultSearchPostsUseCase(repository: makeSearchRepository())
     }
@@ -341,7 +345,11 @@ final class AppDIContainer {
     }
 
     func makeRecruitDetailViewModel(postId: Int) -> RecruitDetailViewModel {
-        RecruitDetailViewModel(postId: postId, postsSaleUseCase: makePostsSaleUseCase())
+        RecruitDetailViewModel(
+            postId: postId,
+            postsSaleUseCase: makePostsSaleUseCase(),
+            deletePostUseCase: makeDeletePostUseCase()
+        )
     }
 
     func makeManageViewModel(postId: Int) -> ParticipantManageViewModel {
