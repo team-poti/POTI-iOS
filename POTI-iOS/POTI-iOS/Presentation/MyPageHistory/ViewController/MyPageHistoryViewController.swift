@@ -63,6 +63,7 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        updateTableViewBottomInsets()
         applyInitialTabOffsetIfPossible()
     }
 
@@ -79,6 +80,16 @@ final class MyPageHistoryViewController: BaseViewController<MyPageHistoryViewMod
 
         hasAppliedInitialTabOffset = true
         updateTabSelection(to: currentTab, animated: false)
+    }
+
+    private func updateTableViewBottomInsets() {
+        let bottomInset: CGFloat = 48
+
+        [contentView.ongoingTableView, contentView.completedTableView].forEach { tableView in
+            guard abs(tableView.contentInset.bottom - bottomInset) > .ulpOfOne else { return }
+            tableView.contentInset.bottom = bottomInset
+            tableView.verticalScrollIndicatorInsets.bottom = bottomInset
+        }
     }
     
     // MARK: - Override Methods
