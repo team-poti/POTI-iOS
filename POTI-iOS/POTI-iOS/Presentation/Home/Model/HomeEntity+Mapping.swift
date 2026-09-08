@@ -37,8 +37,9 @@ extension GoodsEntity {
 extension BannerEntity {
     func toBannerModel() -> BannerModel {
         BannerModel(
-            postId: postId,
-            imageUrl: imageUrl
+            id: id,
+            imageUrl: imageUrl,
+            deeplink: deeplink
         )
     }
 }

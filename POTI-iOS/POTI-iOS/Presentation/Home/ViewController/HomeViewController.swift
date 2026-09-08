@@ -96,16 +96,36 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
         
     }
     
-    // MARK: - Action
+    // MARK: - Methods
     
-    @objc private func floatingButtonTapped() {
+    private func showProductRegister() {
         guard requireLogin(for: .register, factory: factory) else { return }
         let productRegisterViewController = factory.makeProductRegisterViewController()
-        self.navigationController?.pushViewController(productRegisterViewController, animated: true)
-        //                KeychainManager.deleteAllTokens()
+        navigationController?.pushViewController(productRegisterViewController, animated: true)
     }
-    
-    // MARK: - Methods
+
+    private func handleBannerTap(_ banner: BannerModel) {
+        guard let destination = BannerDeepLinkDestination(deeplink: banner.deeplink) else { return }
+
+        switch destination {
+        case .favoriteArtist:
+            showFavoriteArtistSelection()
+        case .potCreate:
+            showProductRegister()
+        }
+    }
+
+    private func showFavoriteArtistSelection() {
+        guard requireLogin(for: .favoriteArtist, factory: factory),
+              !viewModel.nickname.isEmpty else { return }
+
+        let viewController = factory.makeMyPageFavoriteIdolGroupViewController(nickname: viewModel.nickname)
+        viewController.hidesBottomBarWhenPushed = true
+        viewController.onFavoriteUpdated = { [weak self] in
+            self?.viewModel.action(.viewDidLoad)
+        }
+        navigationController?.pushViewController(viewController, animated: true)
+    }
     
     func navigationStyle() -> PotiNavigationStyle {
         return .home
@@ -123,6 +143,12 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
         let notificationViewController = factory.makeNotificationViewController()
         notificationViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(notificationViewController, animated: true)
+    }
+
+    // MARK: - Action
+
+    @objc private func floatingButtonTapped() {
+        showProductRegister()
     }
 }
 
@@ -152,7 +178,9 @@ extension HomeViewController: UICollectionViewDataSource {
         switch section {
         case .banner:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BannerCarouselCell.identifier, for: indexPath) as! BannerCarouselCell
-            cell.configure(banners: viewModel.banners)
+            cell.configure(banners: viewModel.banners) { [weak self] banner in
+                self?.handleBannerTap(banner)
+            }
             return cell
             
         case .myGroup:

@@ -16,6 +16,7 @@ final class BannerCarouselView: BaseView {
     
     private var banners: [BannerModel] = []
     private var lastRecordedPage: Int = 0
+    var onBannerTap: ((BannerModel) -> Void)?
     
     // MARK: - UI Components
     
@@ -164,6 +165,11 @@ extension BannerCarouselView: UICollectionViewDataSource {
 // MARK: - UICollectionViewDelegate
 
 extension BannerCarouselView: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard banners.indices.contains(indexPath.item) else { return }
+        onBannerTap?(banners[indexPath.item])
+    }
+
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let width = scrollView.frame.width
         guard width > 0 else { return }

@@ -29,9 +29,9 @@ final class MockPostRepository: PostInterface {
                 GoodsEntity(artist: "아일릿", artistId: 2, postImage: "https://talkimg.imbc.com/TVianUpload/tvian/TViews/image/2025/03/25/45725324-2b02-4a0a-948a-c271179bfb9b.jpg", postTitle: "아일릿잇츠미" , postCount: 23, tag: "")
             ],
             banners: [
-                BannerEntity(postId: 101, imageUrl: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg"),
-                BannerEntity(postId: 101, imageUrl: "https://www.news1.kr/_next/image?url=https%3A%2F%2Fi3n.news1.kr%2Fsystem%2Fphotos%2F2025%2F7%2F31%2F7423083%2Fhigh.jpg&w=1920&q=75"),
-                BannerEntity(postId: 101, imageUrl: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg")
+                BannerEntity(id: 101, imageUrl: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg", deeplink: "favorite-artist"),
+                BannerEntity(id: 102, imageUrl: "https://www.news1.kr/_next/image?url=https%3A%2F%2Fi3n.news1.kr%2Fsystem%2Fphotos%2F2025%2F7%2F31%2F7423083%2Fhigh.jpg&w=1920&q=75", deeplink: "pot-create"),
+                BannerEntity(id: 103, imageUrl: "https://img.segye.com/content/image/2024/04/16/20240416533728.jpg", deeplink: "")
             ]
         )
     }

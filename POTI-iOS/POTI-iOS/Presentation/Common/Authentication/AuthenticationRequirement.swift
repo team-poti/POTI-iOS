@@ -11,6 +11,7 @@ enum LoginRequiredAction {
     case register
     case participate
     case history
+    case favoriteArtist
 
     var message: String {
         switch self {
@@ -20,6 +21,8 @@ enum LoginRequiredAction {
             return "분철에 참여하려면 로그인이 필요해요"
         case .history:
             return "분철 내역을 확인하려면 로그인이 필요해요"
+        case .favoriteArtist:
+            return "나의 최애를 선택하려면 로그인이 필요해요"
         }
     }
 }
