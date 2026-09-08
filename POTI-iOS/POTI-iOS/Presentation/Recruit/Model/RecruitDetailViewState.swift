@@ -169,14 +169,16 @@ struct RecruitDetailViewStateMapper {
         )
 
         let participants: [ParticipantManageViewCell.Model] = entity.participant.map { participant in
-            ParticipantManageViewCell.Model(
+            let displayStatus: ParticipantStatus = entity.postStatus == .recruiting ? .recruiting : ParticipantStatus(domainStatus: participant.status)
+
+            return ParticipantManageViewCell.Model(
                 memberNamesText: participant.memberNames,
                 depositorNameText: participant.shippingInfo.receiverName,
                 addressText: participant.shippingInfo.address,
                 phoneText: participant.shippingInfo.phone,
                 shippingText: participant.priceInfo.shippingName,
                 totalPrice: participant.priceInfo.totalPrice,
-                depositState: ParticipantStatus(domainStatus: participant.status)
+                depositState: displayStatus
             )
         }
         

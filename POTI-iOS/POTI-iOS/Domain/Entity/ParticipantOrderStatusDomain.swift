@@ -9,6 +9,7 @@
 ///
 /// 화면 표현(색상, 문구, 이미지)은 Presentation 확장에서 담당한다.
 enum ParticipantOrderStatus: String, Equatable {
+    case recruiting = "RECRUITING"
     case waitPay = "WAIT_PAY"
     case waitPayCheck = "WAIT_PAY_CHECK"
     case paid = "PAID"

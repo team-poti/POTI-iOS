@@ -104,6 +104,8 @@ enum JoinDetailScreenStateFactory {
             return RecruitingJoinState()
         case .closed:
             switch participantStatus {
+            case .recruiting:
+                return RecruitingJoinState()
             case .waitPay:
                 return PaymentWaitingJoinState()
             case .waitPayCheck:

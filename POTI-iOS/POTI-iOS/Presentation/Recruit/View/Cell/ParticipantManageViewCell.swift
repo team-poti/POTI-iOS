@@ -95,7 +95,7 @@ final class ParticipantManageViewCell: UITableViewCell {
         }
         
         depositStateLabel.do {
-            $0.font = PotiFontManager.body14m.font
+            $0.font = PotiFontManager.body14sb.font
         }
         
     }
