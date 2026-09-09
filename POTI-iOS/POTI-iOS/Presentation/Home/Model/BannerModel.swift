@@ -5,7 +5,7 @@
 //  Created by soomin on 1/16/26.
 //
 
-import Foundation
+import UIKit
 
 enum BannerDeepLinkDestination: String {
     case favoriteArtist = "favorite-artist"
@@ -28,4 +28,15 @@ struct BannerModel {
     let id: Int
     let imageUrl: String
     let deeplink: String
+
+    var localImage: UIImage? {
+        guard URL(string: imageUrl)?.scheme == nil else { return nil }
+        return UIImage(named: imageUrl)
+    }
+
+    static let defaultBanners: [BannerModel] = [
+        BannerModel(id: -1, imageUrl: "img-banner1", deeplink: ""),
+        BannerModel(id: -2, imageUrl: "img-banner2", deeplink: BannerDeepLinkDestination.favoriteArtist.rawValue),
+        BannerModel(id: -3, imageUrl: "img-banner3", deeplink: BannerDeepLinkDestination.potCreate.rawValue)
+    ]
 }

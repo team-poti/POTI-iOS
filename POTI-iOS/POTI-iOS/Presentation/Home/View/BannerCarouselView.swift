@@ -124,9 +124,16 @@ final class BannerCarouselView: BaseView {
     
     private func updateBackground(page: Int) {
         guard page < banners.count else { return }
-        let urlString = banners[page].imageUrl
+        setBackgroundImage(for: banners[page])
+    }
+
+    private func setBackgroundImage(for banner: BannerModel) {
         shadowImageView.kf.cancelDownloadTask()
-        shadowImageView.kf.setImage(with: URL(string: urlString))
+        if let localImage = banner.localImage {
+            shadowImageView.image = localImage
+        } else {
+            shadowImageView.kf.setImage(with: URL(string: banner.imageUrl))
+        }
     }
     
     // MARK: - Public Method
@@ -144,7 +151,7 @@ final class BannerCarouselView: BaseView {
             shadowImageView.image = nil
             return
         }
-        shadowImageView.kf.setImage(with: URL(string: firstBanner.imageUrl))
+        setBackgroundImage(for: firstBanner)
     }
 }
 

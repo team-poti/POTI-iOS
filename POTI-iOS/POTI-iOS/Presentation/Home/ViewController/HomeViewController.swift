@@ -164,7 +164,7 @@ extension HomeViewController: UICollectionViewDataSource {
         
         switch sectionType {
         case .banner:
-            return 1
+            return viewModel.banners.isEmpty ? 0 : 1
         case .myGroup:
             return min(viewModel.myGroupItems.count, 5)
         case .otherGroup:
