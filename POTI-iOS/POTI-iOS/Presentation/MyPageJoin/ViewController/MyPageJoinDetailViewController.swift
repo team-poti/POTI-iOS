@@ -40,6 +40,7 @@ final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewMod
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
         viewModel.action(.viewDidLoad)
     }
     
@@ -91,17 +92,15 @@ final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewMod
     }
     
     private func updateCompleteButton() {
-        if let action = viewState?.screenState.bottomAction {
-            completeButton.isHidden = false
-            completeButton.text = action.title
-            tableViewBottomConstraint?.update(inset: 94)
-        } else {
-            completeButton.isHidden = true
-            tableViewBottomConstraint?.update(inset: 0)
-        }
-
-        UIView.animate(withDuration: 0.25) {
-            self.view.layoutIfNeeded()
+        UIView.performWithoutAnimation {
+            if let action = viewState?.screenState.bottomAction {
+                completeButton.text = action.title
+                completeButton.isHidden = false
+                tableViewBottomConstraint?.update(inset: 94)
+            } else {
+                completeButton.isHidden = true
+                tableViewBottomConstraint?.update(inset: 0)
+            }
         }
     }
     
@@ -171,13 +170,18 @@ final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewMod
         viewModel.output.viewState
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
-                self?.viewState = state
-                self?.updateCompleteButton()
+                guard let self else { return }
+                self.viewState = state
+                self.updateCompleteButton()
                 
-                self?.navigationController?.setNavigationBarHidden(true, animated: false)
-                self?.navigationController?.setNavigationBarHidden(false, animated: false)
+                PotiNavigationBar.configure(
+                    navigationItem: self.navigationItem,
+                    navigationController: self.navigationController,
+                    style: .backDefault(state.screenState.navigationTitle),
+                    target: self
+                )
                 
-                self?.tableView.reloadData()
+                self.tableView.reloadData()
             }
             .store(in: &cancellables)
         
@@ -253,10 +257,8 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         return MyJoinSection.allCases.count
     }
     
-    func tableView(
-        _ tableView: UITableView,
-        numberOfRowsInSection section: Int
-    ) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard viewState != nil else { return 0 }
         guard let section = MyJoinSection(rawValue: section) else { return 0 }
         
         switch section {
@@ -288,10 +290,7 @@ extension MyPageJoinDetailViewController: UITableViewDelegate, UITableViewDataSo
         }
     }
     
-    func tableView(
-        _ tableView: UITableView,
-        cellForRowAt indexPath: IndexPath
-    ) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         guard let section = MyJoinSection(rawValue: indexPath.section) else {
             return UITableViewCell()
