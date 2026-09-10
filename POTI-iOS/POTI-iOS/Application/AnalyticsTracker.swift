@@ -7,6 +7,13 @@ import Foundation
 
 import Mixpanel
 
+protocol AnalyticsSession: AnyObject {
+    func reset(completion: (() -> Void)?)
+    func registerSuperProperties(_ properties: Properties)
+}
+
+extension MixpanelInstance: AnalyticsSession {}
+
 enum AnalyticsTracker {
 
     private static let userIDKey = "mixpanel.userID"
@@ -21,10 +28,7 @@ enum AnalyticsTracker {
             instance = Mixpanel.initialize(
                 token: try AppConfig.mixpanelToken(),
                 trackAutomaticEvents: false,
-                superProperties: [
-                    "platform": "ios",
-                    "app_version": appVersion
-                ]
+                superProperties: commonEventProperties(appVersion: appVersion)
             )
 
             if let userID = UserDefaults.standard.object(forKey: userIDKey) as? Int {
@@ -141,7 +145,14 @@ enum AnalyticsTracker {
 
     static func reset() {
         UserDefaults.standard.removeObject(forKey: userIDKey)
-        instance?.reset()
+        guard let instance else { return }
+        reset(using: instance)
+    }
+
+    static func reset(using session: AnalyticsSession) {
+        session.reset { [session] in
+            session.registerSuperProperties(commonEventProperties())
+        }
     }
 
     private static func identify(userID: Int) {
@@ -162,5 +173,12 @@ enum AnalyticsTracker {
 
     private static func track(_ event: String, properties: Properties) {
         instance?.track(event: event, properties: properties)
+    }
+
+    private static func commonEventProperties(appVersion: String? = nil) -> Properties {
+        [
+            "platform": "ios",
+            "app_version": appVersion ?? (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown")
+        ]
     }
 }

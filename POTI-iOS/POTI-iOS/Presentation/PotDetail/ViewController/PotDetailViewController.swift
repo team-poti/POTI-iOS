@@ -119,7 +119,7 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
                 shippingInfo: result.shippingInfo, memberInfos: result.memberInfos, uploaderNickname: nickname)
 
             orderViewController.onSuccess = { [weak self] in
-                self?.viewModel.action(.viewDidLoad)
+                self?.viewModel.action(.refresh)
             }
 
             self.navigationController?.pushViewController(orderViewController, animated: true)
