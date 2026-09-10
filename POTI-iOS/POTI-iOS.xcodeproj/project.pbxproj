@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		334B1FEA3052BC300068A80F /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = 334B1FE93052BC300068A80F /* Mixpanel */; };
 		335F17972F12617B00E13B6F /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 335F17962F12617B00E13B6F /* SnapKit */; };
 		335F179A2F12618900E13B6F /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 335F17992F12618900E13B6F /* Then */; };
 		335F179D2F1261CD00E13B6F /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 335F179C2F1261CD00E13B6F /* Alamofire */; };
@@ -79,6 +80,7 @@
 				336E4F352F16E49000D1D916 /* KakaoSDK in Frameworks */,
 				77B362A8303D7944008DB336 /* FirebaseMessaging in Frameworks */,
 				336E4F3B2F16E49000D1D916 /* KakaoSDKUser in Frameworks */,
+				334B1FEA3052BC300068A80F /* Mixpanel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +142,7 @@
 				336E4F382F16E49000D1D916 /* KakaoSDKCommon */,
 				336E4F3A2F16E49000D1D916 /* KakaoSDKUser */,
 				77B362A7303D7944008DB336 /* FirebaseMessaging */,
+				334B1FE93052BC300068A80F /* Mixpanel */,
 			);
 			productName = "POTI-iOS";
 			productReference = 335F0F2F2F0D72A500E13B6F /* POTI-iOS.app */;
@@ -209,6 +212,7 @@
 				335F17A12F1262AF00E13B6F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				336E4F332F16E49000D1D916 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 				77B362A6303D7944008DB336 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				334B1FE83052BC300068A80F /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 335F0F302F0D72A500E13B6F /* Products */;
@@ -518,6 +522,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		334B1FE83052BC300068A80F /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.7.0;
+			};
+		};
 		335F17952F12617B00E13B6F /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
@@ -577,6 +589,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		334B1FE93052BC300068A80F /* Mixpanel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 334B1FE83052BC300068A80F /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
+			productName = Mixpanel;
+		};
 		335F17962F12617B00E13B6F /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 335F17952F12617B00E13B6F /* XCRemoteSwiftPackageReference "SnapKit" */;
