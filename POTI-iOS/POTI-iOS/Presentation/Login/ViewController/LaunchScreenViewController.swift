@@ -76,12 +76,19 @@ final class LaunchScreenViewController: BaseViewController<LaunchScreenViewModel
 extension LaunchScreenViewController {
     
     private func navigateToTabBar() {
+        trackAppOpened()
         let tabBar = factory.makePotiTabBar()
         switchRootViewController(to: tabBar)
     }
     
     private func navigateToLogin() {
+        trackAppOpened()
         let loginVC = factory.makeLoginViewController()
         switchRootViewController(to: loginVC)
+    }
+
+    private func trackAppOpened() {
+        guard let sceneDelegate = view.window?.windowScene?.delegate as? SceneDelegate else { return }
+        sceneDelegate.trackAppOpenedIfNeeded()
     }
 }

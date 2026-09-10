@@ -31,6 +31,7 @@ struct PotDetailDTO: Decodable {
             isParticipated: isParticipated,
             status: status,
             artist: artist,
+            artistId: artistId,
             title: title,
             price: price,
             uploadTime: uploadTime,

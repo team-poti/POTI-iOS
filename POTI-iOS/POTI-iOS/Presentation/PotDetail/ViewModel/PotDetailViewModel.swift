@@ -85,6 +85,13 @@ final class PotDetailViewModel: BaseViewModelType {
             do {
                 let entity = try await useCase.execute(postId: self.postId)
                 let model = entity.toPotDetailModel()
+                if let artistID = entity.artistId {
+                    AnalyticsTracker.trackSplitDetailViewed(
+                        splitID: entity.postId,
+                        groupID: artistID,
+                        splitStatus: entity.status
+                    )
+                }
                 
                 self.potDetailModel = model
                 self.participants = model.participants.flatMap { participant in

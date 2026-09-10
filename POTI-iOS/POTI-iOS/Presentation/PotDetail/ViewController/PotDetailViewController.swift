@@ -99,6 +99,12 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
     // MARK: - Action
 
     @objc private func joinButtonDidTap() {
+        if let model = viewModel.potDetailModel, model.status == "RECRUITING" {
+            AnalyticsTracker.trackJoinButtonClicked(
+                splitID: viewModel.postId,
+                splitStatus: model.status
+            )
+        }
         guard requireLogin(for: .participate, factory: factory) else { return }
         let optionsViewController = factory.makePotOptionsViewController(postId: viewModel.postId)
         optionsViewController.modalPresentationStyle = .overFullScreen

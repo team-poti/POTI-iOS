@@ -91,6 +91,7 @@ final class HomeViewController: BaseViewController<HomeViewModel>, NavigationCon
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.rootView.homeCollectionView.reloadData()
+                AnalyticsTracker.trackHomeViewed(favoriteGroupID: self?.viewModel.mainArtistId)
             }
             .store(in: &cancellables)
         

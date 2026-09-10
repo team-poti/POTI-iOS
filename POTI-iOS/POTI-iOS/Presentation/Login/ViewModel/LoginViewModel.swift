@@ -60,6 +60,7 @@ final class LoginViewModel: BaseViewModelType {
         Task {
             do {
                 let result = try await loginUseCase.execute(type: type)
+                AnalyticsTracker.identify(userID: result.userId, isNewUser: result.isNewUser)
                 await fcmTokenSyncService.synchronize(token: nil)
                 if result.isNewUser {
                     navigateToOnboardingSubject.send(())
