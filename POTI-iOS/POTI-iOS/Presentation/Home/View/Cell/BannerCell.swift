@@ -65,6 +65,11 @@ final class BannerCell: UICollectionViewCell {
 
 extension BannerCell {
     func configure(banner: BannerModel) {
+        if let localImage = banner.localImage {
+            bannerImageView.image = localImage
+            return
+        }
+
         guard let url = URL(string: banner.imageUrl) else {
             bannerImageView.image = nil
             return

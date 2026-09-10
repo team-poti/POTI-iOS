@@ -203,7 +203,7 @@ extension MyPageJoinModel {
 extension MyPageJoinModel.DepositStatus {
     static func from(_ status: ParticipantOrderStatus) -> MyPageJoinModel.DepositStatus {
         switch status {
-        case .waitPay:
+        case .recruiting, .waitPay:
             return .waiting
         case .waitPayCheck:
             return .shipped
@@ -218,7 +218,7 @@ extension MyPageJoinModel.DepositStatus {
 extension MyPageJoinModel.ShippingStatus {
     static func from(_ status: ParticipantOrderStatus) -> MyPageJoinModel.ShippingStatus {
         switch status {
-        case .paid:
+        case .recruiting, .paid:
             return .preparing
         case .shipped:
             return .shipped

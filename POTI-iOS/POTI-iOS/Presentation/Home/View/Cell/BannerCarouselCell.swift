@@ -44,7 +44,8 @@ final class BannerCarouselCell: UICollectionViewCell {
 // MARK: - Configure
 
 extension BannerCarouselCell {
-    func configure(banners: [BannerModel]) {
+    func configure(banners: [BannerModel], onBannerTap: @escaping (BannerModel) -> Void) {
+        carouselView.onBannerTap = onBannerTap
         carouselView.configure(banners: banners)
     }
 }

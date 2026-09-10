@@ -46,10 +46,26 @@ struct GoodsDTO: Decodable {
 }
 
 struct BannerDTO: Decodable {
-    let postId: Int
+    let id: Int
     let imageUrl: String
+    let deeplink: String
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case postId
+        case imageUrl
+        case deeplink
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(Int.self, forKey: .id)
+            ?? container.decode(Int.self, forKey: .postId)
+        imageUrl = try container.decode(String.self, forKey: .imageUrl)
+        deeplink = try container.decodeIfPresent(String.self, forKey: .deeplink) ?? ""
+    }
     
     func toEntity() -> BannerEntity {
-        BannerEntity(postId: postId, imageUrl: imageUrl)
+        BannerEntity(id: id, imageUrl: imageUrl, deeplink: deeplink)
     }
 }

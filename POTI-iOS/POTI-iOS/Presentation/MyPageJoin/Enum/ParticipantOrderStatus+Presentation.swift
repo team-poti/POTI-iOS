@@ -10,6 +10,7 @@ import UIKit
 extension ParticipantOrderStatus {
     var badgeText: String {
         switch self {
+        case .recruiting: return "모집 중"
         case .waitPay: return "입금 대기"
         case .waitPayCheck: return "입금 확인중"
         case .paid: return "입금 완료"
@@ -21,6 +22,8 @@ extension ParticipantOrderStatus {
 
     var badgeColor: UIColor {
         switch self {
+        case .recruiting:
+            return .sementicRed
         case .waitPay, .unknown:
             return .gray700
         case .paid, .delivered:

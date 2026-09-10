@@ -17,7 +17,8 @@ extension HomeEntity {
     }
 
     func toBannerModels() -> [BannerModel] {
-        banners.map { $0.toBannerModel() }
+        guard !banners.isEmpty else { return BannerModel.defaultBanners }
+        return banners.map { $0.toBannerModel() }
     }
 }
 
@@ -37,8 +38,9 @@ extension GoodsEntity {
 extension BannerEntity {
     func toBannerModel() -> BannerModel {
         BannerModel(
-            postId: postId,
-            imageUrl: imageUrl
+            id: id,
+            imageUrl: imageUrl,
+            deeplink: deeplink
         )
     }
 }

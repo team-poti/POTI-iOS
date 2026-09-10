@@ -43,7 +43,7 @@ enum ParticipantStatus: String {
     
     var badgeText: String {
         switch self {
-        case .recruiting: return "모집 대기"
+        case .recruiting: return "모집 중"
         case .waitPay: return "입금 대기"
         case .waitPayCheck: return "입금 확인중"
         case .paid: return "입금 완료"
@@ -70,6 +70,8 @@ enum ParticipantStatus: String {
 extension ParticipantStatus {
     init(domainStatus: ParticipantOrderStatus) {
         switch domainStatus {
+        case .recruiting:
+            self = .recruiting
         case .waitPay:
             self = .waitPay
         case .waitPayCheck:

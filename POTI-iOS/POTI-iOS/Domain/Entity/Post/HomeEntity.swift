@@ -24,7 +24,7 @@ struct GoodsEntity {
 }
 
 struct BannerEntity {
-    let postId: Int
+    let id: Int
     let imageUrl: String
+    let deeplink: String
 }
-
