@@ -21,6 +21,10 @@ enum AppConfig {
         try string(forKey: "KAKAO_APP_KEY")
     }
 
+    static func mixpanelToken() throws -> String {
+        try string(forKey: "MIXPANEL_TOKEN")
+    }
+
     static func kakaoShareTemplateID() throws -> Int64 {
         let value = try string(forKey: "KAKAO_SHARE_TEMPLATE_ID")
 

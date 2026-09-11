@@ -62,6 +62,7 @@ final class WithdrawalViewController: BaseViewController<SettingsViewModel>, Nav
     }
 
     private func navigateToLogin() {
+        AnalyticsTracker.reset()
         switchRootViewController(to: factory.makeLoginViewController())
     }
 

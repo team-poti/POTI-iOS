@@ -11,6 +11,7 @@ struct PotDetailEntity {
     let isParticipated: Bool
     let status: String
     let artist: String
+    let artistId: Int?
     let title: String
     let price: Int
     let uploadTime: String
@@ -23,12 +24,13 @@ struct PotDetailEntity {
     let totalCount: Int
     let participants: [ParticipantInfo]
     
-    init(postId: Int, isMyPost: Bool, isParticipated: Bool, status: String, artist: String, title: String, price: Int, uploadTime: String, deadline: String, images: [String], content: String, shippingOptions: [ShippingOption], uploader: Uploader, currentCount: Int, totalCount: Int, participants: [ParticipantInfo]) {
+    init(postId: Int, isMyPost: Bool, isParticipated: Bool, status: String, artist: String, artistId: Int? = nil, title: String, price: Int, uploadTime: String, deadline: String, images: [String], content: String, shippingOptions: [ShippingOption], uploader: Uploader, currentCount: Int, totalCount: Int, participants: [ParticipantInfo]) {
         self.postId = postId
         self.isMyPost = isMyPost
         self.isParticipated = isParticipated
         self.status = status
         self.artist = artist
+        self.artistId = artistId
         self.title = title
         self.price = price
         self.uploadTime = uploadTime

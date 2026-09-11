@@ -15,6 +15,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     private var deepLinkHandler: DeepLinkHandler?
     private var pushNotificationPermissionCoordinator: PushNotificationPermissionCoordinator?
+    private var appOpenEntryPoint = "direct"
+    private var didTrackAppOpen = false
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
@@ -30,6 +32,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
 
         if let notificationResponse = connectionOptions.notificationResponse {
+            appOpenEntryPoint = "notification"
             let payload = PushNotificationPayload(userInfo: notificationResponse.notification.request.content.userInfo)
             handlePushNotification(payload)
         }
@@ -37,8 +40,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let url = connectionOptions.userActivities
             .first(where: { $0.activityType == NSUserActivityTypeBrowsingWeb })?
             .webpageURL {
+            appOpenEntryPoint = "deep_link"
             handleDeepLink(url)
         } else if let url = connectionOptions.urlContexts.first?.url {
+            appOpenEntryPoint = "deep_link"
             handleOpenURL(url)
         }
     }
@@ -61,9 +66,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
     }
 
+    func trackAppOpenedIfNeeded() {
+        guard !didTrackAppOpen else { return }
+        didTrackAppOpen = true
+        AnalyticsTracker.trackAppOpened(entryPoint: appOpenEntryPoint)
+    }
+
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
     }
 
     func sceneWillResignActive(_ scene: UIScene) {

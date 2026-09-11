@@ -71,6 +71,7 @@ final class AccountViewController: BaseViewController<SettingsViewModel>, Naviga
     }
 
     private func navigateToLogin() {
+        AnalyticsTracker.reset()
         switchRootViewController(to: factory.makeLoginViewController())
     }
 }

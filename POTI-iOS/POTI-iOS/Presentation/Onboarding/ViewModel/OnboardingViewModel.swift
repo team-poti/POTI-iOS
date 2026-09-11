@@ -149,6 +149,7 @@ extension OnboardingViewModel {
                     nickname: nickname,
                     favoriteArtistId: artistId
                 )
+                AnalyticsTracker.completeOnboarding(favoriteGroupID: artistId)
                 onboardingSuccessSubject.send(())
             } catch {
                 PotiLogger.error(error)

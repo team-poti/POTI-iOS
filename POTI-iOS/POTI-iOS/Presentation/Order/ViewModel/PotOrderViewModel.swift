@@ -232,6 +232,7 @@ final class PotOrderViewModel: BaseViewModelType {
                 )
                 
                 _ = try await useCase.execute(info: entity)
+                AnalyticsTracker.trackParticipantInfoSubmitted(splitID: postId)
                 if shouldSaveAddress {
                     do {
                         _ = try await updateAddressUseCase.execute(currentAddress)

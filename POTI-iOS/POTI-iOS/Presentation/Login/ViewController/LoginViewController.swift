@@ -74,6 +74,7 @@ extension LoginViewController {
 
     @objc private func noLoginButtonTapped() {
         KeychainManager.deleteAllTokens()
+        AnalyticsTracker.reset()
         switchRootToPotiTabBar()
     }
 }

@@ -79,9 +79,14 @@ final class SearchViewModel: BaseViewModelType {
             updateQuery(query)
         case .submitSearch(let query):
             searchDebounceTask?.cancel()
-            search(keyword: query, resetsResults: true)
+            search(keyword: query, resetsResults: true, tracksEvent: true)
         case .selectResult(let index):
             guard results.indices.contains(index) else { return }
+            AnalyticsTracker.trackSearchResultClicked(
+                keyword: currentKeyword,
+                resultID: results[index].artistId,
+                position: index + 1
+            )
             showPotListSubject.send(results[index])
         case .loadNextPage:
             guard hasNextPage else { return }
@@ -110,7 +115,7 @@ final class SearchViewModel: BaseViewModelType {
             do {
                 try await Task.sleep(for: .milliseconds(300))
                 guard !Task.isCancelled, let self else { return }
-                search(keyword: keyword, resetsResults: true)
+                search(keyword: keyword, resetsResults: true, tracksEvent: false)
             } catch is CancellationError {
                 return
             } catch {
@@ -119,7 +124,7 @@ final class SearchViewModel: BaseViewModelType {
         }
     }
 
-    private func search(keyword: String, resetsResults: Bool) {
+    private func search(keyword: String, resetsResults: Bool, tracksEvent: Bool = false) {
         let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedKeyword.isEmpty else { return }
 
@@ -152,6 +157,12 @@ final class SearchViewModel: BaseViewModelType {
 
                 if resetsResults {
                     results = newResults
+                    if tracksEvent {
+                        AnalyticsTracker.trackSearchPerformed(
+                            keyword: trimmedKeyword,
+                            resultCount: newResults.count
+                        )
+                    }
                 } else {
                     results.append(contentsOf: newResults)
                 }

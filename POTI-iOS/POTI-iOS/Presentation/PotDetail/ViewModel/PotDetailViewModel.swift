@@ -33,6 +33,7 @@ final class PotDetailViewModel: BaseViewModelType {
     
     enum Input {
         case viewDidLoad
+        case refresh
     }
     
     // MARK: - Output
@@ -74,17 +75,26 @@ final class PotDetailViewModel: BaseViewModelType {
     func action(_ trigger: Input) {
         switch trigger {
         case .viewDidLoad:
-            fetchPotDetail()
+            fetchPotDetail(tracksView: true)
+        case .refresh:
+            fetchPotDetail(tracksView: false)
         }
     }
     
     // MARK: - Private Method
     
-    private func fetchPotDetail() {
+    private func fetchPotDetail(tracksView: Bool) {
         Task {
             do {
                 let entity = try await useCase.execute(postId: self.postId)
                 let model = entity.toPotDetailModel()
+                if tracksView, let artistID = entity.artistId {
+                    AnalyticsTracker.trackSplitDetailViewed(
+                        splitID: entity.postId,
+                        groupID: artistID,
+                        splitStatus: entity.status
+                    )
+                }
                 
                 self.potDetailModel = model
                 self.participants = model.participants.flatMap { participant in
