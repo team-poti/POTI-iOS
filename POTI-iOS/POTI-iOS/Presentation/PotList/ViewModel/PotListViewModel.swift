@@ -37,7 +37,8 @@ enum PotSortOption: Int {
     }
 }
 
-final class PotListViewModel: BaseViewModelType {
+@MainActor
+final class PotListViewModel: @MainActor BaseViewModelType {
     
     // MARK: - Input
     
@@ -70,6 +71,7 @@ final class PotListViewModel: BaseViewModelType {
     private var hasNextPage: Bool = true
     private var isFetching: Bool = false
     private var activeRequestID = UUID()
+    private var fetchTask: Task<Void, Never>?
     
     let output: Output
     private(set) var pots: [PotModel] = []
@@ -120,12 +122,17 @@ final class PotListViewModel: BaseViewModelType {
         let requestID = UUID()
         activeRequestID = requestID
         isFetching = true
+        if replacingInFlightRequest {
+            fetchTask?.cancel()
+        }
 
         let sort = currentSort
         let page = isFirstPage ? 0 : currentPage
         let memberIDs = selectedMemberIds
         
-        Task {
+        fetchTask = Task { [weak self] in
+            guard let self else { return }
+
             do {
                 let potEntities = try await useCase.execute(
                     title: self.title,
@@ -135,7 +142,7 @@ final class PotListViewModel: BaseViewModelType {
                     page: page
                 )
 
-                guard self.activeRequestID == requestID else { return }
+                guard !Task.isCancelled, self.activeRequestID == requestID else { return }
                 
                 let newPots = potEntities.toPotListModel()
                 
@@ -147,14 +154,11 @@ final class PotListViewModel: BaseViewModelType {
                     self.currentPage += 1
                 }
                 self.hasNextPage = potEntities.hasNext
-                
-                await MainActor.run {
-                    guard self.activeRequestID == requestID else { return }
-                    reloadDataSubject.send(())
-                    isFetching = false
-                }
+
+                reloadDataSubject.send(())
+                isFetching = false
             } catch {
-                guard self.activeRequestID == requestID else { return }
+                guard !Task.isCancelled, self.activeRequestID == requestID else { return }
                 isFetching = false
                 print("Error: \(error)")
             }
