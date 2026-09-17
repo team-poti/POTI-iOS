@@ -102,7 +102,8 @@ final class PotDetailViewController: BaseViewController<PotDetailViewModel>, Nav
         if let model = viewModel.potDetailModel, model.status == "RECRUITING" {
             AnalyticsTracker.trackJoinButtonClicked(
                 splitID: viewModel.postId,
-                splitStatus: model.status
+                splitStatus: model.status,
+                source: viewModel.source.rawValue
             )
         }
         guard requireLogin(for: .participate, factory: factory) else { return }

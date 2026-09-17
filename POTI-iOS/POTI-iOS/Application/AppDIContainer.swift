@@ -328,8 +328,8 @@ final class AppDIContainer {
                                               fetchNotificationSettingsUseCase: makeFetchNotificationSettingsUseCase())
     }
 
-    func makePotDetailViewModel(postId: Int) -> PotDetailViewModel {
-        PotDetailViewModel(useCase: makePotDetailUseCase(), fetchPotOptionsUseCase: makePotOptionUseCase(), postId: postId)
+    func makePotDetailViewModel(postId: Int, source: PotDetailSource) -> PotDetailViewModel {
+        PotDetailViewModel(useCase: makePotDetailUseCase(), fetchPotOptionsUseCase: makePotOptionUseCase(), postId: postId, source: source)
     }
 
     func makePotOrderViewModel(postId: Int, shippingId: Int,orderItems: [ParticipationItem], shippingInfo: (name: String, price: Int), memberInfos: [(name: String, price: Int)], uploaderNickname: String) -> PotOrderViewModel {

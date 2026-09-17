@@ -44,8 +44,7 @@ enum AnalyticsTracker {
 
         if isNewUser {
             setUserProperties([
-                "onboarding_completed": false,
-                "signup_date": ISO8601DateFormatter().string(from: Date())
+                "onboarding_completed": false
             ])
         }
     }
@@ -84,12 +83,29 @@ enum AnalyticsTracker {
         track("Home Viewed", properties: properties)
     }
 
-    static func trackSplitCardClicked(splitID: Int, groupID: Int, position: Int) {
+    static func trackHomeSectionMoreClicked(homeSection: String) {
+        track("Home Section More Clicked", properties: ["home_section": homeSection])
+    }
+
+    static func trackGoodsCardClicked(groupID: Int, homeSection: String, source: String, position: Int) {
+        track(
+            "Goods Card Clicked",
+            properties: [
+                "group_id": String(groupID),
+                "home_section": homeSection,
+                "source": source,
+                "position": position
+            ]
+        )
+    }
+
+    static func trackSplitCardClicked(splitID: Int, groupID: Int, sortType: String, position: Int) {
         track(
             "Split Card Clicked",
             properties: [
                 "split_id": String(splitID),
                 "group_id": String(groupID),
+                "sort_type": sortType,
                 "position": position
             ]
         )
@@ -100,8 +116,7 @@ enum AnalyticsTracker {
             "Search Performed",
             properties: [
                 "keyword": keyword,
-                "result_count": resultCount,
-                "search_type": "goods"
+                "result_count": resultCount
             ]
         )
     }
@@ -118,23 +133,25 @@ enum AnalyticsTracker {
         track("Search Result Clicked", properties: properties)
     }
 
-    static func trackSplitDetailViewed(splitID: Int, groupID: Int, splitStatus: String) {
+    static func trackSplitDetailViewed(splitID: Int, groupID: Int, splitStatus: String, source: String) {
         track(
             "Split Detail Viewed",
             properties: [
                 "split_id": String(splitID),
                 "group_id": String(groupID),
-                "split_status": splitStatus
+                "split_status": splitStatus,
+                "source": source
             ]
         )
     }
 
-    static func trackJoinButtonClicked(splitID: Int, splitStatus: String) {
+    static func trackJoinButtonClicked(splitID: Int, splitStatus: String, source: String) {
         track(
             "Join Button Clicked",
             properties: [
                 "split_id": String(splitID),
-                "split_status": splitStatus
+                "split_status": splitStatus,
+                "source": source
             ]
         )
     }

@@ -173,6 +173,16 @@ extension FeedsViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let groupItem = viewModel.groupItems[indexPath.item]
+        if let homeSection = viewModel.sectionType.analyticsName,
+           let groupID = groupItem.artistId,
+           groupID != -1 {
+            AnalyticsTracker.trackGoodsCardClicked(
+                groupID: groupID,
+                homeSection: homeSection,
+                source: "home_section_more",
+                position: indexPath.item + 1
+            )
+        }
         viewModel.action(.didTapItem(item: groupItem))
     }
 }

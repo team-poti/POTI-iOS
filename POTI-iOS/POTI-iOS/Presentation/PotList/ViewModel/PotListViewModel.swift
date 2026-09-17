@@ -27,9 +27,18 @@ enum PotSortOption: Int {
         case .rating: return "평점순"
         }
     }
+
+    var analyticsValue: String {
+        switch self {
+        case .latest: return "latest"
+        case .deadline: return "deadline"
+        case .rating: return "rating"
+        }
+    }
 }
 
-final class PotListViewModel: BaseViewModelType {
+@MainActor
+final class PotListViewModel: @MainActor BaseViewModelType {
     
     // MARK: - Input
     
@@ -61,6 +70,8 @@ final class PotListViewModel: BaseViewModelType {
     private var currentPage: Int = 0
     private var hasNextPage: Bool = true
     private var isFetching: Bool = false
+    private var activeRequestID = UUID()
+    private var fetchTask: Task<Void, Never>?
     
     let output: Output
     private(set) var pots: [PotModel] = []
@@ -95,7 +106,8 @@ final class PotListViewModel: BaseViewModelType {
         case .filterByMembers(let ids, let names):
             self.selectedMemberIds = ids
             updateFilterTitle(names: names)
-            fetchPotListData(isFirstPage: true)
+            resetListForReload()
+            fetchPotListData(isFirstPage: true, replacingInFlightRequest: true)
         case .loadNextPage:
             fetchPotListData(isFirstPage: false)
         }
@@ -103,19 +115,34 @@ final class PotListViewModel: BaseViewModelType {
     
     // MARK: - Private Method
     
-    private func fetchPotListData(isFirstPage: Bool) {
-        guard !isFetching && (isFirstPage || hasNextPage) else { return }
+    private func fetchPotListData(isFirstPage: Bool, replacingInFlightRequest: Bool = false) {
+        guard isFirstPage || hasNextPage else { return }
+        guard !isFetching || replacingInFlightRequest else { return }
+
+        let requestID = UUID()
+        activeRequestID = requestID
         isFetching = true
+        if replacingInFlightRequest {
+            fetchTask?.cancel()
+        }
+
+        let sort = currentSort
+        let page = isFirstPage ? 0 : currentPage
+        let memberIDs = selectedMemberIds
         
-        Task {
+        fetchTask = Task { [weak self] in
+            guard let self else { return }
+
             do {
                 let potEntities = try await useCase.execute(
                     title: self.title,
                     artistId: self.artistId,
-                    memberIds: self.selectedMemberIds,
-                    sort: self.currentSort.serverKey,
-                    page: isFirstPage ? 0 : currentPage
+                    memberIds: memberIDs,
+                    sort: sort.serverKey,
+                    page: page
                 )
+
+                guard !Task.isCancelled, self.activeRequestID == requestID else { return }
                 
                 let newPots = potEntities.toPotListModel()
                 
@@ -127,12 +154,11 @@ final class PotListViewModel: BaseViewModelType {
                     self.currentPage += 1
                 }
                 self.hasNextPage = potEntities.hasNext
-                
-                await MainActor.run {
-                    reloadDataSubject.send(())
-                    isFetching = false
-                }
+
+                reloadDataSubject.send(())
+                isFetching = false
             } catch {
+                guard !Task.isCancelled, self.activeRequestID == requestID else { return }
                 isFetching = false
                 print("Error: \(error)")
             }
@@ -143,11 +169,17 @@ final class PotListViewModel: BaseViewModelType {
         guard let newSort = PotSortOption(rawValue: index), currentSort != newSort else { return }
         
         self.currentSort = newSort
-        self.currentPage = 0
-        self.hasNextPage = true
+        resetListForReload()
         
         self.output.sortTitle.send(currentSort.title)
-        fetchPotListData(isFirstPage: true)
+        fetchPotListData(isFirstPage: true, replacingInFlightRequest: true)
+    }
+
+    private func resetListForReload() {
+        currentPage = 0
+        hasNextPage = true
+        pots = []
+        reloadDataSubject.send(())
     }
     
     private func updateFilterTitle(names: [String]) {

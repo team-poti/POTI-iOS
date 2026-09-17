@@ -7,6 +7,14 @@
 
 import Combine
 
+enum PotDetailSource: String {
+    case potList = "pot_list"
+    case registration = "registration"
+    case participationHistory = "participation_history"
+    case recruitmentHistory = "recruitment_history"
+    case deepLink = "deep_link"
+}
+
 enum PotJoinButtonState: Equatable {
     case available
     case closed
@@ -48,6 +56,7 @@ final class PotDetailViewModel: BaseViewModelType {
     private let useCase: PotDetailUseCase
     private let fetchPotOptionsUseCase: FetchPotOptionsUseCase
     let postId: Int
+    let source: PotDetailSource
     let output: Output
     
     private(set) var participants: [ParticipantModel] = []
@@ -61,10 +70,11 @@ final class PotDetailViewModel: BaseViewModelType {
     
     // MARK: - Initializer
     
-    init(useCase: PotDetailUseCase, fetchPotOptionsUseCase: FetchPotOptionsUseCase, postId: Int) {
+    init(useCase: PotDetailUseCase, fetchPotOptionsUseCase: FetchPotOptionsUseCase, postId: Int, source: PotDetailSource) {
         self.useCase = useCase
         self.fetchPotOptionsUseCase = fetchPotOptionsUseCase
         self.postId = postId
+        self.source = source
         self.output = Output(
             reloadData: reloadDataSubject.eraseToAnyPublisher()
         )
@@ -92,7 +102,8 @@ final class PotDetailViewModel: BaseViewModelType {
                     AnalyticsTracker.trackSplitDetailViewed(
                         splitID: entity.postId,
                         groupID: artistID,
-                        splitStatus: entity.status
+                        splitStatus: entity.status,
+                        source: source.rawValue
                     )
                 }
                 

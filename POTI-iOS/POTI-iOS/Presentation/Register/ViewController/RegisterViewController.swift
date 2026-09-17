@@ -354,7 +354,7 @@ final class RegisterViewController: BaseViewController<RegisterViewModel>, Navig
     }
 
     private func replaceWithProductDetail(completion: ProductRegistrationCompletion) {
-        let productDetailViewController = factory.makePotDetailViewController(postId: completion.postId)
+        let productDetailViewController = factory.makePotDetailViewController(postId: completion.postId, source: .registration)
         productDetailViewController.hidesBottomBarWhenPushed = true
 
         if let tabBarController,
