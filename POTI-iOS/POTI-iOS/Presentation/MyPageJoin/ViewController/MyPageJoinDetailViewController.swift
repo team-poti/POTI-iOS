@@ -189,7 +189,7 @@ final class MyPageJoinDetailViewController: BaseViewController<MyPageJoinViewMod
             .receive(on: DispatchQueue.main)
             .sink { [weak self] id in
                 guard let self else { return }
-                let containerVC = factory.makePotDetailViewController(postId: id)
+                let containerVC = factory.makePotDetailViewController(postId: id, source: .participationHistory)
                 containerVC.hidesBottomBarWhenPushed = true
                 navigationController?.pushViewController(containerVC, animated: true)
             }

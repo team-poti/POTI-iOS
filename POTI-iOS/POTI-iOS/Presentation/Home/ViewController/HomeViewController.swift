@@ -24,6 +24,17 @@ enum HomeSection: Int, CaseIterable {
             return "다른 굿즈 구경하기"
         }
     }
+
+    var analyticsName: String? {
+        switch self {
+        case .banner:
+            nil
+        case .myGroup:
+            "recommended"
+        case .otherGroup:
+            "discover"
+        }
+    }
 }
 
 protocol HomeViewScrollDelegate: AnyObject {
@@ -232,6 +243,15 @@ extension HomeViewController: UICollectionViewDelegate {
         case .otherGroup:
             selectedGoods = viewModel.otherGroupItems[indexPath.item]
         }
+
+        if let homeSection = sectionType.analyticsName {
+            AnalyticsTracker.trackGoodsCardClicked(
+                groupID: selectedGoods.artistId,
+                homeSection: homeSection,
+                source: "home",
+                position: indexPath.item + 1
+            )
+        }
         
         let potListViewController = factory.makePotListViewController(
             title: selectedGoods.postTitle,
@@ -246,6 +266,9 @@ extension HomeViewController: UICollectionViewDelegate {
 extension HomeViewController: GoodsHeaderCellDelegate {
     func moreButtonDidTap(in section: Int) {
         guard let sectionType = HomeSection(rawValue: section) else { return }
+        if let homeSection = sectionType.analyticsName {
+            AnalyticsTracker.trackHomeSectionMoreClicked(homeSection: homeSection)
+        }
         
         let targetArtistId: Int?
         

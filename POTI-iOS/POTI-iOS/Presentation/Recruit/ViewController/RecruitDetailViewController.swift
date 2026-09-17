@@ -109,7 +109,7 @@ class RecruitDetailViewController: BaseViewController<RecruitDetailViewModel>, N
             .receive(on: DispatchQueue.main)
             .sink { [weak self] id in
                 guard let self else { return }
-                let containerVC = self.factory.makePotDetailViewController(postId: id)
+                let containerVC = self.factory.makePotDetailViewController(postId: id, source: .recruitmentHistory)
                 containerVC.hidesBottomBarWhenPushed = true
                 self.navigationController?.pushViewController(containerVC, animated: true)
             }

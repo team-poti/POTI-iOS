@@ -27,6 +27,14 @@ enum PotSortOption: Int {
         case .rating: return "평점순"
         }
     }
+
+    var analyticsValue: String {
+        switch self {
+        case .latest: return "latest"
+        case .deadline: return "deadline"
+        case .rating: return "rating"
+        }
+    }
 }
 
 final class PotListViewModel: BaseViewModelType {

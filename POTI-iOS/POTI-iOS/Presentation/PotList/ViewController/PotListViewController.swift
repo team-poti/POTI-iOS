@@ -197,10 +197,11 @@ extension PotListViewController: UICollectionViewDelegate {
         AnalyticsTracker.trackSplitCardClicked(
             splitID: selectedPot.potId,
             groupID: viewModel.artistId,
+            sortType: viewModel.currentSort.analyticsValue,
             position: indexPath.item + 1
         )
 
-        let detailViewController = factory.makePotDetailViewController(postId: selectedPot.potId)
+        let detailViewController = factory.makePotDetailViewController(postId: selectedPot.potId, source: .potList)
         self.navigationController?.pushViewController(detailViewController, animated: true)
     }
 }

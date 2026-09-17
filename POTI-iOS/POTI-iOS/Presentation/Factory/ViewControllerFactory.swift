@@ -17,7 +17,7 @@ protocol ViewControllerFactory {
     func makeSearchViewController() -> SearchViewController
     func makeFeedsViewController(sectionType: HomeSection, artistId: Int?, nickname: String) -> FeedsViewController
     func makePotOptionsViewController(postId: Int) -> PotOptionsViewController
-    func makePotDetailViewController(postId: Int) -> PotDetailViewController
+    func makePotDetailViewController(postId: Int, source: PotDetailSource) -> PotDetailViewController
     func makeMyPageViewController() -> MyPageViewController
     func makeMyPageFavoriteIdolGroupViewController(nickname: String) -> MyPageFavoriteIdolGroupViewController
     func makeOnboardingViewController() -> OnboardingViewController
@@ -126,8 +126,8 @@ final class DefaultViewControllerFactory: ViewControllerFactory {
         MyPageJoinDetailViewController(viewModel: diContainer.makeMyPageJoinViewModel(participationId: participationId), factory: self)
     }
     
-    func makePotDetailViewController(postId: Int) -> PotDetailViewController {
-        PotDetailViewController(viewModel: diContainer.makePotDetailViewModel(postId: postId), factory: self)
+    func makePotDetailViewController(postId: Int, source: PotDetailSource) -> PotDetailViewController {
+        PotDetailViewController(viewModel: diContainer.makePotDetailViewModel(postId: postId, source: source), factory: self)
     }
     
     func makeOnboardingViewController() -> OnboardingViewController {

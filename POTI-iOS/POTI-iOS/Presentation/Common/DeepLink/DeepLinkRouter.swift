@@ -84,7 +84,7 @@ final class DeepLinkRouter {
     func makeViewController(for route: DeepLinkRoute) -> UIViewController {
         switch route {
         case .potDetail(let postID):
-            return factory.makePotDetailViewController(postId: postID)
+            return factory.makePotDetailViewController(postId: postID, source: .deepLink)
         case .participantDetail(let participationID):
             return factory.makeMyPageJoinDetailViewController(participationId: participationID)
         case .recruiterDetail(let postID):
