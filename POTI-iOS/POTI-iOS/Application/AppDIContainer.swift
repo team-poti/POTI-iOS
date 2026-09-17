@@ -372,7 +372,7 @@ final class AppDIContainer {
         )
     }
 
-    func makePotListViewModel(title: String, artistId: Int, artistName: String) -> PotListViewModel {
+    @MainActor func makePotListViewModel(title: String, artistId: Int, artistName: String) -> PotListViewModel {
         return PotListViewModel(useCase: makePotListUseCase(),title: title,artistId: artistId, artistName: artistName)
     }
 

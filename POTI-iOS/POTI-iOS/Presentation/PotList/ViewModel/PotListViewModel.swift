@@ -6,6 +6,7 @@
 //
 
 import Combine
+import Foundation
 
 enum PotSortOption: Int {
     case latest = 0
